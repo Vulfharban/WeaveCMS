@@ -1,0 +1,76 @@
+/* ==========================================================================
+   Courses CSS: Flechtkurse, Metadaten-Badges & Impressionen-Raster
+   Bianka Wischnewski - Handgefertigte Flechtkunst & Workshops
+   ========================================================================== */
+
+/* ───── Kurs-Eintrag / Zeile ───── */
+.course-row {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--card-radius, 20px);
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    transition: var(--transition-smooth);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+}
+
+.course-row:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.course-row.highlighted {
+    border-color: var(--primary);
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.25);
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+    50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.4); }
+    100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+}
+
+.course-meta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+/* ───── Impressionen früherer Flechtkurse ───── */
+.past-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.past-card {
+    border-radius: calc(var(--card-radius, 20px) - 4px);
+    overflow: hidden;
+    aspect-ratio: 1;
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+.past-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition-smooth);
+}
+
+.past-card:hover img {
+    transform: scale(1.08);
+}

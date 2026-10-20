@@ -1,0 +1,22 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+logs/*.log
+
+# IDE files
+.idea/
+.vscode/
+
+# WeaveCMS Environment & Locks
+installed.lock
+config.local.php
+data/app.sqlite
+data/database.sqlite
+backups/*.zip
+backups/*.json
+
+# Uploads
+images/uploads/*
+!images/uploads/.gitkeep

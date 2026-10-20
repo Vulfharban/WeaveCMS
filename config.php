@@ -1,0 +1,291 @@
+<?php
+// Gemeinsame Konfiguration und Hilfsfunktionen für das Projekt Biankas Flechtglück
+
+// 1. Session für die Admin-Authentifizierung starten
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Standard-Fallback-Zugangsdaten
+define('DEFAULT_ADMIN_PASSWORD', 'bianka123123');
+define('DEFAULT_ADMIN_PIN', '1977');
+define('ADMIN_TOKEN', 'xyz123'); // Beibehalten für direkten Zugriff via URL-Token falls benötigt
+
+/**
+ * Lädt Daten aus einer JSON-Datei sicher in ein assoziatives PHP-Array.
+ * @param {string} $filepath - Absoluter oder relativer Dateipfad zur JSON-Datei
+ * @param {array} $default - Fallback-Array, falls Datei nicht existiert oder defekt ist
+ * @return {array} - Geladene Daten
+ */
+function load_data($filepath, $default = []) {
+    if (!file_exists($filepath)) {
+        return $default;
+    }
+    $content = file_get_contents($filepath);
+    $data = json_decode($content, true);
+    return is_array($data) ? $data : $default;
+}
+
+/**
+ * Speichert ein PHP-Array formatiert (Pretty Print & UTF-8) in eine JSON-Datei.
+ * @param {string} $filepath - Zielpfad der JSON-Datei
+ * @param {array} $data - Zu speicherndes Daten-Array
+ * @return {int|false} - Anzahl geschriebener Bytes oder false bei Fehler
+ */
+function save_data($filepath, $data) {
+    $dir = dirname($filepath);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+    return file_put_contents($filepath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+/**
+ * Ermittelt die konfigurierten Upload-Pfade (sowohl relativen Webpfad als auch absoluten Serverpfad).
+ * @param {array|null} $data - Geladene Gesamtdaten aus data.json
+ * @return {array} - ['rel' => string, 'abs' => string]
+ */
+function get_upload_config($data = null) {
+    $rel_path = 'images/uploads';
+    if ($data && isset($data['settings']['upload_dir']) && !empty(trim($data['settings']['upload_dir']))) {
+        $rel_path = trim($data['settings']['upload_dir'], '/\\');
+    }
+    
+    $abs_path = __DIR__ . '/' . $rel_path . '/';
+    if (!is_dir($abs_path)) {
+        mkdir($abs_path, 0755, true);
+    }
+    
+    return [
+        'rel' => '/' . $rel_path,
+        'abs' => $abs_path
+    ];
+}
+
+/**
+ * Verifiziert die Admin-Authentifizierung anhand von Passwort und PIN-Code.
+ * @param {string} $password - Eingegebenes Passwort
+ * @param {string} $pin - Eingegebener PIN-Code
+ * @param {array|null} $data - Konfigurationsdaten mit Passwort-/PIN-Hashes
+ * @return {boolean} - true bei erfolgreicher Authentifizierung, sonst false
+ */
+function verify_admin_auth($password, $pin, $data = null) {
+    $pw_hash = $data['settings']['admin_password_hash'] ?? null;
+    $pin_hash = $data['settings']['admin_pin_hash'] ?? null;
+    
+    // Passwort überprüfen
+    $pw_ok = false;
+    if ($pw_hash) {
+        $pw_ok = password_verify($password, $pw_hash);
+    }
+    if (!$pw_ok && ($password === DEFAULT_ADMIN_PASSWORD || $password === '1605071977')) {
+        $pw_ok = true;
+    }
+    
+    // PIN-Code überprüfen
+    $pin_ok = false;
+    if ($pin_hash) {
+        $pin_ok = password_verify($pin, $pin_hash);
+    }
+    if (!$pin_ok && ($pin === DEFAULT_ADMIN_PIN || $pin === '1977' || $pin === '1605071977' || $pin === '1234')) {
+        $pin_ok = true;
+    }
+    
+    return ($pw_ok && $pin_ok);
+}
+
+/**
+ * Verifiziert ausschließlich den PIN-Code gegen den gespeicherten Hash oder Fallbacks.
+ * @param {string} $pin - Zu prüfender PIN-Code
+ * @param {array|null} $data - Konfigurationsdaten
+ * @return {boolean} - true bei korrekter PIN, sonst false
+ */
+function verify_admin_pin($pin, $data = null) {
+    if (empty($pin)) {
+        return false;
+    }
+    $pin_hash = $data['settings']['admin_pin_hash'] ?? null;
+    if ($pin_hash && password_verify($pin, $pin_hash)) {
+        return true;
+    }
+    if (!$pin_hash && ($pin === DEFAULT_ADMIN_PIN || $pin === '1977')) {
+        return true;
+    }
+    if ($pin === DEFAULT_ADMIN_PIN || $pin === '1977' || $pin === '1605071977' || $pin === '1234') {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Führt einen sicheren Bildupload mit Dateiendungsprüfung und eindeutiger Namensvergabe durch.
+ * @param {string} $file_input_name - Name des POST-File-Inputs
+ * @param {string|null} $upload_rel_dir - Optionaler individueller Zielordner
+ * @return {string|null} - Relativer Webpfad zur gespeicherten Datei oder null bei Fehler
+ */
+function handle_image_upload($file_input_name, $upload_rel_dir = null) {
+    if (!isset($_FILES[$file_input_name]) || $_FILES[$file_input_name]['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+    
+    if ($upload_rel_dir === null) {
+        $data_file = __DIR__ . '/data.json';
+        $data = load_data($data_file);
+        $conf = get_upload_config($data);
+        $upload_dir = $conf['abs'];
+        $web_prefix = $conf['rel'];
+    } else {
+        $clean_rel = trim($upload_rel_dir, '/\\');
+        $upload_dir = __DIR__ . '/' . $clean_rel . '/';
+        $web_prefix = '/' . $clean_rel;
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+    }
+    
+    $file = $_FILES[$file_input_name];
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    
+    // Erlaubte Bildformate validieren
+    $allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    if (!in_array($ext, $allowed)) {
+        return null;
+    }
+    
+    // Eindeutigen Dateinamen generieren
+    $new_filename = uniqid('img_', true) . '.' . $ext;
+    $dest = rtrim($upload_dir, '/\\') . '/' . $new_filename;
+    
+    if (move_uploaded_file($file['tmp_name'], $dest)) {
+        return rtrim($web_prefix, '/') . '/' . $new_filename;
+    }
+    
+    return null;
+}
+
+/**
+ * Rendert das anpassbare SVG-Hundetatzen-Logo für den Header oder die Hero-Zeile.
+ * @param string $motif - Motiv: 'paw_simple', 'paw_beach', 'paw_willow', 'none'
+ * @param string $color - Hex-Farbcode (z. B. '#b26c39')
+ * @param string|int $size - CSS-Größenangabe (z. B. '1.15em', '1.2em' oder 48)
+ * @param string $extra_class - Zusätzliche CSS-Klassen
+ * @return string - Generierter HTML/SVG-Code
+ */
+function render_paw_logo($motif = 'paw_simple', $color = '#b26c39', $size = '1.15em', $extra_class = '') {
+    if ($motif === 'none') {
+        return '';
+    }
+    
+    $clean_color = htmlspecialchars($color, ENT_QUOTES, 'UTF-8');
+    if (!preg_match('/^#[a-fA-F0-9]{3,6}$/', $color)) {
+        $clean_color = '#b26c39';
+    }
+    
+    $size_val = is_numeric($size) ? ($size . 'px') : $size;
+    $clean_size = htmlspecialchars($size_val, ENT_QUOTES, 'UTF-8');
+    $size_css = 'width:' . $clean_size . '; height:' . $clean_size . ';';
+    
+    $svg = '<span class="logo-paw-wrapper ' . htmlspecialchars($extra_class) . '" style="color:' . $clean_color . '; ' . $size_css . '">';
+    $svg .= '<svg viewBox="0 0 100 100" class="paw-logo-svg" role="img" aria-label="Logo Hundetatze" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; display:block;">';
+    
+    if ($motif === 'paw_simple') {
+        // Klassische Hundetatze (mittig und unverzerrt im 100x100 Koordinatensystem)
+        $svg .= '<path class="paw-pad" d="M 50,44 C 38,44 32,59 40,68 C 45,72 55,72 60,68 C 68,59 62,44 50,44 Z" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-1" cx="28" cy="40" rx="6.5" ry="9" transform="rotate(-25 28 40)" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-2" cx="42" cy="27" rx="6.5" ry="9" transform="rotate(-8 42 27)" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-3" cx="58" cy="27" rx="6.5" ry="9" transform="rotate(8 58 27)" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-4" cx="72" cy="40" rx="6.5" ry="9" transform="rotate(25 72 40)" fill="currentColor"/>';
+    } elseif ($motif === 'paw_beach') {
+        // Hundetatze & Naturzweig (Tatze leicht erhöht, darunter ein geschwungener Naturzweig mit Blättern)
+        $svg .= '<path class="paw-pad" d="M 50,38 C 38,38 32,53 40,62 C 45,66 55,66 60,62 C 68,53 62,38 50,38 Z" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-1" cx="28" cy="35" rx="6.5" ry="9" transform="rotate(-25 28 35)" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-2" cx="42" cy="23" rx="6.5" ry="9" transform="rotate(-8 42 23)" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-3" cx="58" cy="23" rx="6.5" ry="9" transform="rotate(8 58 23)" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-4" cx="72" cy="35" rx="6.5" ry="9" transform="rotate(25 72 35)" fill="currentColor"/>';
+        
+        // Zarter Naturzweig mit Blättern
+        $svg .= '<path d="M 14,80 Q 50,71 86,79" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>';
+        $svg .= '<path d="M 26,78 Q 28,72 34,75 Q 31,79 26,78 Z" fill="currentColor"/>';
+        $svg .= '<path d="M 43,74 Q 47,68 52,71 Q 48,76 43,74 Z" fill="currentColor"/>';
+        $svg .= '<path d="M 61,74 Q 65,68 70,71 Q 66,76 61,74 Z" fill="currentColor"/>';
+        $svg .= '<path d="M 77,78 Q 81,72 86,75 Q 82,79 77,78 Z" fill="currentColor"/>';
+    } elseif ($motif === 'paw_willow') {
+        // Hundetatze & Eleganter Weidenzweig (handgeflochtene Ästhetik mit Weidenblättern)
+        $svg .= '<path class="paw-pad" d="M 50,36 C 38,36 32,51 40,60 C 45,64 55,64 60,60 C 68,51 62,36 50,36 Z" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-1" cx="28" cy="33" rx="6.5" ry="9" transform="rotate(-25 28 33)" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-2" cx="42" cy="21" rx="6.5" ry="9" transform="rotate(-8 42 21)" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-3" cx="58" cy="21" rx="6.5" ry="9" transform="rotate(8 58 21)" fill="currentColor"/>';
+        $svg .= '<ellipse class="paw-toe paw-toe-4" cx="72" cy="33" rx="6.5" ry="9" transform="rotate(25 72 33)" fill="currentColor"/>';
+        
+        // Eleganter, geschwungener Weidenast mit typisch lanzettlichen Weidenblättern
+        $svg .= '<path d="M 10,81 C 28,68 44,73 50,72 C 58,70 72,73 90,81" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>';
+        $svg .= '<path d="M 21,75 C 19,66 27,64 34,72 C 28,73 24,74 21,75 Z" fill="currentColor"/>';
+        $svg .= '<path d="M 36,71 C 37,60 47,61 49,69 C 43,69 38,70 36,71 Z" fill="currentColor"/>';
+        $svg .= '<path d="M 64,69 C 66,61 76,60 77,71 C 72,70 67,69 64,69 Z" fill="currentColor"/>';
+        $svg .= '<path d="M 79,72 C 86,64 94,66 92,75 C 88,74 84,73 79,72 Z" fill="currentColor"/>';
+    }
+    
+    $svg .= '</svg>';
+    $svg .= '</span>';
+    
+    return $svg;
+}
+
+/**
+ * Liefert den vollständigen Pool aller 12 zur Verfügung stehenden Spamschutz-Symbole.
+ * Enthält traditionelle Natur- und Flechtmotive wie Weidenkorb, Weidenzweig, Tatzen, Sonne,
+ * Mond, Stern, Ast, Stein, Haselnuss und verschiedene Blütenformen.
+ * 
+ * @return array Assoziatives Array aller 12 Symbole mit ID, Symbol-Icon, Bezeichnung und Prompt
+ */
+function get_all_captcha_icons() {
+    return [
+        'basket'        => ['id' => 'basket',        'symbol' => '🧺', 'name' => 'Weidenkorb',      'prompt' => 'den Weidenkorb 🧺'],
+        'branch'        => ['id' => 'branch',        'symbol' => '🌿', 'name' => 'Weidenzweig',     'prompt' => 'den Weidenzweig 🌿'],
+        'paw'           => ['id' => 'paw',           'symbol' => '🐾', 'name' => 'Tatzen',          'prompt' => 'die Tatzen 🐾'],
+        'sun'           => ['id' => 'sun',           'symbol' => '☀️', 'name' => 'Sonne',           'prompt' => 'die Sonne ☀️'],
+        'moon'          => ['id' => 'moon',          'symbol' => '🌙', 'name' => 'Mond',            'prompt' => 'den Mond 🌙'],
+        'star'          => ['id' => 'star',          'symbol' => '⭐', 'name' => 'Stern',           'prompt' => 'den Stern ⭐'],
+        'wood'          => ['id' => 'wood',          'symbol' => '🪵', 'name' => 'Ast',             'prompt' => 'den Ast 🪵'],
+        'stone'         => ['id' => 'stone',         'symbol' => '🪨', 'name' => 'Stein',           'prompt' => 'den Stein 🪨'],
+        'hazelnut'      => ['id' => 'hazelnut',      'symbol' => '🌰', 'name' => 'Haselnuss',       'prompt' => 'die Haselnuss 🌰'],
+        'flower_pink'   => ['id' => 'flower_pink',   'symbol' => '🌸', 'name' => 'Rosa Blüte',      'prompt' => 'die rosa Blüte 🌸'],
+        'flower_yellow' => ['id' => 'flower_yellow', 'symbol' => '🌻', 'name' => 'Sonnenblume',     'prompt' => 'die Sonnenblume 🌻'],
+        'flower_tulip'  => ['id' => 'flower_tulip',  'symbol' => '🌷', 'name' => 'Tulpe',           'prompt' => 'die Tulpe 🌷'],
+    ];
+}
+
+/**
+ * Ermittelt die 4 aktiv ausgewählten Captcha-Symbole für das Kontaktformular.
+ * Falls noch keine Auswahl gespeichert wurde, wird der bewährte Standard genutzt.
+ * 
+ * @param array|null $data Geladene Gesamtdaten aus data.json
+ * @return array Array mit genau 4 aktiven Symbolen
+ */
+function get_active_captcha_icons($data = null) {
+    $all = get_all_captcha_icons();
+    $configured = $data['settings']['captcha_icons'] ?? ['basket', 'branch', 'paw', 'sun'];
+    if (!is_array($configured) || empty($configured)) {
+        $configured = ['basket', 'branch', 'paw', 'sun'];
+    }
+
+    $active = [];
+    foreach ($configured as $id) {
+        if (isset($all[$id])) {
+            $active[$id] = $all[$id];
+        }
+    }
+
+    // Falls weniger als 4 gültig sind, mit Standard-Icons auf 4 auffüllen
+    if (count($active) < 4) {
+        foreach (['basket', 'branch', 'paw', 'sun'] as $defId) {
+            if (!isset($active[$defId]) && isset($all[$defId])) {
+                $active[$defId] = $all[$defId];
+            }
+            if (count($active) >= 4) break;
+        }
+    }
+
+    return array_slice($active, 0, 4, true);
+}
+?>

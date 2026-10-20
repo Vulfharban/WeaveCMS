@@ -1,0 +1,36 @@
+# ==============================================================================
+# Sicherheits- und Server-Konfiguration: Biankas Flechtglück
+# Schutz sensibler Dateien vor direktem HTTP-Abruf & Verzeichnis-Schutz
+# ==============================================================================
+
+# 1. Verzeichnis-Auflistung deaktivieren (Directory Browsing sperren)
+Options -Indexes
+
+# 2. Direkten HTTP-Zugriff auf Daten-, Konfigurations- und Systemdateien sperren
+#    (PHP-Skripte auf dem Server können lokal weiterhin uneingeschränkt lesen & schreiben)
+<FilesMatch "^(data\.json|config\.php|deploy_projects\.json|composer\.(json|lock)|.*\.json|.*\.md|.*\.log|.*\.bak|.*\.sql)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# 3. Direkten Zugriff auf versteckte Dateien und Ordner (.git, .htaccess, .agents etc.) sperren
+<FilesMatch "^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# 4. Backup-Ordner zusätzlich vollständig sperren, falls direkt aufgerufen
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^backups/ - [F,L]
+</IfModule>
