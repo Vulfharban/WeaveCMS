@@ -11,6 +11,9 @@ define('DEFAULT_ADMIN_PASSWORD', 'bianka123123');
 define('DEFAULT_ADMIN_PIN', '1977');
 define('ADMIN_TOKEN', 'xyz123'); // Beibehalten für direkten Zugriff via URL-Token falls benötigt
 
+// Modulare Klassen & Manager laden
+require_once __DIR__ . '/libs/php/BackupManager.php';
+
 /**
  * Lädt Daten aus einer JSON-Datei sicher in ein assoziatives PHP-Array.
  * @param {string} $filepath - Absoluter oder relativer Dateipfad zur JSON-Datei

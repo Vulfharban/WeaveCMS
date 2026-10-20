@@ -73,20 +73,22 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 2: Integriertes Datensicherungs- & Wiederherstellungssystem (Backup/Restore)
 *Ziel: Schutz vor Datenverlust durch 1-Klick-Sicherungen und vollständige Wiederherstellbarkeit.*
 
-- [ ] **2.1 Backend-Verwaltung für Backups:**
+- [x] **2.1 Backend-Verwaltung für Backups:**
   - Eigener Bereich im Reiter *„Sicherheit & System“*.
-  - Tabelle aller vorhandenen Backups mit Zeitstempel, Dateigröße und Typ.
-- [ ] **2.2 Backup-Funktionalität:**
+  - Tabelle aller vorhandenen Backups mit Typ-Badges, Zeitstempel, Dateigröße und Direktaktionen (Download, Restore, Löschen).
+- [x] **2.2 Backup-Funktionalität:**
   - **1-Klick-Backup erstellen:**
-    - Option A: *Nur Inhaltsdaten & Konfiguration* (`data.json` / SQL-Dump).
-    - Option B: *Vollständiges Archiv* (Daten + `images/uploads/` als ZIP-Archiv).
-  - Sicherer Speicherort im geschützten Verzeichnis `backups/` mit Zugriffsschutz (`.htaccess: deny from all`).
-  - Direkter ZIP-/JSON-Download über das Backend.
-- [ ] **2.3 Restore-Funktionalität:**
-  - **Wiederherstellung aus vorhandenem Backup:** Auswahl eines gelisteten Backups mit Sicherheitsabfrage (PIN-bestätigt).
-  - **Backup-Upload:** Hochladen einer zuvor exportierten ZIP-/JSON-Datei zur Wiederherstellung.
-- [ ] **2.4 Prüfung & Abnahme:**
-  - Backup erstellen, Daten manipulieren, Restore ausführen und Intaktheit verifizieren.
+    - Option A: *Nur Inhaltsdaten & Konfiguration* (`data.json`).
+    - Option B: *Vollständiges Archiv* (Daten + `images/uploads/` als ZIP-Archiv inklusive `backup_manifest.json`).
+  - Sicherer Speicherort im geschützten Verzeichnis `backups/` mit Zugriffsschutz (`.htaccess: Require all denied` / `Deny from all`).
+  - Direkter ZIP-/JSON-Download über das Backend mit Authentifizierungsprüfung.
+- [x] **2.3 Restore-Funktionalität:**
+  - **Wiederherstellung aus vorhandenem Backup:** Auswahl eines gelisteten Backups mit Sicherheitsabfrage (PIN-bestätigt) und automatischem Notfall-Snapshot vorab.
+  - **Backup-Upload:** Hochladen einer zuvor exportierten ZIP-/JSON-Datei zur Wiederherstellung (PIN-geschützt).
+- [x] **2.4 Prüfung & Abnahme:**
+  - Backup als ZIP und JSON erstellt, Tabelle und Größen geprüft.
+  - PIN-Autorisierung getestet (Fehleingabe blockiert, korrekte PIN stellt Daten erfolgreich wieder her).
+  - Zugriffsschutz des Verzeichnisses `backups/` im Browser verifiziert (HTTP 403 Forbidden).
 
 ---
 
