@@ -114,14 +114,14 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 4: Integriertes Anfragen- & Kontaktpostfach
 *Ziel: Zentrale Erfassung und Verwaltung von Kundenanfragen direkt im CMS-Backend.*
 
-- [ ] **4.1 Lokale Protokollierung von Kontaktanfragen:**
+- [x] **4.1 Lokale Protokollierung von Kontaktanfragen:**
   - Beim Absenden des Kontaktformulars wird die Anfrage unabhängig vom Mailversand strukturiert in `data/contacts.json` (oder SQL-Tabelle `fb_contacts`) archiviert.
   - Gespeicherte Felder: Datum, Uhrzeit, Name, E-Mail, Telefon, Nachricht, Kurs-Referenz (falls vorausgewählt), Status (`neu`, `in_bearbeitung`, `erledigt`).
-- [ ] **4.2 Postfach-Reiter im Adminbereich:**
+- [x] **4.2 Postfach-Reiter im Adminbereich:**
   - Neuer Reiter *„Kontaktanfragen“* mit Kennzeichnung neuer/ungelesener Nachrichten.
   - Tabellenansicht mit Schnellansicht, Volltext-Modal und Status-Umschaltung.
   - Schnellaktionen: *„Als E-Mail antworten“* (`mailto:`-Link mit vorausgefülltem Betreff) und *„Löschen“*.
-- [ ] **4.3 Prüfung & Abnahme:**
+- [x] **4.3 Prüfung & Abnahme:**
   - Testanfrage über das Frontend absenden und prüfen, dass sie sofort im Postfach auftaucht.
 
 ---
