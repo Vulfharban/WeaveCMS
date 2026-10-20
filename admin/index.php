@@ -122,6 +122,13 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
+// Download von Backups verarbeiten (nur wenn eingeloggt)
+if (isset($_GET['action']) && $_GET['action'] === 'download_backup') {
+    $file = $_GET['file'] ?? '';
+    BackupManager::downloadBackup($file);
+    exit;
+}
+
 $success_msg = '';
 $error_msg = '';
 $active_tab = 'tab-texts';
@@ -151,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $active_tab = 'tab-courses';
     } elseif (strpos($action, 'past') !== false) {
         $active_tab = 'tab-past';
-    } elseif (strpos($action, 'security') !== false || strpos($action, 'smtp') !== false || strpos($action, 'credentials') !== false) {
+    } elseif (strpos($action, 'security') !== false || strpos($action, 'smtp') !== false || strpos($action, 'credentials') !== false || strpos($action, 'backup') !== false || strpos($action, 'restore') !== false) {
         $active_tab = 'tab-security';
     } elseif (strpos($action, 'settings') !== false || strpos($action, 'design') !== false) {
         $active_tab = 'tab-settings';
@@ -399,6 +406,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error_msg = 'SMTP-Verbindungstest fehlgeschlagen: ' . htmlspecialchars($test_res['error']);
                 }
             }
+        }
+    }
+
+    /**
+     * AKTION: 1-Klick-Backup erstellen (Option A: Daten, Option B: Vollarchiv inkl. Bilder)
+     */
+    if ($action === 'create_backup') {
+        $backup_type = $_POST['backup_type'] ?? 'full';
+        $res = BackupManager::createBackup($backup_type, $data);
+        if ($res['success']) {
+            $success_msg = '✓ Sicherung "' . htmlspecialchars($res['filename']) . '" wurde erfolgreich im geschützten Ordner backups/ erstellt!';
+        } else {
+            $error_msg = 'Fehler beim Erstellen der Sicherung: ' . htmlspecialchars($res['error']);
+        }
+    }
+
+    /**
+     * AKTION: Vorhandenes Backup aus dem backups/-Verzeichnis wiederherstellen (PIN-geschützt)
+     */
+    if ($action === 'restore_backup') {
+        $file = $_POST['backup_file'] ?? '';
+        $pin = trim($_POST['restore_pin'] ?? '');
+        $res = BackupManager::restoreExistingBackup($file, $pin, $data);
+        if ($res['success']) {
+            $data = load_data($data_file);
+            $success_msg = '✓ Sicherung "' . htmlspecialchars($file) . '" wurde erfolgreich wiederhergestellt! (Ein Notfall-Snapshot wurde vorab angelegt).';
+        } else {
+            $error_msg = htmlspecialchars($res['error']);
+        }
+    }
+
+    /**
+     * AKTION: Hochgeladenes Backup (.zip oder .json) wiederherstellen (PIN-geschützt)
+     */
+    if ($action === 'upload_restore') {
+        $pin = trim($_POST['restore_pin'] ?? '');
+        $res = BackupManager::restoreUploadedBackup($_FILES['backup_upload_file'] ?? null, $pin, $data);
+        if ($res['success']) {
+            $data = load_data($data_file);
+            $success_msg = '✓ Die hochgeladene Sicherung wurde erfolgreich wiederhergestellt! (Ein Notfall-Snapshot wurde vorab angelegt).';
+        } else {
+            $error_msg = htmlspecialchars($res['error']);
+        }
+    }
+
+    /**
+     * AKTION: Backup-Datei aus dem backups/-Verzeichnis löschen
+     */
+    if ($action === 'delete_backup') {
+        $file = $_POST['backup_file'] ?? '';
+        if (BackupManager::deleteBackup($file)) {
+            $success_msg = 'Sicherungsdatei "' . htmlspecialchars($file) . '" wurde erfolgreich gelöscht.';
+        } else {
+            $error_msg = 'Fehler beim Löschen der Sicherungsdatei.';
         }
     }
 
@@ -2134,6 +2195,164 @@ foreach ($data['gallery'] as $item) {
                 </form>
             </div>
 
+            <!-- 4. INTEGRIERTES BACKUP- & WIEDERHERSTELLUNGSSYSTEM (PHASE 2) -->
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px dashed var(--border-color);">
+                <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; display:flex; align-items:center; gap:8px; color:var(--primary);">
+                    <span class="material-icons" style="color:var(--primary);">save</span> Datensicherung &amp; Wiederherstellung (Backup / Restore)
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    Sichere alle Website-Inhalte und hochgeladenen Bilder mit einem Klick. Alle Sicherungen werden im geschützten Verzeichnis <code>backups/</code> auf dem Server archiviert (geschützt vor Direktaufrufen via <code>.htaccess</code>) und können jederzeit heruntergeladen oder wiederhergestellt werden.
+                </p>
+
+                <!-- 1-Klick Backup Aktionen -->
+                <div style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <h4 style="margin:0 0 0.75rem 0; font-size:1.05rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="color:var(--primary); font-size:20px;">add_circle</span> 1-Klick-Sicherung jetzt erstellen
+                    </h4>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <form method="POST" action="" style="margin:0;">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                            <input type="hidden" name="action" value="create_backup">
+                            <input type="hidden" name="backup_type" value="data">
+                            <button type="submit" class="btn btn-outline" style="display:inline-flex; align-items:center; gap:6px; padding:10px 16px;">
+                                <span class="material-icons" style="font-size:18px;">description</span> Option A: Nur Daten &amp; Einstellungen (.json)
+                            </button>
+                        </form>
+
+                        <form method="POST" action="" style="margin:0;">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                            <input type="hidden" name="action" value="create_backup">
+                            <input type="hidden" name="backup_type" value="full">
+                            <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px; padding:10px 18px;">
+                                <span class="material-icons" style="font-size:18px;">folder_zip</span> Option B: Vollständiges Archiv inkl. Bilder (.zip)
+                            </button>
+                        </form>
+                    </div>
+                    <small style="color:var(--text-secondary); display:block; margin-top:8px;">
+                        💡 <em>Empfehlung:</em> Erstelle regelmäßig ein vollständiges ZIP-Archiv vor größeren inhaltlichen Änderungen oder Updates.
+                    </small>
+                </div>
+
+                <!-- Vorhandene Sicherungen (Tabelle) -->
+                <?php $backups_list = BackupManager::listBackups(); ?>
+                <div style="margin-bottom: 2.5rem;">
+                    <h4 style="margin:0 0 1rem 0; font-size:1.05rem; color:var(--text-primary); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                        <span style="display:flex; align-items:center; gap:6px;">
+                            <span class="material-icons" style="color:var(--primary); font-size:20px;">history</span> Vorhandene Sicherungen auf dem Server
+                        </span>
+                        <span style="font-size:0.82rem; color:var(--text-secondary); background:rgba(0,0,0,0.04); padding:3px 10px; border-radius:12px;">
+                            Gesamt: <?php echo count($backups_list); ?> Datei(en)
+                        </span>
+                    </h4>
+
+                    <?php if (empty($backups_list)): ?>
+                        <div style="background: rgba(0,0,0,0.02); border: 1px dashed var(--border-color); border-radius: 12px; padding: 2rem; text-align: center; color: var(--text-secondary);">
+                            <span class="material-icons" style="font-size:36px; opacity:0.4; display:block; margin-bottom:8px;">inventory_2</span>
+                            Es sind noch keine Sicherungsdateien im Verzeichnis <code>backups/</code> vorhanden.<br>
+                            Klicke oben auf <strong>1-Klick-Sicherung</strong>, um dein erstes Backup zu erstellen.
+                        </div>
+                    <?php else: ?>
+                        <div style="overflow-x: auto; background: rgba(0,0,0,0.015); border: 1px solid var(--border-color); border-radius: 12px;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.03); color: var(--text-primary);">
+                                        <th style="padding: 10px 14px;">Typ</th>
+                                        <th style="padding: 10px 14px;">Dateiname</th>
+                                        <th style="padding: 10px 14px;">Erstellt am</th>
+                                        <th style="padding: 10px 14px;">Größe</th>
+                                        <th style="padding: 10px 14px; text-align: right;">Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($backups_list as $b): ?>
+                                        <tr style="border-bottom: 1px solid var(--border-color);">
+                                            <td style="padding: 10px 14px;">
+                                                <?php if ($b['type'] === 'full'): ?>
+                                                    <span style="background: rgba(16,185,129,0.12); color: var(--primary); padding: 3px 8px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; display:inline-flex; align-items:center; gap:4px;">
+                                                        <span class="material-icons" style="font-size:14px;">folder_zip</span> ZIP-Vollarchiv
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span style="background: rgba(217,119,6,0.12); color: var(--accent); padding: 3px 8px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; display:inline-flex; align-items:center; gap:4px;">
+                                                        <span class="material-icons" style="font-size:14px;">description</span> JSON-Daten
+                                                    </span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td style="padding: 10px 14px; font-family: monospace; font-size: 0.82rem; font-weight:600;">
+                                                <?php echo htmlspecialchars($b['filename']); ?>
+                                            </td>
+                                            <td style="padding: 10px 14px; color: var(--text-secondary);">
+                                                <?php echo htmlspecialchars($b['date_formatted']); ?>
+                                            </td>
+                                            <td style="padding: 10px 14px; font-weight: 600;">
+                                                <?php echo htmlspecialchars($b['size_formatted']); ?>
+                                            </td>
+                                            <td style="padding: 10px 14px; text-align: right;">
+                                                <div style="display:inline-flex; gap:6px; align-items:center;">
+                                                    <!-- Download -->
+                                                    <a href="?action=download_backup&file=<?php echo urlencode($b['filename']); ?>" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem; display:inline-flex; align-items:center; gap:4px;" title="Herunterladen">
+                                                        <span class="material-icons" style="font-size:15px;">download</span> Download
+                                                    </a>
+
+                                                    <!-- Wiederherstellen (Trigger Modal) -->
+                                                    <button type="button" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem; display:inline-flex; align-items:center; gap:4px; color:var(--primary); border-color:var(--primary);" onclick="openRestoreModal('<?php echo htmlspecialchars($b['filename'], ENT_QUOTES); ?>', '<?php echo $b['type']; ?>')" title="Wiederherstellen">
+                                                        <span class="material-icons" style="font-size:15px;">settings_backup_restore</span> Restore
+                                                    </button>
+
+                                                    <!-- Löschen -->
+                                                    <form method="POST" action="" style="display:inline; margin:0;" onsubmit="return confirm('Möchtest du diese Sicherungsdatei wirklich unwiderruflich löschen?');">
+                                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                                        <input type="hidden" name="action" value="delete_backup">
+                                                        <input type="hidden" name="backup_file" value="<?php echo htmlspecialchars($b['filename']); ?>">
+                                                        <button type="submit" class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8rem; background:#dc2626;" title="Löschen">
+                                                            <span class="material-icons" style="font-size:15px;">delete</span>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Backup hochladen & wiederherstellen (Upload-Formular) -->
+                <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem;">
+                    <h4 style="margin:0 0 0.5rem 0; font-size:1.05rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="color:var(--primary); font-size:20px;">upload_file</span> Externe Sicherung hochladen &amp; wiederherstellen
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem;">
+                        Hier kannst du eine zuvor heruntergeladene ZIP- oder JSON-Sicherungsdatei von deinem Computer hochladen. Zum Schutz vor versehentlichem Überschreiben ist die Bestätigung mit deiner Administrator-PIN erforderlich. Vor dem Einspielen wird automatisch ein Sicherheits-Snapshot angelegt.
+                    </p>
+
+                    <form method="POST" action="" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.25rem;">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                        <input type="hidden" name="action" value="upload_restore">
+
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Sicherungsdatei auswählen (.zip oder .json)</label>
+                                <input type="file" name="backup_upload_file" accept=".zip,.json" class="form-control" required style="padding: 8px;">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Administrator-PIN zur Bestätigung <span style="color:#ef4444;">*</span></label>
+                                <div style="position:relative;">
+                                    <input type="password" id="upload_restore_pin" name="restore_pin" class="form-control" placeholder="Aktuelle PIN eingeben" maxlength="10" required style="padding-right:40px; letter-spacing:2px;">
+                                    <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); cursor:pointer; font-size:18px;" onclick="toggleVisibility('upload_restore_pin')">visibility</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-start;">
+                            <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px; padding:10px 18px;" onclick="return confirm('Achtung: Das Einspielen überschreibt alle aktuellen Daten mit dem Inhalt der Datei. Möchtest du fortfahren?');">
+                                <span class="material-icons" style="font-size:18px;">cloud_upload</span> Hochladen &amp; Wiederherstellung starten
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- FORMULAR 2: ADMIN-ZUGANGSDATEN ÄNDERN (NUR HIER IST DIE AKTUELLE PIN PFLICHT) -->
             <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px dashed var(--border-color);">
                 <form method="POST" action="" onsubmit="return validateCredentialsForm(this);" autocomplete="off">
@@ -2227,6 +2446,44 @@ foreach ($data['gallery'] as $item) {
             </div>
         </div>
 
+        <!-- ======================================================================
+             MODAL: WIEDERHERSTELLUNG BESTÄTIGEN (PIN-GESCHÜTZT)
+             ====================================================================== -->
+        <div id="restore-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:3000; align-items:center; justify-content:center; backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px);" onclick="if(event.target===this) closeRestoreModal();">
+            <div style="background:var(--bg-color); border:1px solid var(--border-color); border-radius:18px; max-width:480px; width:calc(100% - 2rem); padding:2rem; box-shadow:0 25px 60px rgba(0,0,0,0.35); position:relative;">
+                <h3 style="margin:0 0 0.75rem 0; color:var(--primary); display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons" style="font-size:24px;">settings_backup_restore</span> Sicherung wiederherstellen
+                </h3>
+                <p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.5; margin-bottom:1.25rem;">
+                    Möchtest du die Sicherung <strong id="modal-backup-filename" style="color:var(--text-primary); font-family:monospace; word-break:break-all;"></strong> wirklich einspielen?<br>
+                    Alle aktuellen Website-Daten werden durch den Stand dieser Sicherung ersetzt. Zur Sicherheit legt das System vorab automatisch einen Notfall-Snapshot an.
+                </p>
+
+                <form method="POST" action="">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                    <input type="hidden" name="action" value="restore_backup">
+                    <input type="hidden" id="modal-backup-file-input" name="backup_file" value="">
+
+                    <div class="form-group" style="margin-bottom:1.5rem;">
+                        <label style="font-weight:700; color:var(--text-primary); display:block; margin-bottom:0.4rem; font-size:0.9rem;">
+                            Administrator-PIN zur Autorisierung <span style="color:#ef4444;">*</span>
+                        </label>
+                        <div style="position:relative;">
+                            <input type="password" id="modal-restore-pin" name="restore_pin" class="form-control" placeholder="Aktuelle PIN eingeben" maxlength="10" required style="padding-right:40px; letter-spacing:2px;">
+                            <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); cursor:pointer; font-size:18px;" onclick="toggleVisibility('modal-restore-pin')">visibility</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px;">
+                        <button type="button" class="btn btn-outline" onclick="closeRestoreModal()">Abbrechen</button>
+                        <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px;">
+                            <span class="material-icons" style="font-size:16px;">check_circle</span> Jetzt wiederherstellen
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </main>
 
     <script>
@@ -2244,6 +2501,23 @@ foreach ($data['gallery'] as $item) {
                     }
                 }
             }
+        }
+
+        // Modal für PIN-geschützte Wiederherstellung öffnen/schließen
+        function openRestoreModal(filename, type) {
+            document.getElementById('modal-backup-filename').textContent = filename;
+            document.getElementById('modal-backup-file-input').value = filename;
+            const pinField = document.getElementById('modal-restore-pin');
+            if (pinField) pinField.value = '';
+            const modal = document.getElementById('restore-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => { if (pinField) pinField.focus(); }, 50);
+            }
+        }
+        function closeRestoreModal() {
+            const modal = document.getElementById('restore-modal');
+            if (modal) modal.style.display = 'none';
         }
     </script>
     <script src="../libs/js/admin.js?v=<?php echo file_exists('../libs/js/admin.js') ? filemtime('../libs/js/admin.js') : time(); ?>"></script>
