@@ -1,0 +1,173 @@
+{
+    "settings": {
+        "upload_dir": "images\/uploads",
+        "admin_password_hash": "$2y$12$DWU5TGLpNB2UpUNRq8VP6eXbMPdljlr3x08wPooPbE6\/nBBGNb5CS",
+        "admin_pin_hash": "$2y$12$Z44PWgAD.zvwgqIR9HJGdulWciWxWhUH1hp3sOERh0ije2RmlqR3e",
+        "gallery_layout": "editorial",
+        "gallery_lightbox": true,
+        "hero_logo_motif": "paw_simple",
+        "hero_logo_color": "#d97706",
+        "logo_position": "hero_before",
+        "design_theme": "nature_classic",
+        "container_width": "1200px",
+        "primary_color": "#2e6248",
+        "accent_color": "#b26c39",
+        "bg_color": "#fbf9f6",
+        "font_scale": "100%",
+        "gallery_gap": "2rem",
+        "card_radius": "20px",
+        "smtp": {
+            "enabled": false,
+            "host": "smtp-mail.outlook.com",
+            "port": 587,
+            "secure": "tls",
+            "user": "wolfrum@outlook.com",
+            "pass": "Jan\/Eric_03852-out",
+            "from_email": "wolfrum@outlook.com",
+            "from_name": "Biankas Flechtglück"
+        },
+        "captcha_icons": [
+            "branch",
+            "paw",
+            "moon",
+            "flower_yellow"
+        ]
+    },
+    "categories": [
+        "Korbwaren",
+        "Gartendeko",
+        "Sichtschutz",
+        "Sonstiges"
+    ],
+    "texts": {
+        "hero_title": "Handgefertigte Flechtkunst & Workshops",
+        "hero_subtitle": "Traditionelles Handwerk, kreative Körbe, Weidenzäune und Flechtkurse.",
+        "about_title": "Über meine Flechtkunst",
+        "about_text": "Flechthandwerk ist für mich eine Verbindung aus Natur, Tradition und moderner Kreativität. Jedes Geflecht entsteht in sorgfältiger Handarbeit und erzählt seine eigene Geschichte. Ich verwende ausschließlich nachhaltig gewonnene Weidenruten und Naturmaterialien.\r\n\r\nNeben traditionellen Korbwaren gestalte ich auch kreative Sichtschutzzäune für Gärten und gebe Kurse für alle, die dieses wunderschöne Handwerk selbst erlernen möchten. Meine Werkstatt befindet sich in Rastow, wo ich mich voll und ganz dieser Leidenschaft widme.",
+        "contact_name": "Bianka Wischnewski",
+        "contact_street": "Kraaker Straße 14",
+        "contact_city": "19077 Rastow",
+        "contact_phone": "+49 173 7602685",
+        "contact_email": "info@bianka-wischnewski.de",
+        "contact_instagram": "biankas.flechtglueck",
+        "impressum_supervisory": "Handwerkskammer Schwerin",
+        "impressum_vat_id": "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).",
+        "impressum_disclaimer": "Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.",
+        "contact_mail_greeting": "Hallo Frau Wischnewski,",
+        "course_request_template": "Hallo Bianka,\r\n\r\nich interessiere mich für deinen Kurs \"{kurs}\" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\r\n\r\nViele Grüße"
+    },
+    "gallery": [
+        {
+            "id": 10,
+            "title": "Weidenkorb",
+            "description": "für Kartoffeln, Zwiebeln, sonstiges Gemüse",
+            "image": "\/images\/uploads\/img_6ad5ce7072e567.10449192.jpeg",
+            "category": "Korbwaren",
+            "sort_order": 1
+        },
+        {
+            "id": 2,
+            "title": "Fahrradkorb 'Retro'",
+            "description": "Ein geflochtener Weidenkorb mit Lederriemen für den Fahrradlenker. Praktisch und stilvoll.",
+            "image": "\/images\/korb_fahrrad.png",
+            "category": "Korbwaren",
+            "sort_order": 2
+        },
+        {
+            "id": 3,
+            "title": "Kaminholzkorb 'Robusto'",
+            "description": "Ein großer, extra stabiler Tragekorb aus dunkler Weide für Kaminholz oder Gartenarbeiten.",
+            "image": "\/images\/korb_kaminholz.png",
+            "category": "Korbwaren",
+            "sort_order": 3
+        },
+        {
+            "id": 4,
+            "title": "Weidenkugeln 'Trio'",
+            "description": "Drei handgeflochtene, hohle Weidenkugeln in verschiedenen Größen zur Dekoration im Gartenbeet.",
+            "image": "\/images\/deko_kugeln.png",
+            "category": "Gartendeko",
+            "sort_order": 4
+        },
+        {
+            "id": 5,
+            "title": "Weiden-Windlicht 'Spirale'",
+            "description": "Kunstvoll geschwungenes Windlicht aus Weidenruten mit einem Glaseinsatz für stimmungsvolle Abende.",
+            "image": "\/images\/deko_windlicht.png",
+            "category": "Gartendeko",
+            "sort_order": 5
+        },
+        {
+            "id": 6,
+            "title": "Rankobelisken 'Natura'",
+            "description": "Hohe, freistehende Rankhilfen aus Weide für Kletterpflanzen und süße Duftwicken im Sommer.",
+            "image": "\/images\/deko_rankhilfe.png",
+            "category": "Gartendeko",
+            "sort_order": 6
+        },
+        {
+            "id": 7,
+            "title": "Flechtzaun 'Rustikal'",
+            "description": "Ein traditioneller Sichtschutz aus dickeren Weidenruten, direkt in die Erde eingepasst.",
+            "image": "\/images\/sichtschutz_flechtzaun.png",
+            "category": "Sichtschutz",
+            "sort_order": 7
+        },
+        {
+            "id": 8,
+            "title": "Weidenpaneel 'Modern'",
+            "description": "Hochwertiges Sichtschutzelement aus geflochtenen Weidenruten, gefasst in einem Rahmen aus dunklem Holz.",
+            "image": "\/images\/sichtschutz_modern.png",
+            "category": "Sichtschutz",
+            "sort_order": 8
+        },
+        {
+            "id": 9,
+            "title": "Weidentunnel 'Lebendbau'",
+            "description": "Ein lebendes Geflecht aus frischen Weidenruten, das im Frühjahr austreibt und einen natürlichen Tunnel bildet.",
+            "image": "\/images\/sichtschutz_lebendzaun.png",
+            "category": "Sichtschutz",
+            "sort_order": 9
+        },
+        {
+            "id": 1,
+            "title": "Weidenkorb 'Klassik'",
+            "description": "Ein klassischer, handgeflochtener Weidenkorb mit stabilem Tragegriff, ideal für den Einkauf.",
+            "image": "\/images\/korb_klassik.png",
+            "category": "Korbwaren",
+            "sort_order": 10
+        }
+    ],
+    "courses": [
+        {
+            "id": 1,
+            "date_string": "15. Oktober 2026",
+            "time": "10:00 - 16:00 Uhr",
+            "location": "Werkstatt Kraaker Straße 14, 19077 Rastow",
+            "title": "Grundkurs Korbbinden",
+            "description": "Lerne die Grundlagen der Flechtkunst und erstelle deinen ersten eigenen Weidenkorb.",
+            "price": "85 €",
+            "max_participants": 10,
+            "current_participants": 4,
+            "available": true,
+            "invite_token": "kurs-1-grundkurs-korbbinden"
+        },
+        {
+            "id": 2,
+            "date_string": "12. November 2026",
+            "time": "11:00 - 15:30 Uhr",
+            "location": "Werkstatt Kraaker Straße 14, 19077 Rastow",
+            "title": "Weiden-Deko für den Garten",
+            "description": "Gestalte dekorative Rankhilfen und Futterspender für Vögel aus Weidenruten.",
+            "price": "60 €",
+            "max_participants": 8,
+            "current_participants": 8,
+            "available": false,
+            "invite_token": "kurs-2-weiden-deko-garten"
+        }
+    ],
+    "past_courses": [
+        "\/images\/default_wicker1.png",
+        "\/images\/default_wicker2.png"
+    ]
+}

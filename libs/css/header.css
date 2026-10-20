@@ -1,0 +1,229 @@
+/* ==========================================================================
+   Header CSS: Navigation, Menüs & Slide-in Drawer
+   Bianka Wischnewski - Handgefertigte Flechtkunst & Workshops
+   ========================================================================== */
+
+/* Navbar / Sticky header */
+.header-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(251, 249, 246, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 1000;
+    height: 70px;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding: 0 2rem;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.logo .logo-paw-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    width: 1.15em;
+    height: 1.15em;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    top: -0.06em;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.nav-item {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.nav-item:hover, .nav-item.active {
+    color: var(--text-primary);
+}
+
+/* ───── CSS Slide-In Menü (Rechts) ───── */
+#menu-toggle, #menu-toggle-impressum, #menu-toggle-mobile {
+    display: none;
+}
+
+.slide-menu {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    width: calc(100% - 3rem);
+    max-width: 400px;
+    height: calc(100% - 3rem);
+    background: rgba(251, 249, 246, 0.96);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    z-index: 2000;
+    padding: 3rem 2rem 2rem 2rem;
+    transform: translateX(calc(100% + 3rem));
+    transition: var(--transition-smooth);
+    box-shadow: 0 20px 50px rgba(62, 50, 40, 0.12);
+    overflow-y: auto;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+}
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1999;
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition-smooth);
+}
+
+#menu-toggle:checked ~ .contact-menu,
+#menu-toggle-impressum:checked ~ .impressum-menu,
+#menu-toggle-mobile:checked ~ .mobile-menu {
+    transform: translateX(0);
+}
+
+#menu-toggle:checked ~ .contact-overlay,
+#menu-toggle-impressum:checked ~ .impressum-overlay,
+#menu-toggle-mobile:checked ~ .mobile-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.close-menu-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1.8rem;
+    transition: var(--transition-smooth);
+}
+
+.close-menu-btn:hover {
+    color: var(--text-primary);
+}
+
+/* ───── Spamschutz: Natur- & Flecht-Icon-Auswahl ───── */
+.spam-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.spam-icon-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    outline: none;
+}
+
+.spam-icon-btn:hover {
+    border-color: var(--primary);
+    background: rgba(46, 98, 72, 0.08);
+    transform: translateY(-2px);
+}
+
+.spam-icon-btn.selected {
+    border-color: var(--primary);
+    background: rgba(46, 98, 72, 0.16);
+    box-shadow: 0 0 0 2px var(--primary);
+    transform: scale(1.03);
+}
+
+.spam-icon-symbol {
+    font-size: 1.45rem;
+    line-height: 1.1;
+    margin-bottom: 3px;
+    display: block;
+}
+
+.spam-icon-label {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.spam-icon-btn.selected .spam-icon-label {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* ───── Responsive Mobile Navigation ───── */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+    
+    #mobile-nav-trigger {
+        display: inline-flex !important;
+    }
+    
+    .container {
+        padding: 1.25rem;
+    }
+    
+    section {
+        padding: 3rem 0;
+    }
+
+    .slide-menu {
+        top: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+        left: 1rem;
+        width: auto;
+        max-width: none;
+        height: calc(100% - 2rem);
+        border-radius: 20px;
+        transform: translateY(calc(100% + 2rem)) translateX(0);
+    }
+
+    #menu-toggle:checked ~ .contact-menu,
+    #menu-toggle-impressum:checked ~ .impressum-menu,
+    #menu-toggle-mobile:checked ~ .mobile-menu {
+        transform: translateY(0) translateX(0);
+    }
+}
