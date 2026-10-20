@@ -111,7 +111,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **Geführter Webspace-Installer** | Automatischer Installations-Assistent (`install.php`) mit Server-Check und Seed-Daten. | 🟡 Geplant (Phase 5) |
-| **SEO- & OpenGraph-Engine** | Meta-Title, Description, Sharing-Image Upload und Canonical-Tags für Social Media. | 🟡 Geplant (Phase 3) |
+| **SEO- & OpenGraph-Engine** | Eigener Reiter *„SEO & Sharing“*, Meta-Title & Description mit Zeichenzählern, Social-Sharing-Bild-Upload, Roboter-Steuerung und Live SERP/Social-Card-Vorschau. | ✅ Integriert (v0.3.0) |
 | **Mehrsprachigkeit (i18n)** | Mehrsprachige Websites mit Sprachwechsler (DE, EN, etc.). | 🟡 Geplant (Phase 8) |
 | **Automatischer Remote Version-Check** | Erkennung neuer Releases gegen konfigurierbare Update-URL mit Hinweisanzeige. | 🟡 Geplant (Phase 12) |
 | **Release-Build-Generator** | Automatische Erstellung von Voll-Paketen (Installer) und reinen Update-Paketen (ZIP/7z). | 🟡 Geplant (Phase 12) |
@@ -120,10 +120,14 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.2.0 (Aktueller Entwicklungsstand)
-* **Datensicherung & Restore:** Integriertes Backup-System mit 1-Klick JSON/ZIP-Export, PIN-gesichertem Restore und Verzeichnisschutz.
-* **DSGVO & Rechtstexte:** Vollständige Verwaltung der Datenschutzerklärung im Backend mit rechtssicherer Standardvorlage und Markdown-Rendering im Frontend.
-* **Sektionstexte:** 100 % dynamische Titel, Untertitel und Einleitungstexte für alle Hauptsektionen (Hero, Galerie, Kurse, Impressionen, Kontakt).
+### v0.3.0 (Aktueller Entwicklungsstand)
+* **SEO & Social-Sharing (Phase 3):** Eigener Administrations-Reiter *„SEO & Sharing“* mit Echtzeit-Vorschau (Google SERP Snippet & WhatsApp/Facebook Card), Zeichenzählern (60 / 155 Zeichen), Roboter-Steuerung, Canonical URL und Sharing-Bild Upload.
+* **Dynamische Head-Generierung:** Vollständige Ausgabe von Title, Description, Keywords, Robots, Canonical, OpenGraph (`og:*`) und Twitter Cards (`twitter:*`) im Frontend.
+
+### v0.2.0
+* **Datensicherung & Restore (Phase 2):** Integriertes Backup-System mit 1-Klick JSON/ZIP-Export, PIN-gesichertem Restore und Verzeichnisschutz.
+* **DSGVO & Rechtstexte (Phase 1):** Vollständige Verwaltung der Datenschutzerklärung im Backend mit rechtssicherer Standardvorlage und Markdown-Rendering im Frontend.
+* **Sektionstexte (Phase 1):** 100 % dynamische Titel, Untertitel und Einleitungstexte für alle Hauptsektionen (Hero, Galerie, Kurse, Impressionen, Kontakt).
 
 ### v0.1.0-alpha
 * **Design-Engine:** Tokenbasiertes Theme-System mit kuratierten Farbpaletten, flexibler Galerie (Ambient-Blur, Masonry, Editorial, Classic) und Lightbox.

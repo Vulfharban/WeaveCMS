@@ -113,16 +113,70 @@ $bg_color = $data['settings']['bg_color'] ?? '#fbf9f6';
 $font_scale = $data['settings']['font_scale'] ?? '100%';
 $gallery_gap = $data['settings']['gallery_gap'] ?? '2rem';
 $card_radius = $data['settings']['card_radius'] ?? '20px';
+
+/**
+ * 8. SEO- & OpenGraph-Metadaten vorbereiten
+ */
+$seo = $data['seo'] ?? [];
+$hero_title = $data['texts']['hero_title'] ?? 'Handgefertigte Flechtkunst & Workshops';
+$contact_name = $data['texts']['contact_name'] ?? 'Bianka Wischnewski';
+
+$meta_title = !empty(trim($seo['meta_title'] ?? ''))
+    ? trim($seo['meta_title'])
+    : ($hero_title . ' | ' . $contact_name);
+
+$meta_desc = !empty(trim($seo['meta_description'] ?? ''))
+    ? trim($seo['meta_description'])
+    : ($data['texts']['hero_subtitle'] ?? 'Entdecke handgefertigte Naturgeflechte und Workshops.');
+
+$meta_keywords = !empty(trim($seo['meta_keywords'] ?? ''))
+    ? trim($seo['meta_keywords'])
+    : 'Handwerk, Naturgeflechte, Workshops, Kurse';
+
+$meta_robots = !empty(trim($seo['robots'] ?? ''))
+    ? trim($seo['robots'])
+    : 'index, follow';
+
+$canonical_url = !empty(trim($seo['canonical_url'] ?? ''))
+    ? trim($seo['canonical_url'])
+    : $site_url;
+
+$og_image_raw = !empty(trim($seo['og_image'] ?? ''))
+    ? trim($seo['og_image'])
+    : '/images/default_wicker1.png';
+
+$og_image_url = (preg_match('~^https?://~i', $og_image_raw))
+    ? $og_image_raw
+    : rtrim($site_url, '/') . '/' . ltrim($og_image_raw, '/');
 ?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($data['texts']['hero_title']); ?> | Bianka Wischnewski</title>
-    <meta name="description" content="Entdecke handgefertigte Weidenkörbe, Naturgeflechte, Weidenzäune und Flechtkurse von Bianka Wischnewski in Rastow. Melde dich jetzt für Workshops an.">
-    <meta name="keywords" content="Weidenflechten, Korbflechten, Flechtkurs, Weidenkunst, Korbwaren, Handarbeit, Rastow, Bianka Wischnewski, Weidenzäune">
-    <meta name="robots" content="index, follow">
+
+    <!-- 1. Basis- & SEO-Metadaten -->
+    <title><?php echo htmlspecialchars($meta_title, ENT_QUOTES, 'UTF-8'); ?></title>
+    <meta name="description" content="<?php echo htmlspecialchars($meta_desc, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="keywords" content="<?php echo htmlspecialchars($meta_keywords, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="robots" content="<?php echo htmlspecialchars($meta_robots, ENT_QUOTES, 'UTF-8'); ?>">
+    <link rel="canonical" href="<?php echo htmlspecialchars($canonical_url, ENT_QUOTES, 'UTF-8'); ?>">
+
+    <!-- 2. OpenGraph-Protokoll (WhatsApp, Facebook, LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:site_name" content="<?php echo htmlspecialchars($contact_name, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta property="og:title" content="<?php echo htmlspecialchars($meta_title, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta property="og:description" content="<?php echo htmlspecialchars($meta_desc, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta property="og:url" content="<?php echo htmlspecialchars($canonical_url, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta property="og:image" content="<?php echo htmlspecialchars($og_image_url, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta property="og:image:alt" content="<?php echo htmlspecialchars($meta_title, ENT_QUOTES, 'UTF-8'); ?>">
+
+    <!-- 3. Twitter Cards (X) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo htmlspecialchars($meta_title, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="twitter:description" content="<?php echo htmlspecialchars($meta_desc, ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="twitter:image" content="<?php echo htmlspecialchars($og_image_url, ENT_QUOTES, 'UTF-8'); ?>">
     
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
