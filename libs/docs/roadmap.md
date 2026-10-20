@@ -141,6 +141,10 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
     - Admin-Benutzername, Administrator-Passwort, Sicherheits-PIN.
   - **Schritt 4: Beispieldaten (Seed Content):**
     - Checkbox: *„Muster-Inhalte installieren (Empfohlen für neue Websites)“*.
+  - **Schritt 5: Willkommensnachricht nach der Installation:**
+    - Nach erfolgreichem Setup sieht der User beim ersten Admin-Login eine einmalige Willkommensnachricht (z. B. Modal/Banner).
+    - Inhalt: Dank für die Installation, Kurzanleitung der wichtigsten Reiter, Hinweis auf Sicherheit (Passwort/PIN ändern, `install.php` gesperrt, Backups).
+    - Wird nach dem Schließen per Flag in `data.json` (`settings.welcome_shown`) nicht mehr angezeigt.
 - [ ] **5.3 Prüfung & Abnahme:**
   - Testinstallation auf frischem Server durchführen und automatische Weiterleitung ins Admin-Dashboard verifizieren.
 
