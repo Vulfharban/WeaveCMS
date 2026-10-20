@@ -1,5 +1,5 @@
 # ==============================================================================
-# Sicherheits- und Server-Konfiguration: Biankas Flechtglück
+# Sicherheits- und Server-Konfiguration: WeaveCMS
 # Schutz sensibler Dateien vor direktem HTTP-Abruf & Verzeichnis-Schutz
 # ==============================================================================
 
@@ -29,8 +29,8 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
-# 4. Backup-Ordner zusätzlich vollständig sperren, falls direkt aufgerufen
+# 4. Backup- und Daten-Ordner zusätzlich vollständig sperren, falls direkt aufgerufen
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^backups/ - [F,L]
+    RewriteRule ^(backups|data)/ - [F,L]
 </IfModule>

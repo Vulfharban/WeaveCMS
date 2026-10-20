@@ -184,6 +184,8 @@ function filterGallery(category, btnEl) {
  * @param {string} courseLocation - Veranstaltungsort
  */
 function requestCourse(courseTitle, courseDate, courseTime, courseLocation) {
+    // Kurs-Referenz für die Archivierung im Anfragen-Postfach merken
+    window.CURRENT_COURSE_REF = `${courseTitle} (${courseDate}${courseTime ? ', ' + courseTime : ''})`;
     const toggle = document.getElementById('menu-toggle');
     if (toggle) toggle.checked = true;
     
@@ -482,6 +484,21 @@ function sendRequestEmail(e, contactEmail) {
     const mailtoUrl = buildMailtoUrl(recipient, name, email, phone, message);
 
     if (!isSmtpEnabled) {
+        // Anfrage zusätzlich lokal im Admin-Postfach archivieren (ohne Mailversand)
+        const archiveData = new FormData();
+        archiveData.append('name', name);
+        archiveData.append('email', email);
+        archiveData.append('phone', phone);
+        archiveData.append('message', message);
+        archiveData.append('selected_icon', selectedSpamIconId);
+        archiveData.append('target_icon', currentTargetSpamIcon.id);
+        archiveData.append('website', honeypot ? honeypot.value : '');
+        archiveData.append('course_ref', window.CURRENT_COURSE_REF || '');
+        archiveData.append('archive_only', '1');
+        try {
+            fetch('send_mail.php', { method: 'POST', body: archiveData, keepalive: true }).catch(() => {});
+        } catch (e) { /* Archivierung ist optional, Mailto hat Vorrang */ }
+
         // Mailto öffnen
         window.location.href = mailtoUrl;
 
@@ -522,6 +539,7 @@ function sendRequestEmail(e, contactEmail) {
     formData.append('selected_icon', selectedSpamIconId);
     formData.append('target_icon', currentTargetSpamIcon.id);
     formData.append('website', honeypot ? honeypot.value : '');
+    formData.append('course_ref', window.CURRENT_COURSE_REF || '');
 
     fetch('send_mail.php', {
         method: 'POST',

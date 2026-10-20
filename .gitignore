@@ -16,6 +16,7 @@ data/app.sqlite
 data/database.sqlite
 backups/*.zip
 backups/*.json
+data/contacts.json
 
 # Uploads
 images/uploads/*
