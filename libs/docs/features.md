@@ -1,0 +1,131 @@
+# WeaveCMS – Feature-Übersicht & Funktionskatalog
+
+> **Das leichtgewichtige, modulare Flat-File & SQL Content Management System für Handwerksbetriebe, Dienstleister & kreative Köpfe.**  
+> *Offizielle Dokumentation für Produkt-Website, Download-Portal und Versions-Updates.*
+
+---
+
+## 🧭 Leitphilosophie: Das WeaveCMS-Versprechen
+
+WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie WordPress) und starren statischen HTML-Websites zu schließen. Es bietet volle Inhaltskontrolle über eine moderne Admin-Oberfläche, benötigt jedoch **weder Datenbank-Zwang noch Terminal-Befehle** und läuft sofort auf jedem Standard-Webspace.
+
+* **Zero-Bloat:** 100 % natives PHP (ab 8.0) – kein Node.js, kein Webpack, kein Composer-Zwang auf dem Server.
+* **Datenschutz First:** Vollständig DSGVO-konform ohne Cookies zu Werbezwecken, ohne externe CDN-Abhängigkeiten oder Tracking-Tracker.
+* **Schutz vor Datenverlust:** Integriertes 1-Klick-Sicherungssystem mit PIN-Schutz.
+
+---
+
+## 📦 Funktions-Übersicht nach Kategorien
+
+### 1. Kern-Architektur & Speicher-Engines
+| Feature | Beschreibung | Status |
+| :--- | :--- | :---: |
+| **Flat-File JSON-Speicher** | Funktioniert out-of-the-box ohne Datenbankeinrichtung (`data.json`). Ideal für kleine und mittlere Websites. | ✅ Integriert (v0.2.0) |
+| **SQL-Speicher-Abstraktion** | Wahlfreiheit zwischen lokaler JSON-Datei und relationaler Datenbank (MySQL / MariaDB / SQLite). | 🟡 Geplant (Phase 7) |
+| **Atomare Datenspeicherung** | Schutz vor Schreibkonflikten bei gleichzeitigen Bearbeitungen. | ✅ Integriert |
+| **Keine Build-Tools erforderlich** | Dateien hochladen und sofort loslegen. Kein `npm install` oder Build-Schritt nötig. | ✅ Integriert |
+| **Minimaler Ressourcenbedarf** | Lädt in wenigen Millisekunden, optimal für Shared Hosting und kostengünstige Server. | ✅ Integriert |
+
+---
+
+### 2. Design-, Theme- & Darstellungs-Engine
+| Feature | Beschreibung | Status |
+| :--- | :--- | :---: |
+| **Dynamisches Theme-System** | Vollständig tokenbasiert über CSS-Variablen (`:root`). | ✅ Integriert |
+| **Kuratierte Farbpaletten** | Vordefinierte Designstile (*Weidenglück*, *Moor & Bernstein*, *Nordisch Klar*, *Warmes Atelier*) plus freier Custom-Color-Picker. | ✅ Integriert |
+| **Layout-Maße einstellbar** | Seitenbreite flexibel wählbar: Kompakt (1050 px), Standard (1200 px), Großzügig (1400 px). | ✅ Integriert |
+| **Feinjustierung Typografie & Ecken** | Schriftgrößen-Skalierung (95 %, 100 %, 108 %) und Kachel-Eckenabrundung (10 px, 20 px, 28 px). | ✅ Integriert |
+| **4 Galerie-Layouts wählbar** | **Smart Ambient-Blur** (weicher Bildhintergrund), **Masonry-Grid** (Pinterest-Stil), **Editorial-Grid** (Magazin-Look), **Classic 4:3** (fester Zuschnitt). | ✅ Integriert |
+| **Vollbild-Lightbox** | Reaktionsschnelle Lightbox mit Tastaturnavigation (Pfeiltasten, Esc) und Bildzähler. | ✅ Integriert |
+| **Flexibles Logo-System** | Einstellbare Hundetatzen-Motive und freie Platzierung (im Header oder Hero-Bereich). | ✅ Integriert |
+| **Erweitertes Logo- & Favicon-Management** | Eigener Upload für SVG-, PNG- und Favicon-Dateien inkl. Höhen-Skalierung. | 🟡 Geplant (Phase 11) |
+
+---
+
+### 3. Inhaltsverwaltung & Sektionstexte
+| Feature | Beschreibung | Status |
+| :--- | :--- | :---: |
+| **100 % Text-Autonomie** | Alle Überschriften, Untertitel und Infotexte aller Sektionen sind direkt im Adminbereich editierbar. | ✅ Integriert (v0.2.0) |
+| **Galerie-Manager** | Bilder hochladen, Werkstücke benennen, Beschreibungen anlegen und Kategorien zuweisen. | ✅ Integriert |
+| **Dynamische Kategorien** | Beliebige eigene Kategorien anlegen, filtern und löschen. | ✅ Integriert |
+| **Manuelle Galerie-Sortierung** | Reihenfolge der Werkstücke numerisch festlegen und sortieren. | ✅ Integriert |
+| **Kurs- & Termin-Manager** | Kurse mit Datum, Uhrzeit, Ort, Preis, Teilnehmerbegrenzung und Status (Plätze frei / Ausgebucht) verwalten. | ✅ Integriert |
+| **Direkte Kurslinks & Teilen** | 1-Klick-Kopieren von Einladungslinks und systemweites Teilen via Web Share API. | ✅ Integriert |
+| **Kursimpressionen / Rückblick** | Upload von Impressionen vergangener Termine und Workshops. | ✅ Integriert |
+| **Über-mich-Bereich** | Profiltext und Biografie komfortabel im Adminbereich pflegen. | ✅ Integriert |
+| **Modulare Sektionen-Reihenfolge** | Sektionen beliebig anordnen, ein- oder ausblenden (Hero, Galerie, Kurse, Über uns, Freitext). | 🟡 Geplant (Phase 6) |
+
+---
+
+### 4. Rechtssicherheit & DSGVO
+| Feature | Beschreibung | Status |
+| :--- | :--- | :---: |
+| **DSGVO-Datenschutzerklärung** | Integrierter Editor für die Datenschutzerklärung nach Art. 13 DSGVO mit Markdown-Formatierung. | ✅ Integriert (v0.2.0) |
+| **Rechtssichere Standardvorlage** | 1-Klick-Vorlage für Server-Logs, Kontaktformular, Speicherdauer, Betroffenenrechte und Cookie-Verzicht. | ✅ Integriert (v0.2.0) |
+| **Slide-In-Rechtsmenü** | Nahtlose Umschaltung zwischen **Impressum (§ 5 TMG)** und **Datenschutz (DSGVO)** im Frontend. | ✅ Integriert (v0.2.0) |
+| **XSS-sicherer Markdown-Parser** | Sichere Formatierung von Überschriften, Listen und Textauszeichnungen ohne Script-Injections. | ✅ Integriert (v0.2.0) |
+| **Keine Werbe- oder Tracking-Cookies** | Vollständig cookie-banner-frei im Frontend, da keine nutzerbezogenen Daten erhoben werden. | ✅ Integriert |
+
+---
+
+### 5. Datensicherung & Wiederherstellung (Backup/Restore)
+| Feature | Beschreibung | Status |
+| :--- | :--- | :---: |
+| **1-Klick-Datensicherung (JSON)** | Sichert alle Website-Texte, Einstellungen und Kurse in einer kompakten `.json`-Datei. | ✅ Integriert (v0.2.0) |
+| **1-Klick-Vollarchiv (ZIP)** | Erstellt ein komplettes Archiv aller Daten, hochgeladener Bilder (`images/uploads/`) und Manifests. | ✅ Integriert (v0.2.0) |
+| **Geschützter Speicherort** | Serververzeichnis `backups/` mit `.htaccess`-Sperre (`Require all denied` / 403 Forbidden). | ✅ Integriert (v0.2.0) |
+| **Sicherheits-Snapshot (Pre-Restore)** | Automatisches Notfall-Backup vor jedem Wiederherstellungsvorgang. | ✅ Integriert (v0.2.0) |
+| **PIN-geschützte Wiederherstellung** | Restore erfordert zwingend die Eingabe der Administrator-PIN zum Schutz vor Manipulation. | ✅ Integriert (v0.2.0) |
+| **Externe Sicherung hochladen** | Upload und Einspielen von zuvor exportierten `.zip`- oder `.json`-Dateien. | ✅ Integriert (v0.2.0) |
+| **Direkter Download & Bereinigung** | Sicherungen direkt aus dem Backend herunterladen oder alte Backups löschen. | ✅ Integriert (v0.2.0) |
+
+---
+
+### 6. Kommunikation, E-Mail & Spamschutz
+| Feature | Beschreibung | Status |
+| :--- | :--- | :---: |
+| **Authentifizierter SMTP-Versand** | Zuverlässiger E-Mail-Versand via PHPMailer über eigene Mailserver (TLS/SSL, Ports 587, 465, 25). | ✅ Integriert |
+| **Live SMTP-Verbindungstest** | Test-E-Mail direkt aus dem Adminbereich senden, um Postfachdaten sofort zu prüfen. | ✅ Integriert |
+| **Mailto-Fallback-Modus** | Wenn SMTP deaktiviert ist, öffnet das Formular das lokale E-Mail-Programm des Besuchers. | ✅ Integriert |
+| **Symbol-Spamschutz (Captcha)** | DSGVO-konforme Bildauswahl (4 aus 12 Natur- und Alltagssymbolen) ohne externe Tracker. | ✅ Integriert |
+| **Honeypot-Spamfalle** | Unsichtbares Formularfeld fängt automatisierte Spambots geräuschlos ab. | ✅ Integriert |
+| **Anpassbare Mailvorlagen** | Persönliche Begrüßung und vorgefertigte Textvorlagen für Kursanfragen. | ✅ Integriert |
+| **Integriertes Kontaktpostfach** | Speicherung und Verwaltung von Kundenanfragen direkt im Backend-Postfach. | 🟡 Geplant (Phase 4) |
+
+---
+
+### 7. Sicherheit & Administration
+| Feature | Beschreibung | Status |
+| :--- | :--- | :---: |
+| **Zweistufige Authentifizierung** | Login mit sicherem Passwort plus zusätzlichem 4- bis 6-stelligem PIN-Code. | ✅ Integriert |
+| **PIN-Schutz für sensible Aktionen** | Passwort-, PIN-Änderungen und Datenwiederherstellungen erfordern die aktuelle PIN. | ✅ Integriert |
+| **CSRF-Schutz** | Kryptografische Tokens auf allen POST-Aktionen gegen Cross-Site-Request-Forgery. | ✅ Integriert |
+| **Zugriffssperren für Systemdateien** | `data.json`, `config.php`, `.git` und Backups sind vor direktem Browser-Zugriff geschützt. | ✅ Integriert |
+| **Sichere Sessions** | Session-Cookies mit `HttpOnly`, `SameSite` und automatischer Session-Zerstörung bei Abmeldung. | ✅ Integriert |
+| **Mehrbenutzersystem (RBAC)** | Benutzerrollen: Administrator, Moderator, Redakteur (Content-User). | 🟡 Geplant (Phase 10) |
+| **Brute-Force-Schutz & Rate-Limiting** | Progressive Verzögerung und temporäre Sperre nach wiederholten Fehlversuchen. | 🟡 Geplant (Phase 9) |
+
+---
+
+### 8. Installation, Rollout & Updates
+| Feature | Beschreibung | Status |
+| :--- | :--- | :---: |
+| **Geführter Webspace-Installer** | Automatischer Installations-Assistent (`install.php`) mit Server-Check und Seed-Daten. | 🟡 Geplant (Phase 5) |
+| **SEO- & OpenGraph-Engine** | Meta-Title, Description, Sharing-Image Upload und Canonical-Tags für Social Media. | 🟡 Geplant (Phase 3) |
+| **Mehrsprachigkeit (i18n)** | Mehrsprachige Websites mit Sprachwechsler (DE, EN, etc.). | 🟡 Geplant (Phase 8) |
+| **Automatischer Remote Version-Check** | Erkennung neuer Releases gegen konfigurierbare Update-URL mit Hinweisanzeige. | 🟡 Geplant (Phase 12) |
+| **Release-Build-Generator** | Automatische Erstellung von Voll-Paketen (Installer) und reinen Update-Paketen (ZIP/7z). | 🟡 Geplant (Phase 12) |
+
+---
+
+## 📈 Release-Historie & Meilensteine
+
+### v0.2.0 (Aktueller Entwicklungsstand)
+* **Datensicherung & Restore:** Integriertes Backup-System mit 1-Klick JSON/ZIP-Export, PIN-gesichertem Restore und Verzeichnisschutz.
+* **DSGVO & Rechtstexte:** Vollständige Verwaltung der Datenschutzerklärung im Backend mit rechtssicherer Standardvorlage und Markdown-Rendering im Frontend.
+* **Sektionstexte:** 100 % dynamische Titel, Untertitel und Einleitungstexte für alle Hauptsektionen (Hero, Galerie, Kurse, Impressionen, Kontakt).
+
+### v0.1.0-alpha
+* **Design-Engine:** Tokenbasiertes Theme-System mit kuratierten Farbpaletten, flexibler Galerie (Ambient-Blur, Masonry, Editorial, Classic) und Lightbox.
+* **Hybrid-Kommunikation:** SMTP-Versand via PHPMailer, Mailto-Fallback und barrierefreier Symbol-Spamschutz.
+* **Inhaltsmodule:** Kurse, Impressionen, Galerie-Kategorien und responsive Navigation.
