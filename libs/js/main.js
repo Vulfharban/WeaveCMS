@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Frontend JavaScript: Bianka Wischnewski - Biankas Flechtglück
- * Interaktive Funktionen für Galerie, Lightbox, Kursanfragen und Menüs
+ * Frontend JavaScript: Maxima Musterfrau - Atelier & Workshops
+ * Interaktive Funktionen für Galerie, Lightbox, Workshopanfragen und Menüs
  * ============================================================================
  */
 
@@ -200,7 +200,7 @@ function requestCourse(courseTitle, courseDate, courseTime, courseLocation) {
     if (msgArea) {
         const template = (typeof window !== 'undefined' && window.COURSE_REQUEST_TEMPLATE)
             ? window.COURSE_REQUEST_TEMPLATE
-            : `Hallo Bianka,\n\nich interessiere mich für deinen Kurs "{kurs}" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\n\nViele Grüße`;
+            : `Hallo Maxima,\n\nich interessiere mich für deinen Workshop "{kurs}" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\n\nViele Grüße`;
 
         msgArea.value = template
             .replace(/\{kurs\}/gi, courseTitle)
@@ -218,7 +218,7 @@ function requestCourse(courseTitle, courseDate, courseTime, courseLocation) {
 }
 
 /**
- * Teilt einen Flechtkurs per Web Share API oder kopiert den Link in die Zwischenablage.
+ * Teilt einen Workshop per Web Share API oder kopiert den Link in die Zwischenablage.
  * @param {string} title - Kurstitel
  * @param {string} date - Kursdatum
  * @param {string} link - Direkter Kurslink
@@ -226,8 +226,8 @@ function requestCourse(courseTitle, courseDate, courseTime, courseLocation) {
 function shareCourse(title, date, link) {
     if (navigator.share) {
         navigator.share({
-            title: `Flechtkurs: ${title}`,
-            text: `Flechtkurs bei Bianka: ${title} am ${date}. Jetzt ansehen:`,
+            title: `Workshop: ${title}`,
+            text: `Workshop bei Maxima: ${title} am ${date}. Jetzt ansehen:`,
             url: link
         }).catch(() => {});
     } else if (navigator.clipboard) {
@@ -377,7 +377,7 @@ function selectSpamIcon(iconId, btnEl) {
 function buildMailtoUrl(recipient, name, email, phone, message) {
     const greeting = (typeof window !== 'undefined' && window.CONTACT_MAIL_GREETING)
         ? window.CONTACT_MAIL_GREETING.trim()
-        : 'Hallo Bianka,';
+        : 'Hallo Maxima,';
 
     let content = (message || '').trim();
     // Voranstellen der Anrede, falls noch nicht im Freitext vorhanden
@@ -386,7 +386,7 @@ function buildMailtoUrl(recipient, name, email, phone, message) {
     }
     content += `\n\nViele Grüße\n${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Keine Angabe'}`;
 
-    const mailtoSubject = encodeURIComponent(`Anfrage über Flechtglück von ${name}`);
+    const mailtoSubject = encodeURIComponent(`Anfrage über Website von ${name}`);
     const mailtoBody = encodeURIComponent(content);
     return `mailto:${recipient}?subject=${mailtoSubject}&body=${mailtoBody}`;
 }
@@ -478,7 +478,7 @@ function sendRequestEmail(e, contactEmail) {
 
     // 5. Falls SMTP in den Einstellungen nicht aktiviert ist: Direkt mailto öffnen (kein PHP-Server-Mailer)
     const isSmtpEnabled = (typeof window !== 'undefined' && window.SERVER_SMTP_ENABLED === true);
-    const recipient = contactEmail || 'info@bianka-wischnewski.de';
+    const recipient = contactEmail || 'kontakt@maxima-musterfrau.de';
     const mailtoUrl = buildMailtoUrl(recipient, name, email, phone, message);
 
     if (!isSmtpEnabled) {
@@ -584,7 +584,7 @@ function sendRequestEmail(e, contactEmail) {
     })
     .catch(err => {
         console.error('Mail send error:', err);
-        const recipient = contactEmail || 'info@bianka-wischnewski.de';
+        const recipient = contactEmail || 'kontakt@maxima-musterfrau.de';
         const fallbackMailto = buildMailtoUrl(recipient, name, email, phone, message);
         if (statusBox) {
             statusBox.style.display = 'block';

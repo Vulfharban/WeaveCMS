@@ -70,7 +70,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin-Login | Bianka Wischnewski</title>
+        <title>Admin-Login | WeaveCMS</title>
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="../libs/css/styles.css?v=<?php echo file_exists('../libs/css/styles.css') ? filemtime('../libs/css/styles.css') : time(); ?>" rel="stylesheet">
@@ -358,7 +358,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $smtp_user = trim($_POST['smtp_user'] ?? '');
         $smtp_pass_new = $_POST['smtp_pass'] ?? '';
         $smtp_from_email = trim($_POST['smtp_from_email'] ?? '');
-        $smtp_from_name = trim($_POST['smtp_from_name'] ?? 'Biankas Flechtglück');
+        $smtp_from_name = trim($_POST['smtp_from_name'] ?? 'Atelier Musterfrau');
 
         if (!isset($data['settings']['smtp']) || !is_array($data['settings']['smtp'])) {
             $data['settings']['smtp'] = [];
@@ -416,7 +416,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (empty($cur_smtp['enabled']) || empty($cur_smtp['host'])) {
                 $error_msg = 'SMTP ist nicht aktiviert oder es ist kein SMTP-Host eingetragen. Bitte aktiviere SMTP und speichere die Einstellungen zuerst.';
             } else {
-                $test_subject = 'SMTP-Verbindungstest | Biankas Flechtglück';
+                $test_subject = 'SMTP-Verbindungstest | WeaveCMS';
                 $test_html = '<div style="font-family:sans-serif; padding:20px; color:#2e6248; background:#fbf9f6; border:1px solid #e7dfd5; border-radius:12px;">'
                            . '<h2>🌿 SMTP-Verbindungstest erfolgreich!</h2>'
                            . '<p>Die E-Mail-Konfiguration für das Kontaktformular auf deiner Website funktioniert einwandfrei.</p>'
@@ -589,7 +589,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['texts']['impressum_supervisory'] = $_POST['impressum_supervisory'] ?? '';
         $data['texts']['impressum_vat_id'] = $_POST['impressum_vat_id'] ?? '';
         $data['texts']['impressum_disclaimer'] = $_POST['impressum_disclaimer'] ?? '';
-        $data['texts']['contact_mail_greeting'] = trim($_POST['contact_mail_greeting'] ?? 'Hallo Bianka,');
+        $data['texts']['contact_mail_greeting'] = trim($_POST['contact_mail_greeting'] ?? 'Hallo Maxima,');
         $data['texts']['course_request_template'] = trim($_POST['course_request_template'] ?? '');
 
         // DSGVO-Datenschutzerklärung sichern (in settings und texts redundant für maximale Kompatibilität)
@@ -898,7 +898,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administration | Bianka Wischnewski</title>
+    <title>Administration | WeaveCMS</title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -909,7 +909,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
     <!-- Sticky Header -->
     <header class="header-nav">
         <div class="header-container">
-            <span class="logo"><?php if ($admin_logo_pos !== 'header_after'): echo $admin_paw; endif; ?><span>Biankas Flechtglück Admin</span><?php if ($admin_logo_pos === 'header_after'): echo $admin_paw; endif; ?></span>
+            <span class="logo"><?php if ($admin_logo_pos !== 'header_after'): echo $admin_paw; endif; ?><span>WeaveCMS Admin</span><?php if ($admin_logo_pos === 'header_after'): echo $admin_paw; endif; ?></span>
             <div style="display:flex; align-items:center; gap: 1rem;">
                 <a href="../" target="_blank" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;">Website anzeigen &rarr;</a>
                 <a href="?action=logout" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.85rem; background:#dc2626;">Abmelden</a>
@@ -946,7 +946,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
             <button class="admin-nav-link" onclick="switchTab('tab-impressum')"><span class="material-icons" style="font-size:18px;">contact_page</span> Impressum &amp; Kontaktdaten</button>
             <button class="admin-nav-link" onclick="switchTab('tab-gallery')"><span class="material-icons" style="font-size:18px;">photo_library</span> Galerie</button>
             <button class="admin-nav-link" onclick="switchTab('tab-past')"><span class="material-icons" style="font-size:18px;">photo_camera</span> Kursimpressionen</button>
-            <button class="admin-nav-link" onclick="switchTab('tab-courses')"><span class="material-icons" style="font-size:18px;">event</span> Flechtkurse</button>
+            <button class="admin-nav-link" onclick="switchTab('tab-courses')"><span class="material-icons" style="font-size:18px;">event</span> Workshops</button>
             <button class="admin-nav-link" onclick="switchTab('tab-settings')"><span class="material-icons" style="font-size:18px;">palette</span> Darstellung</button>
             <button class="admin-nav-link" onclick="switchTab('tab-seo')"><span class="material-icons" style="font-size:18px;">travel_explore</span> SEO &amp; Sharing</button>
             <button class="admin-nav-link" onclick="switchTab('tab-security')"><span class="material-icons" style="font-size:18px;">security</span> Sicherheit</button>
@@ -1079,7 +1079,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                     </div>
                     <div class="form-group">
                         <label>Instagram-Account Name</label>
-                        <input type="text" name="contact_instagram" class="form-control" value="<?php echo htmlspecialchars($data['texts']['contact_instagram'] ?? ''); ?>" placeholder="z. B. biankas.flechtglueck">
+                        <input type="text" name="contact_instagram" class="form-control" value="<?php echo htmlspecialchars($data['texts']['contact_instagram'] ?? ''); ?>" placeholder="z. B. maxima.musterfrau">
                     </div>
                 </div>
 
@@ -1140,8 +1140,8 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                 </p>
 
                 <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label>E-Mail-Anrede / Begrüßung (z. B. "Hallo Bianka,")</label>
-                    <input type="text" name="contact_mail_greeting" class="form-control" value="<?php echo htmlspecialchars($data['texts']['contact_mail_greeting'] ?? 'Hallo Bianka,'); ?>" placeholder="z. B. Hallo Bianka,">
+                    <label>E-Mail-Anrede / Begrüßung (z. B. "Hallo Maxima,")</label>
+                    <input type="text" name="contact_mail_greeting" class="form-control" value="<?php echo htmlspecialchars($data['texts']['contact_mail_greeting'] ?? 'Hallo Maxima,'); ?>" placeholder="z. B. Hallo Maxima,">
                     <small style="color:var(--text-secondary); font-size:0.8rem; margin-top:4px; display:block;">
                         Wird als persönliche Anrede an den Anfang der generierten Nachricht gesetzt.
                     </small>
@@ -1149,7 +1149,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
 
                 <div class="form-group" style="margin-bottom: 2rem;">
                     <label>Textvorlage für Kursanfragen (beim Klick auf "Kurs anfragen")</label>
-                    <textarea name="course_request_template" class="form-control" rows="4"><?php echo htmlspecialchars($data['texts']['course_request_template'] ?? "Hallo Bianka,\n\nich interessiere mich für deinen Kurs \"{kurs}\" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\n\nViele Grüße"); ?></textarea>
+                    <textarea name="course_request_template" class="form-control" rows="4"><?php echo htmlspecialchars($data['texts']['course_request_template'] ?? "Hallo Maxima,\n\nich interessiere mich für deinen Kurs \"{kurs}\" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\n\nViele Grüße"); ?></textarea>
                     <small style="color:var(--text-secondary); font-size:0.8rem; margin-top:4px; display:block;">
                         Verfügbare Platzhalter: <code>{kurs}</code>, <code>{datum}</code>, <code>{uhrzeit}</code>, <code>{ort}</code>
                     </small>
@@ -1405,7 +1405,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                         <?php foreach ($data['courses'] as $c): ?>
                             <?php 
                                 $course_link = $site_url . '?course=' . $c['id'];
-                                $wa_text = urlencode("Hallo! Schau dir mal den Flechtkurs \"" . $c['title'] . "\" bei Bianka an: " . $c['date_string'] . " (" . ($c['time'] ?? '') . ") in " . ($c['location'] ?? 'Rastow') . " für " . $c['price'] . ". Hier buchen: " . $course_link);
+                                $wa_text = urlencode("Hallo! Schau dir mal den Kurs \"" . $c['title'] . "\" bei Maxima an: " . $c['date_string'] . " (" . ($c['time'] ?? '') . ") in " . ($c['location'] ?? 'Musterstadt') . " für " . $c['price'] . ". Hier buchen: " . $course_link);
                             ?>
                             <div style="background:rgba(255,255,255,0.01); border:1px solid var(--border-color); padding:1.5rem; border-radius:16px;">
                                 <form method="POST" action="" style="margin-bottom:0;">
@@ -2357,7 +2357,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                     <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
                         <div class="form-group">
                             <label>SMTP-Benutzername / E-Mail</label>
-                            <input type="text" name="smtp_user" class="form-control" value="<?php echo htmlspecialchars($cur_smtp['user'] ?? ''); ?>" placeholder="z. B. info@bianka-wischnewski.de">
+                            <input type="text" name="smtp_user" class="form-control" value="<?php echo htmlspecialchars($cur_smtp['user'] ?? ''); ?>" placeholder="z. B. kontakt@maxima-musterfrau.de">
                         </div>
                         <div class="form-group">
                             <label>SMTP-Passwort</label>
@@ -2371,12 +2371,12 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                     <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
                         <div class="form-group">
                             <label>Absender-E-Mail-Adresse (From)</label>
-                            <input type="email" name="smtp_from_email" class="form-control" value="<?php echo htmlspecialchars($cur_smtp['from_email'] ?? ''); ?>" placeholder="z. B. info@bianka-wischnewski.de">
+                            <input type="email" name="smtp_from_email" class="form-control" value="<?php echo htmlspecialchars($cur_smtp['from_email'] ?? ''); ?>" placeholder="z. B. kontakt@maxima-musterfrau.de">
                             <small style="color:var(--text-secondary); display:block; margin-top:4px;">Leer lassen, um die Benutzername-E-Mail zu verwenden.</small>
                         </div>
                         <div class="form-group">
                             <label>Absender-Name (From Name)</label>
-                            <input type="text" name="smtp_from_name" class="form-control" value="<?php echo htmlspecialchars($cur_smtp['from_name'] ?? 'Biankas Flechtglück'); ?>" placeholder="Biankas Flechtglück">
+                            <input type="text" name="smtp_from_name" class="form-control" value="<?php echo htmlspecialchars($cur_smtp['from_name'] ?? 'Atelier Musterfrau'); ?>" placeholder="Atelier Musterfrau">
                         </div>
                     </div>
                 </div>
@@ -2411,7 +2411,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                     <input type="hidden" name="action" value="test_smtp">
                     <div class="form-group" style="flex:1; min-width:240px; margin-bottom:0;">
                         <label style="font-size:0.85rem; margin-bottom:4px; display:block;">Test-E-Mail senden an:</label>
-                        <input type="email" name="test_to_email" class="form-control" value="<?php echo htmlspecialchars($data['texts']['contact_email'] ?? 'info@bianka-wischnewski.de'); ?>" required style="height:42px;">
+                        <input type="email" name="test_to_email" class="form-control" value="<?php echo htmlspecialchars($data['texts']['contact_email'] ?? 'kontakt@maxima-musterfrau.de'); ?>" required style="height:42px;">
                     </div>
                     <button type="submit" class="btn btn-outline" style="height:42px; display:inline-flex; align-items:center; gap:6px;">
                         <span class="material-icons" style="font-size:16px;">mark_email_read</span> Test-E-Mail jetzt senden
