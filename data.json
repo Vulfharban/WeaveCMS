@@ -31,7 +31,8 @@
             "paw",
             "moon",
             "flower_yellow"
-        ]
+        ],
+        "privacy_policy_text": ""
     },
     "categories": [
         "Korbwaren",
@@ -44,6 +45,13 @@
         "hero_subtitle": "Traditionelles Handwerk, kreative Körbe, Weidenzäune und Flechtkurse.",
         "about_title": "Über meine Flechtkunst",
         "about_text": "Flechthandwerk ist für mich eine Verbindung aus Natur, Tradition und moderner Kreativität. Jedes Geflecht entsteht in sorgfältiger Handarbeit und erzählt seine eigene Geschichte. Ich verwende ausschließlich nachhaltig gewonnene Weidenruten und Naturmaterialien.\r\n\r\nNeben traditionellen Korbwaren gestalte ich auch kreative Sichtschutzzäune für Gärten und gebe Kurse für alle, die dieses wunderschöne Handwerk selbst erlernen möchten. Meine Werkstatt befindet sich in Rastow, wo ich mich voll und ganz dieser Leidenschaft widme.",
+        "gallery_title": "Galerie & Handarbeit",
+        "gallery_subtitle": "Ein Auszug aus meinen handgeflochtenen Korbwaren, Rankhilfen, Zäunen und dekorativer Naturflechterei.",
+        "courses_title": "Flechtkurse & Workshops",
+        "courses_subtitle": "Lerne das traditionelle Korbflechten und die Weidenverarbeitung in gemütlicher Werkstatt-Atmosphäre selbst kennen.",
+        "past_courses_title": "Impressionen vergangener Kurse",
+        "past_courses_subtitle": "Ein Rückblick auf gemeinsame Flechtstunden und entstandene Unikate.",
+        "contact_intro_text": "Hast du Fragen zu meinen Kursen, möchtest einen Gutschein erwerben oder ein individuelles Weidengeflecht anfragen?",
         "contact_name": "Bianka Wischnewski",
         "contact_street": "Kraaker Straße 14",
         "contact_city": "19077 Rastow",

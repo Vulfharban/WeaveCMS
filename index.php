@@ -21,13 +21,21 @@ require_once 'config.php';
 $data_file = 'data.json';
 $data = load_data($data_file, [
     'settings' => [
-        'upload_dir' => 'images/uploads'
+        'upload_dir' => 'images/uploads',
+        'privacy_policy_text' => ''
     ],
     'texts' => [
         'hero_title' => 'Handgefertigte Flechtkunst & Workshops',
         'hero_subtitle' => 'Traditionelles Handwerk, kreative Körbe, Weidenzäune und Flechtkurse.',
         'about_title' => 'Über meine Flechtkunst',
         'about_text' => 'Flechthandwerk ist für mich eine Verbindung aus Natur, Tradition und moderner Kreativität...',
+        'gallery_title' => 'Galerie & Handarbeit',
+        'gallery_subtitle' => 'Ein Auszug aus meinen handgeflochtenen Korbwaren, Rankhilfen, Zäunen und dekorativer Naturflechterei.',
+        'courses_title' => 'Flechtkurse & Workshops',
+        'courses_subtitle' => 'Lerne das traditionelle Korbflechten und die Weidenverarbeitung in gemütlicher Werkstatt-Atmosphäre selbst kennen.',
+        'past_courses_title' => 'Impressionen vergangener Kurse',
+        'past_courses_subtitle' => 'Ein Rückblick auf gemeinsame Flechtstunden und entstandene Unikate.',
+        'contact_intro_text' => 'Hast du Fragen zu meinen Kursen, möchtest einen Gutschein erwerben oder ein individuelles Weidengeflecht anfragen?',
         'contact_name' => 'Bianka Wischnewski',
         'contact_street' => 'Kraaker Straße 14',
         'contact_city' => '19077 Rastow',
@@ -177,10 +185,12 @@ $card_radius = $data['settings']['card_radius'] ?? '20px';
 
         <!-- Gallery Section -->
         <section id="gallery">
-            <h2 style="margin-bottom: 1rem; text-align: center;">Galerie &amp; Handarbeit</h2>
-            <p style="text-align: center; color: var(--text-secondary); max-width: 600px; margin: 0 auto 3rem auto;">
-                Ein Auszug aus meinen handgeflochtenen Korbwaren, Rankhilfen, Zäunen und dekorativer Naturflechterei.
-            </p>
+            <h2 style="margin-bottom: 1rem; text-align: center;"><?php echo htmlspecialchars($data['texts']['gallery_title'] ?? 'Galerie & Handarbeit'); ?></h2>
+            <?php if (!empty($data['texts']['gallery_subtitle'])): ?>
+                <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 3rem auto;">
+                    <?php echo htmlspecialchars($data['texts']['gallery_subtitle']); ?>
+                </p>
+            <?php endif; ?>
 
             <?php if (empty($visible_gallery)): ?>
                 <p style="text-align: center; color: var(--text-secondary);">Noch keine Flechtwerke in der Galerie.</p>
@@ -255,10 +265,12 @@ $card_radius = $data['settings']['card_radius'] ?? '20px';
 
         <!-- Course Dates Section -->
         <section id="courses">
-            <h2 style="margin-bottom: 1rem; text-align: center; color: var(--accent);">Flechtkurse &amp; Workshops</h2>
-            <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 3rem auto;">
-                Lerne das traditionelle Korbflechten und die Weidenverarbeitung in gemütlicher Werkstatt-Atmosphäre selbst kennen.
-            </p>
+            <h2 style="margin-bottom: 1rem; text-align: center; color: var(--accent);"><?php echo htmlspecialchars($data['texts']['courses_title'] ?? 'Flechtkurse & Workshops'); ?></h2>
+            <?php if (!empty($data['texts']['courses_subtitle'])): ?>
+                <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 3rem auto;">
+                    <?php echo htmlspecialchars($data['texts']['courses_subtitle']); ?>
+                </p>
+            <?php endif; ?>
 
             <div style="display:flex; flex-direction:column; gap: 1.5rem; margin-bottom: 5rem;">
                 <?php if (empty($data['courses'])): ?>
@@ -338,7 +350,12 @@ $card_radius = $data['settings']['card_radius'] ?? '20px';
             </div>
 
             <!-- Historical Course Images -->
-            <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; text-align: center;">Impressionen vergangener Kurse</h3>
+            <h3 style="margin-bottom: 1rem; font-size: 1.5rem; text-align: center;"><?php echo htmlspecialchars($data['texts']['past_courses_title'] ?? 'Impressionen vergangener Kurse'); ?></h3>
+            <?php if (!empty($data['texts']['past_courses_subtitle'])): ?>
+                <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 2rem auto; font-size: 0.95rem;">
+                    <?php echo htmlspecialchars($data['texts']['past_courses_subtitle']); ?>
+                </p>
+            <?php endif; ?>
             <?php if (empty($data['past_courses'])): ?>
                 <p style="color: var(--text-secondary); font-size:0.95rem; text-align: center;">Noch keine Bilder hochgeladen.</p>
             <?php else: ?>
@@ -388,7 +405,7 @@ $card_radius = $data['settings']['card_radius'] ?? '20px';
         <h2 style="color: var(--primary); margin-bottom: 2rem;">Kontakt &amp; Kursanfrage</h2>
         <div style="display: flex; flex-direction: column; gap: 1.5rem; color: var(--text-secondary);">
             
-            <p>Hast du Fragen zu meinen Kursen, möchtest einen Gutschein erwerben oder ein individuelles Weidengeflecht anfragen?</p>
+            <p><?php echo htmlspecialchars($data['texts']['contact_intro_text'] ?? 'Hast du Fragen zu meinen Kursen, möchtest einen Gutschein erwerben oder ein individuelles Weidengeflecht anfragen?'); ?></p>
 
             <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-color);">
                 <h4 style="color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
@@ -505,12 +522,24 @@ $card_radius = $data['settings']['card_radius'] ?? '20px';
         </div>
     </div>
 
-    <!-- Slide-in Impressum Menu (Right) -->
+    <!-- Slide-in Impressum & Datenschutz Menu (Right) -->
     <label for="menu-toggle-impressum" class="menu-overlay impressum-overlay"></label>
-    <div class="slide-menu impressum-menu">
+    <div class="slide-menu impressum-menu" id="legal-slide-menu">
         <label for="menu-toggle-impressum" class="close-menu-btn">&times;</label>
-        <h2 style="color: var(--primary); margin-bottom: 2rem;">Impressum</h2>
-        <div style="font-size: 0.9rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Tab-Umschalter für Rechtliches: Impressum & Datenschutz -->
+        <div class="legal-tab-nav" style="display:flex; gap:8px; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:1rem; flex-wrap:wrap;">
+            <button type="button" id="legal-tab-btn-impressum" class="btn btn-primary" style="padding:6px 14px; font-size:0.85rem;" onclick="switchLegalTab('impressum')">
+                Impressum (§ 5 TMG)
+            </button>
+            <button type="button" id="legal-tab-btn-datenschutz" class="btn btn-outline" style="padding:6px 14px; font-size:0.85rem;" onclick="switchLegalTab('datenschutz')">
+                Datenschutz (DSGVO)
+            </button>
+        </div>
+
+        <!-- Inhaltsbereich: Impressum -->
+        <div id="legal-panel-impressum" style="font-size: 0.9rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 1.5rem;">
+            <h2 style="color: var(--primary); margin: 0 0 0.5rem 0; font-size: 1.5rem;">Impressum</h2>
             <div>
                 <h4 style="color: var(--text-primary); margin-bottom: 0.25rem;">Angaben gemäß § 5 TMG</h4>
                 <p style="margin: 2px 0;"><?php echo htmlspecialchars($data['texts']['contact_name'] ?? ''); ?></p>
@@ -537,6 +566,19 @@ $card_radius = $data['settings']['card_radius'] ?? '20px';
             <div>
                 <h4 style="color: var(--text-primary); margin-bottom: 0.25rem;">Haftungsausschluss</h4>
                 <p style="margin: 2px 0;"><?php echo htmlspecialchars($data['texts']['impressum_disclaimer'] ?? 'Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.'); ?></p>
+            </div>
+        </div>
+
+        <!-- Inhaltsbereich: Datenschutzerklärung -->
+        <div id="legal-panel-datenschutz" style="display:none; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+            <h2 style="color: var(--primary); margin: 0 0 1rem 0; font-size: 1.5rem;">Datenschutzerklärung (DSGVO)</h2>
+            <div class="privacy-content" style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-color);">
+                <?php 
+                    $cur_privacy_text = !empty($data['settings']['privacy_policy_text']) 
+                        ? $data['settings']['privacy_policy_text'] 
+                        : (!empty($data['texts']['privacy_policy_text']) ? $data['texts']['privacy_policy_text'] : get_default_privacy_policy_text($data));
+                    echo render_markdown_safe($cur_privacy_text);
+                ?>
             </div>
         </div>
     </div>
@@ -612,6 +654,34 @@ $card_radius = $data['settings']['card_radius'] ?? '20px';
     <script>
         if (typeof initGalleryData === 'function') initGalleryData(window.SERVER_GALLERY_ITEMS);
         if (typeof initSpamIcons === 'function') initSpamIcons(window.SERVER_SPAM_ICONS);
+
+        // Umschalten zwischen Impressum und Datenschutzerklärung im Rechts-Slide-In
+        function switchLegalTab(tab) {
+            const impPanel = document.getElementById('legal-panel-impressum');
+            const dsPanel = document.getElementById('legal-panel-datenschutz');
+            const impBtn = document.getElementById('legal-tab-btn-impressum');
+            const dsBtn = document.getElementById('legal-tab-btn-datenschutz');
+            if (!impPanel || !dsPanel) return;
+
+            if (tab === 'datenschutz') {
+                impPanel.style.display = 'none';
+                dsPanel.style.display = 'block';
+                if (impBtn) { impBtn.className = 'btn btn-outline'; }
+                if (dsBtn) { dsBtn.className = 'btn btn-primary'; }
+            } else {
+                impPanel.style.display = 'flex';
+                dsPanel.style.display = 'none';
+                if (impBtn) { impBtn.className = 'btn btn-primary'; }
+                if (dsBtn) { dsBtn.className = 'btn btn-outline'; }
+            }
+        }
+
+        // Falls Hash #datenschutz in der URL steht, direkt das Datenschutz-Panel aktivieren
+        if (window.location.hash === '#datenschutz') {
+            const toggle = document.getElementById('menu-toggle-impressum');
+            if (toggle) toggle.checked = true;
+            switchLegalTab('datenschutz');
+        }
     </script>
 </body>
 </html>
