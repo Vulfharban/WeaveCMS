@@ -6,4 +6,4 @@ Allow: /libs/
 # Disallow indexing and crawling of the private admin panel
 Disallow: /admin/
 
-# Sitemap: https://www.bianka-wischnewski.de/sitemap.xml
+# Sitemap: /sitemap.xml

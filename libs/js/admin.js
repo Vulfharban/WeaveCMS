@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * Backend Admin JavaScript: Bianka Wischnewski - Biankas Flechtglück
+ * Backend Admin JavaScript: WeaveCMS Administration
  * Interaktive Funktionen für Tab-Navigation, Layout- & Logo-Auswahl, Toast
  * ============================================================================
  */

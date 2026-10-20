@@ -3,7 +3,7 @@
  * ============================================================================
  * send_mail.php: Sicherer Server-Mailversand für das Kontaktformular
  * Nimmt AJAX-Anfragen entgegen, prüft Spamschutz & Honeypot und versendet
- * die Nachricht zuverlässig an Biankas E-Mail-Adresse.
+ * die Nachricht zuverlässig an die hinterlegte E-Mail-Adresse.
  * ============================================================================
  */
 
@@ -76,18 +76,18 @@ if (empty($selected_icon) || empty($target_icon) || $selected_icon !== $target_i
 }
 
 // 4. Empfänger und Konfiguration ermitteln
-$to_email = trim($data['texts']['contact_email'] ?? 'info@bianka-wischnewski.de');
+$to_email = trim($data['texts']['contact_email'] ?? 'kontakt@maxima-musterfrau.de');
 if (empty($to_email) || !filter_var($to_email, FILTER_VALIDATE_EMAIL)) {
-    $to_email = 'info@bianka-wischnewski.de';
+    $to_email = 'kontakt@maxima-musterfrau.de';
 }
 
-$greeting = trim($data['texts']['contact_mail_greeting'] ?? 'Hallo Bianka,');
+$greeting = trim($data['texts']['contact_mail_greeting'] ?? 'Hallo Maxima,');
 $mail_body_text = $message;
 if (!empty($greeting) && stripos($mail_body_text, $greeting) !== 0) {
     $mail_body_text = $greeting . "\n\n" . $mail_body_text;
 }
 $mail_body_text .= "\n\nViele Grüße\n" . $name . "\nE-Mail: " . $email . "\nTelefon: " . (!empty($phone) ? $phone : 'Keine Angabe');
-$fallback_mailto = "mailto:" . $to_email . "?subject=" . rawurlencode("Anfrage über Flechtglück von " . $name) . "&body=" . rawurlencode($mail_body_text);
+$fallback_mailto = "mailto:" . $to_email . "?subject=" . rawurlencode("Kontaktanfrage von " . $name) . "&body=" . rawurlencode($mail_body_text);
 
 // Falls SMTP nicht aktiviert ist: Kein PHP-Mailer-Versand, sondern Fallback-Mailto zurückgeben
 if (empty($smtp_config['enabled']) || empty($smtp_config['host'])) {
@@ -99,7 +99,8 @@ if (empty($smtp_config['enabled']) || empty($smtp_config['host'])) {
 }
 
 // 5. E-Mail-Inhalte aufbauen (HTML & Plaintext)
-$subject = "Neue Kontaktanfrage von " . $name . " | Biankas Flechtglück";
+$site_brand = !empty($data['texts']['contact_name']) ? $data['texts']['contact_name'] : 'Atelier Musterfrau';
+$subject = "Neue Kontaktanfrage von " . $name . " | " . $site_brand;
 
 $now_formatted = date('d.m.Y \u\m H:i \U\h\r');
 $safe_name = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
@@ -151,7 +152,7 @@ $html_body = <<<HTML
 </html>
 HTML;
 
-$text_body = "Neue Kontaktanfrage über Biankas Flechtglück ({$now_formatted})\n\n"
+$text_body = "Neue Kontaktanfrage über {$site_brand} ({$now_formatted})\n\n"
            . "Name:    {$name}\n"
            . "E-Mail:  {$email}\n"
            . "Telefon: " . (!empty($phone) ? $phone : 'Keine Angabe') . "\n\n"
@@ -174,7 +175,7 @@ $send_result = SimpleMailer::send(
 if ($send_result['success']) {
     send_json_response([
         'success' => true,
-        'message' => 'Vielen Dank, ' . $name . '! Deine Nachricht wurde erfolgreich an Bianka gesendet. Wir melden uns zeitnah bei dir.'
+        'message' => 'Vielen Dank, ' . $name . '! Deine Nachricht wurde erfolgreich gesendet. Wir melden uns zeitnah bei dir.'
     ]);
 } else {
     // Falls Serverversand fehlschlägt (z. B. auf lokalem XAMPP ohne SMTP):

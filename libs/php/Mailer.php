@@ -1,7 +1,7 @@
 <?php
 /**
  * ============================================================================
- * SimpleMailer: Autarker E-Mail-Versand für Biankas Flechtglück
+ * SimpleMailer: Autarker E-Mail-Versand für WeaveCMS
  * Unterstützt sowohl authentifiziertes SMTP (SSL/TLS) als auch PHP mail()
  * Ohne externe Composer-Abhängigkeiten, läuft sofort auf jedem PHP 8+ Server.
  * ============================================================================
@@ -63,7 +63,7 @@ class SimpleMailer {
             $rawFrom = trim($matches[1]);
         }
         $fromEmail = filter_var($rawFrom, FILTER_VALIDATE_EMAIL) ? $rawFrom : (filter_var($user, FILTER_VALIDATE_EMAIL) ? $user : $to);
-        $fromName = !empty($smtp['from_name']) ? trim($smtp['from_name']) : 'Biankas Flechtglück';
+        $fromName = !empty($smtp['from_name']) ? trim($smtp['from_name']) : 'Atelier Musterfrau';
 
         // Prüfen, ob für verschlüsselte Verbindung (TLS/SSL) das PHP-Modul openssl vorhanden ist
         if (($secure === 'ssl' || $secure === 'tls') && !extension_loaded('openssl')) {
@@ -209,7 +209,7 @@ class SimpleMailer {
         // 8. E-Mail-Header & Multipart-Body aufbauen
         $boundary = 'b1_' . md5(uniqid((string)microtime(true), true));
         $cleanHost = preg_replace('/[^a-zA-Z0-9.-]/', '', $clientHost);
-        $messageId = '<' . md5(uniqid((string)microtime(true), true)) . '@' . (!empty($cleanHost) ? $cleanHost : 'bianka-wischnewski.de') . '>';
+        $messageId = '<' . md5(uniqid((string)microtime(true), true)) . '@' . (!empty($cleanHost) ? $cleanHost : 'localhost') . '>';
 
         $encodedSubject = self::encodeHeader($subject);
         $encodedFromName = self::encodeHeader($fromName);
@@ -235,7 +235,7 @@ class SimpleMailer {
         $headers[] = "Subject: $encodedSubject";
         $headers[] = "MIME-Version: 1.0";
         $headers[] = "Content-Type: multipart/alternative; boundary=\"$boundary\"";
-        $headers[] = "X-Mailer: BiankasFlechtglueck/1.0";
+        $headers[] = "X-Mailer: WeaveCMS/1.0";
 
         $body = implode("\r\n", $headers) . "\r\n\r\n";
         
@@ -276,16 +276,16 @@ class SimpleMailer {
      */
     public static function sendViaPhpMail($to, $subject, $htmlBody, $textBody, $replyToEmail, $replyToName, $smtp = null) {
         $boundary = 'b1_' . md5(uniqid((string)microtime(true), true));
-        $rawFrom = !empty($smtp['from_email']) ? trim($smtp['from_email']) : 'noreply@' . (!empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'bianka-wischnewski.de');
+        $rawFrom = !empty($smtp['from_email']) ? trim($smtp['from_email']) : 'noreply@' . (!empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
         if (preg_match('/<([^>]+)>/', $rawFrom, $matches)) {
             $rawFrom = trim($matches[1]);
         }
-        $fromEmail = filter_var($rawFrom, FILTER_VALIDATE_EMAIL) ? $rawFrom : 'info@bianka-wischnewski.de';
-        $fromName = !empty($smtp['from_name']) ? trim($smtp['from_name']) : 'Biankas Flechtglück';
+        $fromEmail = filter_var($rawFrom, FILTER_VALIDATE_EMAIL) ? $rawFrom : 'kontakt@maxima-musterfrau.de';
+        $fromName = !empty($smtp['from_name']) ? trim($smtp['from_name']) : 'Atelier Musterfrau';
 
-        $clientHost = !empty($_SERVER['SERVER_NAME']) ? preg_replace('/:[0-9]+$/', '', $_SERVER['SERVER_NAME']) : 'bianka-wischnewski.de';
+        $clientHost = !empty($_SERVER['SERVER_NAME']) ? preg_replace('/:[0-9]+$/', '', $_SERVER['SERVER_NAME']) : 'localhost';
         $cleanHost = preg_replace('/[^a-zA-Z0-9.-]/', '', $clientHost);
-        $messageId = '<' . md5(uniqid((string)microtime(true), true)) . '@' . (!empty($cleanHost) ? $cleanHost : 'bianka-wischnewski.de') . '>';
+        $messageId = '<' . md5(uniqid((string)microtime(true), true)) . '@' . (!empty($cleanHost) ? $cleanHost : 'localhost') . '>';
 
         $encodedSubject = self::encodeHeader($subject);
         $encodedFromName = self::encodeHeader($fromName);

@@ -25,23 +25,23 @@ $data = load_data($data_file, [
         'privacy_policy_text' => ''
     ],
     'texts' => [
-        'hero_title' => 'Handgefertigte Flechtkunst & Workshops',
-        'hero_subtitle' => 'Traditionelles Handwerk, kreative Körbe, Weidenzäune und Flechtkurse.',
-        'about_title' => 'Über meine Flechtkunst',
-        'about_text' => 'Flechthandwerk ist für mich eine Verbindung aus Natur, Tradition und moderner Kreativität...',
-        'gallery_title' => 'Galerie & Handarbeit',
-        'gallery_subtitle' => 'Ein Auszug aus meinen handgeflochtenen Korbwaren, Rankhilfen, Zäunen und dekorativer Naturflechterei.',
-        'courses_title' => 'Flechtkurse & Workshops',
-        'courses_subtitle' => 'Lerne das traditionelle Korbflechten und die Weidenverarbeitung in gemütlicher Werkstatt-Atmosphäre selbst kennen.',
-        'past_courses_title' => 'Impressionen vergangener Kurse',
-        'past_courses_subtitle' => 'Ein Rückblick auf gemeinsame Flechtstunden und entstandene Unikate.',
-        'contact_intro_text' => 'Hast du Fragen zu meinen Kursen, möchtest einen Gutschein erwerben oder ein individuelles Weidengeflecht anfragen?',
-        'contact_name' => 'Bianka Wischnewski',
-        'contact_street' => 'Kraaker Straße 14',
-        'contact_city' => '19077 Rastow',
-        'contact_phone' => '+49 173 7602685',
-        'contact_email' => 'info@bianka-wischnewski.de',
-        'contact_instagram' => 'biankas.flechtglueck'
+        'hero_title' => 'Handgefertigte Unikate & Workshops',
+        'hero_subtitle' => 'Traditionelles Handwerk, kreative Formgebung, Naturdesign und inspirierende Praxiskurse.',
+        'about_title' => 'Über mein Atelier & Handwerk',
+        'about_text' => 'Handwerkskunst ist für mich eine lebendige Verbindung aus Natur, Tradition und zeitgenössischem Design...',
+        'gallery_title' => 'Galerie & Werkstücke',
+        'gallery_subtitle' => 'Ein Auszug aus meinen handgefertigten Designobjekten, Accessoires und maßgeschneiderten Auftragsarbeiten.',
+        'courses_title' => 'Kurse & Kreativ-Workshops',
+        'courses_subtitle' => 'Lerne die Grundlagen der handwerklichen Gestaltung in persönlicher, inspirierender Werkstatt-Atmosphäre selbst kennen.',
+        'past_courses_title' => 'Impressionen vergangener Workshops',
+        'past_courses_subtitle' => 'Ein Rückblick auf gemeinsame kreative Stunden und entstandene Meisterstücke.',
+        'contact_intro_text' => 'Hast du Fragen zu meinen Workshops, möchtest einen Gutschein erwerben oder ein individuelles Werkstück anfragen?',
+        'contact_name' => 'Maxima Musterfrau',
+        'contact_street' => 'Musterstraße 12',
+        'contact_city' => '12345 Musterstadt',
+        'contact_phone' => '+49 123 4567890',
+        'contact_email' => 'kontakt@maxima-musterfrau.de',
+        'contact_instagram' => 'maxima.musterfrau'
     ],
     'gallery' => [],
     'courses' => [],
@@ -118,8 +118,8 @@ $card_radius = $data['settings']['card_radius'] ?? '20px';
  * 8. SEO- & OpenGraph-Metadaten vorbereiten
  */
 $seo = $data['seo'] ?? [];
-$hero_title = $data['texts']['hero_title'] ?? 'Handgefertigte Flechtkunst & Workshops';
-$contact_name = $data['texts']['contact_name'] ?? 'Bianka Wischnewski';
+$hero_title = $data['texts']['hero_title'] ?? 'Handgefertigte Unikate & Workshops';
+$contact_name = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
 
 $meta_title = !empty(trim($seo['meta_title'] ?? ''))
     ? trim($seo['meta_title'])
@@ -212,10 +212,10 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
          ====================================================================== -->
     <header class="header-nav">
         <div class="header-container">
-            <a href="#" class="logo"><?php if ($logo_pos === 'header_before'): echo $header_logo_html; endif; ?><span>Biankas Flechtglück</span><?php if ($logo_pos === 'header_after'): echo $header_logo_html; endif; ?></a>
+            <a href="#" class="logo"><?php if ($logo_pos === 'header_before'): echo $header_logo_html; endif; ?><span><?php echo htmlspecialchars($data['texts']['contact_name'] ?? 'Atelier Musterfrau'); ?></span><?php if ($logo_pos === 'header_after'): echo $header_logo_html; endif; ?></a>
             <nav class="nav-links">
                 <a href="#gallery" class="nav-item">Galerie</a>
-                <a href="#courses" class="nav-item">Flechtkurse</a>
+                <a href="#courses" class="nav-item">Workshops</a>
                 <a href="#about" class="nav-item">Über mich</a>
                 <label for="menu-toggle" class="nav-item" style="cursor: pointer;">Kontakt</label>
                 <label for="menu-toggle-impressum" class="nav-item" style="cursor: pointer;">Impressum</label>
@@ -247,7 +247,7 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
             <?php endif; ?>
 
             <?php if (empty($visible_gallery)): ?>
-                <p style="text-align: center; color: var(--text-secondary);">Noch keine Flechtwerke in der Galerie.</p>
+                <p style="text-align: center; color: var(--text-secondary);">Noch keine Werkstücke in der Galerie.</p>
             <?php else: ?>
                 <!-- Category Filter Buttons -->
                 <div class="filter-container">
@@ -443,7 +443,7 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
     <!-- Footer -->
     <footer style="margin-top: 5rem; padding: 4rem 0; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
         <div class="container" style="display: flex; flex-direction: column; gap: 1.5rem;">
-            <p>&copy; <?php echo date('Y'); ?> Bianka Wischnewski. Alle Rechte vorbehalten.</p>
+            <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars($data['texts']['contact_name'] ?? 'Maxima Musterfrau'); ?>. Alle Rechte vorbehalten.</p>
             <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; align-items: center;">
                 <label for="menu-toggle" style="cursor: pointer; color: var(--primary); font-weight:600;">Kontakt</label>
                 <label for="menu-toggle-impressum" style="cursor: pointer; color: var(--primary); font-weight:600;">Impressum &amp; Datenschutz</label>
@@ -504,7 +504,7 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
             <!-- Interactive Request form inside sidebar -->
             <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
                 <h4 style="color: var(--text-primary); margin-bottom: 1rem;">Nachricht schreiben</h4>
-                <form onsubmit="sendRequestEmail(event, '<?php echo htmlspecialchars($data['texts']['contact_email'] ?? 'info@bianka-wischnewski.de', ENT_QUOTES, 'UTF-8'); ?>')">
+                <form onsubmit="sendRequestEmail(event, '<?php echo htmlspecialchars($data['texts']['contact_email'] ?? 'kontakt@maxima-musterfrau.de', ENT_QUOTES, 'UTF-8'); ?>')">
                     
                     <!-- Honeypot-Falle für Spam-Roboter (für menschliche Besucher unsichtbar) -->
                     <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
@@ -699,8 +699,8 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
         
         window.SERVER_SPAM_ICONS = <?php echo json_encode(array_values(get_active_captcha_icons($data))); ?>;
         window.SERVER_SMTP_ENABLED = <?php echo (!empty($data['settings']['smtp']['enabled']) && !empty($data['settings']['smtp']['host'])) ? 'true' : 'false'; ?>;
-        window.CONTACT_MAIL_GREETING = <?php echo json_encode($data['texts']['contact_mail_greeting'] ?? 'Hallo Bianka,'); ?>;
-        window.COURSE_REQUEST_TEMPLATE = <?php echo json_encode($data['texts']['course_request_template'] ?? "Hallo Bianka,\n\nich interessiere mich für deinen Kurs \"{kurs}\" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\n\nViele Grüße"); ?>;
+        window.CONTACT_MAIL_GREETING = <?php echo json_encode($data['texts']['contact_mail_greeting'] ?? 'Hallo Maxima,'); ?>;
+        window.COURSE_REQUEST_TEMPLATE = <?php echo json_encode($data['texts']['course_request_template'] ?? "Hallo Maxima,\n\nich interessiere mich für deinen Workshop \"{kurs}\" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\n\nViele Grüße"); ?>;
     </script>
     
     <!-- Externes Haupt-JavaScript einbinden -->
