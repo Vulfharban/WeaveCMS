@@ -1,4 +1,4 @@
-﻿# WeaveCMS
+# WeaveCMS
 
 > **Leichtgewichtiges, modulares Sektions-CMS mit Flat-File- & SQL-Unterstützung.**
 
@@ -15,5 +15,6 @@ WeaveCMS ist ein schnelles, modernes und abhängigkeitsfreies Content-Management
 - **Sicherheits-Härtung:** CSRF-Schutz, XSS-Prävention, Brute-Force- & Rate-Limiting, strikte Upload-Absicherung und Security-Header.
 - **100 % Standard-PHP:** Keine schweren Framework-Abhängigkeiten oder Build-Tools für den Serverbetrieb erforderlich.
 
-## Entwicklungs-Roadmap
-Die vollständige 12-Punkte-Entwicklungs-Roadmap befindet sich in [`libs/docs/roadmap.md`](libs/docs/roadmap.md).
+## Dokumentation & Roadmap
+- **Feature-Katalog & Update-Portal:** [`libs/docs/features.md`](libs/docs/features.md)
+- **12-Phasen Entwicklungs-Roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
