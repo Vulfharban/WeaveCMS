@@ -14,4 +14,4 @@ WeaveCMS ist ein schnelles, modernes und abhängigkeitsfreies Content-Management
 - **100 % Standard-PHP:** Keine schweren Framework-Abhängigkeiten oder Build-Tools für den Serverbetrieb erforderlich.
 
 ## Entwicklungs-Roadmap
-Die vollständige 10-Punkte-Entwicklungs-Roadmap befindet sich in [`libs/docs/project.md`](libs/docs/project.md).
+Die vollständige 10-Punkte-Entwicklungs-Roadmap befindet sich in [`libs/docs/roadmap.md`](libs/docs/roadmap.md).
