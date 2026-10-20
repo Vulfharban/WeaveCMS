@@ -1,4 +1,4 @@
-# WeaveCMS – Produkt- & Entwicklungs-Roadmap
+﻿# WeaveCMS – Produkt- & Entwicklungs-Roadmap
 
 > **Leichtgewichtiges, modulares Sektions-CMS mit Flat-File- (JSON) & SQL-Unterstützung.**
 
@@ -32,7 +32,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
-## 🚀 Arbeitsablauf: Der 10-Phasen-Entwicklungsplan
+## 🚀 Arbeitsablauf: Der 12-Phasen-Entwicklungsplan
 
 ```
 [Phase 1: Recht & Texte] ──▶ [Phase 2: Datensicherheit] ──▶ [Phase 3: SEO & Sharing] ──▶ [Phase 4: Anfragen-Log]
@@ -43,8 +43,8 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   (Setup-Wizard & Rollout)       (Reihenfolge & Builder)       (Dualer Storage-Treiber)      (i18n & Sprachumschalter)
          │
          ▼
-[Phase 9: Security Hardening] ──▶ [Phase 10: Multi-User & RBAC]
-  (Schwachstellen & Schutz)          (Admin / Moderator / Content)
+[Phase 9: Security Hardening] ──▶ [Phase 10: Multi-User & RBAC] ──▶ [Phase 11: Logo & Mobile] ──▶ [Phase 12: Release & Updates]
+  (Schwachstellen & Schutz)          (Admin / Moderator / Content)     (SVG/Upload & Audit)         (ZIP/7z & Remote Version-Check)
 ```
 
 ---
@@ -251,3 +251,85 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Backend-Navigation rendert nur erlaubte Reiter für den jeweiligen Benutzer.
 - [ ] **10.5 Prüfung & Abnahme:**
   - Benutzer für alle 3 Rollen anlegen und Berechtigungsgrenzen testen.
+
+---
+
+### Phase 11: Eigenes Logo (Upload, Skalierung & Favicon) & Umfassendes Mobile-Responsiveness-Audit
+*Ziel: Volle visuelle Identität für jedes Projekt (flexibles Logo & Favicon) sowie perfekte, fehlerfreie Bedienung und Darstellung auf allen mobilen Geräten (Smartphones & Tablets).*
+
+- [ ] **11.1 Logo- & Branding-Verwaltung im Adminbereich:**
+  - Konfigurierbar im Bereich *„Design & Logo“*:
+    - **Logo-Typ wählbar:**
+      - *Reines Text-Logo mit Slogan* (Standard)
+      - *Bild- / SVG-Logo*
+      - *Kombination aus Bild-Icon + Text*
+    - **Logo-Upload:** Unterstützt SVG (vektorbasiert, randscharf), PNG (transparent), WebP und JPG.
+    - **Logo-Dimensionierung:** Schieberegler / Eingabefeld für maximale Höhe (z. B. 32px bis 100px) und automatische Breiten-Skalierung, damit der Header nicht verzerrt wird.
+    - **Favicon-Upload:** Hochladen von `.ico`, `.svg` oder `.png` für Browser-Tabs und Smartphone-Home-Screen (`apple-touch-icon`).
+    - **Direkte Live-Vorschau:** Sofortige Ansicht des hochgeladenen Logos auf hellem und dunklem Header-Hintergrund.
+- [ ] **11.2 Frontend-Integration & Logo-Rendering (`index.php`):**
+  - Dynamisches Ausspielen des Bild- bzw. Text-Logos im Desktop-Header und mobilen Header.
+  - Saubere Einbindung im `<head>` als Favicon und App-Icon.
+  - Automatisches Fallback auf den Projektnamen, falls kein Bild hochgeladen wurde.
+- [ ] **11.3 Vollständiges Mobile-Responsiveness-Audit (Alle Breakpoints):**
+  - **Header & Navigation:**
+    - Hamburger-Button und Slide-In-Menü mit Touch-freundlichen Abständen (Mindesthöhe / Touch-Target >= 44x44px nach WCAG).
+    - Kein horizontales Scrollen / Layout-Brechen auf kleinen Displays (ab 360px Breite).
+  - **Typografie & Formulare:**
+    - Fließende Schriftgrößen via `clamp()`, lesbar ohne manuelles Zoomen.
+    - Formulareingaben mit `font-size: 16px` auf mobilen Geräten (verhindert das automatische, störende Hineinzoomen auf iPhones/iOS Safari).
+  - **Galerie & Lightbox auf Touch-Geräten:**
+    - Touch-/Swipe-Gestenunterstützung oder intuitive Schließen- und Weiter-Buttons in der Lightbox.
+  - **Testmatrix:**
+    - Smartphones (360px, 390px, 414px – iPhone SE, iPhone 14/15, Samsung Galaxy).
+    - Tablets (768px, 820px, 1024px – iPad Portrait & Landscape).
+- [ ] **11.4 Prüfung & Abnahme:**
+  - Eigenes SVG- und PNG-Logo hochladen, Größe anpassen und Responsiveness im Browser mit Device-Emulation überprüfen.
+  - Formulareingaben und Menübedienung auf Mobile-Viewports testen.
+
+---
+
+### Phase 12: Release-Packaging, Update-Prüfung & Versionskontrolle
+*Ziel: Automatisierte Erstellung von distributionsfertigen Release-Archiven (ZIP/7z) und ein Update-Prüfsystem im CMS, das neue Versionen erkennt, Unterschiede anzeigt und die Aktualisierung ermöglicht.*
+
+- [ ] **12.1 CMS-Versionskontrolle & Remote Version-Check:**
+  - Zentrale Versionskonstante im Core: `define('WEAVE_VERSION', '1.0.0');`
+  - Konfigurierbare Update-Server-URL im Adminbereich (oder Vorgabe in `config.php`, z. B. `https://updates.weavecms.de/version.json` oder GitHub Releases API).
+  - **Automatischer/manueller Version-Check:**
+    - Admin ruft die Remote-URL via `file_get_contents` oder `cURL` ab (mit Timeout von 3 Sekunden und Caching von 12 Stunden).
+    - Server liefert Metadaten:
+      ```json
+      {
+        "latest_version": "1.1.0",
+        "release_date": "2026-11-01",
+        "changelog_url": "https://weavecms.de/changelog/1.1.0",
+        "download_url": "https://weavecms.de/downloads/weavecms-1.1.0.zip",
+        "update_package_url": "https://weavecms.de/downloads/update-1.0-to-1.1.zip",
+        "min_php": "8.0",
+        "requires_db_migration": false
+      }
+      ```
+    - Visueller Indikator im Admin-Header / Dashboard:
+      - *System ist aktuell (v1.0.0)* oder
+      - *Update verfügbar: Version 1.1.0 [Changelog ansehen | Herunterladen]*
+- [ ] **12.2 Release-Packaging-Generator (Build-Skript für ZIP / 7z):**
+  - Bereitstellung eines internen CLI- oder Admin-Skripts (`tools/build_release.php`):
+    - **Typ A: Voll-Paket (`weavecms-vX.Y.Z.zip`):**
+      - Für Neuinstallationen auf Webspaces.
+      - Enthält den gesamten CMS-Kern, `install.php`, Standard-Dateien, neutrale Beispieldaten (`data.sample.json`), `.htaccess`, Dokumentation.
+      - Schließt strikt aus: `installed.lock`, `data.json`, `contacts.json`, `config.local.php`, `backups/`, echte Kundenuploads in `images/uploads/*`.
+    - **Typ B: Update-Paket (`update-vX.to.vY.zip`):**
+      - Für bestehende Live-Websites.
+      - Enthält **ausschließlich** die aktualisierten System- und Core-Dateien (`index.php`, `admin/`, `libs/`, `config.php`).
+      - Schließt ausnahmslos alle Nutzerdaten, Einstellungen, Datenbanken und Upload-Ordner aus, damit niemals Daten überschrieben werden!
+- [ ] **12.3 Intelligente Update-Strategie nach Datenspeicher-Typ:**
+  - **Bei Flat-File (JSON-Modus):**
+    - Systemdateien werden aktualisiert.
+    - Automatische Datenstruktur-Prüfung (`SchemaMigration`): Ein Upgrader prüft beim ersten Login nach dem Update, ob in `data.json` neue Konfigurations-Keys fehlen, und ergänzt diese rückwärtskompatibel mit Standardwerten.
+  - **Bei relationaler Datenbank (SQL-Modus / SQLite / MySQL):**
+    - Ausführung versionierter SQL-Migrationsskripte (z. B. `migrations/update_1.1.0.sql`), um Tabellen, Indizes oder neue Spalten gefahrlos zu erweitern.
+- [ ] **12.4 Vorab-Sicherungs-Pflicht vor jedem Update:**
+  - Vor dem Entpacken oder Anwenden von Updates legt das System automatisch einen vollständigen Snapshot in `backups/` an (Pre-Update-Backup).
+- [ ] **12.5 Prüfung & Abnahme:**
+  - Build-Skript testen: Erstellen eines sauberen ZIP-Archivs und Entpacken auf einer Testinstanz.
+  - Test-Versionsabfrage mit lokaler `version.json` durchführen und Update-Hinweis im Adminbereich verifizieren.
