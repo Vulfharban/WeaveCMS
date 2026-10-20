@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/libs/php/Mailer.php';
+require_once __DIR__ . '/libs/php/ContactInbox.php';
 
 // Datenbasis laden
 $data_file = __DIR__ . '/data.json';
@@ -73,6 +74,21 @@ if (empty($message) || mb_strlen($message, 'UTF-8') < 5) {
 $allowed_icons = array_keys(get_active_captcha_icons($data));
 if (empty($selected_icon) || empty($target_icon) || $selected_icon !== $target_icon || !in_array($selected_icon, $allowed_icons, true)) {
     send_json_response(['success' => false, 'error' => 'Die Sicherheitsprüfung (Symbol-Auswahl) war nicht korrekt. Bitte versuche es erneut.']);
+}
+
+// 3b. Anfrage lokal im Admin-Postfach archivieren (unabhängig vom Mailversand)
+$course_ref = mb_substr(str_replace(["\r", "\n"], ' ', trim(strip_tags($_POST['course_ref'] ?? ''))), 0, 200, 'UTF-8');
+ContactInbox::add([
+    'name' => $name,
+    'email' => $email,
+    'phone' => $phone,
+    'message' => $message,
+    'course_ref' => $course_ref,
+]);
+
+// Reiner Archivierungsmodus (Besucher sendet per Mailto-Programm)
+if (!empty($_POST['archive_only'])) {
+    send_json_response(['success' => true, 'message' => 'Anfrage archiviert.']);
 }
 
 // 4. Empfänger und Konfiguration ermitteln
