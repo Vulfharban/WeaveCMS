@@ -95,18 +95,19 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 3: Universelles SEO- & Social-Sharing-Management
 *Ziel: Optimale Auffindbarkeit bei Google und ansprechende Darstellung beim Teilen in sozialen Netzwerken.*
 
-- [ ] **3.1 Globales Meta- & Social-Sharing im Adminbereich:**
-  - Einstellungsfelder unter *„SEO & Metadaten“*:
-    - Meta Title (Seitentitel mit Vorschau auf 60-Zeichen-Länge).
-    - Meta Description (Beschreibung mit Vorschau auf 155-Zeichen-Länge).
+- [x] **3.1 Globales Meta- & Social-Sharing im Adminbereich:**
+  - Einstellungsfelder unter *„SEO & Sharing“* (neuer Reiter in `.admin-nav`):
+    - Meta Title (Seitentitel mit Vorschau & Zeichenzähler auf 60-Zeichen-Länge).
+    - Meta Description (Beschreibung mit Vorschau & Zeichenzähler auf 155-Zeichen-Länge).
     - Meta Keywords (kommagetrennt).
-    - OpenGraph Sharing Image (Bild-Upload für Facebook, WhatsApp, LinkedIn, X/Twitter).
+    - OpenGraph Sharing Image (Bild-Upload für Facebook, WhatsApp, LinkedIn, X/Twitter mit Vorschau).
     - Canonical URL & Roboter-Steuerung (`index, follow`).
-- [ ] **3.2 Dynamische Head-Generierung im Frontend (`index.php`):**
-  - Saubere Ausgabe aller Standard-Tags und OpenGraph-Tags (`og:title`, `og:description`, `og:image`, `og:url`, `og:type`).
-  - Twitter Card Tags (`twitter:card`, `twitter:title`, `twitter:image`).
-- [ ] **3.3 Prüfung & Abnahme:**
-  - Quelltextprüfung der Meta-Tags und Validierung mit Sharing-Debuggern (z. B. OpenGraph.xyz).
+    - Live SERP & Social Card Preview in Echtzeit.
+- [x] **3.2 Dynamische Head-Generierung im Frontend (`index.php`):**
+  - Saubere Ausgabe aller Standard-Tags und OpenGraph-Tags (`og:title`, `og:description`, `og:image`, `og:url`, `og:type`, `og:site_name`, `og:locale`).
+  - Twitter Card Tags (`twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`).
+- [x] **3.3 Prüfung & Abnahme:**
+  - Quelltextprüfung der Meta-Tags und Live-Vorschau im Browser verifiziert.
 
 ---
 

@@ -34,6 +34,14 @@
         ],
         "privacy_policy_text": ""
     },
+    "seo": {
+        "meta_title": "WeaveCMS | Modernes Flat-File CMS",
+        "meta_description": "Das innovative Web-CMS fDas innovative Web-CMS fuer Werkstaetten und Handwerk.",
+        "meta_keywords": "Weidenflechten, Korbflechten, Flechtkurs, Weidenkunst, Korbwaren, Handarbeit, Weidenzäune",
+        "og_image": "\/images\/default_wicker1.png",
+        "robots": "index, follow",
+        "canonical_url": ""
+    },
     "categories": [
         "Korbwaren",
         "Gartendeko",
