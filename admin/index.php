@@ -458,23 +458,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     /**
-     * AKTION: Textinhalte für Startseite (Hero) und Über-mich-Bereich aktualisieren
+     * AKTION: Textinhalte für Startseite (Hero), Über mich und alle Sektionen aktualisieren
      */
     if ($action === 'update_texts') {
         $data['texts']['hero_title'] = $_POST['hero_title'] ?? '';
         $data['texts']['hero_subtitle'] = $_POST['hero_subtitle'] ?? '';
         $data['texts']['about_title'] = $_POST['about_title'] ?? '';
         $data['texts']['about_text'] = $_POST['about_text'] ?? '';
+        $data['texts']['gallery_title'] = $_POST['gallery_title'] ?? 'Galerie & Handarbeit';
+        $data['texts']['gallery_subtitle'] = $_POST['gallery_subtitle'] ?? '';
+        $data['texts']['courses_title'] = $_POST['courses_title'] ?? 'Flechtkurse & Workshops';
+        $data['texts']['courses_subtitle'] = $_POST['courses_subtitle'] ?? '';
+        $data['texts']['past_courses_title'] = $_POST['past_courses_title'] ?? 'Impressionen vergangener Kurse';
+        $data['texts']['past_courses_subtitle'] = $_POST['past_courses_subtitle'] ?? '';
+        $data['texts']['contact_intro_text'] = $_POST['contact_intro_text'] ?? '';
 
         if (save_data($data_file, $data)) {
-            $success_msg = 'Startseiten- & Über-mich-Texte erfolgreich gespeichert!';
+            $success_msg = 'Inhaltstexte aller Sektionen erfolgreich gespeichert!';
         } else {
             $error_msg = 'Fehler beim Speichern der Texte.';
         }
     }
 
     /**
-     * AKTION: Impressum & Kontaktdaten (Adresse, E-Mail, Telefon, Instagram, etc.) aktualisieren
+     * AKTION: Impressum, Kontaktdaten & DSGVO-Datenschutzerklärung aktualisieren
      */
     if ($action === 'update_impressum') {
         $data['texts']['contact_name'] = $_POST['contact_name'] ?? '';
@@ -489,8 +496,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['texts']['contact_mail_greeting'] = trim($_POST['contact_mail_greeting'] ?? 'Hallo Bianka,');
         $data['texts']['course_request_template'] = trim($_POST['course_request_template'] ?? '');
 
+        // DSGVO-Datenschutzerklärung sichern (in settings und texts redundant für maximale Kompatibilität)
+        $privacy_text = trim($_POST['privacy_policy_text'] ?? '');
+        $data['settings']['privacy_policy_text'] = $privacy_text;
+        $data['texts']['privacy_policy_text'] = $privacy_text;
+
         if (save_data($data_file, $data)) {
-            $success_msg = 'Impressum, Kontaktdaten & Mail-Vorlagen erfolgreich gespeichert!';
+            $success_msg = 'Impressum, Kontaktdaten &amp; Datenschutzerklärung erfolgreich gespeichert!';
         } else {
             $error_msg = 'Fehler beim Speichern des Impressums.';
         }
@@ -836,12 +848,17 @@ foreach ($data['gallery'] as $item) {
 
         <!-- ──────────────── SECTION 1: HOMEPAGE & ABOUT TEXTS ──────────────── -->
         <div id="tab-texts" class="admin-section active card" style="padding: 2.5rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Startseite &amp; Über-mich-Texte</h2>
+            <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Startseite &amp; Universelle Sektionstexte</h2>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem;">
+                Hier kannst du alle Überschriften, Untertitel und Einleitungstexte für die Hauptbereiche deiner Website zentral verwalten.
+            </p>
             <form method="POST" action="">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="update_texts">
                 
-                <h3 style="font-size: 1.2rem; margin-top: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">Startseite &amp; Hero-Bereich</h3>
+                <h3 style="font-size: 1.2rem; margin-top: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    🌿 Startseite &amp; Hero-Bereich
+                </h3>
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label>Hero-Titel (große Hauptüberschrift)</label>
                     <input type="text" name="hero_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['hero_title'] ?? ''); ?>" required>
@@ -851,27 +868,79 @@ foreach ($data['gallery'] as $item) {
                     <input type="text" name="hero_subtitle" class="form-control" value="<?php echo htmlspecialchars($data['texts']['hero_subtitle'] ?? ''); ?>" required>
                 </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">Über Mich &amp; Meine Flechtkunst</h3>
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    👤 Über Mich &amp; Meine Flechtkunst
+                </h3>
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label>Über Mich - Überschrift</label>
                     <input type="text" name="about_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['about_title'] ?? ''); ?>" required>
                 </div>
                 <div class="form-group" style="margin-bottom: 1.5rem;">
                     <label>Über Mich - Beschreibungstext</label>
-                    <textarea name="about_text" class="form-control" rows="7" required><?php echo htmlspecialchars($data['texts']['about_text'] ?? ''); ?></textarea>
+                    <textarea name="about_text" class="form-control" rows="6" required><?php echo htmlspecialchars($data['texts']['about_text'] ?? ''); ?></textarea>
+                </div>
+
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    🖼️ Galerie &amp; Handarbeit
+                </h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Galerie - Titel</label>
+                        <input type="text" name="gallery_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['gallery_title'] ?? 'Galerie & Handarbeit'); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Galerie - Untertitel / Beschreibung</label>
+                        <input type="text" name="gallery_subtitle" class="form-control" value="<?php echo htmlspecialchars($data['texts']['gallery_subtitle'] ?? 'Ein Auszug aus meinen handgeflochtenen Korbwaren, Rankhilfen, Zäunen und dekorativer Naturflechterei.'); ?>">
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    📅 Flechtkurse &amp; Workshops
+                </h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Kurse - Titel</label>
+                        <input type="text" name="courses_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['courses_title'] ?? 'Flechtkurse & Workshops'); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kurse - Untertitel / Infotext</label>
+                        <input type="text" name="courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($data['texts']['courses_subtitle'] ?? 'Lerne das traditionelle Korbflechten und die Weidenverarbeitung in gemütlicher Werkstatt-Atmosphäre selbst kennen.'); ?>">
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    📸 Impressionen vergangener Kurse
+                </h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Impressionen - Titel</label>
+                        <input type="text" name="past_courses_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['past_courses_title'] ?? 'Impressionen vergangener Kurse'); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Impressionen - Untertitel (optional)</label>
+                        <input type="text" name="past_courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($data['texts']['past_courses_subtitle'] ?? 'Ein Rückblick auf gemeinsame Flechtstunden und entstandene Unikate.'); ?>">
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    💬 Kontaktbereich (Seitenleiste &amp; Formular)
+                </h3>
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label>Kontakt - Einleitungstext über dem Formular</label>
+                    <textarea name="contact_intro_text" class="form-control" rows="3"><?php echo htmlspecialchars($data['texts']['contact_intro_text'] ?? 'Hast du Fragen zu meinen Kursen, möchtest einen Gutschein erwerben oder ein individuelles Weidengeflecht anfragen?'); ?></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary">
-                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">save</span> Startseiten-Texte speichern
+                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">save</span> Sektionstexte speichern
                 </button>
             </form>
         </div>
 
         <!-- ──────────────── SECTION 2: IMPRESSUM & CONTACT DATA ──────────────── -->
         <div id="tab-impressum" class="admin-section card" style="padding: 2.5rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">📋 Impressum &amp; Kontaktdaten verwalten</h2>
+            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">📋 Impressum, Rechtliches &amp; Datenschutz verwalten</h2>
             <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem;">
-                Hier kannst du alle Adress-, Kontakt- und Impressumsdaten anpassen. Diese werden automatisch im Ausklappmenü (Kontakt &amp; Impressum) sowie im Fußbereich der Website angezeigt.
+                Hier kannst du alle Adress-, Kontakt-, Impressums- und DSGVO-Datenschutzdaten anpassen. Diese werden automatisch im Ausklappmenü (Kontakt &amp; Impressum/Datenschutz) sowie im Fußbereich der Website angezeigt.
             </p>
 
             <form method="POST" action="">
@@ -927,6 +996,36 @@ foreach ($data['gallery'] as $item) {
                     <textarea name="impressum_disclaimer" class="form-control" rows="4"><?php echo htmlspecialchars($data['texts']['impressum_disclaimer'] ?? 'Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.'); ?></textarea>
                 </div>
 
+                <!-- ──────────────── DSGVO DATENSCHUTZERKLÄRUNG ──────────────── -->
+                <div style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+                        <div>
+                            <h3 style="font-size: 1.2rem; margin:0; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+                                <span class="material-icons" style="color:var(--primary); font-size:22px;">shield</span>
+                                Datenschutzerklärung (DSGVO Art. 13)
+                            </h3>
+                            <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 4px 0 0 0;">
+                                Vollständig abmahnsicherer Text für deine Website. Unterstützt übersichtliche Markdown-Formatierung (z. B. <code>### Überschrift</code>, <code>**Fett**</code>, <code>- Listenpunkt</code>).
+                            </p>
+                        </div>
+                        <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.82rem; display:inline-flex; align-items:center; gap:6px;" onclick="loadDefaultPrivacyPolicy();" title="Ersetzt den Text durch die rechtssichere Standard-DSGVO-Vorlage">
+                            <span class="material-icons" style="font-size:16px;">restore</span> Standard-DSGVO-Vorlage einfügen
+                        </button>
+                    </div>
+
+                    <?php 
+                        $cur_privacy = !empty($data['settings']['privacy_policy_text']) 
+                            ? $data['settings']['privacy_policy_text'] 
+                            : (!empty($data['texts']['privacy_policy_text']) ? $data['texts']['privacy_policy_text'] : get_default_privacy_policy_text($data));
+                    ?>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <textarea id="privacy_policy_text" name="privacy_policy_text" class="form-control" rows="12" style="font-family: monospace, sans-serif; font-size: 0.88rem; line-height: 1.55; white-space: pre-wrap;"><?php echo htmlspecialchars($cur_privacy); ?></textarea>
+                        <small style="color:var(--text-secondary); font-size:0.8rem; margin-top:6px; display:block;">
+                            Wird im Slide-In-Menü "Impressum &amp; Datenschutz" dynamisch und sicher formatiert ausgegeben.
+                        </small>
+                    </div>
+                </div>
+
                 <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
                     ✉️ E-Mail-Texte &amp; Vorlagen
                 </h3>
@@ -951,7 +1050,7 @@ foreach ($data['gallery'] as $item) {
                 </div>
 
                 <button type="submit" class="btn btn-primary">
-                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">save</span> Impressum, Kontaktdaten &amp; Mail-Vorlagen speichern
+                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">save</span> Impressum, Kontaktdaten &amp; Datenschutzerklärung speichern
                 </button>
             </form>
         </div>
@@ -2132,6 +2231,20 @@ foreach ($data['gallery'] as $item) {
 
     <script>
         const serverActiveTab = <?php echo json_encode($active_tab); ?>;
+        const DEFAULT_PRIVACY_POLICY = <?php echo json_encode(get_default_privacy_policy_text($data)); ?>;
+        function loadDefaultPrivacyPolicy() {
+            if (confirm('Möchtest du die rechtssichere DSGVO-Standardvorlage in das Textfeld einfügen? Vorhandener Text wird dabei ersetzt.')) {
+                const ta = document.getElementById('privacy_policy_text');
+                if (ta) {
+                    ta.value = DEFAULT_PRIVACY_POLICY;
+                    if (typeof showToast === 'function') {
+                        showToast('Standard-Datenschutzerklärung eingefügt!');
+                    } else {
+                        alert('Standard-Datenschutzerklärung eingefügt! Bitte vergiss nicht, unten auf "Speichern" zu klicken.');
+                    }
+                }
+            }
+        }
     </script>
     <script src="../libs/js/admin.js?v=<?php echo file_exists('../libs/js/admin.js') ? filemtime('../libs/js/admin.js') : time(); ?>"></script>
 </body>

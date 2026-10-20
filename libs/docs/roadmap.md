@@ -1,4 +1,4 @@
-﻿# WeaveCMS – Produkt- & Entwicklungs-Roadmap
+# WeaveCMS – Produkt- & Entwicklungs-Roadmap
 
 > **Leichtgewichtiges, modulares Sektions-CMS mit Flat-File- (JSON) & SQL-Unterstützung.**
 
@@ -52,21 +52,21 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 1: Rechtliche Vollständigkeit & Universelle Sektionstexte
 *Ziel: 100 % Text-Autonomie über das CMS & rechtssichere DSGVO-Datenschutzerklärung.*
 
-- [ ] **1.1 DSGVO-Datenschutzerklärung im Backend verwalten:**
-  - Neuer Unterbereich im Adminbereich (z. B. unter *„Rechtliches & Impressum“*).
-  - Mehrzeiliges Markdown-/HTML-Textfeld für die Datenschutzerklärung.
-  - Speicherung in `data.json` unter `$data['settings']['privacy_policy_text']`.
+- [x] **1.1 DSGVO-Datenschutzerklärung im Backend verwalten:**
+  - Neuer Unterbereich im Adminbereich (unter *„Impressum & Kontaktdaten“*).
+  - Mehrzeiliges Markdown-/HTML-Textfeld für die Datenschutzerklärung inklusive *„Standard-DSGVO-Vorlage einfügen“*-Aktion.
+  - Speicherung in `data.json` unter `$data['settings']['privacy_policy_text']` (sowie `$data['texts']['privacy_policy_text']`).
   - Bereitstellung einer rechtssicheren, abmahnsicheren DSGVO-Standardvorlage (Server-Logs, Hosting, E-Mail-Kontakt, Speicherdauer, Betroffenenrechte, keine Tracking-Cookies).
-  - Dynamisches Ausspielen im Datenschutz-Modal/Slide-In im Frontend.
-- [ ] **1.2 Dynamische Untertitel & Einleitungstexte für Hauptsektionen:**
-  - Konfigurierbare Überschriften und Fließtexte für alle Inhaltsblöcke:
-    - Galerie/Portfolio: Titel, Untertitel und Beschreibungstext.
-    - Kurse/Workshops/Events: Infotext zur Anmeldung, Stornierung oder Teilnahme.
-    - Rückblick/Impressionen: Beschreibungstext.
-    - Kontaktbereich: Einleitungstext über dem Formular.
-- [ ] **1.3 Prüfung & Abnahme:**
-  - Texte im Backend ändern und sofortige Aktualisierung im Frontend verifizieren.
-  - Datenschutzerklärung im Frontend öffnen und vollständige Anzeige prüfen.
+  - Dynamisches Ausspielen im Datenschutz-Modal/Slide-In im Frontend mit Umschalter zwischen Impressum und Datenschutzerklärung.
+- [x] **1.2 Dynamische Untertitel & Einleitungstexte für Hauptsektionen:**
+  - Konfigurierbare Überschriften und Fließtexte für alle Inhaltsblöcke im Adminbereich (*„Startseite & Universelle Sektionstexte“*):
+    - Galerie/Portfolio: Titel (`gallery_title`) und Untertitel/Beschreibungstext (`gallery_subtitle`).
+    - Kurse/Workshops/Events: Titel (`courses_title`) und Untertitel/Infotext (`courses_subtitle`).
+    - Rückblick/Impressionen: Titel (`past_courses_title`) und Beschreibungstext (`past_courses_subtitle`).
+    - Kontaktbereich: Einleitungstext über dem Formular (`contact_intro_text`).
+- [x] **1.3 Prüfung & Abnahme:**
+  - Texte im Backend geändert und sofortige Aktualisierung im Frontend verifiziert.
+  - Datenschutzerklärung im Frontend über das Slide-In-Menü getestet und saubere Formatierung geprüft.
 
 ---
 

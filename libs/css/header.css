@@ -93,6 +93,10 @@
     -webkit-backdrop-filter: blur(25px);
 }
 
+.impressum-menu {
+    max-width: 540px;
+}
+
 .menu-overlay {
     position: fixed;
     top: 0;
