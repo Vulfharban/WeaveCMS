@@ -1,0 +1,17 @@
+# ==============================================================================
+# WeaveCMS: Plugin-Verzeichnis Schutz (.htaccess)
+# ==============================================================================
+
+# Verzeichnis-Auflistung deaktivieren
+Options -Indexes
+
+# Direkten Web-Aufruf von internen Dateien sperren (JSON, SQL, MD, LOG etc.)
+<FilesMatch "\.(json|lock|sql|sqlite|db|md|log|bak|env|ini|yml|yaml)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
