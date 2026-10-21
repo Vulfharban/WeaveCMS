@@ -15,11 +15,11 @@ $p_content_raw = $active_page['content'] ?? '';
 $p_content_html = MarkdownParser::parse($p_content_raw);
 ?>
 
-<div class="custom-page-container" style="max-width: 860px; margin: 3rem auto 6rem auto; padding: 0 1.25rem;">
+<div class="custom-page-container" style="max-width: 860px; margin: 100px auto 6rem auto; padding: 0 1.5rem; position: relative; z-index: 10;">
     <!-- Zurück-Button -->
     <div style="margin-bottom: 2rem;">
-        <a href="./" class="btn btn-secondary" style="display:inline-flex; align-items:center; gap:6px; padding:8px 16px; font-size:0.9rem; text-decoration:none;">
-            <span class="material-icons" style="font-size:18px;">arrow_back</span> <?php echo LanguageManager::t('btn.back_home', 'Zurück zur Startseite', $cur_lang ?? null); ?>
+        <a href="./" class="btn btn-secondary" style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; font-size:0.95rem; font-weight:600; text-decoration:none; background:#ffffff; border:1px solid rgba(62,50,40,0.18); color:var(--text-primary); border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.07); transition:all 0.2s ease;" onmouseover="this.style.borderColor='var(--primary)'; this.style.color='var(--primary)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='rgba(62,50,40,0.18)'; this.style.color='var(--text-primary)'; this.style.transform='none';">
+            <span class="material-icons" style="font-size:20px; color:var(--primary);">arrow_back</span> <?php echo LanguageManager::t('btn.back_home', 'Zurück zur Startseite', $cur_lang ?? null); ?>
         </a>
     </div>
 
