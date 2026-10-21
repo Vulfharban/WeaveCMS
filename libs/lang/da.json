@@ -50,5 +50,16 @@
     "faq.no_items": "Der er p.t. ingen ofte stillede spørgsmål tilgængelige.",
     "team.no_items": "Der er endnu ikke tilføjet nogen teammedlemmer.",
     "downloads.no_items": "Der er p.t. ingen downloads tilgængelige.",
-    "pricing.no_items": "Der er endnu ikke angivet nogen priser eller pakker."
+    "pricing.no_items": "Der er endnu ikke angivet nogen priser eller pakker.",
+    "nav.language": "Sprog",
+    "nav.hero": "Hjem",
+    "nav.gallery": "Galleri",
+    "nav.courses": "Workshops",
+    "nav.about": "Om mig",
+    "nav.blog": "Blog",
+    "nav.pricing": "Priser",
+    "nav.faq": "FAQ",
+    "nav.team": "Team",
+    "nav.downloads": "Downloads",
+    "nav.past_courses": "Billeder"
 }

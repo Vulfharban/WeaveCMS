@@ -182,6 +182,13 @@ class SectionManager {
             }
         }
 
+        // Mehrsprachige Menübeschriftungen übersetzen
+        $curLang = LanguageManager::detectLanguage($data);
+        foreach ($items as &$item) {
+            $key = 'nav.' . ($item['type'] ?? $item['id']);
+            $item['nav_label'] = LanguageManager::t($key, $item['nav_label'], $curLang);
+        }
+
         return $items;
     }
 

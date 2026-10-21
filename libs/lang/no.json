@@ -50,5 +50,16 @@
     "faq.no_items": "Ingen vanlige spørsmål lagt til ennå.",
     "team.no_items": "Ingen teammedlemmer registrert ennå.",
     "downloads.no_items": "Ingen nedlastinger tilgjengelig for øyeblikket.",
-    "pricing.no_items": "Ingen priser eller pakker lagt til ennå."
+    "pricing.no_items": "Ingen priser eller pakker lagt til ennå.",
+    "nav.language": "Språk",
+    "nav.hero": "Hjem",
+    "nav.gallery": "Galleri",
+    "nav.courses": "Workshops",
+    "nav.about": "Om meg",
+    "nav.blog": "Blog",
+    "nav.pricing": "Priser",
+    "nav.faq": "FAQ",
+    "nav.team": "Team",
+    "nav.downloads": "Nedlastinger",
+    "nav.past_courses": "Inntrykk"
 }

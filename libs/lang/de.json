@@ -50,5 +50,16 @@
     "faq.no_items": "Aktuell sind noch keine FAQ-Einträge hinterlegt.",
     "team.no_items": "Aktuell sind noch keine Teammitglieder hinterlegt.",
     "downloads.no_items": "Aktuell stehen keine Downloads zur Verfügung.",
-    "pricing.no_items": "Aktuell sind noch keine Preis- oder Leistungsangebote hinterlegt."
+    "pricing.no_items": "Aktuell sind noch keine Preis- oder Leistungsangebote hinterlegt.",
+    "nav.language": "Sprache",
+    "nav.hero": "Start",
+    "nav.gallery": "Galerie",
+    "nav.courses": "Workshops",
+    "nav.about": "Über mich",
+    "nav.blog": "Blog",
+    "nav.pricing": "Preise",
+    "nav.faq": "FAQ",
+    "nav.team": "Team",
+    "nav.downloads": "Downloads",
+    "nav.past_courses": "Impressionen"
 }

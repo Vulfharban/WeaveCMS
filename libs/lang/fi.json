@@ -50,5 +50,16 @@
     "faq.no_items": "Usein kysyttyjä kysymyksiä ei ole vielä lisätty.",
     "team.no_items": "Tiimin jäseniä ei ole vielä lisätty.",
     "downloads.no_items": "Latauksia ei ole tällä hetkellä saatavilla.",
-    "pricing.no_items": "Hintoja tai paketteja ei ole vielä lisätty."
+    "pricing.no_items": "Hintoja tai paketteja ei ole vielä lisätty.",
+    "nav.language": "Kieli",
+    "nav.hero": "Koti",
+    "nav.gallery": "Galleria",
+    "nav.courses": "Kurssit",
+    "nav.about": "Tietoa minusta",
+    "nav.blog": "Blogi",
+    "nav.pricing": "Hinnat",
+    "nav.faq": "UKK",
+    "nav.team": "Tiimi",
+    "nav.downloads": "Lataukset",
+    "nav.past_courses": "Kuvia"
 }
