@@ -32,7 +32,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
-## 🚀 Arbeitsablauf: Der 13-Phasen-Entwicklungsplan
+## 🚀 Arbeitsablauf: Der 15-Phasen-Entwicklungsplan
 
 ```
 [Phase 1: Recht & Texte] ──▶ [Phase 2: Datensicherheit] ──▶ [Phase 3: SEO & Sharing] ──▶ [Phase 4: Anfragen-Log]
@@ -47,8 +47,8 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   (Schwachstellen & Schutz)          (Admin / Moderator / Content)     (SVG/Upload & Audit)         (ZIP/7z & Remote Version-Check)
          │
          ▼
-[Phase 13: Modulares Plugin- & Erweiterungssystem]
-  (Eigene Module, Hooks, Entwickler-Anleitung & Webtrees Stammbaum-Integration)
+[Phase 13: Plugin-System] ────▶ [Phase 14: Demo-Bilddaten] ────▶ [Phase 15: Sandbox- & Demo-Modus]
+  (Hooks & Webtrees Stammbäume)   (Neutrale Multi-Ratio Assets)     (Live-Tryout ohne Speichern & Auto-Reset)
 ```
 
 ---
@@ -445,3 +445,58 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Plugin-Erkennung und Validierung des `plugin.json`-Manifests im Adminbereich testen.
   - Aktivierung und Deaktivierung ohne Seiteneffekte verifizieren.
   - Fehlerisolation (Graceful Degradation): Fehler in einem Plugin dürfen das restliche CMS nicht zum Absturz bringen.
+
+---
+
+### Phase 14: Bilddaten-Bereinigung & Demo-Asset-Paket (Galerie-Erlebnis)
+*Ziel: Vollständiges Bereinigen themenspezifischer Altlasten (frühere Flecht- und Korbwarenbilder) und Ersetzen durch ein kuratiertes, neutrales Demo-Bildset verschiedener Formate und Auflösungen, um alle vier Galerie-Layouts (Ambient-Blur, Masonry, Editorial, Classic 4:3) im Live-Betrieb demonstrieren und testen zu können.*
+
+- [ ] **14.1 Bereinigung der Altlasten:**
+  - Identifikation und Bereinigung aller projektspezifischen Altbilder aus dem früheren Flechtbereich in `images/uploads/` und `images/`.
+  - Aktualisierung der Bildreferenzen in `data.json` und `data.sample.json` auf neutrale, universelle Bildnamen.
+- [ ] **14.2 Kuratiertes Demo-Bildset mit Multi-Ratio-Formaten:**
+  - Erstellung/Bereitstellung hochwertiger, royalty-freier Demo-Bilder für Handwerks-, Atelier- und Design-Betriebe:
+    - **Hochformate (3:4, 2:3):** Zur perfekten Demonstration des dynamischen **Masonry-Grids** (Pinterest-Effekt).
+    - **Querformate & Breitbilder (16:9, 3:2):** Zur Demonstration des **Smart Ambient-Blur** Modus (weicher Farbverlauf an den Rändern ohne Beschnitt).
+    - **Quadratische Formate (1:1):** Für ausgewogene Karten und Magazin-Layouts im **Editorial-Grid**.
+    - **Klassische Formate (4:3):** Zur Verifizierung des **Classic-Grids** mit gleichmäßigem Zuschnitt.
+- [ ] **14.3 Neutrale Themensetzung & Kategorien:**
+  - Überarbeitung der Galerie-Kategorien auf universelle Gewerke:
+    - z. B. *Design & Unikate*, *Naturmaterialien*, *Wohnaccessoires*, *Atelier & Werkstatt*.
+  - Aussagekräftige Werkstück-Titel und barrierefreie Alternativtexte (`alt`-Tags) für alle Demo-Bilder.
+- [ ] **14.4 Performance- & Format-Optimierung:**
+  - Bereitstellung in optimiertem WebP-Format mit sanfter Kompression (< 120 KB pro Bild) für maximale PageSpeed-Werte.
+  - Generierung passender Vorschaubilder (Thumbnails) für schnelle Ladezeiten.
+- [ ] **14.5 Prüfung & Abnahme:**
+  - Umschalten zwischen allen 4 Galerie-Modi unter *„Darstellung & Design“* und visuelle Prüfung der korrekten Ausrichtung auf Desktop-, Tablet- und Smartphone-Breakpoints.
+
+---
+
+### Phase 15: Interaktiver Sandbox- & Demo-Modus (Live-Tryout ohne Persistenz)
+*Ziel: Ein sicherer, temporärer Demo-Zugang für Interessenten und Tester, in dem das gesamte WeaveCMS interaktiv ausprobiert werden kann (Seiten erstellen, Texte anpassen, Designs testen, Sektionen verschieben), ohne dass Änderungen dauerhaft gespeichert werden – mit automatischem Reset.*
+
+- [ ] **15.1 Machbarkeits- & Architekturkonzept (Sandbox-Engine):**
+  - **Architektur:** Die modulare Speicherabstraktion (`StorageManager` / `JsonStorageDriver`) wird um einen flüchtigen Sandbox-Treiber (`EphemeralSessionDriver`) erweitert.
+  - **Funktionsweise:**
+    - Ein Demo-Nutzer startet über einen Demo-Link (z. B. `admin/?demo=start`).
+    - Das System initialisiert eine isolierte Session mit dem Inhalt aus `data.sample.json`.
+    - Alle Schreibzugriffe (Seiten anlegen, Menü anpassen, Blog-Artikel verfassen, Farbschemata ändern) werden ausschließlich im flüchtigen Session-Speicher des Nutzers (`$_SESSION['weave_demo_data']` bzw. einer temporären Datei `data/sandbox/<session_token>.json`) abgelegt.
+    - Das Frontend zeigt für diesen Nutzer live das modifizierte Ergebnis an (`?demo=1`), während reguläre Besucher weiterhin die unveränderte Website sehen.
+- [ ] **15.2 Sicherheits- & Schreibschutz-Schranken im Demo-Modus:**
+  - Schutz vor Missbrauch: Kritische Aktionen sind im Demo-Modus strikt gesperrt:
+    - Ändern des Administrator-Passworts und der PIN blockiert.
+    - E-Mail-Versand (SMTP-Test / Kontaktformular) deaktiviert oder als lokaler Toast simuliert.
+    - Upload-Möglichkeiten auf temporäre Dateien begrenzt (max. 5 Bilder je Sitzung).
+    - Datenbank-Migrationen und `.htaccess`-Modifikationen deaktiviert.
+- [ ] **15.3 Visueller Sandbox-Banner & Steuerung:**
+  - Fixes, elegantes Status-Banner am oberen Bildschirmrand (im Admin und Frontend):
+    - *„🌿 WeaveCMS Live-Demo: Du kannst alle Funktionen ausprobieren. Änderungen werden nicht dauerhaft gespeichert.“*
+    - Button: *„Demo zurücksetzen“* (wirft alle Änderungen sofort weg und stellt die Standard-Demo wieder her).
+    - Button: *„Demo beenden“* (beendet die Sandbox-Sitzung und leert den Cache).
+- [ ] **15.4 Automatischer Bereinigungs-Zyklus (Garbage Collection):**
+  - Temporäre Sandbox-Dateien werden nach 30 Minuten Inaktivität automatisch gelöscht.
+  - Die Stammdateien `data.json`, `config.php` und das Hauptdateisystem bleiben zu 100 % read-only und unberührt.
+- [ ] **15.5 Prüfung & Abnahme:**
+  - Demo-Sitzung starten: Neue Unterseite anlegen, Menütitel ändern, Farbschema wechseln.
+  - Gegenprobe im Inkognito-Fenster: Echte Website bleibt unverändert.
+  - Klick auf *„Demo zurücksetzen“*: Sitzung kehrt fehlerfrei zum Ursprungszustand zurück.
