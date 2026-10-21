@@ -124,6 +124,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Mehrsprachigkeit & Internationalisierung (i18n)** | 12 europäische Sprachen out-of-the-box (DE, EN, FR, IT, NL, ES, PT, EL, DA, NO, SV, FI), Sprachwechsler im Frontend, Cookie-Persistenz, Fallback-Kaskade, dynamische SEO hreflang- & OpenGraph-Tags. | ✅ Integriert (v0.8.0) |
 | **Automatischer Remote Version-Check** | Erkennung neuer Releases gegen konfigurierbare Update-URL mit Hinweisanzeige. | 🟡 Geplant (Phase 12) |
 | **Release-Build-Generator** | Automatische Erstellung von Voll-Paketen (Installer) und reinen Update-Paketen (ZIP/7z). | 🟡 Geplant (Phase 12) |
+| **Plugin- & Modulsystem (Erweiterungen)** | Leichtgewichtiges Hook- & Event-System zur Einbindung eigener Module (Themes, Custom Content, Berechtigungen, Webtrees Stammbäume). | 🟡 Geplant (Phase 13) |
 
 ---
 
