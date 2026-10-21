@@ -18,6 +18,7 @@ if (file_exists(__DIR__ . '/config.local.php')) {
 require_once __DIR__ . '/libs/php/storage/StorageManager.php';
 require_once __DIR__ . '/libs/php/BackupManager.php';
 require_once __DIR__ . '/libs/php/Installer.php';
+require_once __DIR__ . '/libs/php/SectionManager.php';
 
 /**
  * Automatische Weiterleitung auf install.php, wenn WeaveCMS noch nicht installiert ist (Phase 5).

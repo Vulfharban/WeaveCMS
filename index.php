@@ -83,7 +83,20 @@ $site_url = $proto . '://' . $host . $base_path . '/';
 $selected_course_id = isset($_GET['course']) ? (int)$_GET['course'] : 0;
 
 /**
- * 6. Logo-Konfiguration vorbereiten
+ * 6. Modulare Sektionen & Navigationsmenü (Phase 6)
+ */
+$visible_sections = SectionManager::getVisibleSections($data);
+$nav_items = SectionManager::getNavItems($data);
+if (empty($nav_items)) {
+    $nav_items = [
+        ['id' => 'gallery', 'nav_label' => 'Galerie'],
+        ['id' => 'courses', 'nav_label' => 'Workshops'],
+        ['id' => 'about', 'nav_label' => 'Über mich']
+    ];
+}
+
+/**
+ * 7. Logo-Konfiguration vorbereiten
  * Unterstützt flexible Positionierung:
  * - 'header_before': Im Header VOR dem Seitentitel
  * - 'header_after': Im Header NACH dem Seitentitel
@@ -214,9 +227,9 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
         <div class="header-container">
             <a href="#" class="logo"><?php if ($logo_pos === 'header_before'): echo $header_logo_html; endif; ?><span><?php echo htmlspecialchars($data['texts']['contact_name'] ?? 'Atelier Musterfrau'); ?></span><?php if ($logo_pos === 'header_after'): echo $header_logo_html; endif; ?></a>
             <nav class="nav-links">
-                <a href="#gallery" class="nav-item">Galerie</a>
-                <a href="#courses" class="nav-item">Workshops</a>
-                <a href="#about" class="nav-item">Über mich</a>
+                <?php foreach ($nav_items as $item): ?>
+                    <a href="#<?php echo htmlspecialchars($item['id']); ?>" class="nav-item"><?php echo htmlspecialchars($item['nav_label']); ?></a>
+                <?php endforeach; ?>
                 <label for="menu-toggle" class="nav-item" style="cursor: pointer;">Kontakt</label>
                 <label for="menu-toggle-impressum" class="nav-item" style="cursor: pointer;">Impressum</label>
             </nav>
@@ -228,17 +241,22 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
     </header>
 
     <main class="container">
-        
-        <!-- Hero Section -->
-        <section class="hero-section" id="hero">
-            <div class="hero-card">
-                <h1><?php if ($logo_pos === 'hero_before'): echo $hero_logo_html . ' '; endif; ?><?php echo htmlspecialchars($data['texts']['hero_title']); ?><?php if ($logo_pos === 'hero_after'): echo ' ' . $hero_logo_html; endif; ?></h1>
-                <p class="hero-subtitle"><?php echo htmlspecialchars($data['texts']['hero_subtitle']); ?></p>
-            </div>
-        </section>
+        <?php foreach ($visible_sections as $sec): 
+            $sec_id = $sec['id'] ?? '';
+        ?>
 
-        <!-- Gallery Section -->
-        <section id="gallery">
+            <?php if ($sec_id === 'hero'): ?>
+                <!-- Hero Section -->
+                <section class="hero-section" id="hero">
+                    <div class="hero-card">
+                        <h1><?php if ($logo_pos === 'hero_before'): echo $hero_logo_html . ' '; endif; ?><?php echo htmlspecialchars($data['texts']['hero_title']); ?><?php if ($logo_pos === 'hero_after'): echo ' ' . $hero_logo_html; endif; ?></h1>
+                        <p class="hero-subtitle"><?php echo htmlspecialchars($data['texts']['hero_subtitle']); ?></p>
+                    </div>
+                </section>
+
+            <?php elseif ($sec_id === 'gallery'): ?>
+                <!-- Gallery Section -->
+                <section id="gallery">
             <h2 style="margin-bottom: 1rem; text-align: center;"><?php echo htmlspecialchars($data['texts']['gallery_title'] ?? 'Galerie & Handarbeit'); ?></h2>
             <?php if (!empty($data['texts']['gallery_subtitle'])): ?>
                 <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 3rem auto;">
@@ -317,8 +335,9 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
             <?php endif; ?>
         </section>
 
-        <!-- Course Dates Section -->
-        <section id="courses">
+            <?php elseif ($sec_id === 'courses'): ?>
+                <!-- Course Dates Section -->
+                <section id="courses">
             <h2 style="margin-bottom: 1rem; text-align: center; color: var(--accent);"><?php echo htmlspecialchars($data['texts']['courses_title'] ?? 'Kurse & Workshops'); ?></h2>
             <?php if (!empty($data['texts']['courses_subtitle'])): ?>
                 <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 3rem auto;">
@@ -402,42 +421,48 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
+        </section>
 
-            <!-- Historical Course Images -->
-            <h3 style="margin-bottom: 1rem; font-size: 1.5rem; text-align: center;"><?php echo htmlspecialchars($data['texts']['past_courses_title'] ?? 'Impressionen vergangener Kurse'); ?></h3>
-            <?php if (!empty($data['texts']['past_courses_subtitle'])): ?>
-                <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 2rem auto; font-size: 0.95rem;">
-                    <?php echo htmlspecialchars($data['texts']['past_courses_subtitle']); ?>
-                </p>
-            <?php endif; ?>
-            <?php if (empty($data['past_courses'])): ?>
-                <p style="color: var(--text-secondary); font-size:0.95rem; text-align: center;">Noch keine Bilder hochgeladen.</p>
-            <?php else: ?>
-                <div class="past-grid">
-                    <?php foreach ($data['past_courses'] as $img): ?>
-                        <?php 
-                            $img_src = (strpos($img, '/') === 0) ? '.' . $img : './' . $img;
-                        ?>
-                        <div class="past-card">
-                            <img src="<?php echo htmlspecialchars($img_src); ?>" alt="Kursimpression">
+            <?php elseif ($sec_id === 'past_courses'): ?>
+                <!-- Historical Course Images Section -->
+                <section id="past_courses">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.5rem; text-align: center;"><?php echo htmlspecialchars($data['texts']['past_courses_title'] ?? 'Impressionen vergangener Kurse'); ?></h3>
+                    <?php if (!empty($data['texts']['past_courses_subtitle'])): ?>
+                        <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 2rem auto; font-size: 0.95rem;">
+                            <?php echo htmlspecialchars($data['texts']['past_courses_subtitle']); ?>
+                        </p>
+                    <?php endif; ?>
+                    <?php if (empty($data['past_courses'])): ?>
+                        <p style="color: var(--text-secondary); font-size:0.95rem; text-align: center;">Noch keine Bilder hochgeladen.</p>
+                    <?php else: ?>
+                        <div class="past-grid">
+                            <?php foreach ($data['past_courses'] as $img): ?>
+                                <?php 
+                                    $img_src = (strpos($img, '/') === 0) ? '.' . $img : './' . $img;
+                                ?>
+                                <div class="past-card">
+                                    <img src="<?php echo htmlspecialchars($img_src); ?>" alt="Kursimpression">
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
-                </div>
+                    <?php endif; ?>
+                </section>
+
+            <?php elseif ($sec_id === 'about'): ?>
+                <!-- About Section -->
+                <section id="about">
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center;">
+                        <div>
+                            <h2 style="color: var(--primary);"><?php echo htmlspecialchars($data['texts']['about_title']); ?></h2>
+                            <p style="font-size: 1.1rem; color: var(--text-secondary); max-width: 900px; white-space: pre-line; line-height: 1.7;">
+                                <?php echo htmlspecialchars($data['texts']['about_text']); ?>
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
             <?php endif; ?>
-        </section>
-
-        <!-- About Section -->
-        <section id="about">
-            <div style="display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center;">
-                <div>
-                    <h2 style="color: var(--primary);"><?php echo htmlspecialchars($data['texts']['about_title']); ?></h2>
-                    <p style="font-size: 1.1rem; color: var(--text-secondary); max-width: 900px; white-space: pre-line; line-height: 1.7;">
-                        <?php echo htmlspecialchars($data['texts']['about_text']); ?>
-                    </p>
-                </div>
-            </div>
-        </section>
-
+        <?php endforeach; ?>
     </main>
 
     <!-- Footer -->
@@ -646,9 +671,9 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
         <label for="menu-toggle-mobile" class="close-menu-btn">&times;</label>
         <h2 style="color: var(--primary); margin-bottom: 2rem;">Navigation</h2>
         <nav style="display: flex; flex-direction: column; gap: 1.5rem;">
-            <a href="#gallery" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;">Galerie</a>
-            <a href="#courses" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;">Kurse &amp; Workshops</a>
-            <a href="#about" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;">Über mich</a>
+            <?php foreach ($nav_items as $item): ?>
+                <a href="#<?php echo htmlspecialchars($item['id']); ?>" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;"><?php echo htmlspecialchars($item['nav_label']); ?></a>
+            <?php endforeach; ?>
             <label for="menu-toggle" onclick="closeMobileMenuAndOpenContact()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);">Kontakt</label>
             <label for="menu-toggle-impressum" onclick="closeMobileMenuAndOpenImpressum()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);">Impressum</label>
         </nav>

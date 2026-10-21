@@ -44,6 +44,48 @@
         "robots": "index, follow",
         "canonical_url": ""
     },
+    "sections": [
+        {
+            "id": "hero",
+            "type": "hero",
+            "title": "Hero-Bereich & Hauptüberschrift",
+            "nav_label": "Start",
+            "visible": true,
+            "in_nav": false
+        },
+        {
+            "id": "gallery",
+            "type": "gallery",
+            "title": "Galerie & Portfolio",
+            "nav_label": "Galerie",
+            "visible": true,
+            "in_nav": true
+        },
+        {
+            "id": "courses",
+            "type": "courses",
+            "title": "Kurse & Workshops",
+            "nav_label": "Workshops",
+            "visible": true,
+            "in_nav": true
+        },
+        {
+            "id": "past_courses",
+            "type": "past_courses",
+            "title": "Impressionen vergangener Workshops",
+            "nav_label": "Impressionen",
+            "visible": true,
+            "in_nav": false
+        },
+        {
+            "id": "about",
+            "type": "about",
+            "title": "Über mein Atelier",
+            "nav_label": "Über mich",
+            "visible": true,
+            "in_nav": true
+        }
+    ],
     "categories": [
         "Wohnaccessoires",
         "Gartendeko",
