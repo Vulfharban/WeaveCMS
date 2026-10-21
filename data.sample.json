@@ -326,6 +326,20 @@
             "in_nav": true,
             "meta_description": "Erfahre mehr über unsere nachhaltigen Naturmaterialien und den ökologischen Anbau.",
             "content": "## Respekt vor Natur & Rohstoff\n\nUnsere Naturmaterialien stammen zu 100% aus kontrolliertem, regionalem Anbau ohne chemische Dünge- oder Spritzmittel.\n\n### Kreislaufwirtschaft im Atelier\n\n- **Reine Handarbeit:** Jedes Werkstück wird schonend und traditionell gefertigt.\n- **Kein Plastik:** Selbst Verpackungen und Kennzeichnungen bestehen aus Recyclingpapier.\n- **Langlebigkeit:** Ein gutes Flechtwerkstück hält Generationen.\n\nBesuche uns gerne vor Ort und überzeuge dich selbst von unserer Philosophie!",
+            "translations": {
+                "en": {
+                    "title": "Sustainability & Origin",
+                    "nav_label": "Sustainability",
+                    "meta_description": "Learn more about our sustainable natural materials and ecological harvesting.",
+                    "content": "## Respect for Nature & Resources\n\nOur natural materials come 100% from controlled, regional cultivation without chemical fertilizers or pesticides.\n\n### Circular Economy in our Atelier\n\n- **Pure Handcraft:** Every piece is gently and traditionally made.\n- **No Plastic:** Even packaging and labels are made from recycled paper.\n- **Longevity:** A quality woven piece lasts for generations.\n\nFeel free to visit us and experience our philosophy firsthand!"
+                },
+                "it": {
+                    "title": "Sostenibilità & Origine",
+                    "nav_label": "Sostenibilità",
+                    "meta_description": "Scopri di più sui nostri materiali naturali sostenibili e sulla coltivazione ecologica.",
+                    "content": "## Rispetto per la natura e la materia prima\n\nI nostri materiali naturali provengono al 100% da coltivazioni regionali controllate senza fertilizzanti chimici o pesticidi.\n\n### Economia circolare nell'Atelier\n\n- **Lavoro puramente manuale:** Ogni pezzo è realizzato con cura e tradizione.\n- **Zero plastica:** Anche imballaggi ed etichette sind aus Recyclingpapier.\n- **Langlebigkeit:** Ein gutes Flechtwerkstück hält Generationen.\n\nVieni a trovarci e scopri la nostra filosofia dal vivo!"
+                }
+            },
             "created_at": "2026-10-21 11:00:00",
             "updated_at": "2026-10-21 11:00:00"
         }

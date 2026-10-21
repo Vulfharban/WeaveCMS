@@ -9,6 +9,11 @@
 ?>
         <!-- ──────────────── SECTION 3: WORKSHOPS/COURSES ──────────────── -->
         <div id="tab-courses" class="admin-section">
+            <?php 
+                $section_id = 'courses';
+                $current_tab = 'tab-courses';
+                include __DIR__ . '/partials/section_nav_bar.php';
+            ?>
             <!-- Add new Course -->
             <div class="card" style="padding: 2.5rem; margin-bottom: 2.5rem;">
                 <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Neuen Kurs / Workshop planen &amp; Einladungslink generieren</h2>

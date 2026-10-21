@@ -88,6 +88,7 @@ class AdminController {
 
             case 'move_section':
             case 'toggle_section_visibility':
+            case 'update_section':
                 self::handleSectionAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
@@ -200,6 +201,9 @@ class AdminController {
      * @return string
      */
     public static function determineActiveTab(string $action): string {
+        if (!empty($_POST['target_tab']) && is_string($_POST['target_tab'])) {
+            return trim($_POST['target_tab']);
+        }
         if (strpos($action, 'blog') !== false) {
             return 'tab-blog';
         } elseif (strpos($action, 'page') !== false) {
@@ -416,6 +420,54 @@ class AdminController {
                     $success_msg = 'Sektions-Sichtbarkeit erfolgreich aktualisiert!';
                 } else {
                     $error_msg = 'Fehler beim Speichern der Sichtbarkeit.';
+                }
+            } else {
+                $error_msg = 'Sektion nicht gefunden.';
+            }
+        } elseif ($action === 'update_section') {
+            $title = trim($_POST['title'] ?? '');
+            $nav_label = trim($_POST['nav_label'] ?? '');
+            $in_nav = !empty($_POST['in_nav']);
+
+            // Mehrsprachige Menü- & Titelübersetzungen sammeln
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = [];
+
+            // Bestehende Übersetzungen dieser Sektion erhalten
+            if (!empty($data['sections']) && is_array($data['sections'])) {
+                foreach ($data['sections'] as $s) {
+                    if ($s['id'] === $sec_id && !empty($s['translations']) && is_array($s['translations'])) {
+                        $translations = $s['translations'];
+                        break;
+                    }
+                }
+            }
+
+            foreach ($active_langs as $lang) {
+                if ($lang === $primary_lang) continue;
+                $t_nav = trim($_POST['trans_' . $lang . '_nav_label'] ?? '');
+                $t_title = trim($_POST['trans_' . $lang . '_title'] ?? '');
+                if ($t_nav !== '' || $t_title !== '') {
+                    $translations[$lang] = [
+                        'nav_label' => $t_nav,
+                        'title' => $t_title
+                    ];
+                } elseif (isset($_POST['trans_' . $lang . '_nav_label'])) {
+                    unset($translations[$lang]);
+                }
+            }
+
+            if (SectionManager::updateSection($data, $sec_id, [
+                'title' => $title,
+                'nav_label' => $nav_label,
+                'in_nav' => $in_nav,
+                'translations' => $translations
+            ])) {
+                if (save_data($dataFile, $data)) {
+                    $success_msg = 'Sektion & Menü-Titel „' . htmlspecialchars($nav_label ?: $title) . '“ erfolgreich aktualisiert!';
+                } else {
+                    $error_msg = 'Fehler beim Speichern der Sektion.';
                 }
             } else {
                 $error_msg = 'Sektion nicht gefunden.';
@@ -1256,6 +1308,25 @@ class AdminController {
                 }
             }
 
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = [];
+            foreach ($active_langs as $lang) {
+                if ($lang === $primary_lang) continue;
+                $t_title = trim($_POST['trans_' . $lang . '_title'] ?? '');
+                $t_nav = trim($_POST['trans_' . $lang . '_nav_label'] ?? '');
+                $t_meta = trim($_POST['trans_' . $lang . '_meta_description'] ?? '');
+                $t_content = trim($_POST['trans_' . $lang . '_content'] ?? '');
+                if ($t_title !== '' || $t_nav !== '' || $t_meta !== '' || $t_content !== '') {
+                    $translations[$lang] = [
+                        'title' => $t_title,
+                        'nav_label' => $t_nav,
+                        'meta_description' => $t_meta,
+                        'content' => $t_content
+                    ];
+                }
+            }
+
             $newPage = [
                 'id' => 'page_' . uniqid(),
                 'title' => $title,
@@ -1265,6 +1336,7 @@ class AdminController {
                 'in_nav' => !empty($_POST['in_nav']),
                 'meta_description' => trim($_POST['meta_description'] ?? ''),
                 'content' => trim($_POST['content'] ?? ''),
+                'translations' => $translations,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ];
@@ -1306,6 +1378,27 @@ class AdminController {
                 }
             }
 
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = $data['pages'][$found_idx]['translations'] ?? [];
+            foreach ($active_langs as $lang) {
+                if ($lang === $primary_lang) continue;
+                $t_title = trim($_POST['trans_' . $lang . '_title'] ?? '');
+                $t_nav = trim($_POST['trans_' . $lang . '_nav_label'] ?? '');
+                $t_meta = trim($_POST['trans_' . $lang . '_meta_description'] ?? '');
+                $t_content = trim($_POST['trans_' . $lang . '_content'] ?? '');
+                if ($t_title !== '' || $t_nav !== '' || $t_meta !== '' || $t_content !== '') {
+                    $translations[$lang] = [
+                        'title' => $t_title,
+                        'nav_label' => $t_nav,
+                        'meta_description' => $t_meta,
+                        'content' => $t_content
+                    ];
+                } else {
+                    unset($translations[$lang]);
+                }
+            }
+
             $data['pages'][$found_idx]['title'] = $title;
             $data['pages'][$found_idx]['slug'] = $slug;
             $data['pages'][$found_idx]['nav_label'] = trim($_POST['nav_label'] ?? '');
@@ -1313,6 +1406,7 @@ class AdminController {
             $data['pages'][$found_idx]['in_nav'] = !empty($_POST['in_nav']);
             $data['pages'][$found_idx]['meta_description'] = trim($_POST['meta_description'] ?? '');
             $data['pages'][$found_idx]['content'] = trim($_POST['content'] ?? '');
+            $data['pages'][$found_idx]['translations'] = $translations;
             $data['pages'][$found_idx]['updated_at'] = date('Y-m-d H:i:s');
 
             if (save_data($dataFile, $data)) {

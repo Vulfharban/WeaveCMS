@@ -28,6 +28,10 @@
                     'about' => 'badge',
                     'custom_text' => 'article'
                 ];
+
+                $active_langs = LanguageManager::getActiveLanguages($data);
+                $primary_lang = LanguageManager::getPrimaryLanguage($data);
+                $supported = LanguageManager::getSupportedLanguages();
             ?>
             <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-bottom: 2.5rem;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; flex-wrap:wrap; gap:10px;">
@@ -36,7 +40,7 @@
                             <span class="material-icons">view_stream</span> Sektionen-Manager &amp; Seiten-Aufbau
                         </h3>
                         <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px;">
-                            Passe die Anordnung und Sichtbarkeit der Inhaltsbereiche an. Die Menüs passen sich automatisch an.
+                            Passe die Anordnung, Sichtbarkeit und den <strong>Titel fürs Menü</strong> jeder Contentart an.
                         </p>
                     </div>
                 </div>
@@ -52,19 +56,40 @@
                                 <span style="font-weight:700; color:var(--text-secondary); font-size:0.85rem; width:20px; text-align:center;">#<?php echo ($idx + 1); ?></span>
                                 <span class="material-icons" style="color:var(--primary); font-size:20px;"><?php echo $icon; ?></span>
                                 <div>
-                                    <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary);"><?php echo htmlspecialchars($sec['title']); ?></div>
+                                    <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                        <span><?php echo htmlspecialchars($sec['title']); ?></span>
+                                        <?php if (!empty($sec['in_nav'])): ?>
+                                            <span style="font-size:0.7rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:2px 8px; border-radius:999px;">
+                                                Menü: <strong><?php echo htmlspecialchars($sec['nav_label']); ?></strong>
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="font-size:0.7rem; color:var(--text-secondary); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:999px;">
+                                                Kein Menü-Link
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
                                     <div style="font-size:0.8rem; color:var(--text-secondary);">
                                         Typ: <code style="font-family:monospace;"><?php echo htmlspecialchars($sec['type']); ?></code>
-                                        <?php if (!empty($sec['in_nav'])): ?>
-                                            &bull; Menü: <strong><?php echo htmlspecialchars($sec['nav_label']); ?></strong>
-                                        <?php else: ?>
-                                            &bull; <em>Kein Menü-Link</em>
+                                        <?php if (count($active_langs) > 1): ?>
+                                            &bull; Übersetzungen:
+                                            <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
+                                                <?php $has_t = !empty($sec['translations'][$al]['nav_label']); ?>
+                                                <span style="font-size:0.72rem; color:<?php echo $has_t ? '#10b981' : 'var(--text-secondary)'; ?>; margin-left:4px;">
+                                                    <?php echo strtoupper($al) . ($has_t ? ' (✓)' : ''); ?>
+                                                </span>
+                                            <?php endforeach; ?>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
 
                             <div style="display:flex; align-items:center; gap: 8px;">
+                                <!-- Bearbeiten Button -->
+                                <button type="button" class="btn btn-outline" onclick="openSectionEditor(<?php echo htmlspecialchars(json_encode($sec), ENT_QUOTES, 'UTF-8'); ?>)" style="padding: 5px 10px; font-size: 0.8rem; display:inline-flex; align-items:center; gap:4px;" title="Titel &amp; Menü-Beschriftung bearbeiten">
+                                    <span class="material-icons" style="font-size:16px;">edit</span>
+                                    <span>Bearbeiten</span>
+                                </button>
+
                                 <!-- Sichtbarkeit Toggle Form -->
                                 <form method="POST" action="" style="display:inline; margin:0;">
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
@@ -101,12 +126,78 @@
                         </div>
                     <?php endforeach; ?>
                 </div>
+
+                <!-- ──────────────── SEKTIONS- & MENÜTITEL-EDITOR ──────────────── -->
+                <div id="section-editor-box" style="display:none; scroll-margin-top: 150px; background:rgba(15, 23, 42, 0.7); border:1px solid var(--primary); border-radius:14px; padding:1.75rem; margin-top:1.5rem; animation:fadeInTab 0.25s ease;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
+                        <h4 id="sec-editor-heading" style="color:var(--primary); margin:0; display:flex; align-items:center; gap:8px;">
+                            <span class="material-icons">edit</span> Sektion &amp; Menü-Titel anpassen
+                        </h4>
+                        <button type="button" class="btn btn-secondary" onclick="closeSectionEditor()" style="padding:4px 8px; font-size:0.8rem;">
+                            <span class="material-icons" style="font-size:16px;">close</span>
+                        </button>
+                    </div>
+
+                    <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                        <input type="hidden" name="action" value="update_section">
+                        <input type="hidden" name="target_tab" value="tab-texts">
+                        <input type="hidden" name="section_id" id="sec_edit_id" value="">
+
+                        <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+                            <div class="form-group">
+                                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                    Titel fürs Menü (Menü-Beschriftung) *
+                                </label>
+                                <input type="text" id="sec_edit_nav_label" name="nav_label" class="form-control" placeholder="z. B. Galerie" required>
+                                <small style="color:var(--text-secondary); font-size:0.8rem;">Erscheint in der Hauptnavigation auf Desktop &amp; Mobil.</small>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                    Sektions-Titel / Überschrift
+                                </label>
+                                <input type="text" id="sec_edit_title" name="title" class="form-control" placeholder="z. B. Galerie &amp; Portfolio">
+                                <small style="color:var(--text-secondary); font-size:0.8rem;">Bezeichnung der Sektion im CMS und auf der Website.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:1.25rem;">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; color:var(--text-primary);">
+                                <input type="checkbox" id="sec_edit_in_nav" name="in_nav" value="1">
+                                <span>Im Hauptmenü verlinken</span>
+                            </label>
+                        </div>
+
+                        <?php if (count($active_langs) > 1): ?>
+                            <div style="border-top:1px solid var(--border-color); padding-top:1rem; margin-top:1rem; margin-bottom:1.25rem;">
+                                <h5 style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:0.75rem; display:flex; align-items:center; gap:6px;">
+                                    <span class="material-icons" style="font-size:16px;">translate</span> Menü-Titel für weitere aktive Sprachen (optional):
+                                </h5>
+                                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
+                                    <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
+                                        <div class="form-group">
+                                            <label style="font-size:0.85rem; font-weight:600; color:var(--text-primary); display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                                                <span><?php echo $supported[$al]['flag']; ?></span>
+                                                <span>Menü-Titel auf <?php echo htmlspecialchars($supported[$al]['name']); ?>:</span>
+                                            </label>
+                                            <input type="text" id="sec_trans_<?php echo $al; ?>_nav_label" name="trans_<?php echo $al; ?>_nav_label" class="form-control" placeholder="Menü-Titel auf <?php echo htmlspecialchars($supported[$al]['name']); ?>">
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <div style="display:flex; justify-content:flex-end; gap:10px;">
+                            <button type="button" class="btn btn-secondary" onclick="closeSectionEditor()">Abbrechen</button>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="material-icons" style="font-size:16px;">save</span> Sektion speichern
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <?php 
-                $active_langs = LanguageManager::getActiveLanguages($data);
-                $primary_lang = LanguageManager::getPrimaryLanguage($data);
-                $supported = LanguageManager::getSupportedLanguages();
                 $edit_lang = isset($_GET['edit_lang']) && in_array($_GET['edit_lang'], $active_langs, true) ? $_GET['edit_lang'] : $primary_lang;
                 $is_primary_edit = ($edit_lang === $primary_lang);
                 $current_edit_texts = $is_primary_edit ? ($data['texts'] ?? []) : ($data['texts_i18n'][$edit_lang] ?? []);
@@ -235,3 +326,33 @@
                 </button>
             </form>
         </div>
+
+        <script>
+        const SEC_ACTIVE_LANGS = <?php echo json_encode($active_langs); ?>;
+        const SEC_PRIMARY_LANG = <?php echo json_encode($primary_lang); ?>;
+
+        function openSectionEditor(sec) {
+            document.getElementById('section-editor-box').style.display = 'block';
+            document.getElementById('sec_edit_id').value = sec.id || '';
+            document.getElementById('sec_edit_title').value = sec.title || '';
+            document.getElementById('sec_edit_nav_label').value = sec.nav_label || '';
+            document.getElementById('sec_edit_in_nav').checked = !!sec.in_nav;
+            document.getElementById('sec-editor-heading').innerHTML = '<span class="material-icons">edit</span> Menü-Titel anpassen: ' + (sec.title || sec.id);
+
+            const trans = sec.translations || {};
+            SEC_ACTIVE_LANGS.forEach(lang => {
+                if (lang === SEC_PRIMARY_LANG) return;
+                const field = document.getElementById('sec_trans_' + lang + '_nav_label');
+                if (field) {
+                    field.value = (trans[lang] && trans[lang].nav_label) ? trans[lang].nav_label : '';
+                }
+            });
+
+            document.getElementById('section-editor-box').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('sec_edit_nav_label').focus();
+        }
+
+        function closeSectionEditor() {
+            document.getElementById('section-editor-box').style.display = 'none';
+        }
+        </script>

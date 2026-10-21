@@ -8,6 +8,11 @@
 ?>
         <!-- ──────────────── SECTION 4: PAST COURSE IMAGES ──────────────── -->
         <div id="tab-past" class="admin-section card" style="padding: 2.5rem;">
+            <?php 
+                $section_id = 'past_courses';
+                $current_tab = 'tab-past';
+                include __DIR__ . '/partials/section_nav_bar.php';
+            ?>
             <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Impressionen vergangener Kurse verwalten</h2>
             
             <form method="POST" action="" enctype="multipart/form-data" style="margin-bottom: 2rem;">

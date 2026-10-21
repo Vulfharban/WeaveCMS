@@ -168,28 +168,75 @@ class SectionManager {
             return !empty($sec['in_nav']) && !empty($sec['nav_label']);
         }));
 
+        $curLang = LanguageManager::detectLanguage($data);
+        $primaryLang = LanguageManager::getPrimaryLanguage($data);
+
         // Auch sichtbare Einzelseiten (Custom Subpages) ins Menü aufnehmen
         if (!empty($data['pages']) && is_array($data['pages'])) {
             foreach ($data['pages'] as $page) {
                 if (!empty($page['in_nav']) && ($page['status'] ?? 'published') === 'published') {
+                    $pageNavLabel = !empty($page['nav_label']) ? $page['nav_label'] : ($page['title'] ?? 'Seite');
+                    if ($curLang !== $primaryLang && !empty($page['translations'][$curLang]['nav_label'])) {
+                        $pageNavLabel = $page['translations'][$curLang]['nav_label'];
+                    } elseif ($curLang !== $primaryLang && !empty($page['translations'][$curLang]['title'])) {
+                        $pageNavLabel = $page['translations'][$curLang]['title'];
+                    }
                     $items[] = [
                         'id' => 'page-' . ($page['slug'] ?? ''),
-                        'nav_label' => $page['nav_label'] ?? $page['title'],
-                        'url' => '?page=' . urlencode($page['slug'] ?? ''),
-                        'is_external_link' => true
+                        'nav_label' => $pageNavLabel,
+                        'url' => '?page=' . urlencode($page['slug'] ?? '') . ($curLang !== $primaryLang ? '&lang=' . urlencode($curLang) : ''),
+                        'is_external_link' => true,
+                        'is_custom_page' => true
                     ];
                 }
             }
         }
 
         // Mehrsprachige Menübeschriftungen übersetzen
-        $curLang = LanguageManager::detectLanguage($data);
         foreach ($items as &$item) {
-            $key = 'nav.' . ($item['type'] ?? $item['id']);
-            $item['nav_label'] = LanguageManager::t($key, $item['nav_label'], $curLang);
+            if (!empty($item['is_custom_page'])) {
+                continue;
+            }
+            if ($curLang !== $primaryLang) {
+                if (!empty($item['translations'][$curLang]['nav_label'])) {
+                    $item['nav_label'] = $item['translations'][$curLang]['nav_label'];
+                } else {
+                    $key = 'nav.' . ($item['type'] ?? $item['id']);
+                    $item['nav_label'] = LanguageManager::t($key, $item['nav_label'], $curLang);
+                }
+            }
         }
 
         return $items;
+    }
+
+    /**
+     * Aktualisiert Titel, Menü-Beschriftung, Menü-Sichtbarkeit und Übersetzungen einer Sektion.
+     * @param array $data
+     * @param string $id
+     * @param array $attributes ['title' => ..., 'nav_label' => ..., 'in_nav' => ..., 'translations' => ...]
+     * @return bool
+     */
+    public static function updateSection(array &$data, string $id, array $attributes): bool {
+        self::ensureSections($data);
+        foreach ($data['sections'] as &$sec) {
+            if ($sec['id'] === $id) {
+                if (isset($attributes['title'])) {
+                    $sec['title'] = trim((string)$attributes['title']);
+                }
+                if (isset($attributes['nav_label'])) {
+                    $sec['nav_label'] = trim((string)$attributes['nav_label']);
+                }
+                if (isset($attributes['in_nav'])) {
+                    $sec['in_nav'] = !empty($attributes['in_nav']);
+                }
+                if (isset($attributes['translations']) && is_array($attributes['translations'])) {
+                    $sec['translations'] = $attributes['translations'];
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
