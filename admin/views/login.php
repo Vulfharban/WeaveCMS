@@ -12,7 +12,7 @@
     <title>Admin-Login | WeaveCMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="../libs/css/styles.css?v=<?php echo file_exists('../libs/css/styles.css') ? filemtime('../libs/css/styles.css') : time(); ?>" rel="stylesheet">
+    <link href="../libs/css/styles.css?v=<?php echo file_exists(dirname(__DIR__, 2) . '/libs/css/styles.css') ? filemtime(dirname(__DIR__, 2) . '/libs/css/styles.css') : time(); ?>" rel="stylesheet">
 </head>
 <body class="admin-login-body">
     <div class="login-container">
@@ -54,6 +54,6 @@
             </div>
         </div>
     </div>
-    <script src="../libs/js/admin.js?v=<?php echo file_exists('../libs/js/admin.js') ? filemtime('../libs/js/admin.js') : time(); ?>"></script>
+    <script src="../libs/js/admin.js?v=<?php echo file_exists(dirname(__DIR__, 2) . '/libs/js/admin.js') ? filemtime(dirname(__DIR__, 2) . '/libs/js/admin.js') : time(); ?>"></script>
 </body>
 </html>
