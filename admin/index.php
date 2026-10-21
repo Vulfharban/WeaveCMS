@@ -288,6 +288,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     /**
+     * AKTION: Willkommens-Modal nach Erstinstallation ausblenden (Phase 5)
+     */
+    if ($action === 'dismiss_welcome') {
+        $data['settings']['welcome_shown'] = true;
+        save_data($data_file, $data);
+        if (isset($_POST['ajax']) && $_POST['ajax'] === '1') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+            exit;
+        }
+        header('Location: ./');
+        exit;
+    }
+
+    /**
      * AKTION: Universelles SEO- & Social-Sharing-Management aktualisieren (Phase 3)
      */
     if ($action === 'update_seo') {
@@ -584,7 +599,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['texts']['about_text'] = $_POST['about_text'] ?? '';
         $data['texts']['gallery_title'] = $_POST['gallery_title'] ?? 'Galerie & Handarbeit';
         $data['texts']['gallery_subtitle'] = $_POST['gallery_subtitle'] ?? '';
-        $data['texts']['courses_title'] = $_POST['courses_title'] ?? 'Flechtkurse & Workshops';
+        $data['texts']['courses_title'] = $_POST['courses_title'] ?? 'Kurse & Workshops';
         $data['texts']['courses_subtitle'] = $_POST['courses_subtitle'] ?? '';
         $data['texts']['past_courses_title'] = $_POST['past_courses_title'] ?? 'Impressionen vergangener Kurse';
         $data['texts']['past_courses_subtitle'] = $_POST['past_courses_subtitle'] ?? '';
@@ -1001,7 +1016,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                 </div>
 
                 <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    👤 Über Mich &amp; Meine Flechtkunst
+                    👤 Über Mich &amp; Meine Arbeit
                 </h3>
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label>Über Mich - Überschrift</label>
@@ -1027,12 +1042,12 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                 </div>
 
                 <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    📅 Flechtkurse &amp; Workshops
+                    📅 Kurse &amp; Workshops
                 </h3>
                 <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
                     <div class="form-group">
                         <label>Kurse - Titel</label>
-                        <input type="text" name="courses_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['courses_title'] ?? 'Flechtkurse & Workshops'); ?>" required>
+                        <input type="text" name="courses_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['courses_title'] ?? 'Kurse & Workshops'); ?>" required>
                     </div>
                     <div class="form-group">
                         <label>Kurse - Untertitel / Infotext</label>
@@ -1365,7 +1380,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
         <div id="tab-courses" class="admin-section">
             <!-- Add new Course -->
             <div class="card" style="padding: 2.5rem; margin-bottom: 2.5rem;">
-                <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Neuen Flechtkurs planen &amp; Einladungslink generieren</h2>
+                <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Neuen Kurs / Workshop planen &amp; Einladungslink generieren</h2>
                 <form method="POST" action="">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                     <input type="hidden" name="action" value="add_course">
@@ -1423,7 +1438,7 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
 
             <!-- List, Edit & Delete Courses -->
             <div class="card" style="padding: 2.5rem;">
-                <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Geplante Flechtkurse verwalten &amp; teilen</h2>
+                <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Geplante Kurse &amp; Workshops verwalten &amp; teilen</h2>
                 <?php if (empty($data['courses'])): ?>
                     <p style="color: var(--text-secondary);">Aktuell sind keine Kurse eingetragen.</p>
                 <?php else: ?>
@@ -2828,6 +2843,88 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                 </form>
             </div>
         </div>
+
+        <!-- ======================================================================
+             MODAL: WILLKOMMEN NACH INSTALLATION (PHASE 5 - SCHRITT 5)
+             ====================================================================== -->
+        <?php 
+            $show_welcome = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true && (isset($_GET['installed']) || empty($data['settings']['welcome_shown']));
+        ?>
+        <?php if ($show_welcome): ?>
+        <div id="welcome-modal" style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.8); z-index:3500; align-items:center; justify-content:center; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding: 1.5rem;">
+            <div class="card" style="max-width: 680px; width:100%; border:1px solid #34d399; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); padding: 2.2rem; background: var(--bg-card); border-radius: 20px;">
+                <div style="display:flex; align-items:center; gap: 14px; margin-bottom: 1.25rem;">
+                    <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(52, 211, 153, 0.15); border: 1px solid #34d399; display: flex; align-items: center; justify-content: center; font-size: 26px;">
+                        🌿
+                    </div>
+                    <div>
+                        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin:0;">Herzlich willkommen bei WeaveCMS!</h2>
+                        <p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 2px;">Dein Website-System ist erfolgreich eingerichtet und bereit für deine Inhalte.</p>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 12px 14px; border-radius: 12px;">
+                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary); display:flex; align-items:center; gap:6px; margin-bottom: 4px;">
+                            <span class="material-icons" style="font-size: 18px;">edit_note</span> 1. Texte &amp; Über mich
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
+                            Passe Titel, Slogans und deinen persönlichen Biografie-Text an.
+                        </div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 12px 14px; border-radius: 12px;">
+                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary); display:flex; align-items:center; gap:6px; margin-bottom: 4px;">
+                            <span class="material-icons" style="font-size: 18px;">palette</span> 2. Farben &amp; Themes
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
+                            Wähle aus 4 kuratierten Natur-Farbthemen und Galerie-Layouts.
+                        </div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 12px 14px; border-radius: 12px;">
+                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary); display:flex; align-items:center; gap:6px; margin-bottom: 4px;">
+                            <span class="material-icons" style="font-size: 18px;">photo_library</span> 3. Galerie &amp; Workshops
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
+                            Lade Fotos hoch, vergebe Kategorien und trage Kurstermine ein.
+                        </div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 12px 14px; border-radius: 12px;">
+                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary); display:flex; align-items:center; gap:6px; margin-bottom: 4px;">
+                            <span class="material-icons" style="font-size: 18px;">security</span> 4. Schutz &amp; Backups
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
+                            Setup ist gesperrt (<code style="font-family:monospace; color:#34d399;">installed.lock</code>). Lege hier 1-Klick-Sicherungen an.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap: 12px; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                    <button type="button" class="btn btn-primary" style="padding: 10px 22px; font-weight: 600; display:inline-flex; align-items:center; gap:8px;" onclick="dismissWelcomeModal()">
+                        <span class="material-icons" style="font-size: 18px;">check</span> Loslegen &amp; Administrationsbereich erkunden
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script>
+        function dismissWelcomeModal() {
+            const modal = document.getElementById('welcome-modal');
+            if (modal) {
+                modal.style.transition = 'opacity 0.25s ease';
+                modal.style.opacity = '0';
+                setTimeout(() => { modal.style.display = 'none'; }, 250);
+            }
+            fetch('index.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'dismiss_welcome',
+                    csrf_token: <?php echo json_encode($csrf_token); ?>,
+                    ajax: '1'
+                })
+            }).catch(e => console.error(e));
+        }
+        </script>
+        <?php endif; ?>
 
     </main>
 

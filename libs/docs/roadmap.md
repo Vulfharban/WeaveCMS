@@ -129,10 +129,10 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 5: Webspace-Installer & Setup-Assistent (`install.php`)
 *Ziel: Vollautomatischer Installations-Assistent für das schnelle Ausrollen auf beliebigen Webspaces.*
 
-- [ ] **5.1 Installations-Erkennung & Sperre:**
+- [x] **5.1 Installations-Erkennung & Sperre:**
   - Befindet sich noch keine `installed.lock` auf dem Server, leitet das CMS automatisch auf `install.php` um.
   - Nach erfolgreichem Setup wird `installed.lock` erzeugt; `install.php` ist danach gesperrt.
-- [ ] **5.2 Installationsschritte:**
+- [x] **5.2 Installationsschritte:**
   - **Schritt 1: System-Check (Health Check):**
     - PHP-Version (>= 8.0), Dateirechte (Schreibrechte für `data/`, `images/uploads/`, `backups/`), PHP-Module (`pdo`, `gd`, `mbstring`, `json`, `curl`).
   - **Schritt 2: Website-Grunddaten:**
@@ -145,7 +145,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
     - Nach erfolgreichem Setup sieht der User beim ersten Admin-Login eine einmalige Willkommensnachricht (z. B. Modal/Banner).
     - Inhalt: Dank für die Installation, Kurzanleitung der wichtigsten Reiter, Hinweis auf Sicherheit (Passwort/PIN ändern, `install.php` gesperrt, Backups).
     - Wird nach dem Schließen per Flag in `data.json` (`settings.welcome_shown`) nicht mehr angezeigt.
-- [ ] **5.3 Prüfung & Abnahme:**
+- [x] **5.3 Prüfung & Abnahme:**
   - Testinstallation auf frischem Server durchführen und automatische Weiterleitung ins Admin-Dashboard verifizieren.
 
 ---
@@ -179,17 +179,20 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 7: Dualer Speicher-Treiber (Datenbankauswahl vs. Lokale JSON-Datei)
 *Ziel: Wahlfreiheit zwischen einer SQL-Datenbank (MySQL / MariaDB / SQLite) und einer lokalen JSON-Datei.*
 
-- [ ] **7.1 Speicher-Abstraktionsschicht (Data Access Layer - DAL):**
+- [x] **7.1 Speicher-Abstraktionsschicht (Data Access Layer - DAL):**
   - Universelles PHP-Interface: `loadData(): array`, `saveData(array $data): bool`, `ping(): bool`.
   - **Treiber A: `JsonStorageDriver` (Standard & Fallback):**
     - Liest und schreibt atomar in `data.json`. Funktioniert ohne Datenbank auf jedem Webspace.
   - **Treiber B: `PdoSqlStorageDriver` (MySQL / MariaDB):**
-    - Speichert Entitäten in relationalen Tabellen mit konfigurierbarem Präfix (`fb_settings`, `fb_texts`, `fb_gallery`, `fb_courses`, `fb_sections`).
+    - Speichert Entitäten in relationalen Tabellen via PDO mit Transaktionssicherheit.
   - **Treiber C: `SqliteStorageDriver` (Lokale SQL-Datei):**
     - Dateibasierte SQL-Datenbank (`data/app.sqlite`), vereint SQL-Features mit Datei-Einfachheit.
-- [ ] **7.2 Auswahl im Installationsassistenten (`install.php`):**
-  - Wählbare Speicher-Engine mit Live-Verbindungstest.
+  - **Treiber-Manager (`StorageManager`):**
+    - Automatische Treiber-Initialisierung anhand der Konfiguration mit transparentem Notfall-Fallback auf JSON bei Verbindungsproblemen.
+- [x] **7.2 Auswahl im Installationsassistenten (`install.php`):**
+  - Wählbare Speicher-Engine (Flat-File JSON vs. MySQL / MariaDB) mit Live-Verbindungstest via AJAX.
   - Automatischer Notfall-Fallback auf die lokale JSON-Datei bei Datenbankproblemen.
+  - Sichere Ablage von DB-Zugangsdaten in `config.local.php`.
 - [ ] **7.3 1-Klick-Daten-Migration im Adminbereich:**
   - Assistent zum Übertragen bestehender Daten von JSON nach SQL oder umgekehrt.
 - [ ] **7.4 Prüfung & Abnahme:**

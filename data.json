@@ -1,8 +1,9 @@
 {
     "settings": {
-        "upload_dir": "images\/uploads",
-        "admin_password_hash": "$2y$12$DWU5TGLpNB2UpUNRq8VP6eXbMPdljlr3x08wPooPbE6\/nBBGNb5CS",
-        "admin_pin_hash": "$2y$12$Z44PWgAD.zvwgqIR9HJGdulWciWxWhUH1hp3sOERh0ije2RmlqR3e",
+        "upload_dir": "images/uploads",
+        "admin_password_hash": "$2y$12$1j1NIBvbbCPGIKS4QtjsHuR2qEJPJx/vs.2W8RS/AKeaOoT5zfpcK",
+        "admin_pin_hash": "$2y$12$EOPy8pkLhq5JaZng7ULy1ezMcsKM9Urs0JQRLTigM12rzwQflgNCa",
+        "admin_username": "admin",
         "gallery_layout": "editorial",
         "gallery_lightbox": true,
         "hero_logo_motif": "paw_simple",
@@ -16,15 +17,16 @@
         "font_scale": "100%",
         "gallery_gap": "2rem",
         "card_radius": "20px",
+        "welcome_shown": true,
         "smtp": {
             "enabled": false,
-            "host": "smtp-mail.outlook.com",
+            "host": "",
             "port": 587,
             "secure": "tls",
-            "user": "wolfrum@outlook.com",
-            "pass": "Jan\/Eric_03852-out",
-            "from_email": "kontakt@maxima-musterfrau.de",
-            "from_name": "Atelier Musterfrau"
+            "user": "",
+            "pass": "",
+            "from_email": "",
+            "from_name": ""
         },
         "captcha_icons": [
             "branch",
@@ -32,13 +34,13 @@
             "moon",
             "flower_yellow"
         ],
-        "privacy_policy_text": ""
+        "privacy_policy_text": "### 1. Datenschutz auf einen Blick\r\n\r\nDer Schutz deiner persönlichen Daten ist uns ein wichtiges Anliegen. Diese Erklärung gibt dir einen Überblick darüber, welche Daten erhoben und wie sie verarbeitet werden.\r\n\r\n### 2. Verantwortliche Stelle\r\n\r\nVerantwortlich für die Datenverarbeitung auf dieser Website ist die im Impressum genannte Betreiberin bzw. der Betreiber.\r\n\r\n### 3. Datenerfassung auf unserer Website\r\n\r\n**Server-Log-Dateien:**\r\nDer Webserver erhebt automatisch technische Verbindungsdaten (z. B. IP-Adresse in anonymisierter Form, Browsertyp, aufgerufene URL, Datum und Uhrzeit des Zugriffs). Diese Daten sind technisch erforderlich, um die Website stabil und sicher auszuliefern.\r\n\r\n**Kontaktformular & E-Mail-Anfragen:**\r\nWenn du uns per Kontaktformular oder E-Mail Anfragen zukommen lässt, werden deine Angaben aus dem Anfrageformular inklusive der von dir dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert.\r\n\r\n### 4. Keine Werbe- oder Tracking-Cookies\r\n\r\nDiese Website verzichtet vollständig auf den Einsatz von zustimmungspflichtigen Tracking-, Analyse- oder Marketing-Cookies von Drittanbietern."
     },
     "seo": {
         "meta_title": "Atelier Musterfrau | Handgefertigte Unikate & Kreativ-Workshops",
-        "meta_description": "Individuelles Handwerk, zeitloses Design und inspirierende Praxiskurse von Maxima Musterfrau.",
-        "meta_keywords": "Handwerk, Unikate, Workshops, Atelier, Design, Kreativkurse, Maxima Musterfrau",
-        "og_image": "\/images\/default_wicker1.png",
+        "meta_description": "Handgefertigte Unikate & Kreativ-Workshops",
+        "meta_keywords": "Atelier Musterfrau, Handwerk, Unikate, Workshops, Atelier, Design",
+        "og_image": "/images/default_wicker1.png",
         "robots": "index, follow",
         "canonical_url": ""
     },
@@ -49,13 +51,13 @@
         "Kurse"
     ],
     "texts": {
-        "hero_title": "Handgefertigte Unikate & Workshops",
-        "hero_subtitle": "Traditionelles Handwerk, kreative Formgebung, Naturdesign und inspirierende Praxiskurse.",
+        "hero_title": "Atelier Musterfrau",
+        "hero_subtitle": "Handgefertigte Unikate & Kreativ-Workshops",
         "about_title": "Über mein Atelier & Handwerk",
         "about_text": "Handwerkskunst ist für mich eine lebendige Verbindung aus Natur, Tradition und zeitgenössischem Design. Jedes Werkstück entsteht in sorgfältiger Handarbeit und erzählt seine eigene Geschichte. Ich verwende ausschließlich nachhaltige, ausgewählte Naturmaterialien.\r\n\r\nNeben individuellen Wohnaccessoires und Auftragsarbeiten für Haus und Garten gebe ich regelmäßige Workshops für alle, die das Gestalten mit natürlichen Werkstoffen selbst erlernen möchten. Meine Werkstatt befindet sich in Musterstadt, wo ich mich voll und ganz dieser Leidenschaft widme.",
         "gallery_title": "Galerie & Werkstücke",
         "gallery_subtitle": "Ein Auszug aus meinen handgefertigten Designobjekten, Accessoires und maßgeschneiderten Auftragsarbeiten.",
-        "courses_title": "Kurse & Kreativ-Workshops",
+        "courses_title": "Kurse & Workshops",
         "courses_subtitle": "Lerne die Grundlagen der handwerklichen Gestaltung in persönlicher, inspirierender Werkstatt-Atmosphäre selbst kennen.",
         "past_courses_title": "Impressionen vergangener Workshops",
         "past_courses_subtitle": "Ein Rückblick auf gemeinsame kreative Stunden und entstandene Meisterstücke.",
@@ -74,10 +76,10 @@
     },
     "gallery": [
         {
-            "id": 10,
+            "id": 1,
             "title": "Design-Korb 'Terra'",
             "description": "Handgeflochtenes Schalenunikat für Obst, Brot und stilvolle Tischdekoration.",
-            "image": "\/images\/uploads\/img_6ad5ce7072e567.10449192.jpeg",
+            "image": "/images/korb_klassik.png",
             "category": "Wohnaccessoires",
             "sort_order": 1
         },
@@ -85,7 +87,7 @@
             "id": 2,
             "title": "Lenkerkorb 'Vintage'",
             "description": "Feines Naturgeflecht mit hochwertigen Lederriemen. Praktisch und zeitlos elegant.",
-            "image": "\/images\/korb_fahrrad.png",
+            "image": "/images/korb_fahrrad.png",
             "category": "Wohnaccessoires",
             "sort_order": 2
         },
@@ -93,7 +95,7 @@
             "id": 3,
             "title": "Kaminholzkorb 'Robusto'",
             "description": "Ein großer, extra stabiler Tragekorb aus dunklen Naturruten für Kaminholz oder Gartenarbeiten.",
-            "image": "\/images\/korb_kaminholz.png",
+            "image": "/images/korb_kaminholz.png",
             "category": "Wohnaccessoires",
             "sort_order": 3
         },
@@ -101,7 +103,7 @@
             "id": 4,
             "title": "Dekokugeln 'Trio'",
             "description": "Drei handgearbeitete Hohlkugeln in verschiedenen Größen zur Dekoration im Wohn- und Gartenbereich.",
-            "image": "\/images\/deko_kugeln.png",
+            "image": "/images/deko_kugeln.png",
             "category": "Gartendeko",
             "sort_order": 4
         },
@@ -109,7 +111,7 @@
             "id": 5,
             "title": "Windlicht 'Spirale'",
             "description": "Kunstvoll geschwungenes Windlicht mit Glaseinsatz für stimmungsvolle Sommerabende.",
-            "image": "\/images\/deko_windlicht.png",
+            "image": "/images/deko_windlicht.png",
             "category": "Gartendeko",
             "sort_order": 5
         },
@@ -117,7 +119,7 @@
             "id": 6,
             "title": "Rankobelisk 'Natura'",
             "description": "Hohe, freistehende Rankhilfe für Rosen, Clematis und Kletterpflanzen im Garten.",
-            "image": "\/images\/deko_rankhilfe.png",
+            "image": "/images/deko_rankhilfe.png",
             "category": "Gartendeko",
             "sort_order": 6
         },
@@ -125,7 +127,7 @@
             "id": 7,
             "title": "Sichtschutzwand 'Rustikal'",
             "description": "Ein traditioneller, blickdichter Naturzaun, maßgefertigt für Terrassen und Gartenanlagen.",
-            "image": "\/images\/sichtschutz_flechtzaun.png",
+            "image": "/images/sichtschutz_flechtzaun.png",
             "category": "Auftragsarbeiten",
             "sort_order": 7
         },
@@ -133,7 +135,7 @@
             "id": 8,
             "title": "Design-Paneel 'Modern'",
             "description": "Hochwertiges Lamellenelement aus Naturmaterialien, eingefasst in einem massiven Holzrahmen.",
-            "image": "\/images\/sichtschutz_modern.png",
+            "image": "/images/sichtschutz_modern.png",
             "category": "Auftragsarbeiten",
             "sort_order": 8
         },
@@ -141,17 +143,9 @@
             "id": 9,
             "title": "Gartenbogen 'Lebendbau'",
             "description": "Ein lebendes Naturgeflecht, das im Frühjahr austreibt und ein grünes Blätterdach bildet.",
-            "image": "\/images\/sichtschutz_lebendzaun.png",
+            "image": "/images/sichtschutz_lebendzaun.png",
             "category": "Auftragsarbeiten",
             "sort_order": 9
-        },
-        {
-            "id": 1,
-            "title": "Klassischer Einkaufskorb",
-            "description": "Der zeitlose Klassiker mit stabilem Tragegriff, ergonomisch und langlebig gefertigt.",
-            "image": "\/images\/korb_klassik.png",
-            "category": "Wohnaccessoires",
-            "sort_order": 10
         }
     ],
     "courses": [
@@ -183,7 +177,7 @@
         }
     ],
     "past_courses": [
-        "\/images\/default_wicker1.png",
-        "\/images\/default_wicker2.png"
+        "/images/default_wicker1.png",
+        "/images/default_wicker2.png"
     ]
 }
