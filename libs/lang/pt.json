@@ -4,7 +4,6 @@
     "nav.privacy": "Privacidade",
     "nav.admin": "Administração",
     "nav.menu": "Navegação",
-
     "btn.inquire_now": "Pedir informações",
     "btn.booked_out": "Esgotado",
     "btn.share": "Partilhar este workshop",
@@ -12,17 +11,13 @@
     "btn.open_in_mail": "Abrir no programa de email",
     "btn.filter_all": "Todos",
     "btn.close": "Fechar",
-
     "gallery.no_items": "Ainda não há peças na galeria.",
     "gallery.zoom_hint": "Clique para ampliar",
-
     "courses.no_dates": "De momento não há datas agendadas. Envie mensagem se tiver interesse!",
     "courses.spots_free": "Vagas disponíveis",
     "courses.booked": "Esgotado",
     "courses.booked_spots": "ocupadas (ainda {spots} disponíveis)",
-
     "past_courses.no_images": "Ainda não foram carregadas fotografias.",
-
     "contact.title": "Contacto & Inscrição em Workshops",
     "contact.owner": "Proprietária",
     "contact.phone": "Telefone",
@@ -35,7 +30,6 @@
     "contact.message": "Mensagem",
     "contact.spam_label": "Verificação de segurança: Clique em {prompt}",
     "contact.mail_client_hint": "Abre o seu programa de correio com a mensagem preparada.",
-
     "legal.impressum_tab": "Aviso legal",
     "legal.privacy_tab": "Privacidade (RGPD)",
     "legal.tmg_notice": "Informações legais",
@@ -43,8 +37,18 @@
     "legal.supervisory": "Autoridade de supervisão",
     "legal.vat_id": "NIF",
     "legal.disclaimer": "Isenção de responsabilidade",
-
     "toast.link_copied": "Link copiado!",
     "toast.course_link_copied": "Link do workshop copiado para a área de transferência!",
-    "toast.share_prompt": "Link do workshop para partilhar:"
+    "toast.share_prompt": "Link do workshop para partilhar:",
+    "btn.read_more": "Ler mais",
+    "btn.download": "Descarregar",
+    "btn.back_home": "Voltar à página inicial",
+    "btn.back_overview": "Voltar à visão geral",
+    "btn.contact_person": "Contactar",
+    "blog.no_posts": "Ainda não existem artigos de blog publicados.",
+    "blog.share_post": "Partilhar este artigo",
+    "faq.no_items": "Ainda não existem perguntas frequentes disponíveis.",
+    "team.no_items": "Ainda não existem membros da equipa registados.",
+    "downloads.no_items": "Não existem descargas disponíveis de momento.",
+    "pricing.no_items": "Ainda não existem planos ou preços registados."
 }

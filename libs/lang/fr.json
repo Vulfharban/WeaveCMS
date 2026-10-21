@@ -4,7 +4,6 @@
     "nav.privacy": "Confidentialité",
     "nav.admin": "Administration",
     "nav.menu": "Navigation",
-
     "btn.inquire_now": "Demander maintenant",
     "btn.booked_out": "Complet",
     "btn.share": "Partager cet atelier",
@@ -12,17 +11,13 @@
     "btn.open_in_mail": "Ouvrir dans la messagerie",
     "btn.filter_all": "Tous",
     "btn.close": "Fermer",
-
     "gallery.no_items": "Aucune pièce dans la galerie pour le moment.",
     "gallery.zoom_hint": "Cliquer pour agrandir",
-
     "courses.no_dates": "Aucune date d'atelier n'est prévue pour le moment. N'hésitez pas à me contacter !",
     "courses.spots_free": "Places disponibles",
     "courses.booked": "Complet",
     "courses.booked_spots": "occupées (encore {spots} disponibles)",
-
     "past_courses.no_images": "Aucune photo téléchargée pour le moment.",
-
     "contact.title": "Contact & Demande d'atelier",
     "contact.owner": "Propriétaire",
     "contact.phone": "Téléphone",
@@ -35,7 +30,6 @@
     "contact.message": "Message",
     "contact.spam_label": "Contrôle de sécurité : Cliquez sur {prompt}",
     "contact.mail_client_hint": "Ouvre votre logiciel de messagerie avec le message préparé.",
-
     "legal.impressum_tab": "Mentions légales",
     "legal.privacy_tab": "Protection des données (RGPD)",
     "legal.tmg_notice": "Informations légales",
@@ -43,8 +37,18 @@
     "legal.supervisory": "Autorité de surveillance",
     "legal.vat_id": "TVA / Numéro fiscal",
     "legal.disclaimer": "Clause de non-responsabilité",
-
     "toast.link_copied": "Lien copié !",
     "toast.course_link_copied": "Lien d'invitation copié !",
-    "toast.share_prompt": "Lien à partager :"
+    "toast.share_prompt": "Lien à partager :",
+    "btn.read_more": "Lire la suite",
+    "btn.download": "Télécharger",
+    "btn.back_home": "Retour à l'accueil",
+    "btn.back_overview": "Retour à la vue d'ensemble",
+    "btn.contact_person": "Contacter",
+    "blog.no_posts": "Aucun article de blog publié pour le moment.",
+    "blog.share_post": "Partager cet article",
+    "faq.no_items": "Aucune FAQ disponible pour le moment.",
+    "team.no_items": "Aucun membre de l'équipe pour le moment.",
+    "downloads.no_items": "Aucun téléchargement disponible pour le moment.",
+    "pricing.no_items": "Aucune offre de prix disponible pour le moment."
 }

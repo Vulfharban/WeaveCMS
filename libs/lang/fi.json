@@ -4,7 +4,6 @@
     "nav.privacy": "Tietosuoja",
     "nav.admin": "Hallinta",
     "nav.menu": "Valikko",
-
     "btn.inquire_now": "Tiedustele nyt",
     "btn.booked_out": "Täynnä",
     "btn.share": "Jaa tämä kurssi",
@@ -12,17 +11,13 @@
     "btn.open_in_mail": "Avaa sähköpostiohjelmassa",
     "btn.filter_all": "Kaikki",
     "btn.close": "Sulje",
-
     "gallery.no_items": "Galleriassa ei ole vielä töitä.",
     "gallery.zoom_hint": "Klikkaa suurentaaksesi",
-
     "courses.no_dates": "Tällä hetkellä ei ole vahvistettuja kursseja. Ota rohkeasti yhteyttä!",
     "courses.spots_free": "Paikkoja vapaana",
     "courses.booked": "Täynnä",
     "courses.booked_spots": "varattu ({spots} jäljellä)",
-
     "past_courses.no_images": "Ei vielä ladattuja kuvia.",
-
     "contact.title": "Yhteystiedot & Kurssitiedustelu",
     "contact.owner": "Omistaja",
     "contact.phone": "Puhelin",
@@ -35,7 +30,6 @@
     "contact.message": "Viesti",
     "contact.spam_label": "Turvatarkastus: Klikkaa {prompt}",
     "contact.mail_client_hint": "Avaa sähköpostiohjelmasi valmiilla viestillä.",
-
     "legal.impressum_tab": "Julkaisutiedot",
     "legal.privacy_tab": "Tietosuoja (GDPR)",
     "legal.tmg_notice": "Lakisääteiset tiedot",
@@ -43,8 +37,18 @@
     "legal.supervisory": "Valvontaviranomainen",
     "legal.vat_id": "Y-tunnus / ALV",
     "legal.disclaimer": "Vastuuvapauslauseke",
-
     "toast.link_copied": "Linkki kopioitu!",
     "toast.course_link_copied": "Kurssilinkki kopioitu leikepöydälle!",
-    "toast.share_prompt": "Jaettava kurssilinkki:"
+    "toast.share_prompt": "Jaettava kurssilinkki:",
+    "btn.read_more": "Lue lisää",
+    "btn.download": "Lataa",
+    "btn.back_home": "Takaisin etusivulle",
+    "btn.back_overview": "Takaisin yleiskatsaukseen",
+    "btn.contact_person": "Ota yhteyttä",
+    "blog.no_posts": "Blogikirjoituksia ei ole vielä julkaistu.",
+    "blog.share_post": "Jaa tämä artikkeli",
+    "faq.no_items": "Usein kysyttyjä kysymyksiä ei ole vielä lisätty.",
+    "team.no_items": "Tiimin jäseniä ei ole vielä lisätty.",
+    "downloads.no_items": "Latauksia ei ole tällä hetkellä saatavilla.",
+    "pricing.no_items": "Hintoja tai paketteja ei ole vielä lisätty."
 }

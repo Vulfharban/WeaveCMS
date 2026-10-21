@@ -154,6 +154,36 @@ class AdminController {
             case 'toggle_blog_status':
                 self::handleBlogAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
+
+            case 'add_page':
+            case 'edit_page':
+            case 'delete_page':
+                self::handlePageAction($action, $dataFile, $data, $success_msg, $error_msg);
+                break;
+
+            case 'add_faq':
+            case 'edit_faq':
+            case 'delete_faq':
+                self::handleFaqAction($action, $dataFile, $data, $success_msg, $error_msg);
+                break;
+
+            case 'add_team_member':
+            case 'edit_team_member':
+            case 'delete_team_member':
+                self::handleTeamAction($action, $dataFile, $data, $success_msg, $error_msg);
+                break;
+
+            case 'add_download':
+            case 'edit_download':
+            case 'delete_download':
+                self::handleDownloadAction($action, $dataFile, $data, $success_msg, $error_msg);
+                break;
+
+            case 'add_pricing_plan':
+            case 'edit_pricing_plan':
+            case 'delete_pricing_plan':
+                self::handlePricingAction($action, $dataFile, $data, $success_msg, $error_msg);
+                break;
         }
 
         return [
@@ -172,6 +202,16 @@ class AdminController {
     public static function determineActiveTab(string $action): string {
         if (strpos($action, 'blog') !== false) {
             return 'tab-blog';
+        } elseif (strpos($action, 'page') !== false) {
+            return 'tab-pages';
+        } elseif (strpos($action, 'faq') !== false) {
+            return 'tab-faqs';
+        } elseif (strpos($action, 'team') !== false) {
+            return 'tab-team';
+        } elseif (strpos($action, 'download') !== false) {
+            return 'tab-downloads';
+        } elseif (strpos($action, 'pricing') !== false) {
+            return 'tab-pricing';
         } elseif (strpos($action, 'inbox') !== false) {
             return 'tab-inbox';
         } elseif (strpos($action, 'gallery') !== false || strpos($action, 'category') !== false) {
@@ -1190,4 +1230,475 @@ class AdminController {
             }
         }
     }
+
+    /**
+     * Verarbeitet Aktionen für Freie Einzelseiten (Custom Subpages).
+     */
+    public static function handlePageAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if (!isset($data['pages']) || !is_array($data['pages'])) {
+            $data['pages'] = [];
+        }
+
+        if ($action === 'add_page') {
+            $title = trim($_POST['title'] ?? '');
+            if (empty($title)) {
+                $error_msg = 'Bitte gib einen Seitentitel an.';
+                return;
+            }
+            $slug = trim($_POST['slug'] ?? '');
+            $slug = empty($slug) ? self::slugify($title) : self::slugify($slug);
+
+            // Prüfen auf Duplikate
+            foreach ($data['pages'] as $pg) {
+                if (($pg['slug'] ?? '') === $slug) {
+                    $slug .= '-' . time();
+                    break;
+                }
+            }
+
+            $newPage = [
+                'id' => 'page_' . uniqid(),
+                'title' => $title,
+                'slug' => $slug,
+                'nav_label' => trim($_POST['nav_label'] ?? ''),
+                'status' => in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published',
+                'in_nav' => !empty($_POST['in_nav']),
+                'meta_description' => trim($_POST['meta_description'] ?? ''),
+                'content' => trim($_POST['content'] ?? ''),
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            $data['pages'][] = $newPage;
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Einzelseite „' . htmlspecialchars($title) . '“ erfolgreich erstellt!';
+            } else {
+                $error_msg = 'Fehler beim Speichern der Einzelseite.';
+            }
+
+        } elseif ($action === 'edit_page') {
+            $page_id = $_POST['id'] ?? '';
+            $found_idx = -1;
+            foreach ($data['pages'] as $idx => $pg) {
+                if ((string)($pg['id'] ?? '') === (string)$page_id) {
+                    $found_idx = $idx;
+                    break;
+                }
+            }
+            if ($found_idx === -1) {
+                $error_msg = 'Einzelseite nicht gefunden.';
+                return;
+            }
+
+            $title = trim($_POST['title'] ?? '');
+            if (empty($title)) {
+                $error_msg = 'Bitte gib einen Seitentitel an.';
+                return;
+            }
+
+            $slug = trim($_POST['slug'] ?? '');
+            $slug = empty($slug) ? self::slugify($title) : self::slugify($slug);
+
+            foreach ($data['pages'] as $idx => $pg) {
+                if ($idx !== $found_idx && ($pg['slug'] ?? '') === $slug) {
+                    $slug .= '-' . time();
+                    break;
+                }
+            }
+
+            $data['pages'][$found_idx]['title'] = $title;
+            $data['pages'][$found_idx]['slug'] = $slug;
+            $data['pages'][$found_idx]['nav_label'] = trim($_POST['nav_label'] ?? '');
+            $data['pages'][$found_idx]['status'] = in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published';
+            $data['pages'][$found_idx]['in_nav'] = !empty($_POST['in_nav']);
+            $data['pages'][$found_idx]['meta_description'] = trim($_POST['meta_description'] ?? '');
+            $data['pages'][$found_idx]['content'] = trim($_POST['content'] ?? '');
+            $data['pages'][$found_idx]['updated_at'] = date('Y-m-d H:i:s');
+
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Einzelseite „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
+            } else {
+                $error_msg = 'Fehler beim Speichern der Einzelseite.';
+            }
+
+        } elseif ($action === 'delete_page') {
+            $page_id = $_POST['id'] ?? '';
+            $orig_count = count($data['pages']);
+            $data['pages'] = array_values(array_filter($data['pages'], function($pg) use ($page_id) {
+                return (string)($pg['id'] ?? '') !== (string)$page_id;
+            }));
+
+            if (count($data['pages']) < $orig_count) {
+                if (save_data($dataFile, $data)) {
+                    $success_msg = 'Einzelseite gelöscht.';
+                } else {
+                    $error_msg = 'Fehler beim Speichern.';
+                }
+            } else {
+                $error_msg = 'Seite nicht gefunden.';
+            }
+        }
+    }
+
+    /**
+     * Verarbeitet Aktionen für Häufige Fragen & Antworten (FAQ Akkordeon).
+     */
+    public static function handleFaqAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if (!isset($data['faqs']) || !is_array($data['faqs'])) {
+            $data['faqs'] = [];
+        }
+
+        if ($action === 'add_faq') {
+            $question = trim($_POST['question'] ?? '');
+            $answer = trim($_POST['answer'] ?? '');
+            if (empty($question) || empty($answer)) {
+                $error_msg = 'Bitte gib sowohl eine Frage als auch eine Antwort an.';
+                return;
+            }
+
+            $newFaq = [
+                'id' => 'faq_' . uniqid(),
+                'question' => $question,
+                'answer' => $answer,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            $data['faqs'][] = $newFaq;
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'FAQ-Frage erfolgreich hinzugefügt!';
+            } else {
+                $error_msg = 'Fehler beim Speichern der FAQ-Frage.';
+            }
+
+        } elseif ($action === 'edit_faq') {
+            $faq_id = $_POST['id'] ?? '';
+            $found = false;
+            foreach ($data['faqs'] as &$f) {
+                if ((string)($f['id'] ?? '') === (string)$faq_id) {
+                    $f['question'] = trim($_POST['question'] ?? '');
+                    $f['answer'] = trim($_POST['answer'] ?? '');
+                    $found = true;
+                    break;
+                }
+            }
+            if ($found && save_data($dataFile, $data)) {
+                $success_msg = 'FAQ-Frage erfolgreich aktualisiert!';
+            } else {
+                $error_msg = 'FAQ-Frage nicht gefunden oder Fehler beim Speichern.';
+            }
+
+        } elseif ($action === 'delete_faq') {
+            $faq_id = $_POST['id'] ?? '';
+            $orig_count = count($data['faqs']);
+            $data['faqs'] = array_values(array_filter($data['faqs'], function($f) use ($faq_id) {
+                return (string)($f['id'] ?? '') !== (string)$faq_id;
+            }));
+
+            if (count($data['faqs']) < $orig_count) {
+                if (save_data($dataFile, $data)) {
+                    $success_msg = 'FAQ-Frage gelöscht.';
+                } else {
+                    $error_msg = 'Fehler beim Speichern.';
+                }
+            } else {
+                $error_msg = 'FAQ-Frage nicht gefunden.';
+            }
+        }
+    }
+
+    /**
+     * Verarbeitet Aktionen für Team & Mitarbeiter.
+     */
+    public static function handleTeamAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if (!isset($data['team']) || !is_array($data['team'])) {
+            $data['team'] = [];
+        }
+
+        if ($action === 'add_team_member') {
+            $name = trim($_POST['name'] ?? '');
+            $role = trim($_POST['role'] ?? '');
+            if (empty($name) || empty($role)) {
+                $error_msg = 'Bitte gib Name und Rolle des Teammitglieds an.';
+                return;
+            }
+
+            $image_path = '';
+            if (!empty($_FILES['image']['name'])) {
+                $uploaded = ImageUploader::upload('image');
+                if ($uploaded) {
+                    $image_path = ltrim($uploaded, '/');
+                }
+            }
+
+            $newMember = [
+                'id' => 'team_' . uniqid(),
+                'name' => $name,
+                'role' => $role,
+                'email' => trim($_POST['email'] ?? ''),
+                'bio' => trim($_POST['bio'] ?? ''),
+                'image' => $image_path,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            $data['team'][] = $newMember;
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Teammitglied „' . htmlspecialchars($name) . '“ erfolgreich hinzugefügt!';
+            } else {
+                $error_msg = 'Fehler beim Speichern des Teammitglieds.';
+            }
+
+        } elseif ($action === 'edit_team_member') {
+            $member_id = $_POST['id'] ?? '';
+            $found_idx = -1;
+            foreach ($data['team'] as $idx => $m) {
+                if ((string)($m['id'] ?? '') === (string)$member_id) {
+                    $found_idx = $idx;
+                    break;
+                }
+            }
+            if ($found_idx === -1) {
+                $error_msg = 'Teammitglied nicht gefunden.';
+                return;
+            }
+
+            $name = trim($_POST['name'] ?? '');
+            $role = trim($_POST['role'] ?? '');
+            if (empty($name) || empty($role)) {
+                $error_msg = 'Bitte gib Name und Rolle an.';
+                return;
+            }
+
+            $image_path = $data['team'][$found_idx]['image'] ?? '';
+            if (!empty($_FILES['image']['name'])) {
+                $uploaded = ImageUploader::upload('image');
+                if ($uploaded) {
+                    $image_path = ltrim($uploaded, '/');
+                }
+            } elseif (isset($_POST['remove_image']) && $_POST['remove_image'] === '1') {
+                $image_path = '';
+            }
+
+            $data['team'][$found_idx]['name'] = $name;
+            $data['team'][$found_idx]['role'] = $role;
+            $data['team'][$found_idx]['email'] = trim($_POST['email'] ?? '');
+            $data['team'][$found_idx]['bio'] = trim($_POST['bio'] ?? '');
+            $data['team'][$found_idx]['image'] = $image_path;
+
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Teammitglied „' . htmlspecialchars($name) . '“ erfolgreich aktualisiert!';
+            } else {
+                $error_msg = 'Fehler beim Speichern.';
+            }
+
+        } elseif ($action === 'delete_team_member') {
+            $member_id = $_POST['id'] ?? '';
+            $orig_count = count($data['team']);
+            $data['team'] = array_values(array_filter($data['team'], function($m) use ($member_id) {
+                return (string)($m['id'] ?? '') !== (string)$member_id;
+            }));
+
+            if (count($data['team']) < $orig_count) {
+                if (save_data($dataFile, $data)) {
+                    $success_msg = 'Teammitglied gelöscht.';
+                } else {
+                    $error_msg = 'Fehler beim Speichern.';
+                }
+            } else {
+                $error_msg = 'Mitglied nicht gefunden.';
+            }
+        }
+    }
+
+    /**
+     * Verarbeitet Aktionen für Downloads & Dokumente.
+     */
+    public static function handleDownloadAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if (!isset($data['downloads']) || !is_array($data['downloads'])) {
+            $data['downloads'] = [];
+        }
+
+        if ($action === 'add_download') {
+            $title = trim($_POST['title'] ?? '');
+            if (empty($title)) {
+                $error_msg = 'Bitte gib einen Dokumenttitel an.';
+                return;
+            }
+
+            $docInfo = ImageUploader::uploadDocument('download_file');
+            if (!$docInfo) {
+                $error_msg = 'Bitte wähle eine gültige Datei aus (Erlaubt: PDF, ZIP, DOCX, TXT etc.).';
+                return;
+            }
+
+            $newDl = [
+                'id' => 'dl_' . uniqid(),
+                'title' => $title,
+                'description' => trim($_POST['description'] ?? ''),
+                'file_path' => $docInfo['path'],
+                'file_size' => $docInfo['size'],
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            $data['downloads'][] = $newDl;
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Dokument „' . htmlspecialchars($title) . '“ erfolgreich bereitgestellt!';
+            } else {
+                $error_msg = 'Fehler beim Speichern.';
+            }
+
+        } elseif ($action === 'edit_download') {
+            $dl_id = $_POST['id'] ?? '';
+            $found_idx = -1;
+            foreach ($data['downloads'] as $idx => $d) {
+                if ((string)($d['id'] ?? '') === (string)$dl_id) {
+                    $found_idx = $idx;
+                    break;
+                }
+            }
+            if ($found_idx === -1) {
+                $error_msg = 'Dokument nicht gefunden.';
+                return;
+            }
+
+            $title = trim($_POST['title'] ?? '');
+            if (empty($title)) {
+                $error_msg = 'Bitte gib einen Dokumenttitel an.';
+                return;
+            }
+
+            $data['downloads'][$found_idx]['title'] = $title;
+            $data['downloads'][$found_idx]['description'] = trim($_POST['description'] ?? '');
+
+            if (!empty($_FILES['download_file']['name'])) {
+                $docInfo = ImageUploader::uploadDocument('download_file');
+                if ($docInfo) {
+                    $data['downloads'][$found_idx]['file_path'] = $docInfo['path'];
+                    $data['downloads'][$found_idx]['file_size'] = $docInfo['size'];
+                }
+            }
+
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Dokument „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
+            } else {
+                $error_msg = 'Fehler beim Speichern.';
+            }
+
+        } elseif ($action === 'delete_download') {
+            $dl_id = $_POST['id'] ?? '';
+            $orig_count = count($data['downloads']);
+            $data['downloads'] = array_values(array_filter($data['downloads'], function($d) use ($dl_id) {
+                return (string)($d['id'] ?? '') !== (string)$dl_id;
+            }));
+
+            if (count($data['downloads']) < $orig_count) {
+                if (save_data($dataFile, $data)) {
+                    $success_msg = 'Dokument gelöscht.';
+                } else {
+                    $error_msg = 'Fehler beim Speichern.';
+                }
+            } else {
+                $error_msg = 'Dokument nicht gefunden.';
+            }
+        }
+    }
+
+    /**
+     * Verarbeitet Aktionen für Leistungen & Preise (Pricing Tables).
+     */
+    public static function handlePricingAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if (!isset($data['pricing']) || !is_array($data['pricing'])) {
+            $data['pricing'] = [];
+        }
+
+        if ($action === 'add_pricing_plan') {
+            $title = trim($_POST['title'] ?? '');
+            $price = trim($_POST['price'] ?? '');
+            if (empty($title) || empty($price)) {
+                $error_msg = 'Bitte gib Paketname und Preis an.';
+                return;
+            }
+
+            $feats_raw = trim($_POST['features'] ?? '');
+            $features = !empty($feats_raw) ? array_values(array_filter(array_map('trim', explode("\n", $feats_raw)))) : [];
+
+            $newPlan = [
+                'id' => 'pricing_' . uniqid(),
+                'title' => $title,
+                'price' => $price,
+                'period' => trim($_POST['period'] ?? ''),
+                'badge' => trim($_POST['badge'] ?? ''),
+                'highlighted' => !empty($_POST['highlighted']),
+                'button_text' => trim($_POST['button_text'] ?? 'Jetzt anfragen'),
+                'button_link' => trim($_POST['button_link'] ?? '#contact'),
+                'description' => trim($_POST['description'] ?? ''),
+                'features' => $features,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            $data['pricing'][] = $newPlan;
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Preispaket „' . htmlspecialchars($title) . '“ erfolgreich erstellt!';
+            } else {
+                $error_msg = 'Fehler beim Speichern des Preispakets.';
+            }
+
+        } elseif ($action === 'edit_pricing_plan') {
+            $plan_id = $_POST['id'] ?? '';
+            $found_idx = -1;
+            foreach ($data['pricing'] as $idx => $p) {
+                if ((string)($p['id'] ?? '') === (string)$plan_id) {
+                    $found_idx = $idx;
+                    break;
+                }
+            }
+            if ($found_idx === -1) {
+                $error_msg = 'Preispaket nicht gefunden.';
+                return;
+            }
+
+            $title = trim($_POST['title'] ?? '');
+            $price = trim($_POST['price'] ?? '');
+            if (empty($title) || empty($price)) {
+                $error_msg = 'Bitte gib Paketname und Preis an.';
+                return;
+            }
+
+            $feats_raw = trim($_POST['features'] ?? '');
+            $features = !empty($feats_raw) ? array_values(array_filter(array_map('trim', explode("\n", $feats_raw)))) : [];
+
+            $data['pricing'][$found_idx]['title'] = $title;
+            $data['pricing'][$found_idx]['price'] = $price;
+            $data['pricing'][$found_idx]['period'] = trim($_POST['period'] ?? '');
+            $data['pricing'][$found_idx]['badge'] = trim($_POST['badge'] ?? '');
+            $data['pricing'][$found_idx]['highlighted'] = !empty($_POST['highlighted']);
+            $data['pricing'][$found_idx]['button_text'] = trim($_POST['button_text'] ?? 'Jetzt anfragen');
+            $data['pricing'][$found_idx]['button_link'] = trim($_POST['button_link'] ?? '#contact');
+            $data['pricing'][$found_idx]['description'] = trim($_POST['description'] ?? '');
+            $data['pricing'][$found_idx]['features'] = $features;
+
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Preispaket „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
+            } else {
+                $error_msg = 'Fehler beim Speichern des Preispakets.';
+            }
+
+        } elseif ($action === 'delete_pricing_plan') {
+            $plan_id = $_POST['id'] ?? '';
+            $orig_count = count($data['pricing']);
+            $data['pricing'] = array_values(array_filter($data['pricing'], function($p) use ($plan_id) {
+                return (string)($p['id'] ?? '') !== (string)$plan_id;
+            }));
+
+            if (count($data['pricing']) < $orig_count) {
+                if (save_data($dataFile, $data)) {
+                    $success_msg = 'Preispaket gelöscht.';
+                } else {
+                    $error_msg = 'Fehler beim Speichern.';
+                }
+            } else {
+                $error_msg = 'Preispaket nicht gefunden.';
+            }
+        }
+    }
 }
+

@@ -1,49 +1,116 @@
 {
-    "settings": {
-        "upload_dir": "images\/uploads",
-        "admin_password_hash": "",
-        "admin_pin_hash": "",
-        "admin_username": "admin",
-        "gallery_layout": "editorial",
-        "gallery_lightbox": true,
-        "hero_logo_motif": "paw_simple",
-        "hero_logo_color": "#d97706",
-        "logo_position": "hero_before",
-        "design_theme": "nature_classic",
-        "container_width": "1200px",
-        "primary_color": "#2e6248",
-        "accent_color": "#b26c39",
-        "bg_color": "#fbf9f6",
-        "font_scale": "100%",
-        "gallery_gap": "2rem",
-        "card_radius": "20px",
-        "welcome_shown": false,
-        "smtp": {
-            "enabled": false,
-            "host": "",
-            "port": 587,
-            "secure": "tls",
-            "user": "",
-            "pass": "",
-            "from_email": "",
-            "from_name": ""
+    "categories": [
+        "Wohnaccessoires",
+        "Gartendeko",
+        "Auftragsarbeiten",
+        "Kurse"
+    ],
+    "courses": [
+        {
+            "id": 1,
+            "date_string": "15. November 2026",
+            "time": "10:00 - 16:00 Uhr",
+            "location": "Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt",
+            "title": "Grundkurs Handwerk & Formgebung",
+            "description": "Lerne die Grundlagen der Materialverarbeitung und gestalte dein erstes eigenes Design-Werkstück.",
+            "price": "85 €",
+            "max_participants": 10,
+            "current_participants": 4,
+            "available": true,
+            "invite_token": "kurs-1-grundkurs-formgebung"
         },
-        "captcha_icons": [
-            "branch",
-            "paw",
-            "moon",
-            "flower_yellow"
-        ],
-        "privacy_policy_text": "### 1. Datenschutz auf einen Blick\r\n\r\nDer Schutz deiner persönlichen Daten ist uns ein wichtiges Anliegen. Diese Erklärung gibt dir einen Überblick darüber, welche Daten erhoben und wie sie verarbeitet werden.\r\n\r\n### 2. Verantwortliche Stelle\r\n\r\nVerantwortlich für die Datenverarbeitung auf dieser Website ist die im Impressum genannte Betreiberin bzw. der Betreiber.\r\n\r\n### 3. Datenerfassung auf unserer Website\r\n\r\n**Server-Log-Dateien:**\r\nDer Webserver erhebt automatisch technische Verbindungsdaten (z. B. IP-Adresse in anonymisierter Form, Browsertyp, aufgerufene URL, Datum und Uhrzeit des Zugriffs). Diese Daten sind technisch erforderlich, um die Website stabil und sicher auszuliefern.\r\n\r\n**Kontaktformular & E-Mail-Anfragen:**\r\nWenn du uns per Kontaktformular oder E-Mail Anfragen zukommen lässt, werden deine Angaben aus dem Anfrageformular inklusive der von dir dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert.\r\n\r\n### 4. Keine Werbe- oder Tracking-Cookies\r\n\r\nDiese Website verzichtet vollständig auf den Einsatz von zustimmungspflichtigen Tracking-, Analyse- oder Marketing-Cookies von Drittanbietern."
-    },
-    "seo": {
-        "meta_title": "Atelier Musterfrau | Handgefertigte Unikate & Kreativ-Workshops",
-        "meta_description": "Individuelles Handwerk, zeitloses Design und inspirierende Praxiskurse von Maxima Musterfrau.",
-        "meta_keywords": "Handwerk, Unikate, Workshops, Atelier, Design, Kreativkurse, Maxima Musterfrau",
-        "og_image": "\/images\/default_wicker1.png",
-        "robots": "index, follow",
-        "canonical_url": ""
-    },
+        {
+            "id": 2,
+            "date_string": "05. Dezember 2026",
+            "time": "11:00 - 15:30 Uhr",
+            "location": "Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt",
+            "title": "Kreativ-Workshop Natur & Design",
+            "description": "Gestalte stilvolle Wohn- und Gartendekorationen aus hochwertigen Naturmaterialien.",
+            "price": "65 €",
+            "max_participants": 8,
+            "current_participants": 8,
+            "available": false,
+            "invite_token": "kurs-2-natur-design"
+        }
+    ],
+    "gallery": [
+        {
+            "id": 1,
+            "title": "Design-Korb 'Terra'",
+            "description": "Handgeflochtenes Schalenunikat für Obst, Brot und stilvolle Tischdekoration.",
+            "image": "/images/korb_klassik.png",
+            "category": "Wohnaccessoires",
+            "sort_order": 1
+        },
+        {
+            "id": 2,
+            "title": "Lenkerkorb 'Vintage'",
+            "description": "Feines Naturgeflecht mit hochwertigen Lederriemen. Praktisch und zeitlos elegant.",
+            "image": "/images/korb_fahrrad.png",
+            "category": "Wohnaccessoires",
+            "sort_order": 2
+        },
+        {
+            "id": 3,
+            "title": "Kaminholzkorb 'Robusto'",
+            "description": "Ein großer, extra stabiler Tragekorb aus dunklen Naturruten für Kaminholz oder Gartenarbeiten.",
+            "image": "/images/korb_kaminholz.png",
+            "category": "Wohnaccessoires",
+            "sort_order": 3
+        },
+        {
+            "id": 4,
+            "title": "Dekokugeln 'Trio'",
+            "description": "Drei handgearbeitete Hohlkugeln in verschiedenen Größen zur Dekoration im Wohn- und Gartenbereich.",
+            "image": "/images/deko_kugeln.png",
+            "category": "Gartendeko",
+            "sort_order": 4
+        },
+        {
+            "id": 5,
+            "title": "Windlicht 'Spirale'",
+            "description": "Kunstvoll geschwungenes Windlicht mit Glaseinsatz für stimmungsvolle Sommerabende.",
+            "image": "/images/deko_windlicht.png",
+            "category": "Gartendeko",
+            "sort_order": 5
+        },
+        {
+            "id": 6,
+            "title": "Rankobelisk 'Natura'",
+            "description": "Hohe, freistehende Rankhilfe für Rosen, Clematis und Kletterpflanzen im Garten.",
+            "image": "/images/deko_rankhilfe.png",
+            "category": "Gartendeko",
+            "sort_order": 6
+        },
+        {
+            "id": 7,
+            "title": "Sichtschutzwand 'Rustikal'",
+            "description": "Ein traditioneller, blickdichter Naturzaun, maßgefertigt für Terrassen und Gartenanlagen.",
+            "image": "/images/sichtschutz_flechtzaun.png",
+            "category": "Auftragsarbeiten",
+            "sort_order": 7
+        },
+        {
+            "id": 8,
+            "title": "Design-Paneel 'Modern'",
+            "description": "Hochwertiges Lamellenelement aus Naturmaterialien, eingefasst in einem massiven Holzrahmen.",
+            "image": "/images/sichtschutz_modern.png",
+            "category": "Auftragsarbeiten",
+            "sort_order": 8
+        },
+        {
+            "id": 9,
+            "title": "Gartenbogen 'Lebendbau'",
+            "description": "Ein lebendes Naturgeflecht, das im Frühjahr austreibt und ein grünes Blätterdach bildet.",
+            "image": "/images/sichtschutz_lebendzaun.png",
+            "category": "Auftragsarbeiten",
+            "sort_order": 9
+        }
+    ],
+    "past_courses": [
+        "/images/default_wicker1.png",
+        "/images/default_wicker2.png"
+    ],
     "sections": [
         {
             "id": "hero",
@@ -78,6 +145,46 @@
             "in_nav": false
         },
         {
+            "id": "blog",
+            "type": "blog",
+            "title": "Aktuelles & Blog",
+            "nav_label": "Blog",
+            "visible": true,
+            "in_nav": true
+        },
+        {
+            "id": "pricing",
+            "type": "pricing",
+            "title": "Leistungen & Preise",
+            "nav_label": "Preise",
+            "visible": true,
+            "in_nav": true
+        },
+        {
+            "id": "faq",
+            "type": "faq",
+            "title": "Häufige Fragen (FAQ)",
+            "nav_label": "FAQ",
+            "visible": true,
+            "in_nav": true
+        },
+        {
+            "id": "team",
+            "type": "team",
+            "title": "Unser Team & Meister",
+            "nav_label": "Team",
+            "visible": true,
+            "in_nav": true
+        },
+        {
+            "id": "downloads",
+            "type": "downloads",
+            "title": "Downloads & Dokumente",
+            "nav_label": "Downloads",
+            "visible": true,
+            "in_nav": false
+        },
+        {
             "id": "about",
             "type": "about",
             "title": "Über mein Atelier",
@@ -86,15 +193,62 @@
             "in_nav": true
         }
     ],
-    "categories": [
-        "Wohnaccessoires",
-        "Gartendeko",
-        "Auftragsarbeiten",
-        "Kurse"
-    ],
+    "seo": {
+        "meta_title": "Atelier Musterfrau | Handgefertigte Unikate & Kreativ-Workshops",
+        "meta_description": "Handgefertigte Unikate & Kreativ-Workshops",
+        "meta_keywords": "Atelier Musterfrau, Handwerk, Unikate, Workshops, Atelier, Design",
+        "og_image": "/images/default_wicker1.png",
+        "robots": "index, follow",
+        "canonical_url": ""
+    },
+    "settings": {
+        "upload_dir": "images/uploads",
+        "admin_password_hash": "$2y$12$1j1NIBvbbCPGIKS4QtjsHuR2qEJPJx/vs.2W8RS/AKeaOoT5zfpcK",
+        "admin_pin_hash": "$2y$12$EOPy8pkLhq5JaZng7ULy1ezMcsKM9Urs0JQRLTigM12rzwQflgNCa",
+        "admin_username": "admin",
+        "gallery_layout": "editorial",
+        "gallery_lightbox": true,
+        "hero_logo_motif": "paw_simple",
+        "hero_logo_color": "#d97706",
+        "logo_position": "hero_before",
+        "design_theme": "nature_classic",
+        "container_width": "1200px",
+        "primary_color": "#2e6248",
+        "accent_color": "#b26c39",
+        "bg_color": "#fbf9f6",
+        "font_scale": "100%",
+        "gallery_gap": "2rem",
+        "card_radius": "20px",
+        "welcome_shown": true,
+        "smtp": {
+            "enabled": false,
+            "host": "",
+            "port": 587,
+            "secure": "tls",
+            "user": "",
+            "pass": "",
+            "from_email": "",
+            "from_name": ""
+        },
+        "captcha_icons": [
+            "branch",
+            "paw",
+            "moon",
+            "flower_yellow"
+        ],
+        "privacy_policy_text": "### 1. Datenschutz auf einen Blick\r\n\r\nDer Schutz deiner persönlichen Daten ist uns ein wichtiges Anliegen. Diese Erklärung gibt dir einen Überblick darüber, welche Daten erhoben und wie sie verarbeitet werden.\r\n\r\n### 2. Verantwortliche Stelle\r\n\r\nVerantwortlich für die Datenverarbeitung auf dieser Website ist die im Impressum genannte Betreiberin bzw. der Betreiber.\r\n\r\n### 3. Datenerfassung auf unserer Website\r\n\r\n**Server-Log-Dateien:**\r\nDer Webserver erhebt automatisch technische Verbindungsdaten (z. B. IP-Adresse in anonymisierter Form, Browsertyp, aufgerufene URL, Datum und Uhrzeit des Zugriffs). Diese Daten sind technisch erforderlich, um die Website stabil und sicher auszuliefern.\r\n\r\n**Kontaktformular & E-Mail-Anfragen:**\r\nWenn du uns per Kontaktformular oder E-Mail Anfragen zukommen lässt, werden deine Angaben aus dem Anfrageformular inklusive der von dir dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert.\r\n\r\n### 4. Keine Werbe- oder Tracking-Cookies\r\n\r\nDiese Website verzichtet vollständig auf den Einsatz von zustimmungspflichtigen Tracking-, Analyse- oder Marketing-Cookies von Drittanbietern.",
+        "primary_language": "de",
+        "active_languages": [
+            "de",
+            "en",
+            "it"
+        ],
+        "contact_placement": "footer",
+        "impressum_placement": "footer"
+    },
     "texts": {
-        "hero_title": "Handgefertigte Unikate & Workshops",
-        "hero_subtitle": "Traditionelles Handwerk, kreative Formgebung, Naturdesign und inspirierende Praxiskurse.",
+        "hero_title": "Atelier Musterfrau",
+        "hero_subtitle": "Handgefertigte Unikate & Kreativ-Workshops",
         "about_title": "Über mein Atelier & Handwerk",
         "about_text": "Handwerkskunst ist für mich eine lebendige Verbindung aus Natur, Tradition und zeitgenössischem Design. Jedes Werkstück entsteht in sorgfältiger Handarbeit und erzählt seine eigene Geschichte. Ich verwende ausschließlich nachhaltige, ausgewählte Naturmaterialien.\r\n\r\nNeben individuellen Wohnaccessoires und Auftragsarbeiten für Haus und Garten gebe ich regelmäßige Workshops für alle, die das Gestalten mit natürlichen Werkstoffen selbst erlernen möchten. Meine Werkstatt befindet sich in Musterstadt, wo ich mich voll und ganz dieser Leidenschaft widme.",
         "gallery_title": "Galerie & Werkstücke",
@@ -103,6 +257,16 @@
         "courses_subtitle": "Lerne die Grundlagen der handwerklichen Gestaltung in persönlicher, inspirierender Werkstatt-Atmosphäre selbst kennen.",
         "past_courses_title": "Impressionen vergangener Workshops",
         "past_courses_subtitle": "Ein Rückblick auf gemeinsame kreative Stunden und entstandene Meisterstücke.",
+        "blog_title": "Aktuelles &amp; Geschichten",
+        "blog_subtitle": "Einblicke, Neuigkeiten und Inspirationen direkt aus unserem Atelier.",
+        "pricing_title": "Leistungen &amp; Preise",
+        "pricing_subtitle": "Transparente Angebote für persönliche Workshops, Kurse und individuelle Maßanfertigungen.",
+        "faq_title": "Häufige Fragen (FAQ)",
+        "faq_subtitle": "Hier findest du Antworten auf die meistgestellten Fragen rund um unsere Kurse, Werkstücke und Pflege.",
+        "team_title": "Unser Team &amp; Meister",
+        "team_subtitle": "Lerne die kreativen Köpfe und Meister hinter unseren Kursen und Kollektionen kennen.",
+        "downloads_title": "Downloads &amp; Dokumente",
+        "downloads_subtitle": "Hier findest du Informationsmaterial, Pflegeanleitungen und Kursflyer zum direkten Herunterladen.",
         "contact_intro_text": "Hast du Fragen zu meinen Workshops, möchtest einen Gutschein erwerben oder ein individuelles Werkstück anfragen?",
         "contact_name": "Maxima Musterfrau",
         "contact_street": "Musterstraße 12",
@@ -116,112 +280,6 @@
         "contact_mail_greeting": "Hallo Maxima,",
         "course_request_template": "Hallo Maxima,\r\n\r\nich interessiere mich für deinen Workshop \"{kurs}\" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\r\n\r\nViele Grüße"
     },
-    "gallery": [
-        {
-            "id": 1,
-            "title": "Design-Korb 'Terra'",
-            "description": "Handgeflochtenes Schalenunikat für Obst, Brot und stilvolle Tischdekoration.",
-            "image": "\/images\/korb_klassik.png",
-            "category": "Wohnaccessoires",
-            "sort_order": 1
-        },
-        {
-            "id": 2,
-            "title": "Lenkerkorb 'Vintage'",
-            "description": "Feines Naturgeflecht mit hochwertigen Lederriemen. Praktisch und zeitlos elegant.",
-            "image": "\/images\/korb_fahrrad.png",
-            "category": "Wohnaccessoires",
-            "sort_order": 2
-        },
-        {
-            "id": 3,
-            "title": "Kaminholzkorb 'Robusto'",
-            "description": "Ein großer, extra stabiler Tragekorb aus dunklen Naturruten für Kaminholz oder Gartenarbeiten.",
-            "image": "\/images\/korb_kaminholz.png",
-            "category": "Wohnaccessoires",
-            "sort_order": 3
-        },
-        {
-            "id": 4,
-            "title": "Dekokugeln 'Trio'",
-            "description": "Drei handgearbeitete Hohlkugeln in verschiedenen Größen zur Dekoration im Wohn- und Gartenbereich.",
-            "image": "\/images\/deko_kugeln.png",
-            "category": "Gartendeko",
-            "sort_order": 4
-        },
-        {
-            "id": 5,
-            "title": "Windlicht 'Spirale'",
-            "description": "Kunstvoll geschwungenes Windlicht mit Glaseinsatz für stimmungsvolle Sommerabende.",
-            "image": "\/images\/deko_windlicht.png",
-            "category": "Gartendeko",
-            "sort_order": 5
-        },
-        {
-            "id": 6,
-            "title": "Rankobelisk 'Natura'",
-            "description": "Hohe, freistehende Rankhilfe für Rosen, Clematis und Kletterpflanzen im Garten.",
-            "image": "\/images\/deko_rankhilfe.png",
-            "category": "Gartendeko",
-            "sort_order": 6
-        },
-        {
-            "id": 7,
-            "title": "Sichtschutzwand 'Rustikal'",
-            "description": "Ein traditioneller, blickdichter Naturzaun, maßgefertigt für Terrassen und Gartenanlagen.",
-            "image": "\/images\/sichtschutz_flechtzaun.png",
-            "category": "Auftragsarbeiten",
-            "sort_order": 7
-        },
-        {
-            "id": 8,
-            "title": "Design-Paneel 'Modern'",
-            "description": "Hochwertiges Lamellenelement aus Naturmaterialien, eingefasst in einem massiven Holzrahmen.",
-            "image": "\/images\/sichtschutz_modern.png",
-            "category": "Auftragsarbeiten",
-            "sort_order": 8
-        },
-        {
-            "id": 9,
-            "title": "Gartenbogen 'Lebendbau'",
-            "description": "Ein lebendes Naturgeflecht, das im Frühjahr austreibt und ein grünes Blätterdach bildet.",
-            "image": "\/images\/sichtschutz_lebendzaun.png",
-            "category": "Auftragsarbeiten",
-            "sort_order": 9
-        }
-    ],
-    "courses": [
-        {
-            "id": 1,
-            "date_string": "15. November 2026",
-            "time": "10:00 - 16:00 Uhr",
-            "location": "Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt",
-            "title": "Grundkurs Handwerk & Formgebung",
-            "description": "Lerne die Grundlagen der Materialverarbeitung und gestalte dein erstes eigenes Design-Werkstück.",
-            "price": "85 €",
-            "max_participants": 10,
-            "current_participants": 4,
-            "available": true,
-            "invite_token": "kurs-1-grundkurs-formgebung"
-        },
-        {
-            "id": 2,
-            "date_string": "05. Dezember 2026",
-            "time": "11:00 - 15:30 Uhr",
-            "location": "Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt",
-            "title": "Kreativ-Workshop Natur & Design",
-            "description": "Gestalte stilvolle Wohn- und Gartendekorationen aus hochwertigen Naturmaterialien.",
-            "price": "65 €",
-            "max_participants": 8,
-            "current_participants": 8,
-            "available": false,
-            "invite_token": "kurs-2-natur-design"
-        }
-    ],
-    "past_courses": [
-        "\/images\/default_wicker1.png",
-        "\/images\/default_wicker2.png"
-    ],
     "blog": [
         {
             "id": 1,
@@ -256,6 +314,135 @@
                 "Natur"
             ],
             "created_at": "2026-10-21 09:30:00"
+        }
+    ],
+    "pages": [
+        {
+            "id": "page_1",
+            "title": "Nachhaltigkeit & Herkunft",
+            "slug": "nachhaltigkeit-herkunft",
+            "nav_label": "Nachhaltigkeit",
+            "status": "published",
+            "in_nav": true,
+            "meta_description": "Erfahre mehr über unsere nachhaltigen Naturmaterialien und den ökologischen Anbau.",
+            "content": "## Respekt vor Natur & Rohstoff\n\nUnsere Naturmaterialien stammen zu 100% aus kontrolliertem, regionalem Anbau ohne chemische Dünge- oder Spritzmittel.\n\n### Kreislaufwirtschaft im Atelier\n\n- **Reine Handarbeit:** Jedes Werkstück wird schonend und traditionell gefertigt.\n- **Kein Plastik:** Selbst Verpackungen und Kennzeichnungen bestehen aus Recyclingpapier.\n- **Langlebigkeit:** Ein gutes Flechtwerkstück hält Generationen.\n\nBesuche uns gerne vor Ort und überzeuge dich selbst von unserer Philosophie!",
+            "created_at": "2026-10-21 11:00:00",
+            "updated_at": "2026-10-21 11:00:00"
+        }
+    ],
+    "faqs": [
+        {
+            "id": "faq_1",
+            "question": "Brauche ich Vorkenntnisse für die Kurse und Workshops?",
+            "answer": "Nein, überhaupt nicht! Unsere Einsteigerkurse sind so aufgebaut, dass du Schritt für Schritt alle Handgriffe lernst. Auch als absoluter Neuling nimmst du am Ende des Tages dein eigenes, fertiges Werkstück mit nach Hause.",
+            "created_at": "2026-10-21 11:00:00"
+        },
+        {
+            "id": "faq_2",
+            "question": "Fertigt ihr auch individuelle Maße oder Sonderanfertigungen an?",
+            "answer": "Ja, sehr gerne! Ob ein maßgefertigter Truhenkorb für eine Dachschräge, ein Schrankeinsatz oder ein spezieller Gartensichtschutz – sprich uns einfach über das Kontaktformular an.",
+            "created_at": "2026-10-21 11:05:00"
+        },
+        {
+            "id": "faq_3",
+            "question": "Kann man Gutscheine für Kurse oder Werkstücke verschenken?",
+            "answer": "Ja! Gutscheine können über einen beliebigen Betrag oder direkt für einen bestimmten Workshop ausgestellt werden. Schreib uns dazu einfach eine kurze Nachricht.",
+            "created_at": "2026-10-21 11:10:00"
+        }
+    ],
+    "team": [
+        {
+            "id": "team_1",
+            "name": "Maxima Musterfrau",
+            "role": "Inhaberin & Meisterin",
+            "email": "maxima@musteratelier.de",
+            "bio": "Seit über 15 Jahren verbindet Maxima alte Handwerkstraditionen mit moderner Ästhetik. Sie leitet die Workshops und entwirft neue Kollektionen.",
+            "image": "",
+            "created_at": "2026-10-21 11:00:00"
+        },
+        {
+            "id": "team_2",
+            "name": "Lukas Weber",
+            "role": "Werkstattleitung & Holzgestaltung",
+            "email": "lukas@musteratelier.de",
+            "bio": "Lukas sorgt für die solide Basis: Er fertigt Korbholzböden, Werkzeuge und Gestelle aus nachhaltigen heimischen Hölzern.",
+            "image": "",
+            "created_at": "2026-10-21 11:05:00"
+        }
+    ],
+    "downloads": [
+        {
+            "id": "dl_1",
+            "title": "Pflegeanleitung für Naturgeflechte (PDF)",
+            "description": "Hilfreiche Tipps zu Reinigung, Luftfeuchtigkeit und Schutz vor direkter Witterung.",
+            "file_path": "images/default_wicker1.png",
+            "file_size": "120 KB",
+            "created_at": "2026-10-21 11:00:00"
+        },
+        {
+            "id": "dl_2",
+            "title": "Jahresprogramm & Workshop-Übersicht 2026/27",
+            "description": "Alle Termine, Veranstaltungsorte und Kursinhalte auf einen Blick.",
+            "file_path": "images/korb_klassik.png",
+            "file_size": "340 KB",
+            "created_at": "2026-10-21 11:05:00"
+        }
+    ],
+    "pricing": [
+        {
+            "id": "pricing_1",
+            "title": "Basis Workshop",
+            "price": "79 €",
+            "period": "/ Person",
+            "badge": "Beliebt",
+            "highlighted": false,
+            "button_text": "Platz anfragen",
+            "button_link": "#courses",
+            "description": "Der perfekte Einstieg: Lerne die Grundtechniken kennen und flechte dein erstes eigenes Schalenunikat.",
+            "features": [
+                "4 Stunden persönlicher Intensivunterricht",
+                "Inklusive aller Naturmaterialien",
+                "Eigenes fertiges Werkstück zum Mitnehmen",
+                "Werkzeugausleihe & Erfrischungen"
+            ],
+            "created_at": "2026-10-21 11:00:00"
+        },
+        {
+            "id": "pricing_2",
+            "title": "Ganztages Meisterkurs",
+            "price": "149 €",
+            "period": "/ Person",
+            "badge": "Empfehlung",
+            "highlighted": true,
+            "button_text": "Jetzt buchen",
+            "button_link": "#courses",
+            "description": "Für alle, die tiefer eintauchen möchten: Gestalte einen robusten Trage- oder Henkelkorb.",
+            "features": [
+                "7 Stunden Meisteranleitung",
+                "Premium-Naturweiden in verschiedenen Naturtönen",
+                "Großer Henkelkorb oder Kaminholzkorb",
+                "Umfassendes Handout & Pflegeöl",
+                "Gemeinsames Bio-Mittagessen inklusive"
+            ],
+            "created_at": "2026-10-21 11:05:00"
+        },
+        {
+            "id": "pricing_3",
+            "title": "Individuelle Maßanfertigung",
+            "price": "ab 95 €",
+            "period": "/ Werkstück",
+            "badge": "Unikat",
+            "highlighted": false,
+            "button_text": "Anfrage stellen",
+            "button_link": "#contact",
+            "description": "Du suchst einen Korb nach Wunschmaß für Regale, Boote oder Kaminholz? Wir fertigen nach Skizze.",
+            "features": [
+                "Persönliche Beratung & Materialmuster",
+                "Millimetergenaue Anfertigung",
+                "Wahl aus 5 natürlichen Weidenfarben",
+                "Optional mit Leder- oder Holzelementen"
+            ],
+            "created_at": "2026-10-21 11:10:00"
         }
     ]
 }

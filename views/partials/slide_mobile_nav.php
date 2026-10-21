@@ -18,8 +18,16 @@
         <label for="menu-toggle-mobile" class="close-menu-btn">&times;</label>
         <h2 style="color: var(--primary); margin-bottom: 2rem;">Navigation</h2>
         <nav style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <?php 
+                $is_subpage_view = isset($_GET['page']) || isset($_GET['blog']);
+            ?>
             <?php foreach ($nav_items as $item): ?>
-                <a href="#<?php echo htmlspecialchars($item['id']); ?>" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;"><?php echo htmlspecialchars($item['nav_label']); ?></a>
+                <?php 
+                    $href = !empty($item['url']) 
+                        ? htmlspecialchars($item['url']) 
+                        : ($is_subpage_view ? './#' . htmlspecialchars($item['id']) : '#' . htmlspecialchars($item['id']));
+                ?>
+                <a href="<?php echo $href; ?>" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;"><?php echo htmlspecialchars($item['nav_label']); ?></a>
             <?php endforeach; ?>
             <?php 
                 $contact_place = $data['settings']['contact_placement'] ?? 'both';

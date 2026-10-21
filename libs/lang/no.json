@@ -4,7 +4,6 @@
     "nav.privacy": "Personvern",
     "nav.admin": "Administrasjon",
     "nav.menu": "Navigasjon",
-
     "btn.inquire_now": "Send forespørsel nå",
     "btn.booked_out": "Fullbooket",
     "btn.share": "Del dette kurset",
@@ -12,17 +11,13 @@
     "btn.open_in_mail": "Åpne i e-postprogram",
     "btn.filter_all": "Alle",
     "btn.close": "Lukk",
-
     "gallery.no_items": "Ingen verk i galleriet ennå.",
     "gallery.zoom_hint": "Klikk for fullskjerm",
-
     "courses.no_dates": "Det er for øyeblikket ingen fastsatte kursdatoer. Send gjerne en forespørsel!",
     "courses.spots_free": "Ledige plasser",
     "courses.booked": "Fullbooket",
     "courses.booked_spots": "opptatt (enda {spots} ledige)",
-
     "past_courses.no_images": "Ingen bilder lastet opp ennå.",
-
     "contact.title": "Kontakt & Kursforespørsel",
     "contact.owner": "Innehaver",
     "contact.phone": "Telefon",
@@ -35,7 +30,6 @@
     "contact.message": "Melding",
     "contact.spam_label": "Sikkerhetskontroll: Klikk på {prompt}",
     "contact.mail_client_hint": "Åpner e-postprogrammet ditt med ferdig utfylt melding.",
-
     "legal.impressum_tab": "Kolofon",
     "legal.privacy_tab": "Personvern (GDPR)",
     "legal.tmg_notice": "Lovpålagt informasjon",
@@ -43,8 +37,18 @@
     "legal.supervisory": "Tilsynsmyndighet",
     "legal.vat_id": "Organisasjonsnummer",
     "legal.disclaimer": "Ansvarsfraskrivelse",
-
     "toast.link_copied": "Lenke kopiert!",
     "toast.course_link_copied": "Kurslenke kopiert til utklippstavlen!",
-    "toast.share_prompt": "Kurslenke for deling:"
+    "toast.share_prompt": "Kurslenke for deling:",
+    "btn.read_more": "Les mer",
+    "btn.download": "Last ned",
+    "btn.back_home": "Tilbake til forsiden",
+    "btn.back_overview": "Tilbake til oversikten",
+    "btn.contact_person": "Kontakt",
+    "blog.no_posts": "Ingen blogginnlegg er publisert ennå.",
+    "blog.share_post": "Del denne artikkelen",
+    "faq.no_items": "Ingen vanlige spørsmål lagt til ennå.",
+    "team.no_items": "Ingen teammedlemmer registrert ennå.",
+    "downloads.no_items": "Ingen nedlastinger tilgjengelig for øyeblikket.",
+    "pricing.no_items": "Ingen priser eller pakker lagt til ennå."
 }

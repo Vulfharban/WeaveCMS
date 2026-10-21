@@ -145,6 +145,46 @@
             "in_nav": false
         },
         {
+            "id": "blog",
+            "type": "blog",
+            "title": "Aktuelles & Blog",
+            "nav_label": "Blog",
+            "visible": true,
+            "in_nav": true
+        },
+        {
+            "id": "pricing",
+            "type": "pricing",
+            "title": "Leistungen & Preise",
+            "nav_label": "Preise",
+            "visible": true,
+            "in_nav": true
+        },
+        {
+            "id": "faq",
+            "type": "faq",
+            "title": "Häufige Fragen (FAQ)",
+            "nav_label": "FAQ",
+            "visible": true,
+            "in_nav": true
+        },
+        {
+            "id": "team",
+            "type": "team",
+            "title": "Unser Team & Meister",
+            "nav_label": "Team",
+            "visible": true,
+            "in_nav": true
+        },
+        {
+            "id": "downloads",
+            "type": "downloads",
+            "title": "Downloads & Dokumente",
+            "nav_label": "Downloads",
+            "visible": true,
+            "in_nav": false
+        },
+        {
             "id": "about",
             "type": "about",
             "title": "Über mein Atelier",
@@ -200,10 +240,11 @@
         "primary_language": "de",
         "active_languages": [
             "de",
-            "en"
+            "en",
+            "it"
         ],
-        "contact_placement": "both",
-        "impressum_placement": "both"
+        "contact_placement": "footer",
+        "impressum_placement": "footer"
     },
     "texts": {
         "hero_title": "Atelier Musterfrau",
@@ -218,6 +259,14 @@
         "past_courses_subtitle": "Ein Rückblick auf gemeinsame kreative Stunden und entstandene Meisterstücke.",
         "blog_title": "Aktuelles &amp; Geschichten",
         "blog_subtitle": "Einblicke, Neuigkeiten und Inspirationen direkt aus unserem Atelier.",
+        "pricing_title": "Leistungen &amp; Preise",
+        "pricing_subtitle": "Transparente Angebote für persönliche Workshops, Kurse und individuelle Maßanfertigungen.",
+        "faq_title": "Häufige Fragen (FAQ)",
+        "faq_subtitle": "Hier findest du Antworten auf die meistgestellten Fragen rund um unsere Kurse, Werkstücke und Pflege.",
+        "team_title": "Unser Team &amp; Meister",
+        "team_subtitle": "Lerne die kreativen Köpfe und Meister hinter unseren Kursen und Kollektionen kennen.",
+        "downloads_title": "Downloads &amp; Dokumente",
+        "downloads_subtitle": "Hier findest du Informationsmaterial, Pflegeanleitungen und Kursflyer zum direkten Herunterladen.",
         "contact_intro_text": "Hast du Fragen zu meinen Workshops, möchtest einen Gutschein erwerben oder ein individuelles Werkstück anfragen?",
         "contact_name": "Maxima Musterfrau",
         "contact_street": "Musterstraße 12",
@@ -265,6 +314,135 @@
                 "Natur"
             ],
             "created_at": "2026-10-21 09:30:00"
+        }
+    ],
+    "pages": [
+        {
+            "id": "page_1",
+            "title": "Nachhaltigkeit & Herkunft",
+            "slug": "nachhaltigkeit-herkunft",
+            "nav_label": "Nachhaltigkeit",
+            "status": "published",
+            "in_nav": true,
+            "meta_description": "Erfahre mehr über unsere nachhaltigen Naturmaterialien und den ökologischen Anbau.",
+            "content": "## Respekt vor Natur & Rohstoff\n\nUnsere Naturmaterialien stammen zu 100% aus kontrolliertem, regionalem Anbau ohne chemische Dünge- oder Spritzmittel.\n\n### Kreislaufwirtschaft im Atelier\n\n- **Reine Handarbeit:** Jedes Werkstück wird schonend und traditionell gefertigt.\n- **Kein Plastik:** Selbst Verpackungen und Kennzeichnungen bestehen aus Recyclingpapier.\n- **Langlebigkeit:** Ein gutes Flechtwerkstück hält Generationen.\n\nBesuche uns gerne vor Ort und überzeuge dich selbst von unserer Philosophie!",
+            "created_at": "2026-10-21 11:00:00",
+            "updated_at": "2026-10-21 11:00:00"
+        }
+    ],
+    "faqs": [
+        {
+            "id": "faq_1",
+            "question": "Brauche ich Vorkenntnisse für die Kurse und Workshops?",
+            "answer": "Nein, überhaupt nicht! Unsere Einsteigerkurse sind so aufgebaut, dass du Schritt für Schritt alle Handgriffe lernst. Auch als absoluter Neuling nimmst du am Ende des Tages dein eigenes, fertiges Werkstück mit nach Hause.",
+            "created_at": "2026-10-21 11:00:00"
+        },
+        {
+            "id": "faq_2",
+            "question": "Fertigt ihr auch individuelle Maße oder Sonderanfertigungen an?",
+            "answer": "Ja, sehr gerne! Ob ein maßgefertigter Truhenkorb für eine Dachschräge, ein Schrankeinsatz oder ein spezieller Gartensichtschutz – sprich uns einfach über das Kontaktformular an.",
+            "created_at": "2026-10-21 11:05:00"
+        },
+        {
+            "id": "faq_3",
+            "question": "Kann man Gutscheine für Kurse oder Werkstücke verschenken?",
+            "answer": "Ja! Gutscheine können über einen beliebigen Betrag oder direkt für einen bestimmten Workshop ausgestellt werden. Schreib uns dazu einfach eine kurze Nachricht.",
+            "created_at": "2026-10-21 11:10:00"
+        }
+    ],
+    "team": [
+        {
+            "id": "team_1",
+            "name": "Maxima Musterfrau",
+            "role": "Inhaberin & Meisterin",
+            "email": "maxima@musteratelier.de",
+            "bio": "Seit über 15 Jahren verbindet Maxima alte Handwerkstraditionen mit moderner Ästhetik. Sie leitet die Workshops und entwirft neue Kollektionen.",
+            "image": "",
+            "created_at": "2026-10-21 11:00:00"
+        },
+        {
+            "id": "team_2",
+            "name": "Lukas Weber",
+            "role": "Werkstattleitung & Holzgestaltung",
+            "email": "lukas@musteratelier.de",
+            "bio": "Lukas sorgt für die solide Basis: Er fertigt Korbholzböden, Werkzeuge und Gestelle aus nachhaltigen heimischen Hölzern.",
+            "image": "",
+            "created_at": "2026-10-21 11:05:00"
+        }
+    ],
+    "downloads": [
+        {
+            "id": "dl_1",
+            "title": "Pflegeanleitung für Naturgeflechte (PDF)",
+            "description": "Hilfreiche Tipps zu Reinigung, Luftfeuchtigkeit und Schutz vor direkter Witterung.",
+            "file_path": "images/default_wicker1.png",
+            "file_size": "120 KB",
+            "created_at": "2026-10-21 11:00:00"
+        },
+        {
+            "id": "dl_2",
+            "title": "Jahresprogramm & Workshop-Übersicht 2026/27",
+            "description": "Alle Termine, Veranstaltungsorte und Kursinhalte auf einen Blick.",
+            "file_path": "images/korb_klassik.png",
+            "file_size": "340 KB",
+            "created_at": "2026-10-21 11:05:00"
+        }
+    ],
+    "pricing": [
+        {
+            "id": "pricing_1",
+            "title": "Basis Workshop",
+            "price": "79 €",
+            "period": "/ Person",
+            "badge": "Beliebt",
+            "highlighted": false,
+            "button_text": "Platz anfragen",
+            "button_link": "#courses",
+            "description": "Der perfekte Einstieg: Lerne die Grundtechniken kennen und flechte dein erstes eigenes Schalenunikat.",
+            "features": [
+                "4 Stunden persönlicher Intensivunterricht",
+                "Inklusive aller Naturmaterialien",
+                "Eigenes fertiges Werkstück zum Mitnehmen",
+                "Werkzeugausleihe & Erfrischungen"
+            ],
+            "created_at": "2026-10-21 11:00:00"
+        },
+        {
+            "id": "pricing_2",
+            "title": "Ganztages Meisterkurs",
+            "price": "149 €",
+            "period": "/ Person",
+            "badge": "Empfehlung",
+            "highlighted": true,
+            "button_text": "Jetzt buchen",
+            "button_link": "#courses",
+            "description": "Für alle, die tiefer eintauchen möchten: Gestalte einen robusten Trage- oder Henkelkorb.",
+            "features": [
+                "7 Stunden Meisteranleitung",
+                "Premium-Naturweiden in verschiedenen Naturtönen",
+                "Großer Henkelkorb oder Kaminholzkorb",
+                "Umfassendes Handout & Pflegeöl",
+                "Gemeinsames Bio-Mittagessen inklusive"
+            ],
+            "created_at": "2026-10-21 11:05:00"
+        },
+        {
+            "id": "pricing_3",
+            "title": "Individuelle Maßanfertigung",
+            "price": "ab 95 €",
+            "period": "/ Werkstück",
+            "badge": "Unikat",
+            "highlighted": false,
+            "button_text": "Anfrage stellen",
+            "button_link": "#contact",
+            "description": "Du suchst einen Korb nach Wunschmaß für Regale, Boote oder Kaminholz? Wir fertigen nach Skizze.",
+            "features": [
+                "Persönliche Beratung & Materialmuster",
+                "Millimetergenaue Anfertigung",
+                "Wahl aus 5 natürlichen Weidenfarben",
+                "Optional mit Leder- oder Holzelementen"
+            ],
+            "created_at": "2026-10-21 11:10:00"
         }
     ]
 }

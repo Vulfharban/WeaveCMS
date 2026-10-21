@@ -17,6 +17,10 @@ class SectionManager {
     const TYPE_PAST_COURSES = 'past_courses';
     const TYPE_CUSTOM_TEXT = 'custom_text';
     const TYPE_BLOG = 'blog';
+    const TYPE_FAQ = 'faq';
+    const TYPE_TEAM = 'team';
+    const TYPE_DOWNLOADS = 'downloads';
+    const TYPE_PRICING = 'pricing';
 
     /**
      * Standard-Sektionen für WeaveCMS.
@@ -70,6 +74,42 @@ class SectionManager {
                 'can_delete' => false
             ],
             [
+                'id' => 'pricing',
+                'type' => self::TYPE_PRICING,
+                'title' => 'Leistungen & Preise',
+                'nav_label' => 'Preise',
+                'visible' => true,
+                'in_nav' => true,
+                'can_delete' => false
+            ],
+            [
+                'id' => 'faq',
+                'type' => self::TYPE_FAQ,
+                'title' => 'Häufige Fragen (FAQ)',
+                'nav_label' => 'FAQ',
+                'visible' => true,
+                'in_nav' => true,
+                'can_delete' => false
+            ],
+            [
+                'id' => 'team',
+                'type' => self::TYPE_TEAM,
+                'title' => 'Unser Team & Meister',
+                'nav_label' => 'Team',
+                'visible' => true,
+                'in_nav' => true,
+                'can_delete' => false
+            ],
+            [
+                'id' => 'downloads',
+                'type' => self::TYPE_DOWNLOADS,
+                'title' => 'Downloads & Dokumente',
+                'nav_label' => 'Downloads',
+                'visible' => true,
+                'in_nav' => false,
+                'can_delete' => false
+            ],
+            [
                 'id' => 'about',
                 'type' => self::TYPE_ABOUT,
                 'title' => 'Über mich & Atelier',
@@ -82,7 +122,7 @@ class SectionManager {
     }
 
     /**
-     * Stellt sicher, dass $data['sections'] existiert und gültig ist.
+     * Stellt sicher, dass $data['sections'] existiert und alle Standardsektionen enthält.
      * @param array $data
      * @return array
      */
@@ -90,24 +130,16 @@ class SectionManager {
         if (!isset($data['sections']) || !is_array($data['sections']) || empty($data['sections'])) {
             $data['sections'] = self::getDefaultSections();
         } else {
-            // Sicherstellen, dass die Blog-Sektion vorhanden ist
-            $has_blog = false;
+            $defaults = self::getDefaultSections();
+            $existing_types = [];
             foreach ($data['sections'] as $s) {
-                if (($s['type'] ?? '') === self::TYPE_BLOG || ($s['id'] ?? '') === 'blog') {
-                    $has_blog = true;
-                    break;
-                }
+                $existing_types[] = $s['type'] ?? $s['id'];
             }
-            if (!$has_blog) {
-                $data['sections'][] = [
-                    'id' => 'blog',
-                    'type' => self::TYPE_BLOG,
-                    'title' => 'Aktuelles & Blog',
-                    'nav_label' => 'Blog',
-                    'visible' => true,
-                    'in_nav' => true,
-                    'can_delete' => false
-                ];
+
+            foreach ($defaults as $def) {
+                if (!in_array($def['type'], $existing_types, true)) {
+                    $data['sections'][] = $def;
+                }
             }
         }
         return $data['sections'];
@@ -126,15 +158,31 @@ class SectionManager {
     }
 
     /**
-     * Liefert alle Menüeinträge der sichtbaren Sektionen für Header & Mobilmenü.
+     * Liefert alle Menüeinträge der sichtbaren Sektionen sowie sichtbare Einzelseiten.
      * @param array $data
      * @return array
      */
     public static function getNavItems(array $data): array {
         $sections = self::getVisibleSections($data);
-        return array_values(array_filter($sections, function($sec) {
+        $items = array_values(array_filter($sections, function($sec) {
             return !empty($sec['in_nav']) && !empty($sec['nav_label']);
         }));
+
+        // Auch sichtbare Einzelseiten (Custom Subpages) ins Menü aufnehmen
+        if (!empty($data['pages']) && is_array($data['pages'])) {
+            foreach ($data['pages'] as $page) {
+                if (!empty($page['in_nav']) && ($page['status'] ?? 'published') === 'published') {
+                    $items[] = [
+                        'id' => 'page-' . ($page['slug'] ?? ''),
+                        'nav_label' => $page['nav_label'] ?? $page['title'],
+                        'url' => '?page=' . urlencode($page['slug'] ?? ''),
+                        'is_external_link' => true
+                    ];
+                }
+            }
+        }
+
+        return $items;
     }
 
     /**

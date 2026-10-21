@@ -4,7 +4,6 @@
     "nav.privacy": "Privacy",
     "nav.admin": "Amministrazione",
     "nav.menu": "Navigazione",
-
     "btn.inquire_now": "Richiedi ora",
     "btn.booked_out": "Esaurito",
     "btn.share": "Condividi questo corso",
@@ -12,17 +11,13 @@
     "btn.open_in_mail": "Apri nel programma di posta",
     "btn.filter_all": "Tutti",
     "btn.close": "Chiudi",
-
     "gallery.no_items": "Nessun pezzo ancora nella galleria.",
     "gallery.zoom_hint": "Clicca per ingrandire",
-
     "courses.no_dates": "Al momento non ci sono date disponibili. Scrivimi pure una richiesta!",
     "courses.spots_free": "Posti liberi",
     "courses.booked": "Esaurito",
     "courses.booked_spots": "occupati (ancora {spots} liberi)",
-
     "past_courses.no_images": "Nessuna foto ancora caricata.",
-
     "contact.title": "Contatto & Richiesta corso",
     "contact.owner": "Titolare",
     "contact.phone": "Telefono",
@@ -35,7 +30,6 @@
     "contact.message": "Messaggio",
     "contact.spam_label": "Verifica di sicurezza: Clicca su {prompt}",
     "contact.mail_client_hint": "Apre il tuo programma di posta con il messaggio precompilato.",
-
     "legal.impressum_tab": "Note legali",
     "legal.privacy_tab": "Privacy (GDPR)",
     "legal.tmg_notice": "Informazioni legali obbligatorie",
@@ -43,8 +37,18 @@
     "legal.supervisory": "Autorità di vigilanza",
     "legal.vat_id": "Partita IVA / Codice fiscale",
     "legal.disclaimer": "Esclusione di responsabilità",
-
     "toast.link_copied": "Link copiato!",
     "toast.course_link_copied": "Link del corso copiato negli appunti!",
-    "toast.share_prompt": "Link del corso da condividere:"
+    "toast.share_prompt": "Link del corso da condividere:",
+    "btn.read_more": "Leggi di più",
+    "btn.download": "Scarica",
+    "btn.back_home": "Torna alla home",
+    "btn.back_overview": "Torna alla panoramica",
+    "btn.contact_person": "Contatta",
+    "blog.no_posts": "Nessun articolo del blog pubblicato finora.",
+    "blog.share_post": "Condividi questo articolo",
+    "faq.no_items": "Nessuna FAQ disponibile al momento.",
+    "team.no_items": "Nessun membro del team presente al momento.",
+    "downloads.no_items": "Nessun download disponibile al momento.",
+    "pricing.no_items": "Nessun piano tariffario presente al momento."
 }
