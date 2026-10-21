@@ -22,6 +22,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | :--- | :--- | :---: |
 | **Flat-File JSON-Speicher** | Funktioniert out-of-the-box ohne Datenbankeinrichtung (`data.json`). Ideal für kleine und mittlere Websites. | ✅ Integriert (v0.2.0) |
 | **SQL-Speicher-Abstraktion** | Wahlfreiheit zwischen lokaler JSON-Datei und relationaler Datenbank (MySQL / MariaDB / SQLite). | ✅ Integriert (v0.5.0) |
+| **1-Klick-Daten-Migration** | Nahtloses Konvertieren und Verschieben aller Inhalte zwischen Flat-File JSON und MySQL/MariaDB direkt im Adminbereich. | ✅ Integriert (v0.7.0) |
 | **Atomare Datenspeicherung** | Schutz vor Schreibkonflikten bei gleichzeitigen Bearbeitungen. | ✅ Integriert |
 | **Keine Build-Tools erforderlich** | Dateien hochladen und sofort loslegen. Kein `npm install` oder Build-Schritt nötig. | ✅ Integriert |
 | **Minimaler Ressourcenbedarf** | Lädt in wenigen Millisekunden, optimal für Shared Hosting und kostengünstige Server. | ✅ Integriert |
@@ -119,7 +120,16 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.6.0 (Aktueller Entwicklungsstand)
+### v0.7.0 (Aktueller Entwicklungsstand)
+* **1-Klick-Daten-Migration & Dualer Speicher-Treiber (Phase 7 vollständig):**
+  * Integriertes Migrationswerkzeug im Adminbereich unter *„Sicherheit & System“*.
+  * Nahtlose Zwei-Wege-Migration: Flat-File JSON (`data.json`) ⇄ MySQL/MariaDB (`weave_documents`).
+  * Integrierter Live-Verbindungstest für MySQL via AJAX direkt im Dialog.
+  * PIN-geschützte Ausführung zur Vermeidung unbeabsichtigter Umkonfigurationen.
+  * Automatischer Sicherheits-Snapshot in `backups/` vor jeder Migration.
+  * Dynamische Status-Badge-Anzeige (`Aktiv & Bereit` vs. `Notfall-Fallback`).
+
+### v0.6.0
 * **Modulare Sektionen & Universeller Seiten-Manager (Phase 6):**
   * Datenmodell für flexible Sektionen (`sections` in `data.json`) mit `id`, `type`, `title`, `nav_label`, `visible` und `sort_order`.
   * `SectionManager.php` zur automatischen Normalisierung, Sichtbarkeitsprüfung und Bereitstellung dynamischer Navigationspunkte.

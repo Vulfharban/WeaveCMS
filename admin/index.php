@@ -140,6 +140,21 @@ if (empty($_SESSION['csrf_token'])) {
 }
 $csrf_token = $_SESSION['csrf_token'];
 
+// AJAX Action: test_db_migration (Live-Prüfung der MySQL-Verbindung im Adminbereich)
+if (isset($_GET['action']) && $_GET['action'] === 'test_db_migration') {
+    header('Content-Type: application/json');
+    $res = StorageManager::testDbConnection([
+        'host' => $_POST['host'] ?? '127.0.0.1',
+        'port' => (int)($_POST['port'] ?? 3306),
+        'database' => $_POST['database'] ?? '',
+        'username' => $_POST['username'] ?? 'root',
+        'password' => $_POST['password'] ?? '',
+        'create_db' => !empty($_POST['create_db'])
+    ]);
+    echo json_encode($res);
+    exit;
+}
+
 // Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -163,13 +178,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $active_tab = 'tab-past';
     } elseif (strpos($action, 'seo') !== false) {
         $active_tab = 'tab-seo';
-    } elseif (strpos($action, 'security') !== false || strpos($action, 'smtp') !== false || strpos($action, 'credentials') !== false || strpos($action, 'backup') !== false || strpos($action, 'restore') !== false) {
+    } elseif (strpos($action, 'security') !== false || strpos($action, 'smtp') !== false || strpos($action, 'credentials') !== false || strpos($action, 'backup') !== false || strpos($action, 'restore') !== false || strpos($action, 'migrate') !== false) {
         $active_tab = 'tab-security';
     } elseif (strpos($action, 'settings') !== false || strpos($action, 'design') !== false) {
         $active_tab = 'tab-settings';
     } elseif (strpos($action, 'contact') !== false || strpos($action, 'impressum') !== false) {
         $active_tab = 'tab-impressum';
-    } elseif (strpos($action, 'texts') !== false) {
+    } elseif (strpos($action, 'texts') !== false || strpos($action, 'section') !== false) {
         $active_tab = 'tab-texts';
     }
 
@@ -332,6 +347,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } else {
             $error_msg = 'Sektion nicht gefunden.';
+        }
+    }
+
+    /**
+     * AKTION: Speicher-Engine 1-Klick-Migration (Phase 7.3)
+     */
+    if ($action === 'migrate_storage_engine') {
+        $target_engine = trim($_POST['target_engine'] ?? 'json');
+        $migrate_pin = trim($_POST['migrate_pin'] ?? '');
+
+        if ($target_engine === 'json') {
+            $res = StorageManager::migrateToJson($migrate_pin, $data);
+            if ($res['success']) {
+                $data = load_data($data_file);
+                $success_msg = '✓ ' . $res['message'];
+            } else {
+                $error_msg = $res['message'];
+            }
+        } elseif ($target_engine === 'mysql') {
+            $dbParams = [
+                'host' => trim($_POST['db_host'] ?? '127.0.0.1'),
+                'port' => (int)($_POST['db_port'] ?? 3306),
+                'database' => trim($_POST['db_name'] ?? 'weavecms'),
+                'username' => trim($_POST['db_user'] ?? 'root'),
+                'password' => (string)($_POST['db_pass'] ?? ''),
+                'prefix' => trim($_POST['db_prefix'] ?? 'weave_'),
+                'create_db' => !empty($_POST['create_db'])
+            ];
+            $res = StorageManager::migrateToMysql($migrate_pin, $dbParams, $data);
+            if ($res['success']) {
+                $data = load_data($data_file);
+                $success_msg = '✓ ' . $res['message'];
+            } else {
+                $error_msg = $res['message'];
+            }
+        } else {
+            $error_msg = 'Ungültige Ziel-Engine ausgewählt.';
         }
     }
 
@@ -2927,6 +2979,147 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                     </button>
                 </form>
             </div>
+
+            <!-- 5. SPEICHER-ENGINE & 1-KLICK-DATEN-MIGRATION (PHASE 7.3) -->
+            <?php 
+                $storage_details = StorageManager::getDriverDetails();
+                $cur_engine = $storage_details['type'];
+                $is_db_active = ($cur_engine === 'mysql');
+            ?>
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px dashed var(--border-color);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom: 0.75rem;">
+                    <div>
+                        <h3 style="font-size: 1.25rem; margin-bottom: 0.25rem; display:flex; align-items:center; gap:8px; color:var(--primary);">
+                            <span class="material-icons" style="color:var(--primary);">storage</span> Speicher-Engine &amp; 1-Klick-Daten-Migration (Phase 7.3)
+                        </h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0;">
+                            Wahlfreiheit zwischen Flat-File JSON und relationaler MySQL/MariaDB-Datenbank mit nahtloser 1-Klick-Datenübertragung.
+                        </p>
+                    </div>
+                    <div>
+                        <?php if ($storage_details['ping_ok']): ?>
+                            <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); border-radius:20px; padding:6px 14px; font-size:0.85rem; font-weight:700;">
+                                <span class="material-icons" style="font-size:16px;">check_circle</span> <?php echo htmlspecialchars($storage_details['name']); ?> (Aktiv &amp; Bereit)
+                            </span>
+                        <?php else: ?>
+                            <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:20px; padding:6px 14px; font-size:0.85rem; font-weight:700;">
+                                <span class="material-icons" style="font-size:16px;">error</span> Verbindung gestört
+                            </span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Info Box Aktiver Treiber -->
+                <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display:flex; align-items:center; gap:12px;">
+                    <span class="material-icons" style="color:var(--primary); font-size:24px;">info</span>
+                    <div style="font-size:0.88rem; color:var(--text-secondary);">
+                        <strong>Aktiver Speicherort:</strong> <code style="color:var(--text-primary); font-weight:600;"><?php echo htmlspecialchars($storage_details['location']); ?></code>
+                        <?php if ($storage_details['is_fallback']): ?>
+                            <br><span style="color:#f59e0b; font-weight:600;">⚠️ Notfall-Fallback aktiv: Die konfigurierte Datenbank war nicht erreichbar; WeaveCMS nutzt temporär die lokale data.json.</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <?php if (!$is_db_active): ?>
+                    <!-- MIGRATION ZU MYSQL -->
+                    <div style="background: rgba(46,98,72,0.04); border: 1px solid rgba(46,98,72,0.2); border-radius: 14px; padding: 1.5rem;">
+                        <h4 style="margin:0 0 0.5rem 0; font-size:1.05rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                            <span class="material-icons" style="color:var(--primary); font-size:20px;">cloud_upload</span> Von Flat-File JSON zu MySQL / MariaDB migrieren
+                        </h4>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem;">
+                            Überträgt alle aktuellen Inhalte, Einstellungen und Termine in eine relationale MySQL-Datenbank. Vor der Migration wird automatisch ein Sicherheits-Backup deiner <code>data.json</code> angelegt.
+                        </p>
+
+                        <form method="POST" action="" onsubmit="return confirm('Möchtest du alle Daten jetzt in die MySQL-Datenbank migrieren und MySQL aktivieren?');">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                            <input type="hidden" name="action" value="migrate_storage_engine">
+                            <input type="hidden" name="target_engine" value="mysql">
+
+                            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label style="font-size:0.85rem;">Datenbank-Host <span style="color:#ef4444;">*</span></label>
+                                    <input type="text" id="mig_db_host" name="db_host" class="form-control" value="127.0.0.1" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label style="font-size:0.85rem;">Port</label>
+                                    <input type="number" id="mig_db_port" name="db_port" class="form-control" value="3306" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label style="font-size:0.85rem;">Datenbank-Name <span style="color:#ef4444;">*</span></label>
+                                    <input type="text" id="mig_db_name" name="db_name" class="form-control" value="weavecms" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label style="font-size:0.85rem;">Benutzername <span style="color:#ef4444;">*</span></label>
+                                    <input type="text" id="mig_db_user" name="db_user" class="form-control" value="root" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label style="font-size:0.85rem;">Passwort</label>
+                                    <input type="password" id="mig_db_pass" name="db_pass" class="form-control" value="" placeholder="Falls vorhanden">
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label style="font-size:0.85rem;">Tabellen-Präfix</label>
+                                    <input type="text" id="mig_db_prefix" name="db_prefix" class="form-control" value="weave_">
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:0.88rem; color:var(--text-secondary);">
+                                    <input type="checkbox" id="mig_create_db" name="create_db" value="1" checked style="accent-color:var(--primary);">
+                                    Datenbank automatisch neu anlegen, falls noch nicht vorhanden
+                                </label>
+                            </div>
+
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom: 1.25rem; flex-wrap:wrap;">
+                                <button type="button" class="btn btn-outline" id="mig_test_btn" onclick="testDbMigration();" style="display:inline-flex; align-items:center; gap:6px; font-size:0.88rem; padding:8px 14px;">
+                                    <span class="material-icons" style="font-size:16px;">bolt</span> Verbindung testen
+                                </button>
+                                <span id="mig_test_feedback" style="display:none; font-size:0.85rem; font-weight:600; align-items:center; gap:5px;"></span>
+                            </div>
+
+                            <div style="background: rgba(0,0,0,0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem; display:flex; flex-direction:column; gap:0.75rem; max-width: 420px; margin-bottom: 1.25rem;">
+                                <label style="font-size:0.85rem; font-weight:700;">Administrator-PIN zur Bestätigung <span style="color:#ef4444;">*</span></label>
+                                <div style="position:relative;">
+                                    <input type="password" id="mig_pin_mysql" name="migrate_pin" class="form-control" placeholder="Aktuelle PIN eingeben" required maxlength="10" style="padding-right:40px; letter-spacing:2px;">
+                                    <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); cursor:pointer; font-size:18px;" onclick="toggleVisibility('mig_pin_mysql')">visibility</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px;">
+                                <span class="material-icons" style="font-size:18px;">sync_alt</span> Zu MySQL migrieren &amp; aktivieren
+                            </button>
+                        </form>
+                    </div>
+
+                <?php else: ?>
+                    <!-- MIGRATION ZU JSON -->
+                    <div style="background: rgba(178,108,57,0.04); border: 1px solid rgba(178,108,57,0.25); border-radius: 14px; padding: 1.5rem;">
+                        <h4 style="margin:0 0 0.5rem 0; font-size:1.05rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                            <span class="material-icons" style="color:var(--accent); font-size:20px;">folder</span> Zu Flat-File JSON (data.json) wechseln &amp; exportieren
+                        </h4>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem;">
+                            Exportiert den gesamten aktuellen Datenbestand aus der MySQL-Datenbank vollständig in die lokale Datei <code>data/data.json</code> und entfernt die SQL-Konfiguration. WeaveCMS läuft danach wieder autark ohne Datenbank.
+                        </p>
+
+                        <form method="POST" action="" onsubmit="return confirm('Möchtest du alle Inhalte aus MySQL in data.json sichern und auf Flat-File-Betrieb umschalten?');">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                            <input type="hidden" name="action" value="migrate_storage_engine">
+                            <input type="hidden" name="target_engine" value="json">
+
+                            <div style="background: rgba(0,0,0,0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem; display:flex; flex-direction:column; gap:0.75rem; max-width: 420px; margin-bottom: 1.25rem;">
+                                <label style="font-size:0.85rem; font-weight:700;">Administrator-PIN zur Bestätigung <span style="color:#ef4444;">*</span></label>
+                                <div style="position:relative;">
+                                    <input type="password" id="mig_pin_json" name="migrate_pin" class="form-control" placeholder="Aktuelle PIN eingeben" required maxlength="10" style="padding-right:40px; letter-spacing:2px;">
+                                    <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); cursor:pointer; font-size:18px;" onclick="toggleVisibility('mig_pin_json')">visibility</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px;">
+                                <span class="material-icons" style="font-size:18px;">download_for_offline</span> Zu Flat-File JSON migrieren &amp; aktivieren
+                            </button>
+                        </form>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
 
         <!-- ======================================================================
@@ -3116,6 +3309,61 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
                 if (socialDesc) socialDesc.textContent = displayDesc;
             }
         }
+
+        // Live-Test für die MySQL-Datenbankverbindung bei Speicher-Migration (Phase 7.3)
+        function testDbMigration() {
+            const host = document.getElementById('mig_db_host')?.value || '';
+            const port = document.getElementById('mig_db_port')?.value || '3306';
+            const db = document.getElementById('mig_db_name')?.value || '';
+            const user = document.getElementById('mig_db_user')?.value || '';
+            const pass = document.getElementById('mig_db_pass')?.value || '';
+            const createDb = document.getElementById('mig_create_db')?.checked ? '1' : '0';
+            const btn = document.getElementById('mig_test_btn');
+            const fb = document.getElementById('mig_test_feedback');
+
+            if (!btn || !fb) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-icons spin" style="font-size:16px;">autorenew</span> Teste...';
+            fb.style.display = 'inline-flex';
+            fb.style.color = '#94a3b8';
+            fb.innerHTML = 'Verbindung wird geprüft...';
+
+            const formData = new URLSearchParams();
+            formData.append('host', host);
+            formData.append('port', port);
+            formData.append('database', db);
+            formData.append('username', user);
+            formData.append('password', pass);
+            formData.append('create_db', createDb);
+
+            fetch('?action=test_db_migration', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-icons" style="font-size:16px;">bolt</span> Verbindung testen';
+                fb.style.display = 'inline-flex';
+                if (data.success) {
+                    fb.style.color = '#10b981';
+                    fb.innerHTML = '<span class="material-icons" style="font-size:16px;">check_circle</span> ' + (data.message || 'Verbindung erfolgreich!');
+                } else {
+                    fb.style.color = '#ef4444';
+                    fb.innerHTML = '<span class="material-icons" style="font-size:16px;">error</span> ' + (data.message || 'Verbindung fehlgeschlagen.');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-icons" style="font-size:16px;">bolt</span> Verbindung testen';
+                fb.style.display = 'inline-flex';
+                fb.style.color = '#ef4444';
+                fb.innerHTML = '<span class="material-icons" style="font-size:16px;">error</span> Serverfehler beim Verbindungstest.';
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', updateSeoCountersAndPreview);
     </script>
     <script src="../libs/js/admin.js?v=<?php echo file_exists('../libs/js/admin.js') ? filemtime('../libs/js/admin.js') : time(); ?>"></script>
