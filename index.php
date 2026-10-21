@@ -319,7 +319,7 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
 
         <!-- Course Dates Section -->
         <section id="courses">
-            <h2 style="margin-bottom: 1rem; text-align: center; color: var(--accent);"><?php echo htmlspecialchars($data['texts']['courses_title'] ?? 'Flechtkurse & Workshops'); ?></h2>
+            <h2 style="margin-bottom: 1rem; text-align: center; color: var(--accent);"><?php echo htmlspecialchars($data['texts']['courses_title'] ?? 'Kurse & Workshops'); ?></h2>
             <?php if (!empty($data['texts']['courses_subtitle'])): ?>
                 <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 3rem auto;">
                     <?php echo htmlspecialchars($data['texts']['courses_subtitle']); ?>
@@ -647,7 +647,7 @@ $og_image_url = (preg_match('~^https?://~i', $og_image_raw))
         <h2 style="color: var(--primary); margin-bottom: 2rem;">Navigation</h2>
         <nav style="display: flex; flex-direction: column; gap: 1.5rem;">
             <a href="#gallery" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;">Galerie</a>
-            <a href="#courses" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;">Flechtkurse</a>
+            <a href="#courses" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;">Kurse &amp; Workshops</a>
             <a href="#about" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;">Über mich</a>
             <label for="menu-toggle" onclick="closeMobileMenuAndOpenContact()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);">Kontakt</label>
             <label for="menu-toggle-impressum" onclick="closeMobileMenuAndOpenImpressum()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);">Impressum</label>

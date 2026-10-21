@@ -12,15 +12,48 @@ define('DEFAULT_ADMIN_PIN', '1977');
 define('ADMIN_TOKEN', 'xyz123'); // Beibehalten für direkten Zugriff via URL-Token falls benötigt
 
 // Modulare Klassen & Manager laden
+if (file_exists(__DIR__ . '/config.local.php')) {
+    require_once __DIR__ . '/config.local.php';
+}
+require_once __DIR__ . '/libs/php/storage/StorageManager.php';
 require_once __DIR__ . '/libs/php/BackupManager.php';
+require_once __DIR__ . '/libs/php/Installer.php';
 
 /**
- * Lädt Daten aus einer JSON-Datei sicher in ein assoziatives PHP-Array.
- * @param {string} $filepath - Absoluter oder relativer Dateipfad zur JSON-Datei
- * @param {array} $default - Fallback-Array, falls Datei nicht existiert oder defekt ist
- * @return {array} - Geladene Daten
+ * Automatische Weiterleitung auf install.php, wenn WeaveCMS noch nicht installiert ist (Phase 5).
+ */
+function check_installer_redirection() {
+    if (php_sapi_name() === 'cli') {
+        return;
+    }
+    
+    $script = basename($_SERVER['SCRIPT_NAME'] ?? '');
+    if ($script === 'install.php') {
+        return;
+    }
+    
+    if (!Installer::isInstalled()) {
+        $in_admin = (basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'admin');
+        $redirect_url = $in_admin ? '../install.php' : './install.php';
+        header('Location: ' . $redirect_url);
+        exit;
+    }
+}
+check_installer_redirection();
+
+/**
+ * Lädt Daten aus dem aktiven Speichertreiber (Flat-File JSON oder SQL) oder direkt aus einer JSON-Datei.
+ * @param string $filepath - Absoluter oder relativer Dateipfad zur JSON-Datei
+ * @param array $default - Fallback-Array, falls Datei nicht existiert oder defekt ist
+ * @return array - Geladene Daten
  */
 function load_data($filepath, $default = []) {
+    if (basename($filepath) === 'data.json') {
+        $driver = StorageManager::getDriver();
+        $data = $driver->loadData();
+        return !empty($data) ? $data : $default;
+    }
+
     if (!file_exists($filepath)) {
         return $default;
     }
@@ -30,12 +63,17 @@ function load_data($filepath, $default = []) {
 }
 
 /**
- * Speichert ein PHP-Array formatiert (Pretty Print & UTF-8) in eine JSON-Datei.
- * @param {string} $filepath - Zielpfad der JSON-Datei
- * @param {array} $data - Zu speicherndes Daten-Array
- * @return {int|false} - Anzahl geschriebener Bytes oder false bei Fehler
+ * Speichert Daten im aktiven Speichertreiber (Flat-File JSON oder SQL) oder direkt formatiert in eine Datei.
+ * @param string $filepath - Zielpfad der JSON-Datei
+ * @param array $data - Zu speicherndes Daten-Array
+ * @return bool|int - true/Bytes bei Erfolg oder false bei Fehler
  */
 function save_data($filepath, $data) {
+    if (basename($filepath) === 'data.json') {
+        $driver = StorageManager::getDriver();
+        return $driver->saveData($data);
+    }
+
     $dir = dirname($filepath);
     if (!is_dir($dir)) {
         mkdir($dir, 0755, true);

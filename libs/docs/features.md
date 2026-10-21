@@ -21,7 +21,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **Flat-File JSON-Speicher** | Funktioniert out-of-the-box ohne Datenbankeinrichtung (`data.json`). Ideal für kleine und mittlere Websites. | ✅ Integriert (v0.2.0) |
-| **SQL-Speicher-Abstraktion** | Wahlfreiheit zwischen lokaler JSON-Datei und relationaler Datenbank (MySQL / MariaDB / SQLite). | 🟡 Geplant (Phase 7) |
+| **SQL-Speicher-Abstraktion** | Wahlfreiheit zwischen lokaler JSON-Datei und relationaler Datenbank (MySQL / MariaDB / SQLite). | ✅ Integriert (v0.5.0) |
 | **Atomare Datenspeicherung** | Schutz vor Schreibkonflikten bei gleichzeitigen Bearbeitungen. | ✅ Integriert |
 | **Keine Build-Tools erforderlich** | Dateien hochladen und sofort loslegen. Kein `npm install` oder Build-Schritt nötig. | ✅ Integriert |
 | **Minimaler Ressourcenbedarf** | Lädt in wenigen Millisekunden, optimal für Shared Hosting und kostengünstige Server. | ✅ Integriert |
@@ -90,7 +90,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Symbol-Spamschutz (Captcha)** | DSGVO-konforme Bildauswahl (4 aus 12 Natur- und Alltagssymbolen) ohne externe Tracker. | ✅ Integriert |
 | **Honeypot-Spamfalle** | Unsichtbares Formularfeld fängt automatisierte Spambots geräuschlos ab. | ✅ Integriert |
 | **Anpassbare Mailvorlagen** | Persönliche Begrüßung und vorgefertigte Textvorlagen für Kursanfragen. | ✅ Integriert |
-| **Integriertes Kontaktpostfach** | Speicherung und Verwaltung von Kundenanfragen direkt im Backend-Postfach. | 🟡 Geplant (Phase 4) |
+| **Integriertes Kontaktpostfach** | Speicherung und Verwaltung von Kundenanfragen direkt im Backend-Postfach. | ✅ Integriert (v0.3.0) |
 
 ---
 
@@ -110,7 +110,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ### 8. Installation, Rollout & Updates
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
-| **Geführter Webspace-Installer** | Automatischer Installations-Assistent (`install.php`) mit Server-Check und Seed-Daten. | 🟡 Geplant (Phase 5) |
+| **Geführter Webspace-Installer** | Automatischer Installations-Assistent (`install.php`) mit Server-Check, Seed-Daten und Auto-Locking. | ✅ Integriert (v0.4.0) |
 | **SEO- & OpenGraph-Engine** | Eigener Reiter *„SEO & Sharing“*, Meta-Title & Description mit Zeichenzählern, Social-Sharing-Bild-Upload, Roboter-Steuerung und Live SERP/Social-Card-Vorschau. | ✅ Integriert (v0.3.0) |
 | **Mehrsprachigkeit (i18n)** | Mehrsprachige Websites mit Sprachwechsler (DE, EN, etc.). | 🟡 Geplant (Phase 8) |
 | **Automatischer Remote Version-Check** | Erkennung neuer Releases gegen konfigurierbare Update-URL mit Hinweisanzeige. | 🟡 Geplant (Phase 12) |
@@ -120,9 +120,29 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.3.0 (Aktueller Entwicklungsstand)
+### v0.5.0 (Aktueller Entwicklungsstand)
+* **Dualer Speicher-Treiber (Phase 7 vorbereitet):**
+  * Data Access Layer mit `StorageDriverInterface`, atomarem `JsonStorageDriver` (Schreibschutz via `.tmp` und Rename), transaktionssicherem `PdoSqlStorageDriver` (MySQL/MariaDB via PDO) und `StorageManager` Factory mit automatischem Notfall-Fallback auf JSON.
+  * Transparente Weiternutzung von `load_data()` und `save_data()` in [config.php](file:///c:/xampp/htdocs/WeaveCMS/config.php).
+  * Geschützte Umgebungskonfiguration für Datenbankdaten in [config.local.php](file:///c:/xampp/htdocs/WeaveCMS/config.local.php).
+* **Erweiterter Webspace-Installer (5 Schritte):**
+  * Neuer Schritt 2: Intuitive Wahl zwischen **Flat-File JSON (`data.json`)** und **MySQL / MariaDB**.
+  * Konfigurations-Drawer für MySQL mit Live-Verbindungstest via AJAX (`install.php?action=test_db`) und optionaler automatischer Datenbankanlage (`CREATE DATABASE IF NOT EXISTS`).
+* **Universelle Workshop-Benennung:** Bereinigung veralteter themenspezifischer Bezeichnungen auf *„Kurse & Workshops“* im Frontend, Backend und in den Datenvorlagen.
+
+### v0.4.0
+* **Webspace-Installer & Setup-Assistent (Phase 5):**
+  * Geführter 4-Schritte-Assistent in [install.php](file:///c:/xampp/htdocs/WeaveCMS/install.php) mit modernem Step-Progress-Design.
+  * Schritt 1 (Health-Check): Automatische Prüfung von PHP-Version (>= 8.0), Schreibrechten für `data/`, `images/uploads/`, `backups/` sowie PHP-Modulen (`pdo`, `pdo_mysql`, `pdo_sqlite`, `gd`, `mbstring`, `json`, `curl`).
+  * Schritt 2 & 3: Erfassung von Website-Grunddaten, Inhaber, E-Mail sowie 2-Stufen-Admin-Zugangsdaten (Bcrypt-Passwort und PIN).
+  * Schritt 4: Beispieldaten-Seed (aus [data.sample.json](file:///c:/xampp/htdocs/WeaveCMS/data.sample.json)) und Farbschema-Vorauswahl.
+  * Automatische Sperre via [installed.lock](file:///c:/xampp/htdocs/WeaveCMS/installed.lock) und Umleitungslogik bei Erstaufruf.
+  * Einmaliges interaktives Willkommens-Modal im Adminbereich mit Funktionsüberblick.
+
+### v0.3.0
 * **SEO & Social-Sharing (Phase 3):** Eigener Administrations-Reiter *„SEO & Sharing“* mit Echtzeit-Vorschau (Google SERP Snippet & WhatsApp/Facebook Card), Zeichenzählern (60 / 155 Zeichen), Roboter-Steuerung, Canonical URL und Sharing-Bild Upload.
 * **Dynamische Head-Generierung:** Vollständige Ausgabe von Title, Description, Keywords, Robots, Canonical, OpenGraph (`og:*`) und Twitter Cards (`twitter:*`) im Frontend.
+* **Kontaktanfragen-Postfach (Phase 4):** Lokale Protokollierung von Formularanfragen in `data/contacts.json`, Backend-Reiter *„Kontaktanfragen“* mit Zähler-Badge, Status-Management und Schnellaktionen.
 
 ### v0.2.0
 * **Datensicherung & Restore (Phase 2):** Integriertes Backup-System mit 1-Klick JSON/ZIP-Export, PIN-gesichertem Restore und Verzeichnisschutz.
