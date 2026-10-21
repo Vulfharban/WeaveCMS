@@ -50,5 +50,16 @@
     "faq.no_items": "Nessuna FAQ disponibile al momento.",
     "team.no_items": "Nessun membro del team presente al momento.",
     "downloads.no_items": "Nessun download disponibile al momento.",
-    "pricing.no_items": "Nessun piano tariffario presente al momento."
+    "pricing.no_items": "Nessun piano tariffario presente al momento.",
+    "nav.language": "Lingua",
+    "nav.hero": "Home",
+    "nav.gallery": "Galleria",
+    "nav.courses": "Workshop",
+    "nav.about": "Chi sono",
+    "nav.blog": "Blog",
+    "nav.pricing": "Prezzi",
+    "nav.faq": "FAQ",
+    "nav.team": "Team",
+    "nav.downloads": "Download",
+    "nav.past_courses": "Impressioni"
 }

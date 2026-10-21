@@ -50,5 +50,16 @@
     "faq.no_items": "Momenteel zijn er geen veelgestelde vragen beschikbaar.",
     "team.no_items": "Momenteel zijn er geen teamleden weergegeven.",
     "downloads.no_items": "Momenteel zijn er geen downloads beschikbaar.",
-    "pricing.no_items": "Momenteel zijn er geen prijzen of aanbiedingen beschikbaar."
+    "pricing.no_items": "Momenteel zijn er geen prijzen of aanbiedingen beschikbaar.",
+    "nav.language": "Taal",
+    "nav.hero": "Start",
+    "nav.gallery": "Galerij",
+    "nav.courses": "Workshops",
+    "nav.about": "Over mij",
+    "nav.blog": "Blog",
+    "nav.pricing": "Prijzen",
+    "nav.faq": "FAQ",
+    "nav.team": "Team",
+    "nav.downloads": "Downloads",
+    "nav.past_courses": "Impressies"
 }

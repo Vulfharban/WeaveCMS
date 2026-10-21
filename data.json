@@ -444,5 +444,53 @@
             ],
             "created_at": "2026-10-21 11:10:00"
         }
-    ]
+    ],
+    "texts_i18n": {
+        "en": {
+            "hero_title": "Atelier Musterfrau",
+            "hero_subtitle": "Handcrafted Unique Pieces & Creative Workshops",
+            "about_title": "About My Atelier & Craftsmanship",
+            "about_text": "Craftsmanship is a vibrant connection between nature, tradition, and contemporary design. Each piece is carefully handcrafted and tells its own unique story. I exclusively use sustainable, carefully selected natural materials.\r\n\r\nAlongside bespoke home accessories and commissioned pieces for home and garden, I host regular workshops for anyone wanting to learn natural crafting techniques. My workshop is located in Musterstadt, where I dedicate myself passionately to this timeless craft.",
+            "gallery_title": "Gallery & Portfolio",
+            "gallery_subtitle": "A curated selection of our handcrafted design objects, accessories, and bespoke commissions.",
+            "courses_title": "Courses & Workshops",
+            "courses_subtitle": "Learn the foundations of handcrafted design in an inspiring and welcoming studio atmosphere.",
+            "past_courses_title": "Workshop Impressions",
+            "past_courses_subtitle": "A retrospective of shared creative hours and masterfully crafted unique pieces.",
+            "blog_title": "News & Stories",
+            "blog_subtitle": "Insights, studio updates, and creative inspiration straight from our atelier.",
+            "pricing_title": "Services & Pricing",
+            "pricing_subtitle": "Transparent packages for personal workshops, group courses, and bespoke crafts.",
+            "faq_title": "Frequently Asked Questions (FAQ)",
+            "faq_subtitle": "Find answers to the most frequently asked questions about our workshops, crafts, and care.",
+            "team_title": "Our Team & Masters",
+            "team_subtitle": "Meet the creative craftspeople and instructors behind our workshops and collections.",
+            "downloads_title": "Downloads & Documents",
+            "downloads_subtitle": "Download care instructions, workshop schedules, and informational flyers directly.",
+            "contact_intro_text": "Do you have questions about our workshops, want to order a voucher, or inquire about a custom-made design?"
+        },
+        "it": {
+            "hero_title": "Atelier Musterfrau",
+            "hero_subtitle": "Pezzi unici fatti a mano & Workshop creativi",
+            "about_title": "Il mio Atelier & L'arte dell'artigianato",
+            "about_text": "Per me l'artigianato è un legame vivo tra natura, tradizione e design contemporaneo. Ogni pezzo è realizzato con cura a mano e racconta la propria storia. Utilizzo esclusivamente materiali naturali sostenibili e accuratamente selezionati.\r\n\r\nOltre a complementi d'arredo personalizzati e creazioni su misura per casa e giardino, tengo regolarmente workshop per tutti coloro che desiderano imparare l'arte dell'intreccio naturale.",
+            "gallery_title": "Galleria & Creazioni",
+            "gallery_subtitle": "Una selezione dei nostri oggetti di design fatti a mano, accessori e lavori su commissione.",
+            "courses_title": "Corsi & Workshop",
+            "courses_subtitle": "Scopri i principi del design artigianale in un'atmosfera autentica e stimolante.",
+            "past_courses_title": "Impressioni dei workshop passati",
+            "past_courses_subtitle": "Uno sguardo alle ore creative trascorse insieme e ai capolavori realizzati.",
+            "blog_title": "Novità & Storie",
+            "blog_subtitle": "Approfondimenti, novità e ispirazioni creative direttamente dal nostro laboratorio.",
+            "pricing_title": "Servizi & Prezzi",
+            "pricing_subtitle": "Offerte trasparenti per workshop individuali, corsi di gruppo e creazioni su misura.",
+            "faq_title": "Domande frequenti (FAQ)",
+            "faq_subtitle": "Trova le risposte alle domande più frequenti sui nostri corsi, creazioni e cura dei materiali.",
+            "team_title": "Il nostro Team & Maestri",
+            "team_subtitle": "Incontra gli artigiani e gli istruttori appassionati dietro ai nostri corsi e collezioni.",
+            "downloads_title": "Download & Documenti",
+            "downloads_subtitle": "Scarica direttamente guide per la cura, calendari dei corsi e brochure informative.",
+            "contact_intro_text": "Hai domande sui nostri corsi, desideri acquistare un buono o richiedere un pezzo su misura?"
+        }
+    }
 }

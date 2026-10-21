@@ -120,13 +120,60 @@ class LanguageManager {
     }
 
     /**
+     * Cache für die aktiven Konfigurationsdaten.
+     * @var array|null
+     */
+    protected static ?array $activeData = null;
+
+    /**
+     * Cache für die für den aktuellen Request ermittelte Sprache.
+     * @var string|null
+     */
+    protected static ?string $detectedLang = null;
+
+    /**
+     * Hinterlegt die globalen Datenstrukturen für den LanguageManager.
+     * @param array $data
+     * @return void
+     */
+    public static function setData(array $data): void {
+        self::$activeData = $data;
+        self::$detectedLang = null;
+    }
+
+    /**
+     * Lädt bei Bedarf die Basisdaten aus data.json, falls nicht übergeben.
+     * @return array
+     */
+    protected static function resolveData(?array $data = null): array {
+        if ($data !== null) {
+            self::$activeData = $data;
+            return $data;
+        }
+        if (self::$activeData !== null) {
+            return self::$activeData;
+        }
+        $root = dirname(__DIR__, 2);
+        $dataFile = $root . '/data.json';
+        if (file_exists($dataFile)) {
+            $parsed = json_decode((string)file_get_contents($dataFile), true);
+            if (is_array($parsed)) {
+                self::$activeData = $parsed;
+                return $parsed;
+            }
+        }
+        return [];
+    }
+
+    /**
      * Ermittelt die konfigurierte Haupt-/Primärsprache des Systems.
      *
      * @param array|null $data Konfigurationsdaten
      * @return string Sprachcode (z. B. 'de')
      */
     public static function getPrimaryLanguage(?array $data = null): string {
-        $primary = $data['settings']['primary_language'] ?? 'de';
+        $resolved = self::resolveData($data);
+        $primary = $resolved['settings']['primary_language'] ?? 'de';
         $supported = self::getSupportedLanguages();
         return isset($supported[$primary]) ? $primary : 'de';
     }
@@ -138,8 +185,9 @@ class LanguageManager {
      * @return array<string> Liste aktiver Sprachcodes (z. B. ['de', 'en'])
      */
     public static function getActiveLanguages(?array $data = null): array {
-        $primary = self::getPrimaryLanguage($data);
-        $configured = $data['settings']['active_languages'] ?? null;
+        $resolved = self::resolveData($data);
+        $primary = self::getPrimaryLanguage($resolved);
+        $configured = $resolved['settings']['active_languages'] ?? null;
         $supported = self::getSupportedLanguages();
 
         $active = [];
@@ -171,10 +219,14 @@ class LanguageManager {
      * @return string Gültiger Sprachcode
      */
     public static function detectLanguage(?array $data = null): string {
+        if ($data !== null) {
+            self::$activeData = $data;
+        }
+
         $active = self::getActiveLanguages($data);
         $primary = self::getPrimaryLanguage($data);
 
-        // 1. URL-Parameter prüfen
+        // 1. URL-Parameter prüfen (Höchste Priorität bei Klick auf Sprachumschalter)
         if (isset($_GET['lang']) && is_string($_GET['lang'])) {
             $reqLang = strtolower(trim($_GET['lang']));
             if (in_array($reqLang, $active, true)) {
@@ -184,29 +236,42 @@ class LanguageManager {
                 if (session_status() === PHP_SESSION_ACTIVE) {
                     $_SESSION[self::COOKIE_NAME] = $reqLang;
                 }
+                self::$detectedLang = $reqLang;
                 return $reqLang;
             }
         }
 
-        // 2. Cookie prüfen
+        // 2. Session prüfen
+        if (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION[self::COOKIE_NAME])) {
+            $sessLang = strtolower(trim((string)$_SESSION[self::COOKIE_NAME]));
+            if (in_array($sessLang, $active, true)) {
+                self::$detectedLang = $sessLang;
+                return $sessLang;
+            }
+        }
+
+        // 3. Cookie prüfen
         if (isset($_COOKIE[self::COOKIE_NAME]) && is_string($_COOKIE[self::COOKIE_NAME])) {
             $cookieLang = strtolower(trim($_COOKIE[self::COOKIE_NAME]));
             if (in_array($cookieLang, $active, true)) {
+                self::$detectedLang = $cookieLang;
                 return $cookieLang;
             }
         }
 
-        // 3. Browser-Header Accept-Language auswerten
+        // 4. Browser-Header Accept-Language auswerten
         if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             $header = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']);
             foreach ($active as $candidate) {
                 if (strpos($header, $candidate) !== false) {
+                    self::$detectedLang = $candidate;
                     return $candidate;
                 }
             }
         }
 
-        // 4. Fallback auf Primärsprache
+        // 5. Fallback auf Primärsprache
+        self::$detectedLang = $primary;
         return $primary;
     }
 

@@ -50,5 +50,16 @@
     "faq.no_items": "Aún no hay preguntas frecuentes disponibles.",
     "team.no_items": "Aún no hay miembros del equipo registrados.",
     "downloads.no_items": "Actualmente no hay descargas disponibles.",
-    "pricing.no_items": "Aún no hay planes ni precios registrados."
+    "pricing.no_items": "Aún no hay planes ni precios registrados.",
+    "nav.language": "Idioma",
+    "nav.hero": "Inicio",
+    "nav.gallery": "Galería",
+    "nav.courses": "Talleres",
+    "nav.about": "Sobre mí",
+    "nav.blog": "Blog",
+    "nav.pricing": "Precios",
+    "nav.faq": "FAQ",
+    "nav.team": "Equipo",
+    "nav.downloads": "Descargas",
+    "nav.past_courses": "Impresiones"
 }

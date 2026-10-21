@@ -50,5 +50,16 @@
     "faq.no_items": "Aucune FAQ disponible pour le moment.",
     "team.no_items": "Aucun membre de l'équipe pour le moment.",
     "downloads.no_items": "Aucun téléchargement disponible pour le moment.",
-    "pricing.no_items": "Aucune offre de prix disponible pour le moment."
+    "pricing.no_items": "Aucune offre de prix disponible pour le moment.",
+    "nav.language": "Langue",
+    "nav.hero": "Accueil",
+    "nav.gallery": "Galerie",
+    "nav.courses": "Ateliers",
+    "nav.about": "À propos",
+    "nav.blog": "Blog",
+    "nav.pricing": "Tarifs",
+    "nav.faq": "FAQ",
+    "nav.team": "Équipe",
+    "nav.downloads": "Téléchargements",
+    "nav.past_courses": "Impressions"
 }

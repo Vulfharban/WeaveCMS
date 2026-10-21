@@ -50,5 +50,16 @@
     "faq.no_items": "Inga vanliga frågor är inlagda än.",
     "team.no_items": "Inga teammedlemmar är inlagda än.",
     "downloads.no_items": "Inga nedladdningar tillgängliga för tillfället.",
-    "pricing.no_items": "Inga priser eller erbjudanden inlagda än."
+    "pricing.no_items": "Inga priser eller erbjudanden inlagda än.",
+    "nav.language": "Språk",
+    "nav.hero": "Hem",
+    "nav.gallery": "Galleri",
+    "nav.courses": "Kurser",
+    "nav.about": "Om mig",
+    "nav.blog": "Blogg",
+    "nav.pricing": "Priser",
+    "nav.faq": "FAQ",
+    "nav.team": "Team",
+    "nav.downloads": "Nedladdningar",
+    "nav.past_courses": "Bilder"
 }

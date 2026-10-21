@@ -21,63 +21,8 @@ class FrontendController {
      * @return array Vollständig aufbereitetes ViewModel mit allen View-Variablen
      */
     public static function prepareViewModel(array $data): array {
-        // 1. Galerie sortieren
-        $gallery = $data['gallery'] ?? [];
-        usort($gallery, function($a, $b) {
-            return ($a['sort_order'] ?? 0) <=> ($b['sort_order'] ?? 0);
-        });
-
-        // 2. Definierte Kategorien & sichtbare Galerie-Elemente
-        $categories = $data['categories'] ?? ['Korbwaren', 'Gartendeko', 'Sichtschutz', 'Sonstiges'];
-        $visible_gallery = array_values(array_filter($gallery, function($item) use ($categories) {
-            return in_array($item['category'] ?? '', $categories, true);
-        }));
-
-        // 3. Basis-URL ermitteln
-        $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $script_dir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
-        $base_path = rtrim($script_dir, '/\\');
-        $site_url = $proto . '://' . $host . $base_path . '/';
-
-        // 4. Deep-Link-Parameter verarbeiten
-        $selected_course_id = isset($_GET['course']) ? (int)$_GET['course'] : 0;
-
-        // 5. Modulare Sektionen & Navigationsmenü
-        $visible_sections = SectionManager::getVisibleSections($data);
-        $nav_items = SectionManager::getNavItems($data);
-        if (empty($nav_items)) {
-            $nav_items = [
-                ['id' => 'gallery', 'nav_label' => 'Galerie'],
-                ['id' => 'courses', 'nav_label' => 'Workshops'],
-                ['id' => 'about', 'nav_label' => 'Über mich']
-            ];
-        }
-
-        // 6. Logo-Konfiguration vorbereiten
-        $logo_motif = $data['settings']['hero_logo_motif'] ?? 'paw_beach';
-        $logo_color = $data['settings']['hero_logo_color'] ?? '#d97706';
-        $logo_pos = $data['settings']['logo_position'] ?? 'header_before';
-
-        $header_logo_html = ($logo_pos === 'header_before' || $logo_pos === 'header_after')
-            ? LogoRenderer::render($logo_motif, $logo_color, '1.2em', 'header-paw-logo')
-            : '';
-
-        $hero_logo_html = ($logo_pos === 'hero_before' || $logo_pos === 'hero_after')
-            ? LogoRenderer::render($logo_motif, $logo_color, '1.15em', 'hero-paw-logo')
-            : '';
-
-        // 7. Dynamische Design- & Styling-Konfiguration
-        $settings = $data['settings'] ?? [];
-        $container_width = $settings['container_width'] ?? '1200px';
-        $primary_color = $settings['primary_color'] ?? '#2e6248';
-        $accent_color = $settings['accent_color'] ?? '#b26c39';
-        $bg_color = $settings['bg_color'] ?? '#fbf9f6';
-        $font_scale = $settings['font_scale'] ?? '100%';
-        $gallery_gap = $settings['gallery_gap'] ?? '2rem';
-        $card_radius = $settings['card_radius'] ?? '20px';
-
-        // 8. Spracherkennung & mehrsprachige Text-Aufbereitung
+        // 1. Spracherkennung & mehrsprachige Text-Aufbereitung
+        LanguageManager::setData($data);
         $cur_lang = LanguageManager::detectLanguage($data);
         $og_locale = LanguageManager::getLocale($cur_lang);
         $active_languages = LanguageManager::getActiveLanguages($data);
@@ -98,6 +43,62 @@ class FrontendController {
                 $data['texts'][$ck] = $translated_val;
             }
         }
+
+        // 2. Galerie sortieren
+        $gallery = $data['gallery'] ?? [];
+        usort($gallery, function($a, $b) {
+            return ($a['sort_order'] ?? 0) <=> ($b['sort_order'] ?? 0);
+        });
+
+        // 3. Definierte Kategorien & sichtbare Galerie-Elemente
+        $categories = $data['categories'] ?? ['Korbwaren', 'Gartendeko', 'Sichtschutz', 'Sonstiges'];
+        $visible_gallery = array_values(array_filter($gallery, function($item) use ($categories) {
+            return in_array($item['category'] ?? '', $categories, true);
+        }));
+
+        // 4. Basis-URL ermitteln
+        $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $script_dir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
+        $base_path = rtrim($script_dir, '/\\');
+        $site_url = $proto . '://' . $host . $base_path . '/';
+
+        // 5. Deep-Link-Parameter verarbeiten
+        $selected_course_id = isset($_GET['course']) ? (int)$_GET['course'] : 0;
+
+        // 6. Modulare Sektionen & Navigationsmenü
+        $visible_sections = SectionManager::getVisibleSections($data);
+        $nav_items = SectionManager::getNavItems($data);
+        if (empty($nav_items)) {
+            $nav_items = [
+                ['id' => 'gallery', 'nav_label' => 'Galerie'],
+                ['id' => 'courses', 'nav_label' => 'Workshops'],
+                ['id' => 'about', 'nav_label' => 'Über mich']
+            ];
+        }
+
+        // 7. Logo-Konfiguration vorbereiten
+        $logo_motif = $data['settings']['hero_logo_motif'] ?? 'paw_beach';
+        $logo_color = $data['settings']['hero_logo_color'] ?? '#d97706';
+        $logo_pos = $data['settings']['logo_position'] ?? 'header_before';
+
+        $header_logo_html = ($logo_pos === 'header_before' || $logo_pos === 'header_after')
+            ? LogoRenderer::render($logo_motif, $logo_color, '1.2em', 'header-paw-logo')
+            : '';
+
+        $hero_logo_html = ($logo_pos === 'hero_before' || $logo_pos === 'hero_after')
+            ? LogoRenderer::render($logo_motif, $logo_color, '1.15em', 'hero-paw-logo')
+            : '';
+
+        // 8. Dynamische Design- & Styling-Konfiguration
+        $settings = $data['settings'] ?? [];
+        $container_width = $settings['container_width'] ?? '1200px';
+        $primary_color = $settings['primary_color'] ?? '#2e6248';
+        $accent_color = $settings['accent_color'] ?? '#b26c39';
+        $bg_color = $settings['bg_color'] ?? '#fbf9f6';
+        $font_scale = $settings['font_scale'] ?? '100%';
+        $gallery_gap = $settings['gallery_gap'] ?? '2rem';
+        $card_radius = $settings['card_radius'] ?? '20px';
 
         // 9. SEO- & OpenGraph-Metadaten vorbereiten
         $seo = $data['seo'] ?? [];
