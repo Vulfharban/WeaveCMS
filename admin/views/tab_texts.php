@@ -33,7 +33,7 @@
                 $primary_lang = LanguageManager::getPrimaryLanguage($data);
                 $supported = LanguageManager::getSupportedLanguages();
             ?>
-            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-bottom: 2.5rem;">
+            <div style="background: rgba(255, 255, 255, 0.6); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; margin-bottom: 2.5rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; flex-wrap:wrap; gap:10px;">
                     <div>
                         <h3 style="font-size: 1.15rem; color: var(--primary); margin:0; display:flex; align-items:center; gap:8px;">
@@ -51,7 +51,7 @@
                             $is_vis = !empty($sec['visible']);
                             $icon = $type_icons[$sec['type']] ?? 'dashboard';
                         ?>
-                        <div style="display:flex; align-items:center; justify-content:space-between; background: rgba(255,255,255,0.03); border: 1px solid <?php echo $is_vis ? 'var(--border-color)' : 'rgba(239,68,68,0.2)'; ?>; border-radius: 10px; padding: 10px 16px; gap: 12px; <?php if (!$is_vis) echo 'opacity: 0.65;'; ?>">
+                        <div style="display:flex; align-items:center; justify-content:space-between; background: #ffffff; border: 1px solid <?php echo $is_vis ? 'var(--border-color)' : 'rgba(239,68,68,0.2)'; ?>; border-radius: 12px; padding: 10px 16px; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.02); <?php if (!$is_vis) echo 'opacity: 0.65;'; ?>">
                             <div style="display:flex; align-items:center; gap: 14px;">
                                 <span style="font-weight:700; color:var(--text-secondary); font-size:0.85rem; width:20px; text-align:center;">#<?php echo ($idx + 1); ?></span>
                                 <span class="material-icons" style="color:var(--primary); font-size:20px;"><?php echo $icon; ?></span>
@@ -128,12 +128,12 @@
                 </div>
 
                 <!-- ──────────────── SEKTIONS- & MENÜTITEL-EDITOR ──────────────── -->
-                <div id="section-editor-box" style="display:none; scroll-margin-top: 150px; background:rgba(15, 23, 42, 0.7); border:1px solid var(--primary); border-radius:14px; padding:1.75rem; margin-top:1.5rem; animation:fadeInTab 0.25s ease;">
+                <div id="section-editor-box" style="display:none; scroll-margin-top: 150px; background:#ffffff; border:2px solid var(--primary); border-radius:16px; padding:2rem; margin-top:1.5rem; box-shadow:0 12px 36px rgba(0,0,0,0.08); animation:fadeInTab 0.25s ease;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
-                        <h4 id="sec-editor-heading" style="color:var(--primary); margin:0; display:flex; align-items:center; gap:8px;">
+                        <h4 id="sec-editor-heading" style="color:var(--primary); margin:0; display:flex; align-items:center; gap:8px; font-size:1.2rem; font-weight:700;">
                             <span class="material-icons">edit</span> Sektion &amp; Menü-Titel anpassen
                         </h4>
-                        <button type="button" class="btn btn-secondary" onclick="closeSectionEditor()" style="padding:4px 8px; font-size:0.8rem;">
+                        <button type="button" class="btn btn-outline" onclick="closeSectionEditor()" style="padding:4px 8px; font-size:0.8rem; border-radius:8px; display:inline-flex; align-items:center;" title="Schließen">
                             <span class="material-icons" style="font-size:16px;">close</span>
                         </button>
                     </div>
@@ -144,43 +144,43 @@
                         <input type="hidden" name="target_tab" value="tab-texts">
                         <input type="hidden" name="section_id" id="sec_edit_id" value="">
 
-                        <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+                        <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem; margin-bottom:1.25rem;">
                             <div class="form-group">
-                                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block; font-size:0.92rem;">
                                     Titel fürs Menü (Menü-Beschriftung) *
                                 </label>
-                                <input type="text" id="sec_edit_nav_label" name="nav_label" class="form-control" placeholder="z. B. Galerie" required>
-                                <small style="color:var(--text-secondary); font-size:0.8rem;">Erscheint in der Hauptnavigation auf Desktop &amp; Mobil.</small>
+                                <input type="text" id="sec_edit_nav_label" name="nav_label" class="form-control" placeholder="z. B. Galerie" required style="background:#ffffff; border:1px solid rgba(62,50,40,0.22); color:var(--text-primary); border-radius:10px; padding:9px 12px; font-size:0.95rem;">
+                                <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:4px;">Erscheint in der Hauptnavigation auf Desktop &amp; Mobil.</small>
                             </div>
                             <div class="form-group">
-                                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block; font-size:0.92rem;">
                                     Sektions-Titel / Überschrift
                                 </label>
-                                <input type="text" id="sec_edit_title" name="title" class="form-control" placeholder="z. B. Galerie &amp; Portfolio">
-                                <small style="color:var(--text-secondary); font-size:0.8rem;">Bezeichnung der Sektion im CMS und auf der Website.</small>
+                                <input type="text" id="sec_edit_title" name="title" class="form-control" placeholder="z. B. Galerie &amp; Portfolio" style="background:#ffffff; border:1px solid rgba(62,50,40,0.22); color:var(--text-primary); border-radius:10px; padding:9px 12px; font-size:0.95rem;">
+                                <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:4px;">Bezeichnung der Sektion im CMS und auf der Website.</small>
                             </div>
                         </div>
 
-                        <div class="form-group" style="margin-bottom:1.25rem;">
-                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; color:var(--text-primary);">
+                        <div class="form-group" style="margin-bottom:1.5rem;">
+                            <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; color:var(--text-primary); font-size:0.95rem;">
                                 <input type="checkbox" id="sec_edit_in_nav" name="in_nav" value="1">
                                 <span>Im Hauptmenü verlinken</span>
                             </label>
                         </div>
 
                         <?php if (count($active_langs) > 1): ?>
-                            <div style="border-top:1px solid var(--border-color); padding-top:1rem; margin-top:1rem; margin-bottom:1.25rem;">
-                                <h5 style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:0.75rem; display:flex; align-items:center; gap:6px;">
-                                    <span class="material-icons" style="font-size:16px;">translate</span> Menü-Titel für weitere aktive Sprachen (optional):
+                            <div style="border:1px solid var(--border-color); background:rgba(251, 249, 246, 0.7); border-radius:12px; padding:1.25rem; margin-top:1.25rem; margin-bottom:1.5rem;">
+                                <h5 style="font-size:0.92rem; font-weight:700; color:var(--text-primary); margin:0 0 1rem 0; display:flex; align-items:center; gap:6px;">
+                                    <span class="material-icons" style="font-size:18px; color:var(--primary);">translate</span> Menü-Titel für weitere aktive Sprachen (optional):
                                 </h5>
-                                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
+                                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
                                     <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
                                         <div class="form-group">
                                             <label style="font-size:0.85rem; font-weight:600; color:var(--text-primary); display:flex; align-items:center; gap:6px; margin-bottom:4px;">
                                                 <span><?php echo $supported[$al]['flag']; ?></span>
                                                 <span>Menü-Titel auf <?php echo htmlspecialchars($supported[$al]['name']); ?>:</span>
                                             </label>
-                                            <input type="text" id="sec_trans_<?php echo $al; ?>_nav_label" name="trans_<?php echo $al; ?>_nav_label" class="form-control" placeholder="Menü-Titel auf <?php echo htmlspecialchars($supported[$al]['name']); ?>">
+                                            <input type="text" id="sec_trans_<?php echo $al; ?>_nav_label" name="trans_<?php echo $al; ?>_nav_label" class="form-control" placeholder="Menü-Titel auf <?php echo htmlspecialchars($supported[$al]['name']); ?>" style="background:#ffffff; border:1px solid rgba(62,50,40,0.22); color:var(--text-primary); border-radius:10px; padding:8px 12px;">
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -188,9 +188,9 @@
                         <?php endif; ?>
 
                         <div style="display:flex; justify-content:flex-end; gap:10px;">
-                            <button type="button" class="btn btn-secondary" onclick="closeSectionEditor()">Abbrechen</button>
-                            <button type="submit" class="btn btn-primary">
-                                <span class="material-icons" style="font-size:16px;">save</span> Sektion speichern
+                            <button type="button" class="btn btn-outline" onclick="closeSectionEditor()" style="padding:8px 18px; font-size:0.9rem;">Abbrechen</button>
+                            <button type="submit" class="btn btn-primary" style="padding:8px 20px; font-size:0.9rem; display:inline-flex; align-items:center; gap:6px;">
+                                <span class="material-icons" style="font-size:18px;">save</span> Sektion speichern
                             </button>
                         </div>
                     </form>
@@ -221,8 +221,8 @@
                 </div>
 
                 <?php if (!$is_primary_edit): ?>
-                    <div style="background:rgba(59, 130, 246, 0.08); border:1px solid #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:1.5rem; font-size:0.88rem; color:#93c5fd; display:flex; align-items:center; gap:8px;">
-                        <span class="material-icons" style="font-size:18px; color:#60a5fa;">info</span>
+                    <div style="background:rgba(59, 130, 246, 0.08); border:1px solid #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:1.5rem; font-size:0.88rem; color:#1e40af; display:flex; align-items:center; gap:8px;">
+                        <span class="material-icons" style="font-size:18px; color:#2563eb;">info</span>
                         <span>Du bearbeitest die Übersetzung für <strong><?php echo $supported[$edit_lang]['flag'] . ' ' . htmlspecialchars($supported[$edit_lang]['name']); ?></strong>. Leere Felder greifen automatisch auf den Text der Hauptsprache (<?php echo htmlspecialchars($supported[$primary_lang]['name']); ?>) zurück.</span>
                     </div>
                 <?php endif; ?>
