@@ -36,14 +36,47 @@
              STRIKTE VORGABE: KEIN MENÜPUNKT ODER REITER DARF OHNE VORHERIGE
              AUSDRÜCKLICHE ZUSTIMMUNG DES USERS GEÄNDERT, VERSCHOBEN ODER ENTFERNT WERDEN!
              ====================================================================== -->
+        <!-- ======================================================================
+             BACKEND-MENÜ (.admin-nav TAB-NAVIGATION)
+             Bündelung unter "Inhalte / Content" gemäß Nutzeranforderung
+             ====================================================================== -->
         <div class="admin-nav">
-            <button class="admin-nav-link active" onclick="switchTab('tab-texts')"><span class="material-icons" style="font-size:18px;">edit_note</span> Startseite &amp; Über mich</button>
-            <button class="admin-nav-link" onclick="switchTab('tab-impressum')"><span class="material-icons" style="font-size:18px;">contact_page</span> Impressum &amp; Kontaktdaten</button>
-            <button class="admin-nav-link" onclick="switchTab('tab-gallery')"><span class="material-icons" style="font-size:18px;">photo_library</span> Galerie</button>
-            <button class="admin-nav-link" onclick="switchTab('tab-past')"><span class="material-icons" style="font-size:18px;">photo_camera</span> Kursimpressionen</button>
-            <button class="admin-nav-link" onclick="switchTab('tab-courses')"><span class="material-icons" style="font-size:18px;">event</span> Workshops</button>
-            <button class="admin-nav-link" onclick="switchTab('tab-settings')"><span class="material-icons" style="font-size:18px;">palette</span> Darstellung</button>
-            <button class="admin-nav-link" onclick="switchTab('tab-seo')"><span class="material-icons" style="font-size:18px;">travel_explore</span> SEO &amp; Sharing</button>
-            <button class="admin-nav-link" onclick="switchTab('tab-inbox')"><span class="material-icons" style="font-size:18px;">inbox</span> Kontaktanfragen<?php if ($inbox_new_count > 0): ?> <span style="background:#ef4444; color:#fff; border-radius:999px; padding:1px 8px; font-size:0.72rem; font-weight:700; margin-left:4px;"><?php echo (int)$inbox_new_count; ?></span><?php endif; ?></button>
-            <button class="admin-nav-link" onclick="switchTab('tab-security')"><span class="material-icons" style="font-size:18px;">security</span> Sicherheit</button>
+            <button class="admin-nav-link active" id="main-nav-content" onclick="switchTab('tab-content')">
+                <span class="material-icons" style="font-size:18px;">folder_special</span> Inhalte &amp; Seiten
+            </button>
+            <button class="admin-nav-link" onclick="switchTab('tab-inbox')">
+                <span class="material-icons" style="font-size:18px;">inbox</span> Kontaktanfragen<?php if ($inbox_new_count > 0): ?> <span style="background:#ef4444; color:#fff; border-radius:999px; padding:1px 8px; font-size:0.72rem; font-weight:700; margin-left:4px;"><?php echo (int)$inbox_new_count; ?></span><?php endif; ?>
+            </button>
+            <button class="admin-nav-link" onclick="switchTab('tab-settings')">
+                <span class="material-icons" style="font-size:18px;">palette</span> Darstellung &amp; Design
+            </button>
+            <button class="admin-nav-link" onclick="switchTab('tab-seo')">
+                <span class="material-icons" style="font-size:18px;">travel_explore</span> SEO &amp; Sharing
+            </button>
+            <button class="admin-nav-link" onclick="switchTab('tab-security')">
+                <span class="material-icons" style="font-size:18px;">security</span> Sicherheit &amp; System
+            </button>
+        </div>
+
+        <!-- Sub-Navigation für Inhalte & Seiten -->
+        <div class="admin-subnav" id="admin-content-subnav">
+            <span class="admin-subnav-label"><span class="material-icons" style="font-size:16px;">tune</span> Bereich:</span>
+            <button class="admin-subnav-link active" onclick="switchTab('tab-texts')">
+                <span class="material-icons" style="font-size:17px;">edit_note</span> Startseite &amp; Sektionen
+            </button>
+            <button class="admin-subnav-link" onclick="switchTab('tab-blog')">
+                <span class="material-icons" style="font-size:17px;">newspaper</span> Blog &amp; Aktuelles
+            </button>
+            <button class="admin-subnav-link" onclick="switchTab('tab-gallery')">
+                <span class="material-icons" style="font-size:17px;">photo_library</span> Galerie &amp; Werkstücke
+            </button>
+            <button class="admin-subnav-link" onclick="switchTab('tab-courses')">
+                <span class="material-icons" style="font-size:17px;">event</span> Workshops &amp; Kurse
+            </button>
+            <button class="admin-subnav-link" onclick="switchTab('tab-past')">
+                <span class="material-icons" style="font-size:17px;">photo_camera</span> Kursimpressionen
+            </button>
+            <button class="admin-subnav-link" onclick="switchTab('tab-impressum')">
+                <span class="material-icons" style="font-size:17px;">policy</span> Impressum &amp; Rechtliches
+            </button>
         </div>

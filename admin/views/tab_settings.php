@@ -556,6 +556,65 @@
                 </div>
 
                 <!-- ==========================================================
+                     MENÜ- & TRIGGER-PLATZIERUNG: KONTAKT & IMPRESSUM
+                     ========================================================== -->
+                <h3 style="font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons" style="color:var(--primary);">tune</span> Menü-Platzierung (Kontakt &amp; Impressum)
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height:1.5;">
+                    Bestimme hier, wo die Trigger für das Kontaktformular und das Impressum/Datenschutz-Slide-in auf deiner Website angezeigt werden sollen.
+                </p>
+
+                <?php 
+                    $cur_contact_placement = $data['settings']['contact_placement'] ?? 'both';
+                    $cur_impressum_placement = $data['settings']['impressum_placement'] ?? 'both';
+                ?>
+
+                <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <!-- Kontakt Trigger -->
+                    <div style="background:rgba(0,0,0,0.02); border:1px solid var(--border-color); border-radius:12px; padding:1.25rem;">
+                        <span style="font-weight:700; font-size:0.98rem; color:var(--text-primary); display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                            <span class="material-icons" style="font-size:18px; color:var(--primary);">mail</span> Kontakt-Button anzeigen in:
+                        </span>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <label style="display:flex; align-items:center; gap:8px; font-size:0.9rem; cursor:pointer;">
+                                <input type="radio" name="contact_placement" value="header" <?php echo ($cur_contact_placement === 'header') ? 'checked' : ''; ?>>
+                                <span>Nur im Header (Navigation oben)</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; font-size:0.9rem; cursor:pointer;">
+                                <input type="radio" name="contact_placement" value="footer" <?php echo ($cur_contact_placement === 'footer') ? 'checked' : ''; ?>>
+                                <span>Nur im Footer (Seitenende unten)</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; font-size:0.9rem; cursor:pointer;">
+                                <input type="radio" name="contact_placement" value="both" <?php echo ($cur_contact_placement === 'both') ? 'checked' : ''; ?>>
+                                <span><b>Header &amp; Footer (Beides)</b> <small style="color:var(--text-secondary);">(Standard)</small></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Impressum Trigger -->
+                    <div style="background:rgba(0,0,0,0.02); border:1px solid var(--border-color); border-radius:12px; padding:1.25rem;">
+                        <span style="font-weight:700; font-size:0.98rem; color:var(--text-primary); display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                            <span class="material-icons" style="font-size:18px; color:var(--primary);">policy</span> Impressum &amp; Datenschutz anzeigen in:
+                        </span>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <label style="display:flex; align-items:center; gap:8px; font-size:0.9rem; cursor:pointer;">
+                                <input type="radio" name="impressum_placement" value="header" <?php echo ($cur_impressum_placement === 'header') ? 'checked' : ''; ?>>
+                                <span>Nur im Header (Navigation oben)</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; font-size:0.9rem; cursor:pointer;">
+                                <input type="radio" name="impressum_placement" value="footer" <?php echo ($cur_impressum_placement === 'footer') ? 'checked' : ''; ?>>
+                                <span>Nur im Footer (Seitenende unten)</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; font-size:0.9rem; cursor:pointer;">
+                                <input type="radio" name="impressum_placement" value="both" <?php echo ($cur_impressum_placement === 'both') ? 'checked' : ''; ?>>
+                                <span><b>Header &amp; Footer (Beides)</b> <small style="color:var(--text-secondary);">(Standard)</small></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================================
                      MEHRSPRACHIGKEIT (i18n) & SPRACHENAUSWAHL (PHASE 8)
                      ========================================================== -->
                 <h3 style="font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">

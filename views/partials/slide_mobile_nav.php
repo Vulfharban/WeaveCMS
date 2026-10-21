@@ -21,8 +21,16 @@
             <?php foreach ($nav_items as $item): ?>
                 <a href="#<?php echo htmlspecialchars($item['id']); ?>" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;"><?php echo htmlspecialchars($item['nav_label']); ?></a>
             <?php endforeach; ?>
-            <label for="menu-toggle" onclick="closeMobileMenuAndOpenContact()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);"><?php echo htmlspecialchars(__('nav.contact', 'Kontakt')); ?></label>
-            <label for="menu-toggle-impressum" onclick="closeMobileMenuAndOpenImpressum()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);"><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></label>
+            <?php 
+                $contact_place = $data['settings']['contact_placement'] ?? 'both';
+                $impressum_place = $data['settings']['impressum_placement'] ?? 'both';
+            ?>
+            <?php if ($contact_place === 'header' || $contact_place === 'both'): ?>
+                <label for="menu-toggle" onclick="closeMobileMenuAndOpenContact()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);"><?php echo htmlspecialchars(__('nav.contact', 'Kontakt')); ?></label>
+            <?php endif; ?>
+            <?php if ($impressum_place === 'header' || $impressum_place === 'both'): ?>
+                <label for="menu-toggle-impressum" onclick="closeMobileMenuAndOpenImpressum()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);"><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></label>
+            <?php endif; ?>
         </nav>
         <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>
             <div class="mobile-lang-switch" style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-color);">

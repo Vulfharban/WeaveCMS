@@ -120,7 +120,14 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.8.0 (Aktueller Entwicklungsstand)
+### v0.8.5 (Aktueller Entwicklungsstand)
+* **Content-Hub, Blog-System & Flexible Menü-Platzierung:**
+  * **Backend-Menü Reorganisation (Content-Hub):** Bündelung aller Inhaltsbereiche unter einem zentralen Menüpunkt *„Inhalte & Seiten“* (`.admin-nav`) mit kontextsensitiver Sub-Navigationsleiste (`.admin-subnav`) für blitzschnellen Wechsel zwischen Startseite, Blog, Galerie, Workshops, Impressionen und Impressum.
+  * **Vollwertiges Blog- & Magazin-Modul:** Artikel-Management im Admin-Panel (`tab-blog`) mit Beitragsbildern, SEO-Slugs, Markdown-Inhalten, Datumsangaben, Autoren und Veröffentlichungsstatus (`Veröffentlicht` / `Entwurf`).
+  * **Frontend Blog-Integration & Leseansicht:** Eigene Blog-Sektion auf der Startseite (über den Sektions-Manager aktivier- und verschiebbar) sowie ansprechende Leseansicht (`?blog=slug`) mit Social-Share-Aktionen (WhatsApp, Facebook, Link kopieren) und optimierten OpenGraph-Metadaten.
+  * **Freie Trigger-Platzierung:** Flexible Steuerung der Kontakt- und Impressum-Trigger im Frontend unter *„Darstellung & Design“* (`Nur Header`, `Nur Footer`, `Header & Footer (Beides)`).
+
+### v0.8.0
 * **Mehrsprachigkeit & Internationalisierung (Phase 8):**
   * **12 europäische Sprachen out-of-the-box:** Deutsch, Englisch, Französisch, Italienisch, Niederländisch, Spanisch, Portugiesisch, Griechisch, Dänisch, Norwegisch, Schwedisch und Finnisch (West-/Südeuropa & Skandinavien).
   * **Modulare Sprachdateien & i18n-Engine:** Dedizierte `libs/php/LanguageManager.php` mit Cookie-Persistenz (`weave_lang`), GET-Param-Wechsler (`?lang=xx`), Browser-Locale-Erkennung und Fallback-Kaskade (Content-Übersetzung -> Primärsprache -> System-Default).

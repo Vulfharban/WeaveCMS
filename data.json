@@ -201,7 +201,9 @@
         "active_languages": [
             "de",
             "en"
-        ]
+        ],
+        "contact_placement": "both",
+        "impressum_placement": "both"
     },
     "texts": {
         "hero_title": "Atelier Musterfrau",
@@ -214,6 +216,8 @@
         "courses_subtitle": "Lerne die Grundlagen der handwerklichen Gestaltung in persönlicher, inspirierender Werkstatt-Atmosphäre selbst kennen.",
         "past_courses_title": "Impressionen vergangener Workshops",
         "past_courses_subtitle": "Ein Rückblick auf gemeinsame kreative Stunden und entstandene Meisterstücke.",
+        "blog_title": "Aktuelles &amp; Geschichten",
+        "blog_subtitle": "Einblicke, Neuigkeiten und Inspirationen direkt aus unserem Atelier.",
         "contact_intro_text": "Hast du Fragen zu meinen Workshops, möchtest einen Gutschein erwerben oder ein individuelles Werkstück anfragen?",
         "contact_name": "Maxima Musterfrau",
         "contact_street": "Musterstraße 12",
@@ -226,5 +230,41 @@
         "impressum_disclaimer": "Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.",
         "contact_mail_greeting": "Hallo Maxima,",
         "course_request_template": "Hallo Maxima,\r\n\r\nich interessiere mich für deinen Workshop \"{kurs}\" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\r\n\r\nViele Grüße"
-    }
+    },
+    "blog": [
+        {
+            "id": 1,
+            "title": "Tradition & Moderne: Ein Blick in unsere Werkstatt",
+            "slug": "tradition-und-moderne-ein-blick-in-unsere-werkstatt",
+            "date": "2026-10-20",
+            "author": "Maxima Musterfrau",
+            "image": "/images/korb_klassik.png",
+            "teaser": "Wie aus ausgewählten Naturmaterialien moderne Wohnunikate entstehen und was unser Atelier antreibt.",
+            "content": "## Wo Ideen Gestalt annehmen\n\nIn unserer Werkstatt verbinden wir traditionelle Handwerkstechniken mit modernen Formkonzepten. Jedes Werkstück beginnt mit der sorgfältigen Auswahl der Naturmaterialien...\n\n### Nachhaltigkeit im Mittelpunkt\n\n- Verwendung regionaler, nachwachsender Rohstoffe\n- Reine Handarbeit ohne künstliche Versiegelungen\n- Langlebigkeit durch traditionelle Knotentechniken\n\nWir freuen uns, diese Faszination mit euch zu teilen!",
+            "status": "published",
+            "tags": [
+                "Werkstatt",
+                "Handwerk",
+                "Tradition"
+            ],
+            "created_at": "2026-10-20 10:00:00"
+        },
+        {
+            "id": 2,
+            "title": "Tipps zur Pflege handgefertigter Unikate",
+            "slug": "tipps-zur-pflege-handgefertigter-unikate",
+            "date": "2026-10-21",
+            "author": "Maxima Musterfrau",
+            "image": "/images/korb_kaminholz.png",
+            "teaser": "Mit wenigen einfachen Handgriffen bleiben Naturgeflechte und Deko-Objekte über viele Jahre wunderschön.",
+            "content": "## Die richtige Pflege für Naturmaterialien\n\nNaturgeflechte sind robust und langlebig, wenn man ein paar einfache Grundregeln beachtet...\n\n### 3 goldene Regeln für die Langlebigkeit\n\n- Regelmäßiges Entstauben mit einem weichen Pinsel oder Tuch\n- Leichtes Besprühen mit Wasser bei sehr trockener Heizungsluft im Winter\n- Direkte Dauerfeuchtigkeit im Außenbereich vermeiden\n\nSo hast du viele Jahre Freude an deinem Einzelstück!",
+            "status": "published",
+            "tags": [
+                "Tipps",
+                "Pflege",
+                "Natur"
+            ],
+            "created_at": "2026-10-21 09:30:00"
+        }
+    ]
 }

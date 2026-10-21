@@ -147,6 +147,13 @@ class AdminController {
             case 'delete_past_course_image':
                 self::handlePastCourseAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
+
+            case 'add_blog_post':
+            case 'edit_blog_post':
+            case 'delete_blog_post':
+            case 'toggle_blog_status':
+                self::handleBlogAction($action, $dataFile, $data, $success_msg, $error_msg);
+                break;
         }
 
         return [
@@ -163,7 +170,9 @@ class AdminController {
      * @return string
      */
     public static function determineActiveTab(string $action): string {
-        if (strpos($action, 'inbox') !== false) {
+        if (strpos($action, 'blog') !== false) {
+            return 'tab-blog';
+        } elseif (strpos($action, 'inbox') !== false) {
             return 'tab-inbox';
         } elseif (strpos($action, 'gallery') !== false || strpos($action, 'category') !== false) {
             return 'tab-gallery';
@@ -268,6 +277,19 @@ class AdminController {
             $gallery_gap = '2rem';
         }
         $data['settings']['gallery_gap'] = $gallery_gap;
+
+        // Platzierung von Kontakt und Impressum (Header / Footer / Beides)
+        $contact_placement = $_POST['contact_placement'] ?? 'both';
+        if (!in_array($contact_placement, ['header', 'footer', 'both'], true)) {
+            $contact_placement = 'both';
+        }
+        $data['settings']['contact_placement'] = $contact_placement;
+
+        $impressum_placement = $_POST['impressum_placement'] ?? 'both';
+        if (!in_array($impressum_placement, ['header', 'footer', 'both'], true)) {
+            $impressum_placement = 'both';
+        }
+        $data['settings']['impressum_placement'] = $impressum_placement;
 
         // Mehrsprachigkeit (Phase 8): Primärsprache & aktive Sprachen
         $supported = LanguageManager::getSupportedLanguages();
@@ -685,6 +707,8 @@ class AdminController {
             'courses_subtitle' => $_POST['courses_subtitle'] ?? '',
             'past_courses_title' => $_POST['past_courses_title'] ?? 'Impressionen vergangener Kurse',
             'past_courses_subtitle' => $_POST['past_courses_subtitle'] ?? '',
+            'blog_title' => $_POST['blog_title'] ?? 'Aktuelles & Geschichten',
+            'blog_subtitle' => $_POST['blog_subtitle'] ?? '',
             'contact_intro_text' => $_POST['contact_intro_text'] ?? ''
         ];
 
@@ -960,6 +984,209 @@ class AdminController {
                 $success_msg = 'Kursbild erfolgreich gelöscht!';
             } else {
                 $error_msg = 'Bild nicht in der Liste gefunden.';
+            }
+        }
+    }
+
+    /**
+     * Erstellt einen SEO-freundlichen URL-Slug aus einem Titel.
+     */
+    public static function slugify(string $text): string {
+        $text = mb_strtolower($text, 'UTF-8');
+        $text = str_replace(['ä', 'ö', 'ü', 'ß'], ['ae', 'oe', 'ue', 'ss'], $text);
+        $text = preg_replace('/[^\p{L}\p{N}]+/u', '-', $text);
+        $text = trim($text, '-');
+        return !empty($text) ? $text : 'artikel';
+    }
+
+    /**
+     * Prüft, ob ein URL-Slug bereits in der Artikelliste existiert.
+     */
+    protected static function slugExists(array $posts, string $slug): bool {
+        foreach ($posts as $p) {
+            if (($p['slug'] ?? '') === $slug) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Verarbeitet Blog-Aktionen (Artikel anlegen, bearbeiten, löschen, Status umschalten).
+     */
+    protected static function handleBlogAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if (!isset($data['blog']) || !is_array($data['blog'])) {
+            $data['blog'] = [];
+        }
+
+        if ($action === 'add_blog_post') {
+            $title = trim($_POST['title'] ?? '');
+            if (empty($title)) {
+                $error_msg = 'Bitte gib einen Titel für den Blog-Artikel ein.';
+                return;
+            }
+
+            $slug = trim($_POST['slug'] ?? '');
+            if (empty($slug)) {
+                $slug = self::slugify($title);
+            } else {
+                $slug = self::slugify($slug);
+            }
+
+            // Eindeutigen Slug sicherstellen
+            $base_slug = $slug;
+            $counter = 1;
+            while (self::slugExists($data['blog'], $slug)) {
+                $slug = $base_slug . '-' . $counter++;
+            }
+
+            $image_path = '';
+            if (!empty($_FILES['image']['name'])) {
+                $upload_cfg = ImageUploader::getConfig($data);
+                $uploaded = ImageUploader::uploadSingle($_FILES['image'], $upload_cfg['abs'], 'blog');
+                if ($uploaded) {
+                    $image_path = $upload_cfg['rel'] . '/' . $uploaded;
+                } else {
+                    $error_msg = 'Das Beitragsbild konnte nicht hochgeladen werden.';
+                    return;
+                }
+            } elseif (!empty($_POST['image_url'])) {
+                $image_path = trim($_POST['image_url']);
+            }
+
+            $date = trim($_POST['date'] ?? date('Y-m-d'));
+            $author = trim($_POST['author'] ?? ($data['texts']['contact_name'] ?? 'Redaktion'));
+            $teaser = trim($_POST['teaser'] ?? '');
+            $content = trim($_POST['content'] ?? '');
+            $status = in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published';
+            $tags_raw = trim($_POST['tags'] ?? '');
+            $tags = !empty($tags_raw) ? array_map('trim', explode(',', $tags_raw)) : [];
+
+            $new_post = [
+                'id' => time() . '_' . mt_rand(100, 999),
+                'title' => $title,
+                'slug' => $slug,
+                'date' => $date,
+                'author' => $author,
+                'image' => $image_path,
+                'teaser' => $teaser,
+                'content' => $content,
+                'status' => $status,
+                'tags' => $tags,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            array_unshift($data['blog'], $new_post);
+
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Blog-Artikel „' . htmlspecialchars($title) . '“ erfolgreich erstellt!';
+            } else {
+                $error_msg = 'Fehler beim Speichern des Artikels.';
+            }
+
+        } elseif ($action === 'edit_blog_post') {
+            $post_id = $_POST['id'] ?? '';
+            $found_idx = -1;
+            foreach ($data['blog'] as $idx => $p) {
+                if ((string)($p['id'] ?? '') === (string)$post_id) {
+                    $found_idx = $idx;
+                    break;
+                }
+            }
+
+            if ($found_idx === -1) {
+                $error_msg = 'Artikel nicht gefunden.';
+                return;
+            }
+
+            $title = trim($_POST['title'] ?? '');
+            if (empty($title)) {
+                $error_msg = 'Bitte gib einen Titel ein.';
+                return;
+            }
+
+            $slug = trim($_POST['slug'] ?? '');
+            if (empty($slug)) {
+                $slug = self::slugify($title);
+            } else {
+                $slug = self::slugify($slug);
+            }
+
+            // Prüfen, ob Slug bei einem anderen Artikel existiert
+            foreach ($data['blog'] as $idx => $p) {
+                if ($idx !== $found_idx && ($p['slug'] ?? '') === $slug) {
+                    $slug .= '-' . time();
+                    break;
+                }
+            }
+
+            $image_path = $data['blog'][$found_idx]['image'] ?? '';
+            if (!empty($_FILES['image']['name'])) {
+                $upload_cfg = ImageUploader::getConfig($data);
+                $uploaded = ImageUploader::uploadSingle($_FILES['image'], $upload_cfg['abs'], 'blog');
+                if ($uploaded) {
+                    $image_path = $upload_cfg['rel'] . '/' . $uploaded;
+                }
+            } elseif (isset($_POST['remove_image']) && $_POST['remove_image'] === '1') {
+                $image_path = '';
+            }
+
+            $date = trim($_POST['date'] ?? $data['blog'][$found_idx]['date']);
+            $author = trim($_POST['author'] ?? $data['blog'][$found_idx]['author']);
+            $teaser = trim($_POST['teaser'] ?? '');
+            $content = trim($_POST['content'] ?? '');
+            $status = in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published';
+            $tags_raw = trim($_POST['tags'] ?? '');
+            $tags = !empty($tags_raw) ? array_map('trim', explode(',', $tags_raw)) : [];
+
+            $data['blog'][$found_idx]['title'] = $title;
+            $data['blog'][$found_idx]['slug'] = $slug;
+            $data['blog'][$found_idx]['date'] = $date;
+            $data['blog'][$found_idx]['author'] = $author;
+            $data['blog'][$found_idx]['image'] = $image_path;
+            $data['blog'][$found_idx]['teaser'] = $teaser;
+            $data['blog'][$found_idx]['content'] = $content;
+            $data['blog'][$found_idx]['status'] = $status;
+            $data['blog'][$found_idx]['tags'] = $tags;
+            $data['blog'][$found_idx]['updated_at'] = date('Y-m-d H:i:s');
+
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Blog-Artikel „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
+            } else {
+                $error_msg = 'Fehler beim Speichern der Änderungen.';
+            }
+
+        } elseif ($action === 'delete_blog_post') {
+            $post_id = $_POST['id'] ?? '';
+            $original_count = count($data['blog']);
+            $data['blog'] = array_values(array_filter($data['blog'], function($p) use ($post_id) {
+                return (string)($p['id'] ?? '') !== (string)$post_id;
+            }));
+
+            if (count($data['blog']) < $original_count) {
+                if (save_data($dataFile, $data)) {
+                    $success_msg = 'Blog-Artikel gelöscht.';
+                } else {
+                    $error_msg = 'Fehler beim Speichern.';
+                }
+            } else {
+                $error_msg = 'Artikel nicht gefunden.';
+            }
+
+        } elseif ($action === 'toggle_blog_status') {
+            $post_id = $_POST['id'] ?? '';
+            $found = false;
+            foreach ($data['blog'] as &$p) {
+                if ((string)($p['id'] ?? '') === (string)$post_id) {
+                    $p['status'] = ($p['status'] === 'published') ? 'draft' : 'published';
+                    $found = true;
+                    break;
+                }
+            }
+            if ($found && save_data($dataFile, $data)) {
+                $success_msg = 'Veröffentlichungsstatus geändert.';
+            } else {
+                $error_msg = 'Artikel nicht gefunden oder Fehler beim Speichern.';
             }
         }
     }

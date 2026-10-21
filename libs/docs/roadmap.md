@@ -221,6 +221,22 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
+### Meilenstein v0.8.5: Content-Hub, Blog-System & Flexible Trigger-Platzierung
+*Ziel: Modulare Bündelung aller Inhaltsbereiche, vollwertiges Blog-System und freie Platzierung von Kontakt & Impressum.*
+
+- [x] **Flexible Trigger-Platzierung (Kontakt & Impressum):**
+  - Einstellung unter *„Darstellung & Design“* mit den Optionen: `Nur Header`, `Nur Footer`, `Header & Footer (Beides)`.
+  - Frontend passt Desktop-Navigation, mobilen Drawer und Footer automatisch an.
+- [x] **Backend-Menü Reorganisation (Content-Hub):**
+  - Menüleiste aufgeräumt: Bündelung aller Inhalts-Tabs unter *„Inhalte & Seiten“* (`.admin-nav`).
+  - Kontextsensitive Sub-Navigation (`.admin-subnav`) für schnelles Umschalten zwischen Startseite, Blog, Galerie, Workshops, Impressionen und Impressum.
+- [x] **Vollwertiges Blog- & Magazin-Modul:**
+  - Artikel-Verwaltung im Admin-Bereich (`tab-blog`) mit Titel, Slug, Datum, Autor, Status (`Veröffentlicht` / `Entwurf`), Beitragsbild, Teaser und Markdown-Inhalt.
+  - Eigene Sektion auf der Startseite mit automatischer Sortierung und responsiven Artikelkarten.
+  - Vollständige Einzelartikel-Leseansicht (`?blog=slug`) mit Social-Sharing (WhatsApp, Facebook, Link kopieren) und optimierten OpenGraph-Metadaten.
+
+---
+
 ### Phase 9: Umfassende Sicherheits-Härtung & Schwachstellen-Prävention
 *Ziel: Absicherung gegen gängige Web-Angriffe (OWASP Top 10) und Schutz vor automatisierten Exploits.*
 

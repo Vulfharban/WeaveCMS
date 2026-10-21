@@ -87,7 +87,8 @@ class FrontendController {
         $content_keys = [
             'hero_title', 'hero_subtitle', 'about_title', 'about_text',
             'gallery_title', 'gallery_subtitle', 'courses_title', 'courses_subtitle',
-            'past_courses_title', 'past_courses_subtitle', 'contact_intro_text', 'privacy_policy_text'
+            'past_courses_title', 'past_courses_subtitle', 'blog_title', 'blog_subtitle',
+            'contact_intro_text', 'privacy_policy_text'
         ];
         foreach ($content_keys as $ck) {
             $translated_val = LanguageManager::getContentText($data, $ck, $cur_lang);
@@ -224,6 +225,42 @@ class FrontendController {
      */
     public static function renderPage(array $data): void {
         $vm = self::prepareViewModel($data);
+
+        // Prüfung auf Einzelartikel-Aufruf: ?blog=slug
+        $requested_slug = trim($_GET['blog'] ?? '');
+        $active_post = null;
+        if (!empty($requested_slug) && !empty($data['blog'])) {
+            foreach ($data['blog'] as $p) {
+                if (($p['slug'] ?? '') === $requested_slug && (($p['status'] ?? 'published') === 'published' || isset($_SESSION['admin_logged_in']))) {
+                    $active_post = $p;
+                    break;
+                }
+            }
+        }
+
+        if ($active_post) {
+            // Spezifische SEO-Metadaten für den Artikel überschreiben
+            $vm['meta_title'] = htmlspecialchars($active_post['title']) . ' | ' . ($data['texts']['contact_name'] ?? 'WeaveCMS');
+            if (!empty($active_post['teaser'])) {
+                $vm['meta_desc'] = htmlspecialchars($active_post['teaser']);
+            }
+            if (!empty($active_post['image'])) {
+                $vm['og_image_url'] = (preg_match('~^https?://~i', $active_post['image'])) 
+                    ? $active_post['image'] 
+                    : rtrim($vm['site_url'], '/') . '/' . ltrim($active_post['image'], '/');
+            }
+            $vm['active_post'] = $active_post;
+
+            self::renderPartial('head', $vm);
+            self::renderPartial('header_nav', $vm);
+            self::renderPartial('blog_single', $vm);
+            self::renderPartial('footer', $vm);
+            self::renderPartial('slide_contact', $vm);
+            self::renderPartial('slide_impressum', $vm);
+            self::renderPartial('slide_mobile_nav', $vm);
+            self::renderPartial('scripts', $vm);
+            return;
+        }
 
         // 1. Header & Navigation
         self::renderPartial('head', $vm);
