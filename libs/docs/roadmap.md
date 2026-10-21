@@ -191,10 +191,13 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Wählbare Speicher-Engine (Flat-File JSON vs. MySQL / MariaDB) mit Live-Verbindungstest via AJAX.
   - Automatischer Notfall-Fallback auf die lokale JSON-Datei bei Datenbankproblemen.
   - Sichere Ablage von DB-Zugangsdaten in `config.local.php`.
-- [ ] **7.3 1-Klick-Daten-Migration im Adminbereich:**
-  - Assistent zum Übertragen bestehender Daten von JSON nach SQL oder umgekehrt.
-- [ ] **7.4 Prüfung & Abnahme:**
-  - Test mit JSON-Treiber und MySQL/SQLite-Treiber durchführen.
+- [x] **7.3 1-Klick-Daten-Migration im Adminbereich:**
+  - Assistent zum Übertragen bestehender Daten von JSON nach SQL oder umgekehrt im Reiter *„Sicherheit“* (PIN-geschützt).
+  - Automatisches Sicherheits-Backup vor jeder Datenmigration.
+  - Live-Verbindungstest für MySQL via AJAX direkt im Dialog.
+  - Dynamischer Status und automatisches Umschalten des aktiven Treibers.
+- [x] **7.4 Prüfung & Abnahme:**
+  - Zwei-Wege-Migration (JSON -> MySQL -> JSON) inkl. Datenkonsistenz und Table-Schema verifiziert.
 
 ---
 
@@ -202,7 +205,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 *Ziel: Mehrsprachiger Webauftritt mit Sprachauswahl bei der Installation und optionaler Aktivierung weiterer Sprachen.*
 
 - [ ] **8.1 Sprachauswahl bei der Erstinstallation:**
-  - Auswahl der Hauptsprache (Deutsch, Englisch, Französisch, etc.).
+  - Auswahl der Hauptsprache (Deutsch, Englisch, Französisch, Italienisch, Holländisch, Spanisch, Portugiesisch, Griechisch, Dänisch, Norwegisch, Schwedisch, Finnisch, etc.).
   - Standardtexte und Admin-Oberfläche starten in der gewählten Primärsprache.
 - [ ] **8.2 Sprach-Architektur & Datenmodell:**
   - System-Labels (Buttons, Formulartexte) in modularen Sprachdateien (`libs/lang/de.json`, `libs/lang/en.json`).

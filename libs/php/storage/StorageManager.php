@@ -23,7 +23,7 @@ class StorageManager {
             return self::$instance;
         }
 
-        $localConfig = dirname(__DIR__, 2) . '/config.local.php';
+        $localConfig = dirname(__DIR__, 3) . '/config.local.php';
         if (file_exists($localConfig)) {
             require_once $localConfig;
         }
@@ -142,5 +142,162 @@ class StorageManager {
                 'server_version' => null
             ];
         }
+    }
+
+    /**
+     * Ermittelt den Typ des aktuellen Treibers ('json' oder 'mysql').
+     */
+    public static function getCurrentDriverType(): string {
+        $driver = self::getDriver();
+        return ($driver instanceof PdoSqlStorageDriver) ? 'mysql' : 'json';
+    }
+
+    /**
+     * Gibt Detailinformationen zur aktuell aktiven Speicher-Engine zurück.
+     * @return array [type => string, name => string, location => string, ping_ok => bool]
+     */
+    public static function getDriverDetails(): array {
+        $driver = self::getDriver();
+        $isMysql = ($driver instanceof PdoSqlStorageDriver);
+        $ping = $driver->ping();
+
+        if ($isMysql) {
+            $host = defined('WEAVE_DB_HOST') ? WEAVE_DB_HOST : '127.0.0.1';
+            $db = defined('WEAVE_DB_NAME') ? WEAVE_DB_NAME : 'weavecms';
+            $prefix = defined('WEAVE_DB_PREFIX') ? WEAVE_DB_PREFIX : 'weave_';
+            return [
+                'type' => 'mysql',
+                'name' => 'MySQL / MariaDB',
+                'location' => "Datenbank: {$db} auf {$host} (Tabelle: {$prefix}documents)",
+                'ping_ok' => $ping,
+                'is_fallback' => false
+            ];
+        }
+
+        $root = dirname(__DIR__, 3);
+        $hasLocalConfig = file_exists($root . '/config.local.php');
+        $requestedMysql = (defined('WEAVE_STORAGE_DRIVER') && WEAVE_STORAGE_DRIVER === 'mysql');
+        $isFallback = ($hasLocalConfig && $requestedMysql && !$ping);
+
+        return [
+            'type' => 'json',
+            'name' => 'Flat-File JSON',
+            'location' => 'Lokale Datei: data/data.json',
+            'ping_ok' => $ping,
+            'is_fallback' => $isFallback
+        ];
+    }
+
+    /**
+     * Migriert Daten von MySQL nach JSON und stellt den Standardtreiber auf JSON um.
+     * @param string $pin Administrator-PIN
+     * @param array $currentData Aktuelle Daten
+     * @return array [success => bool, message => string]
+     */
+    public static function migrateToJson(string $pin, array $currentData): array {
+        if (!verify_admin_pin($pin, $currentData)) {
+            return ['success' => false, 'message' => 'Sicherheitsabfrage fehlgeschlagen: Die eingegebene PIN ist nicht korrekt.'];
+        }
+
+        $root = dirname(__DIR__, 3);
+        $dataFile = $root . '/data.json';
+
+        // 1. JSON-Treiber initialisieren und Daten atomar schreiben
+        $jsonDriver = new JsonStorageDriver($dataFile);
+        if (!$jsonDriver->saveData($currentData)) {
+            return ['success' => false, 'message' => 'Fehler beim Schreiben der Datei data.json.'];
+        }
+
+        // 2. Automatisches Sicherheits-Snapshot-Backup anlegen
+        if (class_exists('BackupManager')) {
+            BackupManager::createBackup('data', $currentData);
+        }
+
+        // 3. config.local.php entfernen
+        $localConfig = $root . '/config.local.php';
+        if (file_exists($localConfig)) {
+            @unlink($localConfig);
+        }
+
+        // 4. Instanz zurücksetzen
+        self::$instance = $jsonDriver;
+
+        return [
+            'success' => true,
+            'message' => 'Erfolgreich auf Flat-File JSON umgestellt! Alle Daten wurden in data.json gesichert und die Umgebungskonfiguration bereinigt.'
+        ];
+    }
+
+    /**
+     * Migriert Daten von JSON nach MySQL und aktiviert MySQL als primäre Speicher-Engine.
+     * @param string $pin Administrator-PIN
+     * @param array $dbParams [host, port, database, username, password, prefix, create_db]
+     * @param array $currentData Aktuelle Daten
+     * @return array [success => bool, message => string]
+     */
+    public static function migrateToMysql(string $pin, array $dbParams, array $currentData): array {
+        if (!verify_admin_pin($pin, $currentData)) {
+            return ['success' => false, 'message' => 'Sicherheitsabfrage fehlgeschlagen: Die eingegebene PIN ist nicht korrekt.'];
+        }
+
+        $test = self::testDbConnection($dbParams);
+        if (!$test['success']) {
+            return ['success' => false, 'message' => 'Datenbankverbindung fehlgeschlagen: ' . ($test['message'] ?? 'Unbekannter Fehler')];
+        }
+
+        $root = dirname(__DIR__, 3);
+
+        // 1. Snapshot der JSON-Daten anlegen
+        if (class_exists('BackupManager')) {
+            BackupManager::createBackup('data', $currentData);
+        }
+
+        // 2. SQL-Treiber initialisieren und Tabelle anlegen
+        $dbHost = trim($dbParams['host'] ?? '127.0.0.1');
+        $dbPort = (int)($dbParams['port'] ?? 3306);
+        $dbName = trim($dbParams['database'] ?? '');
+        $dbUser = trim($dbParams['username'] ?? 'root');
+        $dbPass = (string)($dbParams['password'] ?? '');
+        $dbPrefix = trim($dbParams['prefix'] ?? 'weave_');
+
+        $sqlDriver = new PdoSqlStorageDriver([
+            'host' => $dbHost,
+            'port' => $dbPort,
+            'database' => $dbName,
+            'username' => $dbUser,
+            'password' => $dbPass,
+            'prefix' => $dbPrefix
+        ]);
+
+        if (!$sqlDriver->init()) {
+            return ['success' => false, 'message' => 'Die MySQL-Tabelle konnte nicht initialisiert werden.'];
+        }
+
+        if (!$sqlDriver->saveData($currentData)) {
+            return ['success' => false, 'message' => 'Fehler beim Übertragen der Daten in die MySQL-Datenbank.'];
+        }
+
+        // 3. config.local.php schreiben
+        $localConf = "<?php\n" .
+            "// WeaveCMS Lokale Umgebungskonfiguration (wird nicht ins Git-Repository übertragen)\n" .
+            "define('WEAVE_STORAGE_DRIVER', 'mysql');\n" .
+            "define('WEAVE_DB_HOST', " . var_export($dbHost, true) . ");\n" .
+            "define('WEAVE_DB_PORT', " . $dbPort . ");\n" .
+            "define('WEAVE_DB_NAME', " . var_export($dbName, true) . ");\n" .
+            "define('WEAVE_DB_USER', " . var_export($dbUser, true) . ");\n" .
+            "define('WEAVE_DB_PASS', " . var_export($dbPass, true) . ");\n" .
+            "define('WEAVE_DB_PREFIX', " . var_export($dbPrefix, true) . ");\n";
+
+        if (@file_put_contents($root . '/config.local.php', $localConf) === false) {
+            return ['success' => false, 'message' => 'Die Datei config.local.php konnte nicht geschrieben werden. Bitte Dateirechte prüfen.'];
+        }
+
+        // 4. Instanz aktualisieren
+        self::$instance = $sqlDriver;
+
+        return [
+            'success' => true,
+            'message' => "Erfolgreich zu MySQL ('{$dbName}') migriert! Die Datenbank ist nun als primäre Speicher-Engine aktiv."
+        ];
     }
 }
