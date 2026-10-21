@@ -303,6 +303,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     /**
+     * AKTION: Sektions-Reihenfolge verschieben (Phase 6)
+     */
+    if ($action === 'move_section') {
+        $sec_id = $_POST['section_id'] ?? '';
+        $dir = $_POST['direction'] ?? 'up';
+        if (SectionManager::moveSection($data, $sec_id, $dir)) {
+            if (save_data($data_file, $data)) {
+                $success_msg = 'Sektions-Reihenfolge erfolgreich aktualisiert!';
+            } else {
+                $error_msg = 'Fehler beim Speichern der Reihenfolge.';
+            }
+        } else {
+            $error_msg = 'Sektion konnte nicht verschoben werden.';
+        }
+    }
+
+    /**
+     * AKTION: Sektions-Sichtbarkeit umschalten (Phase 6)
+     */
+    if ($action === 'toggle_section_visibility') {
+        $sec_id = $_POST['section_id'] ?? '';
+        if (SectionManager::setVisibility($data, $sec_id)) {
+            if (save_data($data_file, $data)) {
+                $success_msg = 'Sektions-Sichtbarkeit erfolgreich aktualisiert!';
+            } else {
+                $error_msg = 'Fehler beim Speichern der Sichtbarkeit.';
+            }
+        } else {
+            $error_msg = 'Sektion nicht gefunden.';
+        }
+    }
+
+    /**
      * AKTION: Universelles SEO- & Social-Sharing-Management aktualisieren (Phase 3)
      */
     if ($action === 'update_seo') {
@@ -999,6 +1032,96 @@ $cur_og_image = $cur_seo['og_image'] ?? '';
             <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem;">
                 Hier kannst du alle Überschriften, Untertitel und Einleitungstexte für die Hauptbereiche deiner Website zentral verwalten.
             </p>
+
+            <!-- ==========================================================
+                 SEKTIONS-MANAGER: REIHENFOLGE & SICHTBARKEIT (PHASE 6)
+                 ========================================================== -->
+            <?php 
+                $all_sections = SectionManager::ensureSections($data);
+                $sec_count = count($all_sections);
+                $type_icons = [
+                    'hero' => 'flag',
+                    'gallery' => 'photo_library',
+                    'courses' => 'event',
+                    'past_courses' => 'photo_camera',
+                    'about' => 'badge',
+                    'custom_text' => 'article'
+                ];
+            ?>
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-bottom: 2.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h3 style="font-size: 1.15rem; color: var(--primary); margin:0; display:flex; align-items:center; gap:8px;">
+                            <span class="material-icons">view_stream</span> Sektionen-Manager &amp; Seiten-Aufbau
+                        </h3>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px;">
+                            Passe die Anordnung und Sichtbarkeit der Inhaltsbereiche an. Die Menüs passen sich automatisch an.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap: 10px;">
+                    <?php foreach ($all_sections as $idx => $sec): ?>
+                        <?php 
+                            $is_vis = !empty($sec['visible']);
+                            $icon = $type_icons[$sec['type']] ?? 'dashboard';
+                        ?>
+                        <div style="display:flex; align-items:center; justify-content:space-between; background: rgba(255,255,255,0.03); border: 1px solid <?php echo $is_vis ? 'var(--border-color)' : 'rgba(239,68,68,0.2)'; ?>; border-radius: 10px; padding: 10px 16px; gap: 12px; <?php if (!$is_vis) echo 'opacity: 0.65;'; ?>">
+                            <div style="display:flex; align-items:center; gap: 14px;">
+                                <span style="font-weight:700; color:var(--text-secondary); font-size:0.85rem; width:20px; text-align:center;">#<?php echo ($idx + 1); ?></span>
+                                <span class="material-icons" style="color:var(--primary); font-size:20px;"><?php echo $icon; ?></span>
+                                <div>
+                                    <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary);"><?php echo htmlspecialchars($sec['title']); ?></div>
+                                    <div style="font-size:0.8rem; color:var(--text-secondary);">
+                                        Typ: <code style="font-family:monospace;"><?php echo htmlspecialchars($sec['type']); ?></code>
+                                        <?php if (!empty($sec['in_nav'])): ?>
+                                            &bull; Menü: <strong><?php echo htmlspecialchars($sec['nav_label']); ?></strong>
+                                        <?php else: ?>
+                                            &bull; <em>Kein Menü-Link</em>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; align-items:center; gap: 8px;">
+                                <!-- Sichtbarkeit Toggle Form -->
+                                <form method="POST" action="" style="display:inline; margin:0;">
+                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                    <input type="hidden" name="action" value="toggle_section_visibility">
+                                    <input type="hidden" name="section_id" value="<?php echo htmlspecialchars($sec['id']); ?>">
+                                    <button type="submit" class="btn btn-outline" style="padding: 5px 12px; font-size: 0.8rem; display:inline-flex; align-items:center; gap:5px; <?php echo $is_vis ? 'color:#34d399; border-color:#34d399;' : 'color:var(--text-secondary);'; ?>" title="<?php echo $is_vis ? 'Sektion verbergen' : 'Sektion einblenden'; ?>">
+                                        <span class="material-icons" style="font-size:16px;"><?php echo $is_vis ? 'visibility' : 'visibility_off'; ?></span>
+                                        <?php echo $is_vis ? 'Sichtbar' : 'Ausgeblendet'; ?>
+                                    </button>
+                                </form>
+
+                                <!-- Nach oben -->
+                                <form method="POST" action="" style="display:inline; margin:0;">
+                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                    <input type="hidden" name="action" value="move_section">
+                                    <input type="hidden" name="section_id" value="<?php echo htmlspecialchars($sec['id']); ?>">
+                                    <input type="hidden" name="direction" value="up">
+                                    <button type="submit" class="btn btn-outline" style="padding: 5px 8px; font-size:0.8rem;" <?php if ($idx === 0) echo 'disabled style="opacity:0.3; cursor:not-allowed;"'; ?> title="Nach oben verschieben">
+                                        <span class="material-icons" style="font-size:16px;">arrow_upward</span>
+                                    </button>
+                                </form>
+
+                                <!-- Nach unten -->
+                                <form method="POST" action="" style="display:inline; margin:0;">
+                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                    <input type="hidden" name="action" value="move_section">
+                                    <input type="hidden" name="section_id" value="<?php echo htmlspecialchars($sec['id']); ?>">
+                                    <input type="hidden" name="direction" value="down">
+                                    <button type="submit" class="btn btn-outline" style="padding: 5px 8px; font-size:0.8rem;" <?php if ($idx === $sec_count - 1) echo 'disabled style="opacity:0.3; cursor:not-allowed;"'; ?> title="Nach unten verschieben">
+                                        <span class="material-icons" style="font-size:16px;">arrow_downward</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
             <form method="POST" action="">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="update_texts">

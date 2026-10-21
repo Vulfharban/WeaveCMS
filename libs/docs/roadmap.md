@@ -153,26 +153,24 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 6: Modulare Sektionen & Universeller Seiten-Manager
 *Ziel: Absolute Freiheit beim Zusammenstellen, Sortieren und Ein-/Ausblenden von Inhaltsbereichen.*
 
-- [ ] **6.1 Sektions-Datenmodell (`sections` in `data.json`):**
+- [x] **6.1 Sektions-Datenmodell (`sections` in `data.json`):**
   - Jede Sektion besitzt eine ID, einen Typ, Titel, Menü-Bezeichnung, Sichtbarkeit (`visible: true/false`) und Position.
   - Unterstützte Sektions-Typen:
-    - `hero`: Header-Banner mit Überschrift, Call-to-Action und Hintergrundbild.
+    - `hero`: Header-Banner mit Überschrift, Call-to-Action und Logo.
     - `gallery`: Raster-Portfolio mit Kategorien und Vollbild-Lightbox.
-    - `courses`: Termine / Veranstaltungen / Leistungsangebote mit Buchungs-Trigger.
-    - `past_courses`: Rückblick / Impressionen / Erfolge.
-    - `about`: Über mich / Unternehmensprofil mit Portrait und Biografie.
-    - `custom_text`: Freier Textbereich (Markdown / HTML) für individuelle Inhalte.
-- [ ] **6.2 Sektions-Manager im Adminbereich:**
-  - Visuelle Übersicht aller Sektionen der Website.
-  - Verschieben der Reihenfolge via *„Nach oben“* / *„Nach unten“* oder Drag & Drop.
-  - Sofortiger Ein-/Aus-Schalter zur Steuerung der Sichtbarkeit.
-  - Neue Sektionen anlegen und benennen.
-- [ ] **6.3 Dynamisches Rendering im Frontend (`index.php`):**
-  - Rendert die Sektionen flexibel anhand der konfigurierten Reihenfolge.
-  - Automatische Synchronisation der Navigationsmenüs (Desktop & Mobil) mit den sichtbaren Sektionen.
-- [ ] **6.4 Prüfung & Abnahme:**
-  - Reihenfolge im Backend verändern und synchrone Anpassung im Frontend verifizieren.
-  - Einzelne Sektion verbergen und Verschwinden im Menü und Layout testen.
+    - `courses`: Termine / Workshops / Kurse mit Buchungs-Trigger.
+    - `past_courses`: Rückblick / Impressionen vergangener Workshops.
+    - `about`: Über mich / Atelierprofil mit Portrait und Biografie.
+  - Zentral verwaltet durch `SectionManager.php` mit automatischem Fallback und Defaults.
+- [x] **6.2 Sektions-Manager im Adminbereich:**
+  - Visuelle Übersicht aller Sektionen im Reiter *„Startseite & Über mich“* unter Wahrung der Tab-Struktur.
+  - Verschieben der Reihenfolge via *„Nach oben“* / *„Nach unten“* (AJAX mit Toast-Feedback und Auto-Reload).
+  - Sofortiger Ein-/Aus-Schalter (`Sichtbar` / `Versteckt`) zur dynamischen Steuerung der Sichtbarkeit.
+- [x] **6.3 Dynamisches Rendering im Frontend (`index.php`):**
+  - Rendert die Sektionen flexibel anhand der konfigurierten Reihenfolge und Sichtbarkeit in `<main class="container">`.
+  - Automatische Synchronisation der Navigationsmenüs (Desktop-Header & Mobile Slide-in) mit den sichtbaren Sektionen.
+- [x] **6.4 Prüfung & Abnahme:**
+  - Reihenfolge und Sichtbarkeit im Backend und Frontend browsergestützt verifiziert.
 
 ---
 

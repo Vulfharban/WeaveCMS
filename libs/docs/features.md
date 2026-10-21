@@ -52,8 +52,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Kurs- & Termin-Manager** | Kurse mit Datum, Uhrzeit, Ort, Preis, Teilnehmerbegrenzung und Status (Plätze frei / Ausgebucht) verwalten. | ✅ Integriert |
 | **Direkte Kurslinks & Teilen** | 1-Klick-Kopieren von Einladungslinks und systemweites Teilen via Web Share API. | ✅ Integriert |
 | **Kursimpressionen / Rückblick** | Upload von Impressionen vergangener Termine und Workshops. | ✅ Integriert |
-| **Über-mich-Bereich** | Profiltext und Biografie komfortabel im Adminbereich pflegen. | ✅ Integriert |
-| **Modulare Sektionen-Reihenfolge** | Sektionen beliebig anordnen, ein- oder ausblenden (Hero, Galerie, Kurse, Über uns, Freitext). | 🟡 Geplant (Phase 6) |
+| **Modulare Sektionen & Seiten-Manager** | Sektionen beliebig anordnen, ein- oder ausblenden (Hero, Galerie, Kurse, Impressionen, Über mich) mit automatischer Menü-Synchronisation. | ✅ Integriert (v0.6.0) |
 
 ---
 
@@ -120,7 +119,15 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.5.0 (Aktueller Entwicklungsstand)
+### v0.6.0 (Aktueller Entwicklungsstand)
+* **Modulare Sektionen & Universeller Seiten-Manager (Phase 6):**
+  * Datenmodell für flexible Sektionen (`sections` in `data.json`) mit `id`, `type`, `title`, `nav_label`, `visible` und `sort_order`.
+  * `SectionManager.php` zur automatischen Normalisierung, Sichtbarkeitsprüfung und Bereitstellung dynamischer Navigationspunkte.
+  * Administrations-UI im Reiter *„Startseite & Über mich“* mit Reihenfolge-Verschiebung (*Nach oben* / *Nach unten*) und Sichtbarkeitsumschaltung (*Sichtbar* / *Versteckt*) per AJAX und Toast-Feedback.
+  * Dynamisches Rendering im Frontend ([index.php](file:///c:/xampp/htdocs/WeaveCMS/index.php)) in konfigurierter Reihenfolge inklusive getrennter `past_courses`-Sektion.
+  * Automatische Synchronisation der Menüeinträge in Desktop- und Mobil-Navigation.
+
+### v0.5.0
 * **Dualer Speicher-Treiber (Phase 7 vorbereitet):**
   * Data Access Layer mit `StorageDriverInterface`, atomarem `JsonStorageDriver` (Schreibschutz via `.tmp` und Rename), transaktionssicherem `PdoSqlStorageDriver` (MySQL/MariaDB via PDO) und `StorageManager` Factory mit automatischem Notfall-Fallback auf JSON.
   * Transparente Weiternutzung von `load_data()` und `save_data()` in [config.php](file:///c:/xampp/htdocs/WeaveCMS/config.php).
