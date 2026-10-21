@@ -52,7 +52,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="libs/css/styles.css?v=<?php echo file_exists(__DIR__ . '/../../libs/css/styles.css') ? filemtime(__DIR__ . '/../../libs/css/styles.css') : time(); ?>" rel="stylesheet">
+    <link href="libs/css/styles.css?v=<?php echo file_exists(dirname(__DIR__, 2) . '/libs/css/styles.css') ? filemtime(dirname(__DIR__, 2) . '/libs/css/styles.css') : time(); ?>" rel="stylesheet">
 
     <!-- Dynamisches CSS-Variablen-Override (Design-Einstellungen) -->
     <style id="dynamic-design-variables">

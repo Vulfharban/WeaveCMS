@@ -58,7 +58,7 @@
     </script>
     
     <!-- Externes Haupt-JavaScript einbinden -->
-    <script src="libs/js/main.js?v=<?php echo file_exists(__DIR__ . '/../../libs/js/main.js') ? filemtime(__DIR__ . '/../../libs/js/main.js') : time(); ?>"></script>
+    <script src="libs/js/main.js?v=<?php echo file_exists(dirname(__DIR__, 2) . '/libs/js/main.js') ? filemtime(dirname(__DIR__, 2) . '/libs/js/main.js') : time(); ?>"></script>
     <script>
         if (typeof initGalleryData === 'function') initGalleryData(window.SERVER_GALLERY_ITEMS);
         if (typeof initSpamIcons === 'function') initSpamIcons(window.SERVER_SPAM_ICONS);

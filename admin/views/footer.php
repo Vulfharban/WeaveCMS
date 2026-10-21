@@ -130,6 +130,6 @@
 
         document.addEventListener('DOMContentLoaded', updateSeoCountersAndPreview);
     </script>
-    <script src="../libs/js/admin.js?v=<?php echo file_exists('../libs/js/admin.js') ? filemtime('../libs/js/admin.js') : time(); ?>"></script>
+    <script src="../libs/js/admin.js?v=<?php echo file_exists(dirname(__DIR__, 2) . '/libs/js/admin.js') ? filemtime(dirname(__DIR__, 2) . '/libs/js/admin.js') : time(); ?>"></script>
 </body>
 </html>
