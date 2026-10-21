@@ -6,9 +6,9 @@
 # 1. Verzeichnis-Auflistung deaktivieren (Directory Browsing sperren)
 Options -Indexes
 
-# 2. Direkten HTTP-Zugriff auf Daten-, Konfigurations- und Systemdateien sperren
+# 2. Direkten HTTP-Zugriff auf Konfigurationsdateien, Systemdateien & Daten sperren
 #    (PHP-Skripte auf dem Server können lokal weiterhin uneingeschränkt lesen & schreiben)
-<FilesMatch "^(data\.json|config\.php|deploy_projects\.json|composer\.(json|lock)|.*\.json|.*\.md|.*\.log|.*\.bak|.*\.sql)$">
+<FilesMatch "(^config.*\.php$|data\.json|installed\.lock|deploy_projects\.json|composer\.(json|lock)|.*\.(json|lock|sql|sqlite|db|md|log|bak|env|ini|yml|yaml)$)">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -29,8 +29,9 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
-# 4. Backup- und Daten-Ordner zusätzlich vollständig sperren, falls direkt aufgerufen
+# 4. Schutz von internen Ordnern vor direktem Web-Aufruf
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^(backups|data)/ - [F,L]
+    # Sperrt den direkten Web-Zugriff auf Backups, Rohdaten, PHP-Bibliotheken und Template-Views
+    RewriteRule ^(backups|data|views|admin/views)/ - [F,L]
 </IfModule>

@@ -205,7 +205,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 *Ziel: Mehrsprachiger Webauftritt mit Sprachauswahl bei der Installation und optionaler Aktivierung weiterer Sprachen.*
 
 - [ ] **8.1 Sprachauswahl bei der Erstinstallation:**
-  - Auswahl der Hauptsprache (Deutsch, Englisch, Französisch, Italienisch, Holländisch, Spanisch, Portugiesisch, Griechisch, Dänisch, Norwegisch, Schwedisch, Finnisch, etc.).
+  - Auswahl der Hauptsprache (Deutsch, Englisch, Französisch, Italienisch, Holländisch, Spanisch, Portugiesisch, Griechisch, Dänisch, Norwegisch, Schwedisch, Finnisch, etc.). Erstmal, West und Südeuropa + Skandinavien abdecken.
   - Standardtexte und Admin-Oberfläche starten in der gewählten Primärsprache.
 - [ ] **8.2 Sprach-Architektur & Datenmodell:**
   - System-Labels (Buttons, Formulartexte) in modularen Sprachdateien (`libs/lang/de.json`, `libs/lang/en.json`).

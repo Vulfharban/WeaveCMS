@@ -120,7 +120,15 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.7.0 (Aktueller Entwicklungsstand)
+### v0.8.0 (Aktueller Entwicklungsstand)
+* **OOP-Refactoring, View-Modularisierung & Systemhärtung:**
+  * **Modulare Architektur im Backend:** Reduktion von `admin/index.php` (von ca. 3.370 Zeilen auf 142 Zeilen) durch Aufteilung in wartbare Teilansichten (`admin/views/`) und dedizierte OOP-Klassen (`AdminController`, `AuthManager`, `ImageUploader`, `CaptchaManager`, `LogoRenderer`, `MarkdownParser`).
+  * **Modulare Architektur im Frontend:** Reduktion von `index.php` (von ca. 760 Zeilen auf einen sauberen Entry-Point) mit Aufteilung in Partials (`views/partials/`) und Sektions-Templates (`views/sections/`) via `FrontendController`.
+  * **Umfassende PHPDoc-Dokumentation:** Vollständige Typ- und Methoden-Dokumentation aller Klassen, Methoden und Template-Variablen.
+  * **.htaccess-Systemhärtung:** Erweiterte Zugriffssperren (`403 Forbidden`) für `config.php`, `config.local.php`, `installed.lock`, alle `.json`-, `.sql`-, `.sqlite`-, `.db`-, `.log`-, `.env`- und `.ini`-Dateien sowie die `views/`- und `admin/views/`-Verzeichnisse.
+  * **Volle Kompatibilität mit dem Installer:** `install.php` und `Installer.php` bleiben vollständig nahtlos kompatibel mit den neuen Speicher- und View-Strukturen.
+
+### v0.7.0
 * **1-Klick-Daten-Migration & Dualer Speicher-Treiber (Phase 7 vollständig):**
   * Integriertes Migrationswerkzeug im Adminbereich unter *„Sicherheit & System“*.
   * Nahtlose Zwei-Wege-Migration: Flat-File JSON (`data.json`) ⇄ MySQL/MariaDB (`weave_documents`).
