@@ -133,7 +133,7 @@
             "type": "courses",
             "title": "Kurse & Workshops",
             "nav_label": "Workshops",
-            "visible": true,
+            "visible": false,
             "in_nav": true
         },
         {
@@ -141,7 +141,7 @@
             "type": "past_courses",
             "title": "Impressionen vergangener Workshops",
             "nav_label": "Impressionen",
-            "visible": true,
+            "visible": false,
             "in_nav": false
         },
         {
@@ -149,7 +149,7 @@
             "type": "blog",
             "title": "Aktuelles & Blog",
             "nav_label": "Blog",
-            "visible": true,
+            "visible": false,
             "in_nav": true
         },
         {
@@ -157,7 +157,7 @@
             "type": "pricing",
             "title": "Leistungen & Preise",
             "nav_label": "Preise",
-            "visible": true,
+            "visible": false,
             "in_nav": true
         },
         {

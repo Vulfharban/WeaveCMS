@@ -149,6 +149,21 @@ section {
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
+.btn-secondary {
+    background: #ffffff;
+    border: 1px solid rgba(62, 50, 40, 0.16);
+    color: var(--text-primary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.btn-secondary:hover {
+    background: #ffffff;
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(46, 98, 72, 0.12);
+}
+
 .btn-outline {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border-color);
