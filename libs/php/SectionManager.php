@@ -16,6 +16,7 @@ class SectionManager {
     const TYPE_ABOUT = 'about';
     const TYPE_PAST_COURSES = 'past_courses';
     const TYPE_CUSTOM_TEXT = 'custom_text';
+    const TYPE_BLOG = 'blog';
 
     /**
      * Standard-Sektionen für WeaveCMS.
@@ -60,6 +61,15 @@ class SectionManager {
                 'can_delete' => false
             ],
             [
+                'id' => 'blog',
+                'type' => self::TYPE_BLOG,
+                'title' => 'Aktuelles & Blog',
+                'nav_label' => 'Blog',
+                'visible' => true,
+                'in_nav' => true,
+                'can_delete' => false
+            ],
+            [
                 'id' => 'about',
                 'type' => self::TYPE_ABOUT,
                 'title' => 'Über mich & Atelier',
@@ -79,6 +89,26 @@ class SectionManager {
     public static function ensureSections(array &$data): array {
         if (!isset($data['sections']) || !is_array($data['sections']) || empty($data['sections'])) {
             $data['sections'] = self::getDefaultSections();
+        } else {
+            // Sicherstellen, dass die Blog-Sektion vorhanden ist
+            $has_blog = false;
+            foreach ($data['sections'] as $s) {
+                if (($s['type'] ?? '') === self::TYPE_BLOG || ($s['id'] ?? '') === 'blog') {
+                    $has_blog = true;
+                    break;
+                }
+            }
+            if (!$has_blog) {
+                $data['sections'][] = [
+                    'id' => 'blog',
+                    'type' => self::TYPE_BLOG,
+                    'title' => 'Aktuelles & Blog',
+                    'nav_label' => 'Blog',
+                    'visible' => true,
+                    'in_nav' => true,
+                    'can_delete' => false
+                ];
+            }
         }
         return $data['sections'];
     }

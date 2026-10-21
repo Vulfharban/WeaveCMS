@@ -5,13 +5,23 @@
  * ============================================================================
  */
 
+const CONTENT_TABS = ['tab-texts', 'tab-blog', 'tab-gallery', 'tab-courses', 'tab-past', 'tab-impressum'];
+let lastContentTab = 'tab-texts';
+
 /**
  * Schaltet zwischen den verschiedenen Verwaltungs-Reitern (Tabs) um.
- * Verhindert störendes Springen und aktualisiert die URL-Hash sauber.
- * @param {string} tabId - ID des Zielabschnitts (z. B. 'tab-texts', 'tab-settings')
+ * Unterstützt die Bündelung aller Inhaltsseiten unter "Inhalte" mit dynamischer Sub-Navigation.
+ * @param {string} tabId - ID des Zielabschnitts (z. B. 'tab-texts', 'tab-blog', 'tab-settings')
  * @param {boolean} [scrollToTop=true] - Ob nach dem Wechsel an den Seitenanfang gescrollt werden soll
  */
 function switchTab(tabId, scrollToTop = true) {
+    if (tabId === 'tab-content') {
+        tabId = lastContentTab || 'tab-texts';
+    }
+    if (CONTENT_TABS.includes(tabId)) {
+        lastContentTab = tabId;
+    }
+
     // Alle Abschnitte ausblenden
     document.querySelectorAll('.admin-section').forEach(sec => {
         sec.classList.remove('active');
@@ -21,17 +31,33 @@ function switchTab(tabId, scrollToTop = true) {
     document.querySelectorAll('.admin-nav-link').forEach(btn => {
         btn.classList.remove('active');
     });
+    document.querySelectorAll('.admin-subnav-link').forEach(btn => {
+        btn.classList.remove('active');
+    });
 
     // Gewünschten Abschnitt einblenden
     const sec = document.getElementById(tabId);
     if (sec) sec.classList.add('active');
     
-    // Passenden Button hervorheben
-    const targetBtn = Array.from(document.querySelectorAll('.admin-nav-link')).find(btn => {
-        return btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId);
-    });
-    if (targetBtn) {
-        targetBtn.classList.add('active');
+    const isContent = CONTENT_TABS.includes(tabId);
+    const subnav = document.getElementById('admin-content-subnav');
+    const contentMainBtn = document.getElementById('main-nav-content');
+
+    if (subnav) {
+        subnav.style.display = isContent ? 'flex' : 'none';
+    }
+
+    if (isContent) {
+        if (contentMainBtn) contentMainBtn.classList.add('active');
+        const targetSubBtn = Array.from(document.querySelectorAll('.admin-subnav-link')).find(btn => {
+            return btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId);
+        });
+        if (targetSubBtn) targetSubBtn.classList.add('active');
+    } else {
+        const targetBtn = Array.from(document.querySelectorAll('.admin-nav-link')).find(btn => {
+            return btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId);
+        });
+        if (targetBtn) targetBtn.classList.add('active');
     }
     
     // URL-Hash ohne natives Ankerspringen aktualisieren

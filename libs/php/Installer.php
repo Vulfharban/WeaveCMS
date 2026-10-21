@@ -271,7 +271,8 @@ class Installer {
                 'texts' => [],
                 'gallery' => [],
                 'courses' => [],
-                'past_courses' => []
+                'past_courses' => [],
+                'blog' => []
             ];
         }
 
@@ -280,6 +281,7 @@ class Installer {
             $base_data['gallery'] = [];
             $base_data['courses'] = [];
             $base_data['past_courses'] = [];
+            $base_data['blog'] = [];
         }
 
         // Hashes erzeugen

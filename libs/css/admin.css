@@ -71,6 +71,70 @@ body.admin-body {
     box-shadow: 0 4px 12px rgba(46, 98, 72, 0.25);
 }
 
+/* ───── Admin Sub-Navigation (.admin-subnav: Bündelung unter Inhalte) ───── */
+.admin-subnav {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: -1.25rem;
+    margin-bottom: 2rem;
+    padding: 0.6rem 1rem;
+    background: rgba(251, 249, 246, 0.95);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    position: sticky;
+    top: 138px;
+    z-index: 490;
+    transition: all 0.2s ease;
+}
+
+.admin-subnav-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.admin-subnav-link {
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 0.86rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.admin-subnav-link:hover {
+    background: rgba(46, 98, 72, 0.08);
+    color: var(--primary);
+    border-color: rgba(46, 98, 72, 0.3);
+}
+
+.admin-subnav-link.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(46, 98, 72, 0.2);
+}
+
 /* ───── Admin Abschnitte (Tab Content) ───── */
 .admin-section {
     display: none;

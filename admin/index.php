@@ -139,6 +139,7 @@ $inbox_new_count = ContactInbox::countNew();
 require __DIR__ . '/views/header.php';
 require __DIR__ . '/views/nav.php';
 require __DIR__ . '/views/tab_texts.php';
+require __DIR__ . '/views/tab_blog.php';
 require __DIR__ . '/views/tab_impressum.php';
 require __DIR__ . '/views/tab_gallery.php';
 require __DIR__ . '/views/tab_past.php';

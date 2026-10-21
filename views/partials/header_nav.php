@@ -31,8 +31,16 @@
                 <?php foreach ($nav_items as $item): ?>
                     <a href="#<?php echo htmlspecialchars($item['id']); ?>" class="nav-item"><?php echo htmlspecialchars($item['nav_label']); ?></a>
                 <?php endforeach; ?>
-                <label for="menu-toggle" class="nav-item" style="cursor: pointer;"><?php echo htmlspecialchars(__('nav.contact', 'Kontakt')); ?></label>
-                <label for="menu-toggle-impressum" class="nav-item" style="cursor: pointer;"><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></label>
+                <?php 
+                    $contact_place = $data['settings']['contact_placement'] ?? 'both';
+                    $impressum_place = $data['settings']['impressum_placement'] ?? 'both';
+                ?>
+                <?php if ($contact_place === 'header' || $contact_place === 'both'): ?>
+                    <label for="menu-toggle" class="nav-item" style="cursor: pointer;"><?php echo htmlspecialchars(__('nav.contact', 'Kontakt')); ?></label>
+                <?php endif; ?>
+                <?php if ($impressum_place === 'header' || $impressum_place === 'both'): ?>
+                    <label for="menu-toggle-impressum" class="nav-item" style="cursor: pointer;"><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></label>
+                <?php endif; ?>
                 <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>
                     <div class="header-lang-switch" style="display:inline-flex; align-items:center; gap:6px; margin-left:12px; padding-left:12px; border-left:1px solid var(--border-color); font-size:0.82rem; font-weight:700;">
                         <?php foreach ($lang_switch_items as $l): ?>

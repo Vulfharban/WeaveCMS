@@ -12,8 +12,16 @@
         <div class="container" style="display: flex; flex-direction: column; gap: 1.5rem;">
             <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars($data['texts']['contact_name'] ?? 'Maxima Musterfrau'); ?>. Alle Rechte vorbehalten.</p>
             <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; align-items: center;">
-                <label for="menu-toggle" style="cursor: pointer; color: var(--primary); font-weight:600;">Kontakt</label>
-                <label for="menu-toggle-impressum" style="cursor: pointer; color: var(--primary); font-weight:600;">Impressum &amp; Datenschutz</label>
+                <?php 
+                    $contact_place = $data['settings']['contact_placement'] ?? 'both';
+                    $impressum_place = $data['settings']['impressum_placement'] ?? 'both';
+                ?>
+                <?php if ($contact_place === 'footer' || $contact_place === 'both'): ?>
+                    <label for="menu-toggle" style="cursor: pointer; color: var(--primary); font-weight:600;"><?php echo htmlspecialchars(__('nav.contact', 'Kontakt')); ?></label>
+                <?php endif; ?>
+                <?php if ($impressum_place === 'footer' || $impressum_place === 'both'): ?>
+                    <label for="menu-toggle-impressum" style="cursor: pointer; color: var(--primary); font-weight:600;"><?php echo htmlspecialchars(__('nav.impressum', 'Impressum & Datenschutz')); ?></label>
+                <?php endif; ?>
                 <a href="admin/" style="color: var(--text-secondary); opacity: 0.5; font-size:0.8rem;">Admin-Bereich</a>
             </div>
         </div>

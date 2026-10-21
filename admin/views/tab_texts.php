@@ -24,6 +24,7 @@
                     'gallery' => 'photo_library',
                     'courses' => 'event',
                     'past_courses' => 'photo_camera',
+                    'blog' => 'newspaper',
                     'about' => 'badge',
                     'custom_text' => 'article'
                 ];
@@ -204,6 +205,20 @@
                     <div class="form-group">
                         <label>Impressionen - Untertitel (optional)</label>
                         <input type="text" name="past_courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['past_courses_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['past_courses_subtitle'] ?? ''); ?>">
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    📰 Blog &amp; Aktuelles
+                </h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Blog - Titel</label>
+                        <input type="text" name="blog_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['blog_title'] ?? ($is_primary_edit ? 'Aktuelles & Geschichten' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['blog_title'] ?? 'Aktuelles & Geschichten'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
+                    </div>
+                    <div class="form-group">
+                        <label>Blog - Untertitel / Beschreibung</label>
+                        <input type="text" name="blog_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['blog_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['blog_subtitle'] ?? ''); ?>">
                     </div>
                 </div>
 
