@@ -80,10 +80,10 @@ Die Codebasis [`c:\xampp\htdocs\ownsite`](file:///c:/xampp/htdocs/ownsite) ist e
 | **Impressum & DSGVO-Text** | Ja (Impressum- & DSGVO-Drawer) | ✅ 100 % | Vollständige Textfelder für § 5 TMG und Datenschutz bereits integriert. |
 | **Mehrsprachigkeit (DE / EN)** | Ja (WeaveCMS i18n System) | ✅ Übertrifft | WeaveCMS beherrscht bis zu 12 Sprachen mit Cookie/Session-Speicher. `ownsite` nutzt 2 Sprachen. |
 | **SEO & Social Sharing (OG / Schema.org)** | Ja (WeaveCMS Head-Engine) | ✅ Übertrifft | WeaveCMS erzeugt dynamisch OpenGraph, Twitter-Cards, Breadcrumbs und FAQ Schema.org. |
-| **Software-Katalog (Tools-Liste)** | Teilweise (Bisher Galerie oder Blog) | 🟡 60 % | **Lücke:** WeaveCMS hat kein dediziertes "Download-Modul". Kann provisorisch über Custom Subpages oder Blog gelöst werden, ist aber für Downloads nicht optimal strukturiert. |
-| **Download-Dateien mit Versions-Badge** | Nein | ❌ Fehlt | Es gibt kein strukturiertes Datenmodell für Download-Links mit Dateigröße, Version und Plattform. |
-| **Changelog-Viewer (Markdown-Modal)** | Nein | ❌ Fehlt | WeaveCMS hat keine integrierte Modalfunktion zur Anzeige externer Markdown-Changelogs auf Download-Karten. |
-| **Download-Counter (Statistik-Tracker)** | Nein | ❌ Fehlt | WeaveCMS besitzt bisher keine Klick-/Download-Zähl-API mit CSV/JSON-Persistenz. |
+| **Software-Katalog (Tools-Liste)** | Basis vorhanden (`downloads` Sektion für PDFs) | 🟡 70 % | Basis-Download-Bereich existiert bereits in WeaveCMS (`tab_downloads.php`). Für vollwertige Software fehlen optionale Profi-Felder (wird in Roadmap Phase 16 modular erweitert). |
+| **Download-Dateien mit Versions-Badge** | Geplant in Phase 16 | 🟡 Phase 16 | Basis-Upload existiert; optionale Felder für Version (`v0.6.0`), Plattform & Lizenz werden in Phase 16 als optionale Attribute ergänzt. |
+| **Changelog-Viewer (Markdown-Modal)** | Geplant in Phase 16 | 🟡 Phase 16 | Optionale Einbindung von Markdown-Changelogs mit flüssigem Frontend-Modal/Drawer wird in Phase 16 in das Download-Modul integriert. |
+| **Download-Counter (Statistik-Tracker)** | Geplant in Phase 16 | 🟡 Phase 16 | Klick-Tracking-Proxy (`api/download.php?id=...`) mit atomarem Zähler und Frontend-Badge wird direkt in das Download-Modul integriert. |
 | **Screenshot-Vorschau mit Lightbox** | Ja (Galerie-Lightbox existiert) | 🟡 70 % | Galerie-Lightbox ist vorhanden, ist aber an das Galerie-Modul gebunden und nicht frei in Tool-Karten eingebettet. |
 | **Projekt-Portfolio (Status-Badges)** | Teilweise | 🟡 60 % | Kann über Custom Pages gelöst werden; dedizierte Status-Tags ("WIP", "Live") fehlen als Datenfeld. |
 | **Besucher-Theme-Umschalter (🌙/☀️)** | Nein (Nur Admin-Theme-Einstellung) | ❌ Fehlt | WeaveCMS verwaltet Themes über den Adminbereich. Besucher im Frontend haben keinen Live-Umschalter. |

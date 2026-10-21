@@ -32,7 +32,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
-## 🚀 Arbeitsablauf: Der 15-Phasen-Entwicklungsplan
+## 🚀 Arbeitsablauf: Der 16-Phasen-Entwicklungsplan
 
 ```
 [Phase 1: Recht & Texte] ──▶ [Phase 2: Datensicherheit] ──▶ [Phase 3: SEO & Sharing] ──▶ [Phase 4: Anfragen-Log]
@@ -49,6 +49,10 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
          ▼
 [Phase 13: Plugin-System] ────▶ [Phase 14: Demo-Bilddaten] ────▶ [Phase 15: Sandbox- & Demo-Modus]
   (Hooks & Webtrees Stammbäume)   (Neutrale Multi-Ratio Assets)     (Live-Tryout ohne Speichern & Auto-Reset)
+         │
+         ▼
+[Phase 16: Downloads & Security]
+  (Download-Portal, Klick-Tracking, Captcha-Engine & Accessibility-Bar)
 ```
 
 ---
@@ -500,3 +504,47 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Demo-Sitzung starten: Neue Unterseite anlegen, Menütitel ändern, Farbschema wechseln.
   - Gegenprobe im Inkognito-Fenster: Echte Website bleibt unverändert.
   - Klick auf *„Demo zurücksetzen“*: Sitzung kehrt fehlerfrei zum Ursprungszustand zurück.
+
+---
+
+### Phase 16: Modularer Download- & Software-Bereich, Captcha-Engine & Besucher-Accessibility
+*Ziel: Ein vollwertiges, flexibles Content-Modul für Software, Dokumente und Downloads inklusive optionaler Profi-Metadaten (Version, Plattform, Dateigröße, Changelog-Drawer, Screenshot-Lightbox, Klick-Tracking/Counter), wählbare Multi-Captcha-Systeme im Sicherheits-Tab sowie eine im Backend optional aktivierbare Besucher-Barrierefreiheitsleiste (Dark-Mode & Font-Zoom).*
+
+- [ ] **16.1 Modularer Content-Bereich „Downloads & Software“:**
+  - **Sektions- & Content-Architektur:**
+    - Neuer konfigurierbarer Sektionstyp `downloads` (analog zu Galerie, Kursen, Blog).
+    - Einbindung in den Sektionen-Manager sowie Schnell-Leiste (Sektionstitel, Menübezeichnung und Sichtbarkeit).
+  - **Flexible Download-Karten mit optionalen Feldern:**
+    - Basisfelder: Titel, Kurzbeschreibung, Kategorie, Download-Datei (Upload via Media-Manager) oder externer Link (z. B. GitHub Release, Cloud-Speicher).
+    - Optionale Profi-Felder (je Eintrag frei zuschaltbar):
+      - **Versions-Badge** (z. B. `v1.2.0`, `v0.6.0`).
+      - **Plattform- / OS-Kennzeichnung** (z. B. *Windows 10/11*, *macOS*, *Linux*, *Portable*, *Web-Modul*).
+      - **Dateigröße & Lizenz** (z. B. `14.2 MB`, *Freeware*, *MIT / Open Source*).
+      - **Feature-Bulletpoints** (strukturierte Liste der Kernfunktionen).
+      - **Screenshot-Galerie:** Optionale Vorschaubilder mit interaktivem Lightbox-Zoom.
+      - **Changelog-Drawer / Modal:** Integriertes Markdown-Feld für die Versionshistorie, das im Frontend per Klick auf einen dezenten *„📜 Changelog“*-Button als flüssiges Modal/Drawer geöffnet wird.
+- [ ] **16.2 Integriertes Download-Tracking & Klick-Counter:**
+  - Direkt in das Download-Modul integrierte Zähl-Engine (flüsterleise und ohne externe Tracking-Dienste).
+  - Sicherer, manipulationsgeschützter Download-Proxy (`api/download.php?id=...`), der Downloads ausliefert und atomar im Speichertreiber (Flat-File JSON oder SQL) zählt.
+  - Integrierter Spamschutz / Bot-Filter (Crawler und Suchmaschinen erhöhen den Zähler nicht).
+  - **Frontend-Option:** Optionales Badge je Karte (*„X Downloads“*), im Admin pro Download-Item ein- oder ausschaltbar sowie Zähler manuell zurücksetzbar.
+  - **Admin-Übersicht:** Statistik-Spalte mit aktuellen Download-Zahlen im Download-Tab.
+- [ ] **16.3 Modulare Captcha-Auswahl-Engine (Sicherheits- & Einstellungs-Tab):**
+  - Erweiterung des Sicherheitsbereichs im Backend um ein zentrales Auswahlfeld: *„Aktives Captcha-Verfahren für Formulare & Bot-Schutz“*:
+    1. **Symbol-Captcha (Standard):** Das bewährte, datenschutzfreundliche Klick-Symbol (Pfote, Stern, Herz).
+    2. **Mathe- / Rechen-Captcha:** Dynamisch generierte, zufällige Rechenaufgabe (z. B. *„Wie viel ist 4 + 3?“*).
+    3. **HTML5 Canvas-Zahlen-Captcha:** Clientseitig/serverseitig generierter 4- bis 6-stelliger Zahlencode direkt auf einem Bild-Canvas (wie in `ownsite` erprobt) gegen automatisierte Text-Scraper.
+    4. **Unsichtbarer Honeypot + Time-Trap:** Völlig barrierefreie Formulare ohne Nutzerinteraktion für Standard-Websites mit stillem Bot-Schutz.
+  - **Zusatzfunktion:** Option *„E-Mail-Adresse im Impressum mit aktiver Captcha-Prüfung schützen“* (Anti-Scraping E-Mail-Freischaltung wie in `ownsite`).
+- [ ] **16.4 Optionale Besucher-Barrierefreiheitsleiste (Darstellung & Themes):**
+  - Neuer Schalter in den Design-/Theme-Einstellungen des Adminbereichs:
+    - *„[ ] Besucher-Barrierefreiheitsleiste im Frontend anzeigen“*
+  - Wenn aktiviert, wird am oberen Seitenrand eine elegante, dezente Leiste eingeblendet:
+    - **Live Hell-/Dunkelmodus (🌙/☀️):** Sofortiges Umschalten zwischen Light & Dark Mode über CSS-Variablen (`data-theme="dark"`) mit lokaler Speicherung im `localStorage`.
+    - **Schriftgrößen-Zoom (A- / A+):** Stufenloses Verkleinern / Vergrößern der Basisschriftart (`font-size: 90 % .. 115 %`) für barrierefreies Lesen.
+    - **Sprachwechsler:** Nahtlose Integration des WeaveCMS Sprachumschalters in die Barrierefreiheitsleiste.
+- [ ] **16.5 Prüfung & Abnahme:**
+  - Download-Eintrag mit Version, Screenshot und Changelog anlegen und prüfen, ob Modal im Frontend flüssig öffnet.
+  - Klick auf Download durchführen: Datei lädt herunter und Zähler inkrementiert atomar.
+  - Captcha-Verfahren im Admin umschalten (Symbol ➔ Mathe ➔ Canvas ➔ Honeypot) und Kontaktformular auf Funktionsfähigkeit prüfen.
+  - Besucher-Barrierefreiheitsleiste im Theme-Manager aktivieren: Umschalten von Dark Mode und Schriftzoom im Frontend testen.
