@@ -41,11 +41,11 @@
                             
                             <?php if ($is_bookable): ?>
                                 <span style="color: #10b981; font-size: 0.85rem; font-weight: 600; display:flex; align-items:center; gap:4px; background: rgba(16,185,129,0.08); padding: 4px 10px; border-radius: 12px;">
-                                    <span class="material-icons" style="font-size:16px;">check_circle</span> Plätze frei
+                                    <span class="material-icons" style="font-size:16px;">check_circle</span> <?php echo htmlspecialchars(__('courses.spots_free', 'Plätze frei')); ?>
                                 </span>
                             <?php else: ?>
                                 <span style="color: #ef4444; font-size: 0.85rem; font-weight: 600; display:flex; align-items:center; gap:4px; background: rgba(239,68,68,0.08); padding: 4px 10px; border-radius: 12px;">
-                                    <span class="material-icons" style="font-size:16px;">block</span> Ausgebucht
+                                    <span class="material-icons" style="font-size:16px;">block</span> <?php echo htmlspecialchars(__('courses.booked', 'Ausgebucht')); ?>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -65,7 +65,7 @@
                             </span>
                             <span class="course-meta-badge">
                                 <span class="material-icons" style="font-size:15px; color:var(--primary);">group</span>
-                                <strong><?php echo $c['current_participants']; ?> / <?php echo $c['max_participants']; ?></strong> belegt (noch <strong><?php echo $spots_left; ?></strong> frei)
+                                <strong><?php echo $c['current_participants']; ?> / <?php echo $c['max_participants']; ?></strong> <?php echo str_replace('{spots}', (string)$spots_left, htmlspecialchars(__('courses.booked_spots', 'belegt (noch ' . $spots_left . ' frei)'))); ?>
                             </span>
                         </div>
                     </div>
@@ -76,16 +76,16 @@
                         <div style="display:flex; gap:8px; width:100%; justify-content:flex-end; flex-wrap:wrap;">
                             <?php if ($is_bookable): ?>
                                 <button onclick="requestCourse('<?php echo htmlspecialchars(addslashes($c['title'])); ?>', '<?php echo htmlspecialchars(addslashes($c['date_string'])); ?>', '<?php echo htmlspecialchars(addslashes($time_text)); ?>', '<?php echo htmlspecialchars(addslashes($location_text)); ?>')" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; flex:1; justify-content:center;">
-                                    Jetzt anfragen
+                                    <?php echo htmlspecialchars(__('btn.inquire_now', 'Jetzt anfragen')); ?>
                                 </button>
                             <?php else: ?>
                                 <button class="btn btn-outline" style="padding: 8px 16px; font-size: 0.9rem; opacity: 0.5; cursor: not-allowed; flex:1; justify-content:center;" disabled>
-                                    Ausgebucht
+                                    <?php echo htmlspecialchars(__('btn.booked_out', 'Ausgebucht')); ?>
                                 </button>
                             <?php endif; ?>
                             
                             <!-- Share Button -->
-                            <button type="button" class="btn btn-outline" style="padding: 8px 10px; font-size: 0.85rem;" title="Diesen Kurs teilen" onclick="shareCourse('<?php echo htmlspecialchars(addslashes($c['title'])); ?>', '<?php echo htmlspecialchars(addslashes($c['date_string'])); ?>', '<?php echo htmlspecialchars($course_link); ?>')">
+                            <button type="button" class="btn btn-outline" style="padding: 8px 10px; font-size: 0.85rem;" title="<?php echo htmlspecialchars(__('btn.share', 'Diesen Kurs teilen')); ?>" onclick="shareCourse('<?php echo htmlspecialchars(addslashes($c['title'])); ?>', '<?php echo htmlspecialchars(addslashes($c['date_string'])); ?>', '<?php echo htmlspecialchars($course_link); ?>')">
                                 <span class="material-icons" style="font-size:16px;">share</span>
                             </button>
                         </div>

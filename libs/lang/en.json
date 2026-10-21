@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Contact",
+    "nav.impressum": "Legal Notice",
+    "nav.privacy": "Privacy Policy",
+    "nav.admin": "Admin Area",
+    "nav.menu": "Navigation",
+
+    "btn.inquire_now": "Inquire now",
+    "btn.booked_out": "Fully booked",
+    "btn.share": "Share this workshop",
+    "btn.send_message": "Send inquiry",
+    "btn.open_in_mail": "Open in mail client",
+    "btn.filter_all": "All",
+    "btn.close": "Close",
+
+    "gallery.no_items": "No items in the gallery yet.",
+    "gallery.zoom_hint": "Click for fullscreen view",
+
+    "courses.no_dates": "Currently there are no workshop dates scheduled. Feel free to contact me with your inquiry!",
+    "courses.spots_free": "Spots available",
+    "courses.booked": "Fully booked",
+    "courses.booked_spots": "occupied ({spots} remaining)",
+
+    "past_courses.no_images": "No photos uploaded yet.",
+
+    "contact.title": "Contact & Workshop Inquiry",
+    "contact.owner": "Proprietor",
+    "contact.phone": "Phone",
+    "contact.email": "Email",
+    "contact.write_message": "Write a message",
+    "contact.name": "Your Name",
+    "contact.email_field": "Your Email Address",
+    "contact.phone_field": "Phone Number",
+    "contact.phone_hint": "(optional for callbacks)",
+    "contact.message": "Message",
+    "contact.spam_label": "Security check: Click on {prompt}",
+    "contact.mail_client_hint": "Opens your email application with the pre-filled message.",
+
+    "legal.impressum_tab": "Legal Notice",
+    "legal.privacy_tab": "Privacy Policy (GDPR)",
+    "legal.tmg_notice": "Information pursuant to legal obligations",
+    "legal.contact_headline": "Contact",
+    "legal.supervisory": "Supervisory Authority",
+    "legal.vat_id": "VAT ID / Tax Note",
+    "legal.disclaimer": "Disclaimer",
+
+    "toast.link_copied": "Link copied!",
+    "toast.course_link_copied": "Workshop invitation link copied to clipboard!",
+    "toast.share_prompt": "Workshop link to share:"
+}

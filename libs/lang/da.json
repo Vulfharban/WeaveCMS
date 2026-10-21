@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Kontakt",
+    "nav.impressum": "Kolofon",
+    "nav.privacy": "Privatlivspolitik",
+    "nav.admin": "Administration",
+    "nav.menu": "Navigation",
+
+    "btn.inquire_now": "Forespørg nu",
+    "btn.booked_out": "Fuldt booket",
+    "btn.share": "Del denne workshop",
+    "btn.send_message": "Send forespørgsel",
+    "btn.open_in_mail": "Åbn i e-mail-program",
+    "btn.filter_all": "Alle",
+    "btn.close": "Luk",
+
+    "gallery.no_items": "Der er endnu ingen værker i galleriet.",
+    "gallery.zoom_hint": "Klik for fuld skærm",
+
+    "courses.no_dates": "Der er p.t. ingen fastlagte datoer. Skriv gerne hvis du er interesseret!",
+    "courses.spots_free": "Ledige pladser",
+    "courses.booked": "Fuldt booket",
+    "courses.booked_spots": "optaget ({spots} ledige)",
+
+    "past_courses.no_images": "Ingen billeder uploadet endnu.",
+
+    "contact.title": "Kontakt & Workshopforespørgsel",
+    "contact.owner": "Indehaver",
+    "contact.phone": "Telefon",
+    "contact.email": "E-mail",
+    "contact.write_message": "Skriv en besked",
+    "contact.name": "Dit navn",
+    "contact.email_field": "Din e-mailadresse",
+    "contact.phone_field": "Telefonnummer",
+    "contact.phone_hint": "(valgfrit)",
+    "contact.message": "Besked",
+    "contact.spam_label": "Sikkerhedskontrol: Klik på {prompt}",
+    "contact.mail_client_hint": "Åbner dit e-mail-program med den færdige besked.",
+
+    "legal.impressum_tab": "Kolofon",
+    "legal.privacy_tab": "Databeskyttelse (GDPR)",
+    "legal.tmg_notice": "Lovpligtige oplysninger",
+    "legal.contact_headline": "Kontakt",
+    "legal.supervisory": "Tilsynsmyndighed",
+    "legal.vat_id": "CVR-nummer",
+    "legal.disclaimer": "Ansvarsfraskrivelse",
+
+    "toast.link_copied": "Link kopieret!",
+    "toast.course_link_copied": "Workshoplink kopieret til udklipsholder!",
+    "toast.share_prompt": "Workshoplink til deling:"
+}

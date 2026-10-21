@@ -21,7 +21,23 @@
             <?php foreach ($nav_items as $item): ?>
                 <a href="#<?php echo htmlspecialchars($item['id']); ?>" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;"><?php echo htmlspecialchars($item['nav_label']); ?></a>
             <?php endforeach; ?>
-            <label for="menu-toggle" onclick="closeMobileMenuAndOpenContact()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);">Kontakt</label>
-            <label for="menu-toggle-impressum" onclick="closeMobileMenuAndOpenImpressum()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);">Impressum</label>
+            <label for="menu-toggle" onclick="closeMobileMenuAndOpenContact()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);"><?php echo htmlspecialchars(__('nav.contact', 'Kontakt')); ?></label>
+            <label for="menu-toggle-impressum" onclick="closeMobileMenuAndOpenImpressum()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);"><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></label>
         </nav>
+        <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>
+            <div class="mobile-lang-switch" style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-color);">
+                <span style="display:block; font-size:0.85rem; color:var(--text-secondary); margin-bottom:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:1px;"><?php echo htmlspecialchars(__('nav.language', 'Sprache')); ?></span>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <?php foreach ($lang_switch_items as $l): ?>
+                        <a href="<?php echo htmlspecialchars($l['url']); ?>" style="display:flex; align-items:center; gap:10px; font-size:1.05rem; padding:6px 0; text-decoration:none; color:<?php echo $l['active'] ? 'var(--primary)' : 'var(--text-primary)'; ?>; font-weight:<?php echo $l['active'] ? '700' : '400'; ?>;">
+                            <span style="font-size:1.3rem;"><?php echo $l['flag']; ?></span>
+                            <span><?php echo htmlspecialchars($l['native']); ?></span>
+                            <?php if ($l['active']): ?>
+                                <span class="material-icons" style="font-size:18px; margin-left:auto; color:var(--primary);">check</span>
+                            <?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>

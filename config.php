@@ -34,6 +34,8 @@ require_once __DIR__ . '/libs/php/LogoRenderer.php';
 require_once __DIR__ . '/libs/php/MarkdownParser.php';
 require_once __DIR__ . '/libs/php/ContactInbox.php';
 require_once __DIR__ . '/libs/php/AdminController.php';
+require_once __DIR__ . '/libs/php/LanguageManager.php';
+require_once __DIR__ . '/libs/php/FrontendController.php';
 
 /**
  * Automatische Weiterleitung auf install.php, wenn WeaveCMS noch nicht installiert ist (Phase 5).
@@ -201,4 +203,29 @@ function render_markdown_safe(?string $text): string {
  */
 function get_default_privacy_policy_text(array $data = []): string {
     return MarkdownParser::getDefaultPrivacyPolicyText($data);
+}
+
+/**
+ * Übersetzt einen Textschlüssel anhand der aktiven Besuchersprache.
+ * Proxy zu LanguageManager::t().
+ *
+ * @param string $key Übersetzungsschlüssel
+ * @param string $default Fallback-Text
+ * @param string|null $lang Optional abweichende Sprache
+ * @return string
+ */
+function __(string $key, string $default = '', ?string $lang = null): string {
+    return LanguageManager::t($key, $default, $lang);
+}
+
+/**
+ * Alias für __().
+ *
+ * @param string $key
+ * @param string $default
+ * @param string|null $lang
+ * @return string
+ */
+function _t(string $key, string $default = '', ?string $lang = null): string {
+    return LanguageManager::t($key, $default, $lang);
 }

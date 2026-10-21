@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Kontakt",
+    "nav.impressum": "Kolofon",
+    "nav.privacy": "Personvern",
+    "nav.admin": "Administrasjon",
+    "nav.menu": "Navigasjon",
+
+    "btn.inquire_now": "Send forespørsel nå",
+    "btn.booked_out": "Fullbooket",
+    "btn.share": "Del dette kurset",
+    "btn.send_message": "Send melding",
+    "btn.open_in_mail": "Åpne i e-postprogram",
+    "btn.filter_all": "Alle",
+    "btn.close": "Lukk",
+
+    "gallery.no_items": "Ingen verk i galleriet ennå.",
+    "gallery.zoom_hint": "Klikk for fullskjerm",
+
+    "courses.no_dates": "Det er for øyeblikket ingen fastsatte kursdatoer. Send gjerne en forespørsel!",
+    "courses.spots_free": "Ledige plasser",
+    "courses.booked": "Fullbooket",
+    "courses.booked_spots": "opptatt (enda {spots} ledige)",
+
+    "past_courses.no_images": "Ingen bilder lastet opp ennå.",
+
+    "contact.title": "Kontakt & Kursforespørsel",
+    "contact.owner": "Innehaver",
+    "contact.phone": "Telefon",
+    "contact.email": "E-post",
+    "contact.write_message": "Skriv en melding",
+    "contact.name": "Ditt navn",
+    "contact.email_field": "Din e-postadresse",
+    "contact.phone_field": "Telefonnummer",
+    "contact.phone_hint": "(valgfritt)",
+    "contact.message": "Melding",
+    "contact.spam_label": "Sikkerhetskontroll: Klikk på {prompt}",
+    "contact.mail_client_hint": "Åpner e-postprogrammet ditt med ferdig utfylt melding.",
+
+    "legal.impressum_tab": "Kolofon",
+    "legal.privacy_tab": "Personvern (GDPR)",
+    "legal.tmg_notice": "Lovpålagt informasjon",
+    "legal.contact_headline": "Kontakt",
+    "legal.supervisory": "Tilsynsmyndighet",
+    "legal.vat_id": "Organisasjonsnummer",
+    "legal.disclaimer": "Ansvarsfraskrivelse",
+
+    "toast.link_copied": "Lenke kopiert!",
+    "toast.course_link_copied": "Kurslenke kopiert til utklippstavlen!",
+    "toast.share_prompt": "Kurslenke for deling:"
+}

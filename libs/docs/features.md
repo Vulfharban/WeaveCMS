@@ -121,6 +121,12 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ## 📈 Release-Historie & Meilensteine
 
 ### v0.8.0 (Aktueller Entwicklungsstand)
+* **Mehrsprachigkeit & Internationalisierung (Phase 8):**
+  * **12 europäische Sprachen out-of-the-box:** Deutsch, Englisch, Französisch, Italienisch, Niederländisch, Spanisch, Portugiesisch, Griechisch, Dänisch, Norwegisch, Schwedisch und Finnisch (West-/Südeuropa & Skandinavien).
+  * **Modulare Sprachdateien & i18n-Engine:** Dedizierte `libs/php/LanguageManager.php` mit Cookie-Persistenz (`weave_lang`), GET-Param-Wechsler (`?lang=xx`), Browser-Locale-Erkennung und Fallback-Kaskade (Content-Übersetzung -> Primärsprache -> System-Default).
+  * **System-Labels & Section-Translations:** Modulare System-Übersetzungen in `libs/lang/*.json` sowie dynamische Übersetzungsmasken im Admin-Reiter *„Texte“* mit Fallback-Platzhaltern.
+  * **Dezenter Frontend-Sprachwechsler & SEO:** Header-Navigation mit kompaktem Sprachschalter (`DE | EN`, etc.) neben den Menü-Triggern und im mobilen Drawer (Footer bleibt unberührt); dynamische Generierung von `<html lang="...">`, OpenGraph Locale und `<link rel="alternate" hreflang="...">` Tags für internationale Suchmaschinen.
+  * **Integration im Installations-Assistenten:** Auswahl der Primärsprache und Vorab-Aktivierung von Zusatzsprachen in Schritt 3 von `install.php`.
 * **OOP-Refactoring, View-Modularisierung & Systemhärtung:**
   * **Modulare Architektur im Backend:** Reduktion von `admin/index.php` (von ca. 3.370 Zeilen auf 142 Zeilen) durch Aufteilung in wartbare Teilansichten (`admin/views/`) und dedizierte OOP-Klassen (`AdminController`, `AuthManager`, `ImageUploader`, `CaptchaManager`, `LogoRenderer`, `MarkdownParser`).
   * **Modulare Architektur im Frontend:** Reduktion von `index.php` (von ca. 760 Zeilen auf einen sauberen Entry-Point) mit Aufteilung in Partials (`views/partials/`) und Sektions-Templates (`views/sections/`) via `FrontendController`.

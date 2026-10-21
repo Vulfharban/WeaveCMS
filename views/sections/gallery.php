@@ -19,11 +19,11 @@
     <?php endif; ?>
 
     <?php if (empty($visible_gallery)): ?>
-        <p style="text-align: center; color: var(--text-secondary);">Noch keine Werkstücke in der Galerie.</p>
+        <p style="text-align: center; color: var(--text-secondary);"><?php echo htmlspecialchars(__('gallery.no_items', 'Noch keine Werkstücke in der Galerie.')); ?></p>
     <?php else: ?>
         <!-- Category Filter Buttons -->
         <div class="filter-container">
-            <button class="filter-btn active" onclick="filterGallery('all', this)">Alle</button>
+            <button class="filter-btn active" onclick="filterGallery('all', this)"><?php echo htmlspecialchars(__('btn.filter_all', 'Alle')); ?></button>
             <?php foreach ($categories as $cat): ?>
                 <button class="filter-btn" onclick="filterGallery('<?php echo htmlspecialchars($cat); ?>', this)"><?php echo htmlspecialchars($cat); ?></button>
             <?php endforeach; ?>
@@ -67,7 +67,7 @@
                     }
                 ?>
                 <div class="card gallery-card <?php echo $is_portrait ? 'card-portrait' : ''; ?>" data-category="<?php echo htmlspecialchars($item['category'] ?? ''); ?>" data-index="<?php echo $idx; ?>">
-                    <div class="gallery-media-wrapper <?php echo $is_portrait ? 'is-portrait' : ''; ?>" <?php if ($gallery_lightbox): ?>onclick="openLightbox(<?php echo $idx; ?>)" style="cursor:zoom-in;" title="Klicken für Vollbildansicht"<?php endif; ?>>
+                    <div class="gallery-media-wrapper <?php echo $is_portrait ? 'is-portrait' : ''; ?>" <?php if ($gallery_lightbox): ?>onclick="openLightbox(<?php echo $idx; ?>)" style="cursor:zoom-in;" title="<?php echo htmlspecialchars(__('gallery.zoom_hint', 'Klicken für Vollbildansicht')); ?>"<?php endif; ?>>
                         <?php if ($gallery_layout === 'ambient_blur'): ?>
                             <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-bg-blur" alt="" aria-hidden="true">
                             <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-fg-img" alt="<?php echo htmlspecialchars($item['title'] ?? ''); ?>" loading="lazy">

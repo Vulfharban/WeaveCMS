@@ -204,20 +204,20 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 8: Mehrsprachigkeit (i18n & Sprachumschalter)
 *Ziel: Mehrsprachiger Webauftritt mit Sprachauswahl bei der Installation und optionaler Aktivierung weiterer Sprachen.*
 
-- [ ] **8.1 Sprachauswahl bei der Erstinstallation:**
-  - Auswahl der Hauptsprache (Deutsch, Englisch, Französisch, Italienisch, Holländisch, Spanisch, Portugiesisch, Griechisch, Dänisch, Norwegisch, Schwedisch, Finnisch, etc.). Erstmal, West und Südeuropa + Skandinavien abdecken.
+- [x] **8.1 Sprachauswahl bei der Erstinstallation:**
+  - Auswahl der Hauptsprache (12 Sprachen für West-/Südeuropa & Skandinavien: DE, EN, FR, IT, NL, ES, PT, EL, DA, NO, SV, FI) in Schritt 3 des Assistenten (`install.php`).
   - Standardtexte und Admin-Oberfläche starten in der gewählten Primärsprache.
-- [ ] **8.2 Sprach-Architektur & Datenmodell:**
-  - System-Labels (Buttons, Formulartexte) in modularen Sprachdateien (`libs/lang/de.json`, `libs/lang/en.json`).
-  - Inhalts-Texte sprachbezogen gespeichert mit intelligenter Fallback-Kaskade (keine Lücken bei fehlender Übersetzung).
-- [ ] **8.3 Sprachverwaltung im Adminbereich:**
-  - Aktivieren/Deaktivieren zusätzlicher Fremdsprachen per Mausklick.
-  - Übersichtliche Side-by-Side-Übersetzungsmaske.
-- [ ] **8.4 Frontend-Sprachwechsler & Internationales SEO:**
-  - Dezenter Sprachschalter im Header/Footer (`DE | EN`).
-  - Korrekte `<html lang="...">` und `<link rel="alternate" hreflang="...">` Tags für Google.
-- [ ] **8.5 Prüfung & Abnahme:**
-  - Mehrsprachigen Betrieb einrichten und Frontend-Umschaltung testen.
+- [x] **8.2 Sprach-Architektur & Datenmodell:**
+  - System-Labels (Buttons, Formulartexte, Navigation) in modularen JSON-Sprachdateien (`libs/lang/de.json`, `en.json`, `fr.json`, `it.json`, `nl.json`, `es.json`, `pt.json`, `el.json`, `da.json`, `no.json`, `sv.json`, `fi.json`).
+  - Zentrale Klasse `LanguageManager` mit Cookie-Persistenz (`weave_lang`), GET-Param-Wechsler (`?lang=xx`), Browser-Locale-Erkennung und Fallback-Kaskade (Content -> Primärsprache -> Fallback-Text).
+- [x] **8.3 Sprachverwaltung im Adminbereich:**
+  - Aktivieren/Deaktivieren von Sprachen per Checkbox unter *„Darstellung & Design“*.
+  - Dynamischer Sprach-Tab-Umschalter im Reiter *„Texte“* mit Fallback-Platzhaltern für sekundäre Sprachen.
+- [x] **8.4 Frontend-Sprachwechsler & Internationales SEO:**
+  - Dezenter Sprachschalter in der Desktop-Navigation neben den Menü-Triggern sowie im mobilen Drawer (`DE | EN`, etc.), Footer bleibt clean.
+  - Dynamische `<html lang="...">`, OpenGraph Locale (`og:locale`) und `<link rel="alternate" hreflang="...">` Tags für alle aktiven Sprachen.
+- [x] **8.5 Prüfung & Abnahme:**
+  - Mehrsprachiger Betrieb im Browser erfolgreich verifiziert (Sprachwechsel in Admin und Frontend, saubere Darstellung).
 
 ---
 

@@ -269,8 +269,30 @@ class AdminController {
         }
         $data['settings']['gallery_gap'] = $gallery_gap;
 
+        // Mehrsprachigkeit (Phase 8): Primärsprache & aktive Sprachen
+        $supported = LanguageManager::getSupportedLanguages();
+        $primary_lang = trim($_POST['primary_language'] ?? ($data['settings']['primary_language'] ?? 'de'));
+        if (!isset($supported[$primary_lang])) {
+            $primary_lang = 'de';
+        }
+        $data['settings']['primary_language'] = $primary_lang;
+
+        $posted_active = $_POST['active_languages'] ?? null;
+        $active_langs = [];
+        if (is_array($posted_active)) {
+            foreach ($posted_active as $code) {
+                if (isset($supported[$code]) && !in_array($code, $active_langs, true)) {
+                    $active_langs[] = $code;
+                }
+            }
+        }
+        if (!in_array($primary_lang, $active_langs, true)) {
+            array_unshift($active_langs, $primary_lang);
+        }
+        $data['settings']['active_languages'] = $active_langs;
+
         if (save_data($dataFile, $data)) {
-            $success_msg = 'Darstellung &amp; Design-Einstellungen erfolgreich gespeichert!';
+            $success_msg = 'Darstellung, Design &amp; Spracheinstellungen erfolgreich gespeichert!';
         } else {
             $error_msg = 'Fehler beim Speichern der Darstellungseinstellungen.';
         }
@@ -642,23 +664,50 @@ class AdminController {
     }
 
     /**
-     * Aktualisiert die Textinhalte aller Frontend-Sektionen.
+     * Aktualisiert die Textinhalte aller Frontend-Sektionen (Hauptsprache oder Übersetzungen).
      */
     protected static function handleTexts(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
-        $data['texts']['hero_title'] = $_POST['hero_title'] ?? '';
-        $data['texts']['hero_subtitle'] = $_POST['hero_subtitle'] ?? '';
-        $data['texts']['about_title'] = $_POST['about_title'] ?? '';
-        $data['texts']['about_text'] = $_POST['about_text'] ?? '';
-        $data['texts']['gallery_title'] = $_POST['gallery_title'] ?? 'Galerie & Handarbeit';
-        $data['texts']['gallery_subtitle'] = $_POST['gallery_subtitle'] ?? '';
-        $data['texts']['courses_title'] = $_POST['courses_title'] ?? 'Kurse & Workshops';
-        $data['texts']['courses_subtitle'] = $_POST['courses_subtitle'] ?? '';
-        $data['texts']['past_courses_title'] = $_POST['past_courses_title'] ?? 'Impressionen vergangener Kurse';
-        $data['texts']['past_courses_subtitle'] = $_POST['past_courses_subtitle'] ?? '';
-        $data['texts']['contact_intro_text'] = $_POST['contact_intro_text'] ?? '';
+        $primary_lang = LanguageManager::getPrimaryLanguage($data);
+        $target_lang = trim($_POST['target_lang'] ?? $primary_lang);
+        $supported = LanguageManager::getSupportedLanguages();
+        if (!isset($supported[$target_lang])) {
+            $target_lang = $primary_lang;
+        }
+
+        $fields = [
+            'hero_title' => $_POST['hero_title'] ?? '',
+            'hero_subtitle' => $_POST['hero_subtitle'] ?? '',
+            'about_title' => $_POST['about_title'] ?? '',
+            'about_text' => $_POST['about_text'] ?? '',
+            'gallery_title' => $_POST['gallery_title'] ?? 'Galerie & Handarbeit',
+            'gallery_subtitle' => $_POST['gallery_subtitle'] ?? '',
+            'courses_title' => $_POST['courses_title'] ?? 'Kurse & Workshops',
+            'courses_subtitle' => $_POST['courses_subtitle'] ?? '',
+            'past_courses_title' => $_POST['past_courses_title'] ?? 'Impressionen vergangener Kurse',
+            'past_courses_subtitle' => $_POST['past_courses_subtitle'] ?? '',
+            'contact_intro_text' => $_POST['contact_intro_text'] ?? ''
+        ];
+
+        if ($target_lang === $primary_lang) {
+            foreach ($fields as $k => $v) {
+                $data['texts'][$k] = $v;
+            }
+            $msg = 'Inhaltstexte der Hauptsprache (' . $supported[$primary_lang]['name'] . ') erfolgreich gespeichert!';
+        } else {
+            if (!isset($data['texts_i18n']) || !is_array($data['texts_i18n'])) {
+                $data['texts_i18n'] = [];
+            }
+            if (!isset($data['texts_i18n'][$target_lang]) || !is_array($data['texts_i18n'][$target_lang])) {
+                $data['texts_i18n'][$target_lang] = [];
+            }
+            foreach ($fields as $k => $v) {
+                $data['texts_i18n'][$target_lang][$k] = $v;
+            }
+            $msg = 'Übersetzung für ' . $supported[$target_lang]['name'] . ' erfolgreich gespeichert!';
+        }
 
         if (save_data($dataFile, $data)) {
-            $success_msg = 'Inhaltstexte aller Sektionen erfolgreich gespeichert!';
+            $success_msg = $msg;
         } else {
             $error_msg = 'Fehler beim Speichern der Texte.';
         }

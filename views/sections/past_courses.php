@@ -16,7 +16,7 @@
         </p>
     <?php endif; ?>
     <?php if (empty($data['past_courses'])): ?>
-        <p style="color: var(--text-secondary); font-size:0.95rem; text-align: center;">Noch keine Bilder hochgeladen.</p>
+        <p style="color: var(--text-secondary); font-size:0.95rem; text-align: center;"><?php echo htmlspecialchars(__('past_courses.no_images', 'Noch keine Bilder hochgeladen.')); ?></p>
     <?php else: ?>
         <div class="past-grid">
             <?php foreach ($data['past_courses'] as $img): ?>

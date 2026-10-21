@@ -297,6 +297,28 @@ class Installer {
         $base_data['settings']['bg_color'] = $chosen_colors['bg'];
         $base_data['settings']['welcome_shown'] = false; // Schritt 5: Willkommens-Modal triggern
 
+        // Mehrsprachigkeit (Phase 8): Primärsprache & aktive Sprachen
+        require_once __DIR__ . '/LanguageManager.php';
+        $supported_langs = LanguageManager::getSupportedLanguages();
+        $primary_lang = trim($params['primary_language'] ?? 'de');
+        if (!isset($supported_langs[$primary_lang])) {
+            $primary_lang = 'de';
+        }
+        $base_data['settings']['primary_language'] = $primary_lang;
+        $posted_active = $params['active_languages'] ?? [$primary_lang];
+        $active_langs = [];
+        if (is_array($posted_active)) {
+            foreach ($posted_active as $code) {
+                if (isset($supported_langs[$code]) && !in_array($code, $active_langs, true)) {
+                    $active_langs[] = $code;
+                }
+            }
+        }
+        if (!in_array($primary_lang, $active_langs, true)) {
+            array_unshift($active_langs, $primary_lang);
+        }
+        $base_data['settings']['active_languages'] = $active_langs;
+
         // Texte aktualisieren
         if (!isset($base_data['texts']) || !is_array($base_data['texts'])) {
             $base_data['texts'] = [];
