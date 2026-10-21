@@ -33,7 +33,7 @@ $current_article_url = $site_url . '?blog=' . urlencode($active_post['slug'] ?? 
     <!-- Zurück-Button -->
     <div style="margin-bottom: 2rem;">
         <a href="./#blog" class="btn btn-secondary" style="display:inline-flex; align-items:center; gap:6px; padding:8px 16px; font-size:0.9rem; text-decoration:none;">
-            <span class="material-icons" style="font-size:18px;">arrow_back</span> Zurück zur Übersicht
+            <span class="material-icons" style="font-size:18px;">arrow_back</span> <?php echo LanguageManager::t('btn.back_overview', 'Zurück zur Übersicht', $cur_lang ?? null); ?>
         </a>
     </div>
 
@@ -96,7 +96,7 @@ $current_article_url = $site_url . '?blog=' . urlencode($active_post['slug'] ?? 
         <!-- Social Sharing & Teilen -->
         <div style="margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
             <div style="font-weight:700; color:var(--text-primary); font-size:0.95rem; display:flex; align-items:center; gap:6px;">
-                <span class="material-icons" style="font-size:18px; color:var(--accent);">share</span> Artikel teilen:
+                <span class="material-icons" style="font-size:18px; color:var(--accent);">share</span> <?php echo LanguageManager::t('blog.share_post', 'Artikel teilen:', $cur_lang ?? null); ?>
             </div>
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <a href="https://api.whatsapp.com/send?text=<?php echo urlencode($p_title . ' ' . $current_article_url); ?>" target="_blank" class="btn btn-secondary" style="padding:6px 12px; font-size:0.85rem; text-decoration:none;" title="Per WhatsApp teilen">
@@ -106,7 +106,7 @@ $current_article_url = $site_url . '?blog=' . urlencode($active_post['slug'] ?? 
                     📘 Facebook
                 </a>
                 <button type="button" class="btn btn-secondary" style="padding:6px 12px; font-size:0.85rem;" onclick="copyBlogLink(<?php echo json_encode($current_article_url); ?>)">
-                    <span class="material-icons" style="font-size:16px;">link</span> Link kopieren
+                    <span class="material-icons" style="font-size:16px;">link</span> <?php echo LanguageManager::t('toast.link_copied', 'Link kopieren', $cur_lang ?? null); ?>
                 </button>
             </div>
         </div>

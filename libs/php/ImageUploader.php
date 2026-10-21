@@ -82,4 +82,54 @@ class ImageUploader {
 
         return null;
     }
+
+    /**
+     * Erlaubte Dateiendungen für Dokumenten-Downloads.
+     */
+    public const ALLOWED_DOC_EXTENSIONS = ['pdf', 'zip', 'docx', 'doc', 'odt', 'txt', 'csv', 'xlsx', 'xls'];
+
+    /**
+     * Führt einen sicheren Dokumentenupload für PDFs und Dateien durch.
+     * @param string $fileInputName
+     * @param string|null $uploadRelDir
+     * @return array|null ['path' => string, 'size' => string, 'orig_name' => string]
+     */
+    public static function uploadDocument(string $fileInputName, ?string $uploadRelDir = 'downloads'): ?array {
+        if (!isset($_FILES[$fileInputName]) || $_FILES[$fileInputName]['error'] !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $root = dirname(__DIR__, 2);
+        $cleanRel = trim($uploadRelDir ?? 'downloads', '/\\');
+        $uploadDir = $root . '/' . $cleanRel . '/';
+        $webPrefix = $cleanRel;
+        if (!is_dir($uploadDir)) {
+            @mkdir($uploadDir, 0755, true);
+        }
+
+        $file = $_FILES[$fileInputName];
+        $origName = $file['name'];
+        $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+
+        if (!in_array($ext, self::ALLOWED_DOC_EXTENSIONS, true)) {
+            return null;
+        }
+
+        $cleanBase = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($origName, PATHINFO_FILENAME));
+        $newFilename = $cleanBase . '_' . substr(md5(uniqid()), 0, 6) . '.' . $ext;
+        $dest = rtrim($uploadDir, '/\\') . '/' . $newFilename;
+
+        if (move_uploaded_file($file['tmp_name'], $dest)) {
+            $bytes = filesize($dest);
+            $sizeStr = ($bytes >= 1048576) ? round($bytes / 1048576, 1) . ' MB' : round($bytes / 1024, 0) . ' KB';
+            return [
+                'path' => $webPrefix . '/' . $newFilename,
+                'size' => $sizeStr,
+                'orig_name' => $origName
+            ];
+        }
+
+        return null;
+    }
 }
+

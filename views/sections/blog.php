@@ -32,7 +32,7 @@ $blog_subtitle = !empty($data['texts']['blog_subtitle']) ? $data['texts']['blog_
 
     <?php if (empty($published_posts)): ?>
         <p style="text-align: center; color: var(--text-secondary); padding: 2rem 0;">
-            Aktuell sind noch keine Blog-Beiträge veröffentlicht. Schau bald wieder vorbei!
+            <?php echo LanguageManager::t('blog.no_posts', 'Aktuell sind noch keine Blog-Beiträge veröffentlicht. Schau bald wieder vorbei!', $cur_lang ?? null); ?>
         </p>
     <?php else: ?>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem;">
@@ -99,7 +99,7 @@ $blog_subtitle = !empty($data['texts']['blog_subtitle']) ? $data['texts']['blog_
 
                         <div style="margin-top:auto; padding-top:1rem; border-top:1px solid var(--border-color);">
                             <a href="<?php echo $p_url; ?>" class="btn btn-primary" style="width:100%; justify-content:center; padding:10px 16px; font-size:0.92rem;">
-                                Weiterlesen <span class="material-icons" style="font-size:16px;">arrow_forward</span>
+                                <?php echo LanguageManager::t('btn.read_more', 'Weiterlesen', $cur_lang ?? null); ?> <span class="material-icons" style="font-size:16px;">arrow_forward</span>
                             </a>
                         </div>
                     </div>

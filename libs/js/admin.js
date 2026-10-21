@@ -5,7 +5,7 @@
  * ============================================================================
  */
 
-const CONTENT_TABS = ['tab-texts', 'tab-blog', 'tab-gallery', 'tab-courses', 'tab-past', 'tab-impressum'];
+const CONTENT_TABS = ['tab-texts', 'tab-pages', 'tab-blog', 'tab-faqs', 'tab-team', 'tab-pricing', 'tab-downloads', 'tab-gallery', 'tab-courses', 'tab-past', 'tab-impressum'];
 let lastContentTab = 'tab-texts';
 
 /**

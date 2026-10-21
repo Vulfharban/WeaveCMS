@@ -4,7 +4,6 @@
     "nav.privacy": "Privatlivspolitik",
     "nav.admin": "Administration",
     "nav.menu": "Navigation",
-
     "btn.inquire_now": "Forespørg nu",
     "btn.booked_out": "Fuldt booket",
     "btn.share": "Del denne workshop",
@@ -12,17 +11,13 @@
     "btn.open_in_mail": "Åbn i e-mail-program",
     "btn.filter_all": "Alle",
     "btn.close": "Luk",
-
     "gallery.no_items": "Der er endnu ingen værker i galleriet.",
     "gallery.zoom_hint": "Klik for fuld skærm",
-
     "courses.no_dates": "Der er p.t. ingen fastlagte datoer. Skriv gerne hvis du er interesseret!",
     "courses.spots_free": "Ledige pladser",
     "courses.booked": "Fuldt booket",
     "courses.booked_spots": "optaget ({spots} ledige)",
-
     "past_courses.no_images": "Ingen billeder uploadet endnu.",
-
     "contact.title": "Kontakt & Workshopforespørgsel",
     "contact.owner": "Indehaver",
     "contact.phone": "Telefon",
@@ -35,7 +30,6 @@
     "contact.message": "Besked",
     "contact.spam_label": "Sikkerhedskontrol: Klik på {prompt}",
     "contact.mail_client_hint": "Åbner dit e-mail-program med den færdige besked.",
-
     "legal.impressum_tab": "Kolofon",
     "legal.privacy_tab": "Databeskyttelse (GDPR)",
     "legal.tmg_notice": "Lovpligtige oplysninger",
@@ -43,8 +37,18 @@
     "legal.supervisory": "Tilsynsmyndighed",
     "legal.vat_id": "CVR-nummer",
     "legal.disclaimer": "Ansvarsfraskrivelse",
-
     "toast.link_copied": "Link kopieret!",
     "toast.course_link_copied": "Workshoplink kopieret til udklipsholder!",
-    "toast.share_prompt": "Workshoplink til deling:"
+    "toast.share_prompt": "Workshoplink til deling:",
+    "btn.read_more": "Læs mere",
+    "btn.download": "Download",
+    "btn.back_home": "Tilbage til forsiden",
+    "btn.back_overview": "Tilbage til oversigten",
+    "btn.contact_person": "Kontakt",
+    "blog.no_posts": "Der er endnu ikke udgivet nogen blogindlæg.",
+    "blog.share_post": "Del dette indlæg",
+    "faq.no_items": "Der er p.t. ingen ofte stillede spørgsmål tilgængelige.",
+    "team.no_items": "Der er endnu ikke tilføjet nogen teammedlemmer.",
+    "downloads.no_items": "Der er p.t. ingen downloads tilgængelige.",
+    "pricing.no_items": "Der er endnu ikke angivet nogen priser eller pakker."
 }

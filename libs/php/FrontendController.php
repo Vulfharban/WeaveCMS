@@ -88,6 +88,8 @@ class FrontendController {
             'hero_title', 'hero_subtitle', 'about_title', 'about_text',
             'gallery_title', 'gallery_subtitle', 'courses_title', 'courses_subtitle',
             'past_courses_title', 'past_courses_subtitle', 'blog_title', 'blog_subtitle',
+            'faq_title', 'faq_subtitle', 'team_title', 'team_subtitle',
+            'downloads_title', 'downloads_subtitle', 'pricing_title', 'pricing_subtitle',
             'contact_intro_text', 'privacy_policy_text'
         ];
         foreach ($content_keys as $ck) {
@@ -262,6 +264,36 @@ class FrontendController {
             return;
         }
 
+        // Prüfung auf Freie Einzelseite: ?page=slug
+        $requested_page_slug = trim($_GET['page'] ?? '');
+        $active_page = null;
+        if (!empty($requested_page_slug) && !empty($data['pages'])) {
+            foreach ($data['pages'] as $pg) {
+                if (($pg['slug'] ?? '') === $requested_page_slug && (($pg['status'] ?? 'published') === 'published' || isset($_SESSION['admin_logged_in']))) {
+                    $active_page = $pg;
+                    break;
+                }
+            }
+        }
+
+        if ($active_page) {
+            $vm['meta_title'] = htmlspecialchars($active_page['title']) . ' | ' . ($data['texts']['contact_name'] ?? 'WeaveCMS');
+            if (!empty($active_page['meta_description'])) {
+                $vm['meta_desc'] = htmlspecialchars($active_page['meta_description']);
+            }
+            $vm['active_page'] = $active_page;
+
+            self::renderPartial('head', $vm);
+            self::renderPartial('header_nav', $vm);
+            self::renderPartial('page_single', $vm);
+            self::renderPartial('footer', $vm);
+            self::renderPartial('slide_contact', $vm);
+            self::renderPartial('slide_impressum', $vm);
+            self::renderPartial('slide_mobile_nav', $vm);
+            self::renderPartial('scripts', $vm);
+            return;
+        }
+
         // 1. Header & Navigation
         self::renderPartial('head', $vm);
         self::renderPartial('header_nav', $vm);
@@ -269,8 +301,8 @@ class FrontendController {
         // 2. Hauptinhalte (Modulare Sektionen in konfigurierter Reihenfolge)
         echo '<main class="container">';
         foreach ($vm['visible_sections'] as $sec) {
-            $secId = $sec['id'] ?? '';
-            self::renderSection($secId, $vm);
+            $secType = !empty($sec['type']) ? $sec['type'] : ($sec['id'] ?? '');
+            self::renderSection($secType, $vm);
         }
         echo '</main>';
 

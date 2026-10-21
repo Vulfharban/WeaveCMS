@@ -64,8 +64,23 @@
             <button class="admin-subnav-link active" onclick="switchTab('tab-texts')">
                 <span class="material-icons" style="font-size:17px;">edit_note</span> Startseite &amp; Sektionen
             </button>
+            <button class="admin-subnav-link" onclick="switchTab('tab-pages')">
+                <span class="material-icons" style="font-size:17px;">article</span> Einzelseiten
+            </button>
             <button class="admin-subnav-link" onclick="switchTab('tab-blog')">
                 <span class="material-icons" style="font-size:17px;">newspaper</span> Blog &amp; Aktuelles
+            </button>
+            <button class="admin-subnav-link" onclick="switchTab('tab-faqs')">
+                <span class="material-icons" style="font-size:17px;">quiz</span> FAQs
+            </button>
+            <button class="admin-subnav-link" onclick="switchTab('tab-team')">
+                <span class="material-icons" style="font-size:17px;">badge</span> Team
+            </button>
+            <button class="admin-subnav-link" onclick="switchTab('tab-pricing')">
+                <span class="material-icons" style="font-size:17px;">sell</span> Preise &amp; Pakete
+            </button>
+            <button class="admin-subnav-link" onclick="switchTab('tab-downloads')">
+                <span class="material-icons" style="font-size:17px;">folder_zip</span> Downloads
             </button>
             <button class="admin-subnav-link" onclick="switchTab('tab-gallery')">
                 <span class="material-icons" style="font-size:17px;">photo_library</span> Galerie &amp; Werkstücke

@@ -53,7 +53,14 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Kurs- & Termin-Manager** | Kurse mit Datum, Uhrzeit, Ort, Preis, Teilnehmerbegrenzung und Status (Plätze frei / Ausgebucht) verwalten. | ✅ Integriert |
 | **Direkte Kurslinks & Teilen** | 1-Klick-Kopieren von Einladungslinks und systemweites Teilen via Web Share API. | ✅ Integriert |
 | **Kursimpressionen / Rückblick** | Upload von Impressionen vergangener Termine und Workshops. | ✅ Integriert |
-| **Modulare Sektionen & Seiten-Manager** | Sektionen beliebig anordnen, ein- oder ausblenden (Hero, Galerie, Kurse, Impressionen, Über mich) mit automatischer Menü-Synchronisation. | ✅ Integriert (v0.6.0) |
+| **Vollwertiges Blog- & Magazin-Modul** | Zeitbasierte Artikel, Status (Entwurf/Veröffentlicht), Teaser, Markdown, Beitragsbild und Einzelartikel-Ansicht (`?blog=slug`). | ✅ Integriert (v0.8.0) |
+| **Freie Einzelseiten (Custom Subpages)** | Beliebig viele Unterseiten (`?page=slug`) mit Markdown, SEO-Metadaten und optionaler Einbindung ins Menü. | ✅ Integriert (v0.8.0) |
+| **FAQ / Häufige Fragen** | Akkordeon mit automatischer Google `FAQPage` Schema.org JSON-LD Einbettung. | ✅ Integriert (v0.8.0) |
+| **Team & Mitarbeiter** | Profilkarten mit Foto-Upload, Rolle/Spezialisierung, Kurzvita und Mail-Trigger. | ✅ Integriert (v0.8.0) |
+| **Download-Manager** | Bereitstellung von PDFs, Flyern und Dokumenten mit Dateigrößen- und Format-Anzeige. | ✅ Integriert (v0.8.0) |
+| **Leistungen & Preise** | Preistabellen / Servicekarten mit Bestseller-Badges, Feature-Checklisten und Anfrage-Button. | ✅ Integriert (v0.8.0) |
+| **Modulare Sektionen & Seiten-Manager** | Sektionen beliebig anordnen, ein- oder ausblenden mit automatischer Menü-Synchronisation. | ✅ Integriert (v0.6.0) |
+| **Inhalte-Hub im Backend** | Übersichtliche Sub-Navigation (`.admin-subnav`) unter „Inhalte & Seiten“ für alle Content-Bereiche. | ✅ Integriert (v0.8.0) |
 
 ---
 

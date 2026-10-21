@@ -234,6 +234,14 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Artikel-Verwaltung im Admin-Bereich (`tab-blog`) mit Titel, Slug, Datum, Autor, Status (`Veröffentlicht` / `Entwurf`), Beitragsbild, Teaser und Markdown-Inhalt.
   - Eigene Sektion auf der Startseite mit automatischer Sortierung und responsiven Artikelkarten.
   - Vollständige Einzelartikel-Leseansicht (`?blog=slug`) mit Social-Sharing (WhatsApp, Facebook, Link kopieren) und optimierten OpenGraph-Metadaten.
+- [x] **Typo3/Drupal/Joomla Content-Typen Erweiterung:**
+  - **Freie Einzelseiten (Custom Subpages):** Standalone-Unterseiten (`?page=slug`) mit Markdown, SEO-Description und optionaler direkter Einbindung ins Hauptmenü.
+  - **FAQ / Häufige Fragen:** Modernes Akkordeon mit automatischer Generierung strukturierter Daten (`application/ld+json` Schema.org `FAQPage`) für Google Rich Snippets.
+  - **Team & Meister:** Profilkarten mit Porträtbild, Spezialisierung/Rolle, Kurzvita und direktem Kontakt-Trigger.
+  - **Download-Manager:** Upload und Bereitstellung von PDFs, Flyern und Dokumenten mit Dateigrößen- und Format-Anzeige.
+  - **Leistungen & Preise:** Flexible Preistabellen / Servicekarten mit Bestseller-Badges, Feature-Checklisten und direktem Anfrage-Link.
+- [x] **Sprachdateien-Audit aller 12 Sprachen (`libs/lang/*.json`):**
+  - Vollständige Ergänzung aller neuen Systemschlüssel (`btn.read_more`, `btn.download`, `btn.back_home`, `btn.back_overview`, `btn.contact_person`, `blog.no_posts`, `blog.share_post`, `faq.no_items`, `team.no_items`, `downloads.no_items`, `pricing.no_items`) in allen 12 unterstützten Sprachen (DE, EN, FR, IT, ES, PT, NL, DA, NO, SV, FI, EL).
 
 ---
 

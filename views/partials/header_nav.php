@@ -28,8 +28,16 @@
         <div class="header-container">
             <a href="#" class="logo"><?php if ($logo_pos === 'header_before'): echo $header_logo_html; endif; ?><span><?php echo htmlspecialchars($data['texts']['contact_name'] ?? 'Atelier Musterfrau'); ?></span><?php if ($logo_pos === 'header_after'): echo $header_logo_html; endif; ?></a>
             <nav class="nav-links">
+                <?php 
+                    $is_subpage_view = isset($_GET['page']) || isset($_GET['blog']);
+                ?>
                 <?php foreach ($nav_items as $item): ?>
-                    <a href="#<?php echo htmlspecialchars($item['id']); ?>" class="nav-item"><?php echo htmlspecialchars($item['nav_label']); ?></a>
+                    <?php 
+                        $href = !empty($item['url']) 
+                            ? htmlspecialchars($item['url']) 
+                            : ($is_subpage_view ? './#' . htmlspecialchars($item['id']) : '#' . htmlspecialchars($item['id']));
+                    ?>
+                    <a href="<?php echo $href; ?>" class="nav-item"><?php echo htmlspecialchars($item['nav_label']); ?></a>
                 <?php endforeach; ?>
                 <?php 
                     $contact_place = $data['settings']['contact_placement'] ?? 'both';

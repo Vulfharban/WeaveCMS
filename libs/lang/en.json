@@ -4,7 +4,6 @@
     "nav.privacy": "Privacy Policy",
     "nav.admin": "Admin Area",
     "nav.menu": "Navigation",
-
     "btn.inquire_now": "Inquire now",
     "btn.booked_out": "Fully booked",
     "btn.share": "Share this workshop",
@@ -12,17 +11,13 @@
     "btn.open_in_mail": "Open in mail client",
     "btn.filter_all": "All",
     "btn.close": "Close",
-
     "gallery.no_items": "No items in the gallery yet.",
     "gallery.zoom_hint": "Click for fullscreen view",
-
     "courses.no_dates": "Currently there are no workshop dates scheduled. Feel free to contact me with your inquiry!",
     "courses.spots_free": "Spots available",
     "courses.booked": "Fully booked",
     "courses.booked_spots": "occupied ({spots} remaining)",
-
     "past_courses.no_images": "No photos uploaded yet.",
-
     "contact.title": "Contact & Workshop Inquiry",
     "contact.owner": "Proprietor",
     "contact.phone": "Phone",
@@ -35,7 +30,6 @@
     "contact.message": "Message",
     "contact.spam_label": "Security check: Click on {prompt}",
     "contact.mail_client_hint": "Opens your email application with the pre-filled message.",
-
     "legal.impressum_tab": "Legal Notice",
     "legal.privacy_tab": "Privacy Policy (GDPR)",
     "legal.tmg_notice": "Information pursuant to legal obligations",
@@ -43,8 +37,18 @@
     "legal.supervisory": "Supervisory Authority",
     "legal.vat_id": "VAT ID / Tax Note",
     "legal.disclaimer": "Disclaimer",
-
     "toast.link_copied": "Link copied!",
     "toast.course_link_copied": "Workshop invitation link copied to clipboard!",
-    "toast.share_prompt": "Workshop link to share:"
+    "toast.share_prompt": "Workshop link to share:",
+    "btn.read_more": "Read more",
+    "btn.download": "Download",
+    "btn.back_home": "Back to homepage",
+    "btn.back_overview": "Back to overview",
+    "btn.contact_person": "Contact",
+    "blog.no_posts": "No blog posts published yet.",
+    "blog.share_post": "Share this article",
+    "faq.no_items": "No FAQs available yet.",
+    "team.no_items": "No team members listed yet.",
+    "downloads.no_items": "No downloads available at the moment.",
+    "pricing.no_items": "No pricing plans listed yet."
 }
