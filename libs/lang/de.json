@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Kontakt",
+    "nav.impressum": "Impressum",
+    "nav.privacy": "Datenschutz",
+    "nav.admin": "Admin-Bereich",
+    "nav.menu": "Navigation",
+
+    "btn.inquire_now": "Jetzt anfragen",
+    "btn.booked_out": "Ausgebucht",
+    "btn.share": "Diesen Kurs teilen",
+    "btn.send_message": "Anfrage senden",
+    "btn.open_in_mail": "Im Mailprogramm öffnen",
+    "btn.filter_all": "Alle",
+    "btn.close": "Schließen",
+
+    "gallery.no_items": "Noch keine Werkstücke in der Galerie.",
+    "gallery.zoom_hint": "Klicken für Vollbildansicht",
+
+    "courses.no_dates": "Aktuell sind keine Kurstermine festgelegt. Schreib mir gern eine Anfrage bei Interesse!",
+    "courses.spots_free": "Plätze frei",
+    "courses.booked": "Ausgebucht",
+    "courses.booked_spots": "belegt (noch {spots} frei)",
+
+    "past_courses.no_images": "Noch keine Bilder hochgeladen.",
+
+    "contact.title": "Kontakt & Kursanfrage",
+    "contact.owner": "Inhaberin",
+    "contact.phone": "Telefon",
+    "contact.email": "E-Mail",
+    "contact.write_message": "Nachricht schreiben",
+    "contact.name": "Dein Name",
+    "contact.email_field": "Deine E-Mail-Adresse",
+    "contact.phone_field": "Telefonnummer",
+    "contact.phone_hint": "(optional für Rückfragen)",
+    "contact.message": "Nachricht",
+    "contact.spam_label": "Sicherheitsprüfung: Klicke auf {prompt}",
+    "contact.mail_client_hint": "Öffnet dein E-Mail-Programm mit der fertigen Nachricht.",
+
+    "legal.impressum_tab": "Impressum (§ 5 TMG)",
+    "legal.privacy_tab": "Datenschutz (DSGVO)",
+    "legal.tmg_notice": "Angaben gemäß § 5 TMG",
+    "legal.contact_headline": "Kontakt",
+    "legal.supervisory": "Zuständige Aufsichtsbehörde / Kammer",
+    "legal.vat_id": "Umsatzsteuer / Steuerhinweis",
+    "legal.disclaimer": "Haftungsausschluss",
+
+    "toast.link_copied": "Link kopiert!",
+    "toast.course_link_copied": "Kurs-Einladungslink in Zwischenablage kopiert!",
+    "toast.share_prompt": "Kurslink zum Teilen:"
+}

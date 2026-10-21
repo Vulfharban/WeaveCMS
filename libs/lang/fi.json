@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Yhteystiedot",
+    "nav.impressum": "Julkaisutiedot",
+    "nav.privacy": "Tietosuoja",
+    "nav.admin": "Hallinta",
+    "nav.menu": "Valikko",
+
+    "btn.inquire_now": "Tiedustele nyt",
+    "btn.booked_out": "Täynnä",
+    "btn.share": "Jaa tämä kurssi",
+    "btn.send_message": "Lähetä viesti",
+    "btn.open_in_mail": "Avaa sähköpostiohjelmassa",
+    "btn.filter_all": "Kaikki",
+    "btn.close": "Sulje",
+
+    "gallery.no_items": "Galleriassa ei ole vielä töitä.",
+    "gallery.zoom_hint": "Klikkaa suurentaaksesi",
+
+    "courses.no_dates": "Tällä hetkellä ei ole vahvistettuja kursseja. Ota rohkeasti yhteyttä!",
+    "courses.spots_free": "Paikkoja vapaana",
+    "courses.booked": "Täynnä",
+    "courses.booked_spots": "varattu ({spots} jäljellä)",
+
+    "past_courses.no_images": "Ei vielä ladattuja kuvia.",
+
+    "contact.title": "Yhteystiedot & Kurssitiedustelu",
+    "contact.owner": "Omistaja",
+    "contact.phone": "Puhelin",
+    "contact.email": "Sähköposti",
+    "contact.write_message": "Kirjoita viesti",
+    "contact.name": "Nimesi",
+    "contact.email_field": "Sähköpostiosoitteesi",
+    "contact.phone_field": "Puhelinnumero",
+    "contact.phone_hint": "(valinnainen)",
+    "contact.message": "Viesti",
+    "contact.spam_label": "Turvatarkastus: Klikkaa {prompt}",
+    "contact.mail_client_hint": "Avaa sähköpostiohjelmasi valmiilla viestillä.",
+
+    "legal.impressum_tab": "Julkaisutiedot",
+    "legal.privacy_tab": "Tietosuoja (GDPR)",
+    "legal.tmg_notice": "Lakisääteiset tiedot",
+    "legal.contact_headline": "Yhteystiedot",
+    "legal.supervisory": "Valvontaviranomainen",
+    "legal.vat_id": "Y-tunnus / ALV",
+    "legal.disclaimer": "Vastuuvapauslauseke",
+
+    "toast.link_copied": "Linkki kopioitu!",
+    "toast.course_link_copied": "Kurssilinkki kopioitu leikepöydälle!",
+    "toast.share_prompt": "Jaettava kurssilinkki:"
+}

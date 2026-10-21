@@ -555,6 +555,65 @@
                     </div>
                 </div>
 
+                <!-- ==========================================================
+                     MEHRSPRACHIGKEIT (i18n) & SPRACHENAUSWAHL (PHASE 8)
+                     ========================================================== -->
+                <h3 style="font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons" style="color:var(--primary);">language</span> Mehrsprachigkeit &amp; Sprachenauswahl (West-/Südeuropa &amp; Skandinavien)
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height:1.5;">
+                    Aktiviere hier zusätzliche Sprachen für deine Website. Sobald mehr als eine Sprache aktiv ist, erscheint im Frontend automatisch ein dezenter Sprachumschalter im Header und im Mobilmenü.
+                </p>
+
+                <?php 
+                    $all_supported_languages = LanguageManager::getSupportedLanguages();
+                    $cur_primary_lang = LanguageManager::getPrimaryLanguage($data);
+                    $cur_active_langs = LanguageManager::getActiveLanguages($data);
+                ?>
+
+                <!-- 1. Hauptsprache -->
+                <div class="form-group" style="margin-bottom: 1.5rem; max-width: 480px;">
+                    <label style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; display:block;">
+                        Primäre Hauptsprache (Standard)
+                    </label>
+                    <select name="primary_language" class="form-control" style="padding: 10px 12px; font-size: 0.95rem;">
+                        <?php foreach ($all_supported_languages as $code => $info): ?>
+                            <option value="<?php echo htmlspecialchars($code); ?>" <?php echo ($code === $cur_primary_lang) ? 'selected' : ''; ?>>
+                                <?php echo $info['flag'] . ' ' . htmlspecialchars($info['name']) . ' (' . htmlspecialchars($info['native']) . ') [' . strtoupper($code) . ']'; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small style="color: var(--text-secondary); display:block; margin-top: 5px; font-size: 0.82rem;">
+                        Die Hauptsprache dient als Basis-Inhalt und automatischer Fallback für unvollständige Übersetzungen.
+                    </small>
+                </div>
+
+                <!-- 2. Aktivierte Sprachen (Katalog) -->
+                <div style="margin-bottom: 2rem;">
+                    <label style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem; display:block;">
+                        Aktivierte Sprachen für Besucher
+                    </label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px;">
+                        <?php foreach ($all_supported_languages as $code => $info): ?>
+                            <?php 
+                                $is_active = in_array($code, $cur_active_langs, true);
+                                $is_primary = ($code === $cur_primary_lang);
+                            ?>
+                            <label style="display:flex; align-items:center; gap: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.02); cursor: pointer;">
+                                <input type="checkbox" name="active_languages[]" value="<?php echo htmlspecialchars($code); ?>" <?php echo ($is_active || $is_primary) ? 'checked' : ''; ?> <?php if ($is_primary) echo 'disabled title="Die Hauptsprache ist stets aktiv"'; ?>>
+                                <span style="font-size: 1.3rem;"><?php echo $info['flag']; ?></span>
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">
+                                        <?php echo htmlspecialchars($info['native']); ?>
+                                        <small style="color:var(--text-secondary); font-weight:normal;">(<?php echo strtoupper($code); ?>)</small>
+                                    </div>
+                                    <small style="font-size: 0.75rem; color: var(--text-secondary);"><?php echo htmlspecialchars($info['region']); ?></small>
+                                </div>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary">
                     <span class="material-icons" style="font-size:18px; vertical-align:middle;">save</span> Darstellung &amp; Design speichern
                 </button>

@@ -77,7 +77,26 @@ class FrontendController {
         $gallery_gap = $settings['gallery_gap'] ?? '2rem';
         $card_radius = $settings['card_radius'] ?? '20px';
 
-        // 8. SEO- & OpenGraph-Metadaten vorbereiten
+        // 8. Spracherkennung & mehrsprachige Text-Aufbereitung
+        $cur_lang = LanguageManager::detectLanguage($data);
+        $og_locale = LanguageManager::getLocale($cur_lang);
+        $active_languages = LanguageManager::getActiveLanguages($data);
+        $lang_switch_items = LanguageManager::getLanguageSwitchItems($data);
+
+        // Dynamische Übersetzung der Inhaltstexte mit automatischer Fallback-Kaskade
+        $content_keys = [
+            'hero_title', 'hero_subtitle', 'about_title', 'about_text',
+            'gallery_title', 'gallery_subtitle', 'courses_title', 'courses_subtitle',
+            'past_courses_title', 'past_courses_subtitle', 'contact_intro_text', 'privacy_policy_text'
+        ];
+        foreach ($content_keys as $ck) {
+            $translated_val = LanguageManager::getContentText($data, $ck, $cur_lang);
+            if ($translated_val !== '') {
+                $data['texts'][$ck] = $translated_val;
+            }
+        }
+
+        // 9. SEO- & OpenGraph-Metadaten vorbereiten
         $seo = $data['seo'] ?? [];
         $texts = $data['texts'] ?? [];
         $hero_title = $texts['hero_title'] ?? 'Handgefertigte Unikate & Workshops';
@@ -111,7 +130,7 @@ class FrontendController {
             ? $og_image_raw
             : rtrim($site_url, '/') . '/' . ltrim($og_image_raw, '/');
 
-        // 9. Captcha & SMTP Status
+        // 10. Captcha & SMTP Status
         $server_active_icons = CaptchaManager::getActiveIcons($data);
         $initial_keys = array_keys($server_active_icons);
         $initial_target_key = !empty($initial_keys) ? $initial_keys[array_rand($initial_keys)] : null;
@@ -119,13 +138,17 @@ class FrontendController {
 
         $smtp_active = !empty($settings['smtp']['enabled']) && !empty($settings['smtp']['host']);
 
-        // 10. Datenschutz-Text
+        // 11. Datenschutz-Text
         $cur_privacy_text = !empty($settings['privacy_policy_text'])
             ? $settings['privacy_policy_text']
             : (!empty($texts['privacy_policy_text']) ? $texts['privacy_policy_text'] : MarkdownParser::getDefaultPrivacyPolicyText($data));
 
         return compact(
             'data',
+            'cur_lang',
+            'og_locale',
+            'active_languages',
+            'lang_switch_items',
             'categories',
             'visible_gallery',
             'site_url',

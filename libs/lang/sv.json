@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Kontakt",
+    "nav.impressum": "Impressum",
+    "nav.privacy": "Integritetspolicy",
+    "nav.admin": "Administration",
+    "nav.menu": "Navigering",
+
+    "btn.inquire_now": "Förfrågan nu",
+    "btn.booked_out": "Fullbokat",
+    "btn.share": "Dela denna kurs",
+    "btn.send_message": "Skicka förfrågan",
+    "btn.open_in_mail": "Öppna i e-postprogram",
+    "btn.filter_all": "Alla",
+    "btn.close": "Stäng",
+
+    "gallery.no_items": "Inga verk i galleriet ännu.",
+    "gallery.zoom_hint": "Klicka för helskärm",
+
+    "courses.no_dates": "För närvarande finns inga schemalagda datum. Hör gärna av dig vid intresse!",
+    "courses.spots_free": "Lediga platser",
+    "courses.booked": "Fullbokat",
+    "courses.booked_spots": "upptagna ({spots} kvar)",
+
+    "past_courses.no_images": "Inga bilder uppladdade ännu.",
+
+    "contact.title": "Kontakt & Kursförfrågan",
+    "contact.owner": "Ägare",
+    "contact.phone": "Telefon",
+    "contact.email": "E-post",
+    "contact.write_message": "Skriv ett meddelande",
+    "contact.name": "Ditt namn",
+    "contact.email_field": "Din e-postadress",
+    "contact.phone_field": "Telefonnummer",
+    "contact.phone_hint": "(valfritt)",
+    "contact.message": "Meddelande",
+    "contact.spam_label": "Säkerhetskontroll: Klicka på {prompt}",
+    "contact.mail_client_hint": "Öppnar ditt e-postprogram med det färdiga meddelandet.",
+
+    "legal.impressum_tab": "Impressum",
+    "legal.privacy_tab": "Integritetspolicy (GDPR)",
+    "legal.tmg_notice": "Lagstadgad information",
+    "legal.contact_headline": "Kontakt",
+    "legal.supervisory": "Tillsynsmyndighet",
+    "legal.vat_id": "Organisationsnummer / Moms",
+    "legal.disclaimer": "Ansvarsfriskrivning",
+
+    "toast.link_copied": "Länk kopierad!",
+    "toast.course_link_copied": "Kurslänk kopierad till urklipp!",
+    "toast.share_prompt": "Kurslänk att dela:"
+}

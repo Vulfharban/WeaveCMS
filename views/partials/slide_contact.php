@@ -14,7 +14,7 @@
     <label for="menu-toggle" class="menu-overlay contact-overlay"></label>
     <div class="slide-menu contact-menu">
         <label for="menu-toggle" class="close-menu-btn">&times;</label>
-        <h2 style="color: var(--primary); margin-bottom: 2rem;">Kontakt &amp; Kursanfrage</h2>
+        <h2 style="color: var(--primary); margin-bottom: 2rem;"><?php echo htmlspecialchars(__('contact.title', 'Kontakt & Kursanfrage')); ?></h2>
         <div style="display: flex; flex-direction: column; gap: 1.5rem; color: var(--text-secondary);">
             
             <p><?php echo htmlspecialchars($data['texts']['contact_intro_text'] ?? 'Hast du Fragen zu meinen Kursen, möchtest einen Gutschein erwerben oder ein individuelles Weidengeflecht anfragen?'); ?></p>
@@ -22,7 +22,7 @@
             <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-color);">
                 <h4 style="color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
                     <span class="material-icons" style="color: var(--primary);">person</span>
-                    Inhaberin
+                    <?php echo htmlspecialchars(__('contact.owner', 'Inhaberin')); ?>
                 </h4>
                 <p><?php echo htmlspecialchars($data['texts']['contact_name'] ?? ''); ?></p>
                 <p><?php echo htmlspecialchars($data['texts']['contact_street'] ?? ''); ?></p>
@@ -32,7 +32,7 @@
             <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-color);">
                 <h4 style="color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
                     <span class="material-icons" style="color: var(--primary);">phone</span>
-                    Telefon
+                    <?php echo htmlspecialchars(__('contact.phone', 'Telefon')); ?>
                 </h4>
                 <p><a href="tel:<?php echo str_replace(' ', '', $data['texts']['contact_phone'] ?? ''); ?>" style="color: var(--text-primary);"><?php echo htmlspecialchars($data['texts']['contact_phone'] ?? ''); ?></a></p>
             </div>
@@ -40,7 +40,7 @@
             <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-color);">
                 <h4 style="color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
                     <span class="material-icons" style="color: var(--primary);">email</span>
-                    E-Mail
+                    <?php echo htmlspecialchars(__('contact.email', 'E-Mail')); ?>
                 </h4>
                 <p><a href="mailto:<?php echo htmlspecialchars($data['texts']['contact_email'] ?? ''); ?>" style="color: var(--primary);"><?php echo htmlspecialchars($data['texts']['contact_email'] ?? ''); ?></a></p>
             </div>
@@ -61,7 +61,7 @@
 
             <!-- Interactive Request form inside sidebar -->
             <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
-                <h4 style="color: var(--text-primary); margin-bottom: 1rem;">Nachricht schreiben</h4>
+                <h4 style="color: var(--text-primary); margin-bottom: 1rem;"><?php echo htmlspecialchars(__('contact.write_message', 'Nachricht schreiben')); ?></h4>
                 <form onsubmit="sendRequestEmail(event, '<?php echo htmlspecialchars($data['texts']['contact_email'] ?? 'kontakt@maxima-musterfrau.de', ENT_QUOTES, 'UTF-8'); ?>')">
                     
                     <!-- Honeypot-Falle für Spam-Roboter (für menschliche Besucher unsichtbar) -->
@@ -71,22 +71,22 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="req-name">Dein Name <span style="color:#ef4444;">*</span></label>
+                        <label for="req-name"><?php echo htmlspecialchars(__('contact.name', 'Dein Name')); ?> <span style="color:#ef4444;">*</span></label>
                         <input type="text" id="req-name" class="form-control" style="padding:8px 12px;" placeholder="z. B. Maria Müller" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="req-email">Deine E-Mail-Adresse <span style="color:#ef4444;">*</span></label>
+                        <label for="req-email"><?php echo htmlspecialchars(__('contact.email_field', 'Deine E-Mail-Adresse')); ?> <span style="color:#ef4444;">*</span></label>
                         <input type="email" id="req-email" class="form-control" style="padding:8px 12px;" placeholder="z. B. maria@beispiel.de" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="req-phone">Telefonnummer <small style="color:var(--text-secondary);">(optional für Rückfragen)</small></label>
+                        <label for="req-phone"><?php echo htmlspecialchars(__('contact.phone_field', 'Telefonnummer')); ?> <small style="color:var(--text-secondary);"><?php echo htmlspecialchars(__('contact.phone_hint', '(optional für Rückfragen)')); ?></small></label>
                         <input type="tel" id="req-phone" class="form-control" style="padding:8px 12px;" placeholder="z. B. 0173 1234567">
                     </div>
 
                     <div class="form-group">
-                        <label for="req-msg">Nachricht <span style="color:#ef4444;">*</span></label>
+                        <label for="req-msg"><?php echo htmlspecialchars(__('contact.message', 'Nachricht')); ?> <span style="color:#ef4444;">*</span></label>
                         <textarea id="req-msg" class="form-control" rows="5" style="padding:8px 12px;" placeholder="Deine Frage zu Kursen, Sonderanfertigungen oder Körben..." required></textarea>
                     </div>
 
@@ -112,11 +112,11 @@
 
                     <button type="submit" id="contact-submit-btn" class="btn btn-primary" style="width: 100%; padding: 11px; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
                         <span class="material-icons" id="contact-submit-icon" style="font-size:18px;"><?php echo $smtp_active ? 'send' : 'mail'; ?></span>
-                        <span id="contact-submit-text"><?php echo $smtp_active ? 'Anfrage senden' : 'Im Mailprogramm öffnen'; ?></span>
+                        <span id="contact-submit-text"><?php echo $smtp_active ? htmlspecialchars(__('btn.send_message', 'Anfrage senden')) : htmlspecialchars(__('btn.open_in_mail', 'Im Mailprogramm öffnen')); ?></span>
                     </button>
                     <?php if (!$smtp_active): ?>
                         <small style="color:var(--text-secondary); display:block; text-align:center; margin-top:6px; font-size:0.78rem;">
-                            Öffnet dein E-Mail-Programm mit der fertigen Nachricht.
+                            <?php echo htmlspecialchars(__('contact.mail_client_hint', 'Öffnet dein E-Mail-Programm mit der fertigen Nachricht.')); ?>
                         </small>
                     <?php endif; ?>
                 </form>

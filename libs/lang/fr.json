@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Contact",
+    "nav.impressum": "Mentions légales",
+    "nav.privacy": "Confidentialité",
+    "nav.admin": "Administration",
+    "nav.menu": "Navigation",
+
+    "btn.inquire_now": "Demander maintenant",
+    "btn.booked_out": "Complet",
+    "btn.share": "Partager cet atelier",
+    "btn.send_message": "Envoyer la demande",
+    "btn.open_in_mail": "Ouvrir dans la messagerie",
+    "btn.filter_all": "Tous",
+    "btn.close": "Fermer",
+
+    "gallery.no_items": "Aucune pièce dans la galerie pour le moment.",
+    "gallery.zoom_hint": "Cliquer pour agrandir",
+
+    "courses.no_dates": "Aucune date d'atelier n'est prévue pour le moment. N'hésitez pas à me contacter !",
+    "courses.spots_free": "Places disponibles",
+    "courses.booked": "Complet",
+    "courses.booked_spots": "occupées (encore {spots} disponibles)",
+
+    "past_courses.no_images": "Aucune photo téléchargée pour le moment.",
+
+    "contact.title": "Contact & Demande d'atelier",
+    "contact.owner": "Propriétaire",
+    "contact.phone": "Téléphone",
+    "contact.email": "E-mail",
+    "contact.write_message": "Écrire un message",
+    "contact.name": "Votre nom",
+    "contact.email_field": "Votre adresse e-mail",
+    "contact.phone_field": "Numéro de téléphone",
+    "contact.phone_hint": "(facultatif)",
+    "contact.message": "Message",
+    "contact.spam_label": "Contrôle de sécurité : Cliquez sur {prompt}",
+    "contact.mail_client_hint": "Ouvre votre logiciel de messagerie avec le message préparé.",
+
+    "legal.impressum_tab": "Mentions légales",
+    "legal.privacy_tab": "Protection des données (RGPD)",
+    "legal.tmg_notice": "Informations légales",
+    "legal.contact_headline": "Contact",
+    "legal.supervisory": "Autorité de surveillance",
+    "legal.vat_id": "TVA / Numéro fiscal",
+    "legal.disclaimer": "Clause de non-responsabilité",
+
+    "toast.link_copied": "Lien copié !",
+    "toast.course_link_copied": "Lien d'invitation copié !",
+    "toast.share_prompt": "Lien à partager :"
+}

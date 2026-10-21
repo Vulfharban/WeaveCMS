@@ -9,6 +9,7 @@
  */
 
 require_once __DIR__ . '/libs/php/Installer.php';
+require_once __DIR__ . '/libs/php/LanguageManager.php';
 require_once __DIR__ . '/libs/php/storage/StorageManager.php';
 
 $is_locked = Installer::isInstalled();
@@ -951,6 +952,40 @@ if (!$is_locked && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_ins
                         <input type="text" id="contact_phone" name="contact_phone" class="form-control" value="+49 123 4567890" placeholder="+49 170 1234567">
                     </div>
 
+                    <!-- Phase 8: Mehrsprachigkeit & Primärsprache -->
+                    <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--card-border);">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-icons" style="color: #34d399; font-size: 20px;">translate</span> Mehrsprachigkeit &amp; Website-Sprachen
+                        </h3>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4;">
+                            Lege die Hauptsprache deiner Website fest. Weitere Sprachen können optional aktiviert werden (Übersetzungen lassen sich im Adminbereich pflegen).
+                        </p>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="primary_language">Hauptsprache der Website *</label>
+                                <select id="primary_language" name="primary_language" class="form-control" style="background:#0f172a;" onchange="updateInstallerLangs()">
+                                    <?php foreach (LanguageManager::getSupportedLanguages() as $code => $info): ?>
+                                        <option value="<?php echo htmlspecialchars($code); ?>" <?php echo $code === 'de' ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($info['flag'] . ' ' . $info['native'] . ' (' . $info['name'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label style="display:block; margin-bottom: 6px;">Zusatzsprachen aktivieren (optional)</label>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; max-height: 130px; overflow-y: auto; padding: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 8px;">
+                                    <?php foreach (LanguageManager::getSupportedLanguages() as $code => $info): ?>
+                                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; cursor: pointer; color: #cbd5e1;">
+                                            <input type="checkbox" name="active_languages[]" value="<?php echo htmlspecialchars($code); ?>" class="installer-lang-checkbox" data-lang="<?php echo htmlspecialchars($code); ?>" <?php echo $code === 'de' ? 'checked disabled' : ''; ?>>
+                                            <span><?php echo htmlspecialchars($info['flag'] . ' ' . $info['native']); ?></span>
+                                        </label>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="btn-row">
                         <button type="button" class="btn btn-secondary" onclick="goToStep(2)">
                             <span class="material-icons">arrow_back</span> Zurück
@@ -1300,6 +1335,18 @@ function toggleVis(id) {
     const el = document.getElementById(id);
     if (!el) return;
     el.type = (el.type === 'password') ? 'text' : 'password';
+}
+
+function updateInstallerLangs() {
+    const primary = document.getElementById('primary_language').value;
+    document.querySelectorAll('.installer-lang-checkbox').forEach(cb => {
+        if (cb.dataset.lang === primary) {
+            cb.checked = true;
+            cb.disabled = true;
+        } else {
+            cb.disabled = false;
+        }
+    });
 }
 </script>
 

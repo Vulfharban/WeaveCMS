@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Contact",
+    "nav.impressum": "Colofon",
+    "nav.privacy": "Privacy",
+    "nav.admin": "Beheer",
+    "nav.menu": "Navigatie",
+
+    "btn.inquire_now": "Nu aanvragen",
+    "btn.booked_out": "Volgeboekt",
+    "btn.share": "Deel deze workshop",
+    "btn.send_message": "Aanvraag versturen",
+    "btn.open_in_mail": "In e-mailprogramma openen",
+    "btn.filter_all": "Alle",
+    "btn.close": "Sluiten",
+
+    "gallery.no_items": "Nog geen werkstukken in de galerij.",
+    "gallery.zoom_hint": "Klik voor vergroting",
+
+    "courses.no_dates": "Momenteel zijn er geen data gepland. Neem gerust contact op bij interesse!",
+    "courses.spots_free": "Plaatsen vrij",
+    "courses.booked": "Volgeboekt",
+    "courses.booked_spots": "bezet (nog {spots} vrij)",
+
+    "past_courses.no_images": "Nog geen foto's geüpload.",
+
+    "contact.title": "Contact & Workshop-aanvraag",
+    "contact.owner": "Eigenares",
+    "contact.phone": "Telefoon",
+    "contact.email": "E-mail",
+    "contact.write_message": "Bericht schrijven",
+    "contact.name": "Jouw naam",
+    "contact.email_field": "Jouw e-mailadres",
+    "contact.phone_field": "Telefoonnummer",
+    "contact.phone_hint": "(optioneel)",
+    "contact.message": "Bericht",
+    "contact.spam_label": "Beveiligingscontrole: Klik op {prompt}",
+    "contact.mail_client_hint": "Opent je e-mailprogramma met het kant-en-klare bericht.",
+
+    "legal.impressum_tab": "Colofon",
+    "legal.privacy_tab": "Privacy (AVG/GDPR)",
+    "legal.tmg_notice": "Wettelijke informatie",
+    "legal.contact_headline": "Contact",
+    "legal.supervisory": "Toezichthoudende autoriteit",
+    "legal.vat_id": "Btw-nummer",
+    "legal.disclaimer": "Disclaimer",
+
+    "toast.link_copied": "Link gekopieerd!",
+    "toast.course_link_copied": "Workshoplink gekopieerd naar klembord!",
+    "toast.share_prompt": "Workshoplink om te delen:"
+}

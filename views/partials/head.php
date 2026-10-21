@@ -22,7 +22,7 @@
  */
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?php echo htmlspecialchars($cur_lang ?? 'de'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,9 +34,16 @@
     <meta name="robots" content="<?php echo htmlspecialchars($meta_robots, ENT_QUOTES, 'UTF-8'); ?>">
     <link rel="canonical" href="<?php echo htmlspecialchars($canonical_url, ENT_QUOTES, 'UTF-8'); ?>">
 
+    <?php if (!empty($active_languages) && count($active_languages) > 1): ?>
+        <!-- Mehrsprachige hreflang-Tags für Suchmaschinen -->
+        <?php foreach ($active_languages as $aLang): ?>
+            <link rel="alternate" hreflang="<?php echo htmlspecialchars($aLang); ?>" href="<?php echo htmlspecialchars(rtrim($site_url, '/') . '/?lang=' . $aLang); ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
+
     <!-- 2. OpenGraph-Protokoll (WhatsApp, Facebook, LinkedIn) -->
     <meta property="og:type" content="website">
-    <meta property="og:locale" content="de_DE">
+    <meta property="og:locale" content="<?php echo htmlspecialchars($og_locale ?? 'de_DE'); ?>">
     <meta property="og:site_name" content="<?php echo htmlspecialchars($contact_name, ENT_QUOTES, 'UTF-8'); ?>">
     <meta property="og:title" content="<?php echo htmlspecialchars($meta_title, ENT_QUOTES, 'UTF-8'); ?>">
     <meta property="og:description" content="<?php echo htmlspecialchars($meta_desc, ENT_QUOTES, 'UTF-8'); ?>">

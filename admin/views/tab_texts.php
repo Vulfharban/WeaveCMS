@@ -102,20 +102,55 @@
                 </div>
             </div>
 
+            <?php 
+                $active_langs = LanguageManager::getActiveLanguages($data);
+                $primary_lang = LanguageManager::getPrimaryLanguage($data);
+                $supported = LanguageManager::getSupportedLanguages();
+                $edit_lang = isset($_GET['edit_lang']) && in_array($_GET['edit_lang'], $active_langs, true) ? $_GET['edit_lang'] : $primary_lang;
+                $is_primary_edit = ($edit_lang === $primary_lang);
+                $current_edit_texts = $is_primary_edit ? ($data['texts'] ?? []) : ($data['texts_i18n'][$edit_lang] ?? []);
+                $primary_texts = $data['texts'] ?? [];
+            ?>
+
+            <?php if (count($active_langs) > 1): ?>
+                <!-- Sprachumschalter für Redakteure im Text-Tab -->
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:1.5rem; flex-wrap:wrap; background:rgba(255,255,255,0.02); padding:12px 16px; border-radius:12px; border:1px solid var(--border-color);">
+                    <span style="font-size:0.9rem; font-weight:700; color:var(--text-secondary); margin-right:6px; display:inline-flex; align-items:center; gap:4px;">
+                        <span class="material-icons" style="font-size:18px;">translate</span> Sprache für Texte:
+                    </span>
+                    <?php foreach ($active_langs as $al): ?>
+                        <?php $isActiveTab = ($al === $edit_lang); ?>
+                        <a href="?edit_lang=<?php echo urlencode($al); ?>#tab-texts" class="btn <?php echo $isActiveTab ? 'btn-primary' : 'btn-outline'; ?>" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
+                            <span><?php echo $supported[$al]['flag']; ?></span>
+                            <span><?php echo htmlspecialchars($supported[$al]['native']); ?></span>
+                            <?php if ($al === $primary_lang): ?><small style="opacity:0.85; font-size:0.75rem;">(Standard)</small><?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+
+                <?php if (!$is_primary_edit): ?>
+                    <div style="background:rgba(59, 130, 246, 0.08); border:1px solid #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:1.5rem; font-size:0.88rem; color:#93c5fd; display:flex; align-items:center; gap:8px;">
+                        <span class="material-icons" style="font-size:18px; color:#60a5fa;">info</span>
+                        <span>Du bearbeitest die Übersetzung für <strong><?php echo $supported[$edit_lang]['flag'] . ' ' . htmlspecialchars($supported[$edit_lang]['name']); ?></strong>. Leere Felder greifen automatisch auf den Text der Hauptsprache (<?php echo htmlspecialchars($supported[$primary_lang]['name']); ?>) zurück.</span>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+
             <form method="POST" action="">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="update_texts">
+                <input type="hidden" name="target_lang" value="<?php echo htmlspecialchars($edit_lang); ?>">
                 
                 <h3 style="font-size: 1.2rem; margin-top: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
                     🌿 Startseite &amp; Hero-Bereich
                 </h3>
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label>Hero-Titel (große Hauptüberschrift)</label>
-                    <input type="text" name="hero_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['hero_title'] ?? ''); ?>" required>
+                    <input type="text" name="hero_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['hero_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['hero_title'] ?? ''); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
                 </div>
                 <div class="form-group" style="margin-bottom: 1.5rem;">
                     <label>Hero-Untertitel</label>
-                    <input type="text" name="hero_subtitle" class="form-control" value="<?php echo htmlspecialchars($data['texts']['hero_subtitle'] ?? ''); ?>" required>
+                    <input type="text" name="hero_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['hero_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['hero_subtitle'] ?? ''); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
                 </div>
 
                 <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
@@ -123,11 +158,11 @@
                 </h3>
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label>Über Mich - Überschrift</label>
-                    <input type="text" name="about_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['about_title'] ?? ''); ?>" required>
+                    <input type="text" name="about_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['about_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['about_title'] ?? ''); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
                 </div>
                 <div class="form-group" style="margin-bottom: 1.5rem;">
                     <label>Über Mich - Beschreibungstext</label>
-                    <textarea name="about_text" class="form-control" rows="6" required><?php echo htmlspecialchars($data['texts']['about_text'] ?? ''); ?></textarea>
+                    <textarea name="about_text" class="form-control" rows="6" placeholder="<?php echo htmlspecialchars($primary_texts['about_text'] ?? ''); ?>" <?php if ($is_primary_edit) echo 'required'; ?>><?php echo htmlspecialchars($current_edit_texts['about_text'] ?? ''); ?></textarea>
                 </div>
 
                 <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
@@ -136,11 +171,11 @@
                 <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
                     <div class="form-group">
                         <label>Galerie - Titel</label>
-                        <input type="text" name="gallery_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['gallery_title'] ?? 'Galerie & Handarbeit'); ?>" required>
+                        <input type="text" name="gallery_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['gallery_title'] ?? ($is_primary_edit ? 'Galerie & Handarbeit' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['gallery_title'] ?? 'Galerie & Handarbeit'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
                     </div>
                     <div class="form-group">
                         <label>Galerie - Untertitel / Beschreibung</label>
-                        <input type="text" name="gallery_subtitle" class="form-control" value="<?php echo htmlspecialchars($data['texts']['gallery_subtitle'] ?? 'Ein Auszug aus meinen handgeflochtenen Korbwaren, Rankhilfen, Zäunen und dekorativer Naturflechterei.'); ?>">
+                        <input type="text" name="gallery_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['gallery_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['gallery_subtitle'] ?? ''); ?>">
                     </div>
                 </div>
 
@@ -150,11 +185,11 @@
                 <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
                     <div class="form-group">
                         <label>Kurse - Titel</label>
-                        <input type="text" name="courses_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['courses_title'] ?? 'Kurse & Workshops'); ?>" required>
+                        <input type="text" name="courses_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['courses_title'] ?? ($is_primary_edit ? 'Kurse & Workshops' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['courses_title'] ?? 'Kurse & Workshops'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
                     </div>
                     <div class="form-group">
                         <label>Kurse - Untertitel / Infotext</label>
-                        <input type="text" name="courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($data['texts']['courses_subtitle'] ?? 'Lerne das traditionelle Korbflechten und die Weidenverarbeitung in gemütlicher Werkstatt-Atmosphäre selbst kennen.'); ?>">
+                        <input type="text" name="courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['courses_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['courses_subtitle'] ?? ''); ?>">
                     </div>
                 </div>
 
@@ -164,11 +199,11 @@
                 <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
                     <div class="form-group">
                         <label>Impressionen - Titel</label>
-                        <input type="text" name="past_courses_title" class="form-control" value="<?php echo htmlspecialchars($data['texts']['past_courses_title'] ?? 'Impressionen vergangener Kurse'); ?>" required>
+                        <input type="text" name="past_courses_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['past_courses_title'] ?? ($is_primary_edit ? 'Impressionen vergangener Kurse' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['past_courses_title'] ?? 'Impressionen vergangener Kurse'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
                     </div>
                     <div class="form-group">
                         <label>Impressionen - Untertitel (optional)</label>
-                        <input type="text" name="past_courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($data['texts']['past_courses_subtitle'] ?? 'Ein Rückblick auf gemeinsame Flechtstunden und entstandene Unikate.'); ?>">
+                        <input type="text" name="past_courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['past_courses_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['past_courses_subtitle'] ?? ''); ?>">
                     </div>
                 </div>
 
@@ -177,11 +212,11 @@
                 </h3>
                 <div class="form-group" style="margin-bottom: 2rem;">
                     <label>Kontakt - Einleitungstext über dem Formular</label>
-                    <textarea name="contact_intro_text" class="form-control" rows="3"><?php echo htmlspecialchars($data['texts']['contact_intro_text'] ?? 'Hast du Fragen zu meinen Kursen, möchtest einen Gutschein erwerben oder ein individuelles Weidengeflecht anfragen?'); ?></textarea>
+                    <textarea name="contact_intro_text" class="form-control" rows="3" placeholder="<?php echo htmlspecialchars($primary_texts['contact_intro_text'] ?? ''); ?>"><?php echo htmlspecialchars($current_edit_texts['contact_intro_text'] ?? ''); ?></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary">
-                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">save</span> Sektionstexte speichern
+                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">save</span> <?php echo $is_primary_edit ? 'Sektionstexte speichern' : 'Übersetzung (' . strtoupper($edit_lang) . ') speichern'; ?>
                 </button>
             </form>
         </div>

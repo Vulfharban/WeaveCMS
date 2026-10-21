@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Επικοινωνία",
+    "nav.impressum": "Στοιχεία",
+    "nav.privacy": "Απόρρητο",
+    "nav.admin": "Διαχείριση",
+    "nav.menu": "Πλοήγηση",
+
+    "btn.inquire_now": "Αίτηση τώρα",
+    "btn.booked_out": "Πλήρες",
+    "btn.share": "Κοινοποίηση σεμιναρίου",
+    "btn.send_message": "Αποστολή αιτήματος",
+    "btn.open_in_mail": "Άνοιγμα στο πρόγραμμα email",
+    "btn.filter_all": "Όλα",
+    "btn.close": "Κλείσιμο",
+
+    "gallery.no_items": "Δεν υπάρχουν ακόμα έργα στη συλλογή.",
+    "gallery.zoom_hint": "Κάντε κλικ για μεγέθυνση",
+
+    "courses.no_dates": "Αυτή τη στιγμή δεν έχουν προγραμματιστεί ημερομηνίες. Επικοινωνήστε μαζί μου!",
+    "courses.spots_free": "Διαθέσιμες θέσεις",
+    "courses.booked": "Πλήρες",
+    "courses.booked_spots": "κατειλημμένες (απομένουν {spots})",
+
+    "past_courses.no_images": "Δεν έχουν αναρτηθεί ακόμα φωτογραφίες.",
+
+    "contact.title": "Επικοινωνία & Πληροφορίες",
+    "contact.owner": "Ιδιοκτήτρια",
+    "contact.phone": "Τηλέφωνο",
+    "contact.email": "Email",
+    "contact.write_message": "Σύνταξη μηνύματος",
+    "contact.name": "Το όνομά σας",
+    "contact.email_field": "Το email σας",
+    "contact.phone_field": "Τηλέφωνο",
+    "contact.phone_hint": "(προαιρετικό)",
+    "contact.message": "Μήνυμα",
+    "contact.spam_label": "Έλεγχος ασφαλείας: Κάντε κλικ στο {prompt}",
+    "contact.mail_client_hint": "Ανοίγει το πρόγραμμα αλληλογραφίας σας με έτοιμο μήνυμα.",
+
+    "legal.impressum_tab": "Στοιχεία επιχείρησης",
+    "legal.privacy_tab": "Προστασία δεδομένων (GDPR)",
+    "legal.tmg_notice": "Νομικές πληροφορίες",
+    "legal.contact_headline": "Επικοινωνία",
+    "legal.supervisory": "Εποπτική αρχή",
+    "legal.vat_id": "ΑΦΜ",
+    "legal.disclaimer": "Αποποίηση ευθύνης",
+
+    "toast.link_copied": "Ο σύνδεσμος αντιγράφηκε!",
+    "toast.course_link_copied": "Ο σύνδεσμος σεμιναρίου αντιγράφηκε!",
+    "toast.share_prompt": "Σύνδεσμος σεμιναρίου για κοινοποίηση:"
+}

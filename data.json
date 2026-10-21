@@ -196,7 +196,12 @@
             "moon",
             "flower_yellow"
         ],
-        "privacy_policy_text": "### 1. Datenschutz auf einen Blick\r\n\r\nDer Schutz deiner persönlichen Daten ist uns ein wichtiges Anliegen. Diese Erklärung gibt dir einen Überblick darüber, welche Daten erhoben und wie sie verarbeitet werden.\r\n\r\n### 2. Verantwortliche Stelle\r\n\r\nVerantwortlich für die Datenverarbeitung auf dieser Website ist die im Impressum genannte Betreiberin bzw. der Betreiber.\r\n\r\n### 3. Datenerfassung auf unserer Website\r\n\r\n**Server-Log-Dateien:**\r\nDer Webserver erhebt automatisch technische Verbindungsdaten (z. B. IP-Adresse in anonymisierter Form, Browsertyp, aufgerufene URL, Datum und Uhrzeit des Zugriffs). Diese Daten sind technisch erforderlich, um die Website stabil und sicher auszuliefern.\r\n\r\n**Kontaktformular & E-Mail-Anfragen:**\r\nWenn du uns per Kontaktformular oder E-Mail Anfragen zukommen lässt, werden deine Angaben aus dem Anfrageformular inklusive der von dir dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert.\r\n\r\n### 4. Keine Werbe- oder Tracking-Cookies\r\n\r\nDiese Website verzichtet vollständig auf den Einsatz von zustimmungspflichtigen Tracking-, Analyse- oder Marketing-Cookies von Drittanbietern."
+        "privacy_policy_text": "### 1. Datenschutz auf einen Blick\r\n\r\nDer Schutz deiner persönlichen Daten ist uns ein wichtiges Anliegen. Diese Erklärung gibt dir einen Überblick darüber, welche Daten erhoben und wie sie verarbeitet werden.\r\n\r\n### 2. Verantwortliche Stelle\r\n\r\nVerantwortlich für die Datenverarbeitung auf dieser Website ist die im Impressum genannte Betreiberin bzw. der Betreiber.\r\n\r\n### 3. Datenerfassung auf unserer Website\r\n\r\n**Server-Log-Dateien:**\r\nDer Webserver erhebt automatisch technische Verbindungsdaten (z. B. IP-Adresse in anonymisierter Form, Browsertyp, aufgerufene URL, Datum und Uhrzeit des Zugriffs). Diese Daten sind technisch erforderlich, um die Website stabil und sicher auszuliefern.\r\n\r\n**Kontaktformular & E-Mail-Anfragen:**\r\nWenn du uns per Kontaktformular oder E-Mail Anfragen zukommen lässt, werden deine Angaben aus dem Anfrageformular inklusive der von dir dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert.\r\n\r\n### 4. Keine Werbe- oder Tracking-Cookies\r\n\r\nDiese Website verzichtet vollständig auf den Einsatz von zustimmungspflichtigen Tracking-, Analyse- oder Marketing-Cookies von Drittanbietern.",
+        "primary_language": "de",
+        "active_languages": [
+            "de",
+            "en"
+        ]
     },
     "texts": {
         "hero_title": "Atelier Musterfrau",

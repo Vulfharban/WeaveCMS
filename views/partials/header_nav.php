@@ -31,8 +31,19 @@
                 <?php foreach ($nav_items as $item): ?>
                     <a href="#<?php echo htmlspecialchars($item['id']); ?>" class="nav-item"><?php echo htmlspecialchars($item['nav_label']); ?></a>
                 <?php endforeach; ?>
-                <label for="menu-toggle" class="nav-item" style="cursor: pointer;">Kontakt</label>
-                <label for="menu-toggle-impressum" class="nav-item" style="cursor: pointer;">Impressum</label>
+                <label for="menu-toggle" class="nav-item" style="cursor: pointer;"><?php echo htmlspecialchars(__('nav.contact', 'Kontakt')); ?></label>
+                <label for="menu-toggle-impressum" class="nav-item" style="cursor: pointer;"><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></label>
+                <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>
+                    <div class="header-lang-switch" style="display:inline-flex; align-items:center; gap:6px; margin-left:12px; padding-left:12px; border-left:1px solid var(--border-color); font-size:0.82rem; font-weight:700;">
+                        <?php foreach ($lang_switch_items as $l): ?>
+                            <?php if ($l['active']): ?>
+                                <span style="color:var(--primary); border-bottom:2px solid var(--primary); padding-bottom:1px;" title="<?php echo htmlspecialchars($l['name']); ?>"><?php echo strtoupper(htmlspecialchars($l['code'])); ?></span>
+                            <?php else: ?>
+                                <a href="<?php echo htmlspecialchars($l['url']); ?>" style="color:var(--text-secondary); text-decoration:none; opacity:0.65; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.65'" title="<?php echo htmlspecialchars($l['name']); ?>"><?php echo strtoupper(htmlspecialchars($l['code'])); ?></a>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             </nav>
             <!-- Mobile Menu Trigger (Hamburger) -->
             <label for="menu-toggle-mobile" class="btn btn-outline" style="display: none; padding: 6px 12px; font-size: 0.85rem; cursor: pointer;" id="mobile-nav-trigger">

@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Contacto",
+    "nav.impressum": "Aviso legal",
+    "nav.privacy": "Privacidad",
+    "nav.admin": "Administración",
+    "nav.menu": "Navegación",
+
+    "btn.inquire_now": "Consultar ahora",
+    "btn.booked_out": "Agotado",
+    "btn.share": "Compartir este taller",
+    "btn.send_message": "Enviar consulta",
+    "btn.open_in_mail": "Abrir en programa de correo",
+    "btn.filter_all": "Todos",
+    "btn.close": "Cerrar",
+
+    "gallery.no_items": "Aún no hay piezas en la galería.",
+    "gallery.zoom_hint": "Haz clic para ampliar",
+
+    "courses.no_dates": "Actualmente no hay fechas programadas. ¡Escríbeme si tienes interés!",
+    "courses.spots_free": "Plazas libres",
+    "courses.booked": "Agotado",
+    "courses.booked_spots": "ocupadas (quedan {spots} libres)",
+
+    "past_courses.no_images": "Aún no se han subido fotos.",
+
+    "contact.title": "Contacto & Consulta de talleres",
+    "contact.owner": "Propietaria",
+    "contact.phone": "Teléfono",
+    "contact.email": "Correo electrónico",
+    "contact.write_message": "Escribir mensaje",
+    "contact.name": "Tu nombre",
+    "contact.email_field": "Tu correo electrónico",
+    "contact.phone_field": "Número de teléfono",
+    "contact.phone_hint": "(opcional)",
+    "contact.message": "Mensaje",
+    "contact.spam_label": "Comprobación de seguridad: Haz clic en {prompt}",
+    "contact.mail_client_hint": "Abre tu aplicación de correo con el mensaje ya preparado.",
+
+    "legal.impressum_tab": "Aviso legal",
+    "legal.privacy_tab": "Protección de datos (RGPD)",
+    "legal.tmg_notice": "Información legal obligatoria",
+    "legal.contact_headline": "Contacto",
+    "legal.supervisory": "Autoridad supervisora",
+    "legal.vat_id": "NIF / IVA",
+    "legal.disclaimer": "Descargo de responsabilidad",
+
+    "toast.link_copied": "¡Enlace copiado!",
+    "toast.course_link_copied": "¡Enlace del taller copiado al portapapeles!",
+    "toast.share_prompt": "Enlace del taller para compartir:"
+}

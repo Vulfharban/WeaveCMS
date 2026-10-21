@@ -1,0 +1,50 @@
+{
+    "nav.contact": "Contatto",
+    "nav.impressum": "Note legali",
+    "nav.privacy": "Privacy",
+    "nav.admin": "Amministrazione",
+    "nav.menu": "Navigazione",
+
+    "btn.inquire_now": "Richiedi ora",
+    "btn.booked_out": "Esaurito",
+    "btn.share": "Condividi questo corso",
+    "btn.send_message": "Invia richiesta",
+    "btn.open_in_mail": "Apri nel programma di posta",
+    "btn.filter_all": "Tutti",
+    "btn.close": "Chiudi",
+
+    "gallery.no_items": "Nessun pezzo ancora nella galleria.",
+    "gallery.zoom_hint": "Clicca per ingrandire",
+
+    "courses.no_dates": "Al momento non ci sono date disponibili. Scrivimi pure una richiesta!",
+    "courses.spots_free": "Posti liberi",
+    "courses.booked": "Esaurito",
+    "courses.booked_spots": "occupati (ancora {spots} liberi)",
+
+    "past_courses.no_images": "Nessuna foto ancora caricata.",
+
+    "contact.title": "Contatto & Richiesta corso",
+    "contact.owner": "Titolare",
+    "contact.phone": "Telefono",
+    "contact.email": "E-mail",
+    "contact.write_message": "Scrivi un messaggio",
+    "contact.name": "Il tuo nome",
+    "contact.email_field": "Il tuo indirizzo e-mail",
+    "contact.phone_field": "Numero di telefono",
+    "contact.phone_hint": "(opzionale per domande)",
+    "contact.message": "Messaggio",
+    "contact.spam_label": "Verifica di sicurezza: Clicca su {prompt}",
+    "contact.mail_client_hint": "Apre il tuo programma di posta con il messaggio precompilato.",
+
+    "legal.impressum_tab": "Note legali",
+    "legal.privacy_tab": "Privacy (GDPR)",
+    "legal.tmg_notice": "Informazioni legali obbligatorie",
+    "legal.contact_headline": "Contatto",
+    "legal.supervisory": "Autorità di vigilanza",
+    "legal.vat_id": "Partita IVA / Codice fiscale",
+    "legal.disclaimer": "Esclusione di responsabilità",
+
+    "toast.link_copied": "Link copiato!",
+    "toast.course_link_copied": "Link del corso copiato negli appunti!",
+    "toast.share_prompt": "Link del corso da condividere:"
+}
