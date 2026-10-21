@@ -278,6 +278,24 @@ class FrontendController {
         }
 
         if ($active_page) {
+            $cur_lang = $vm['cur_lang'] ?? LanguageManager::detectLanguage($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            if ($cur_lang !== $primary_lang && !empty($active_page['translations'][$cur_lang]) && is_array($active_page['translations'][$cur_lang])) {
+                $trans = $active_page['translations'][$cur_lang];
+                if (!empty($trans['title'])) {
+                    $active_page['title'] = $trans['title'];
+                }
+                if (!empty($trans['meta_description'])) {
+                    $active_page['meta_description'] = $trans['meta_description'];
+                }
+                if (!empty($trans['content'])) {
+                    $active_page['content'] = $trans['content'];
+                }
+                if (!empty($trans['nav_label'])) {
+                    $active_page['nav_label'] = $trans['nav_label'];
+                }
+            }
+
             $vm['meta_title'] = htmlspecialchars($active_page['title']) . ' | ' . ($data['texts']['contact_name'] ?? 'WeaveCMS');
             if (!empty($active_page['meta_description'])) {
                 $vm['meta_desc'] = htmlspecialchars($active_page['meta_description']);

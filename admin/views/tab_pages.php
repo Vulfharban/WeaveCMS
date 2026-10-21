@@ -4,7 +4,7 @@
  * 
  * Ermöglicht das Anlegen und Verwalten eigenständiger Inhaltsseiten
  * (z. B. Über die Werkstatt, Anfahrt & Parken, Nachhaltigkeit) mit
- * Markdown-Formatierung, eigenem Slug und Menü-Verknüpfung.
+ * Markdown-Formatierung, eigenem Slug, Menü-Verknüpfung und Mehrsprachigkeit.
  * 
  * @var array $data Gesamtdatenstruktur
  * @var string $csrf_token CSRF-Schutztoken
@@ -22,6 +22,10 @@ foreach ($pages as $pg) {
         $in_nav_count++;
     }
 }
+
+$active_langs = LanguageManager::getActiveLanguages($data);
+$primary_lang = LanguageManager::getPrimaryLanguage($data);
+$supported_langs = LanguageManager::getSupportedLanguages();
 ?>
         <!-- ──────────────── SECTION PAGES: FREIE EINZELSEITEN ──────────────── -->
         <div id="tab-pages" class="admin-section card" style="padding: 2.5rem;">
@@ -31,7 +35,7 @@ foreach ($pages as $pg) {
                         <span class="material-icons" style="font-size:28px;">article</span> Freie Einzelseiten &amp; Unterseiten
                     </h2>
                     <p style="color: var(--text-secondary); font-size: 0.95rem; margin:0;">
-                        Erstelle beliebig viele Inhaltsseiten mit eigenem Link und binde sie optional direkt ins Hauptmenü ein.
+                        Erstelle beliebig viele Inhaltsseiten in mehreren Sprachen mit eigenem Link und binde sie optional direkt ins Hauptmenü ein.
                     </p>
                 </div>
                 <div style="display:flex; align-items:center; gap:12px;">
@@ -58,7 +62,7 @@ foreach ($pages as $pg) {
             </div>
 
             <!-- ──────────────── FORMULAR / EDITOR DRAWER ──────────────── -->
-            <div id="page-editor-box" style="display:none; background:rgba(255,255,255,0.02); border:1px solid var(--primary); border-radius:16px; padding:2rem; margin-bottom:2.5rem; animation: fadeInTab 0.25s ease;">
+            <div id="page-editor-box" style="display:none; scroll-margin-top: 150px; background:rgba(255,255,255,0.02); border:1px solid var(--primary); border-radius:16px; padding:2rem; margin-bottom:2.5rem; animation: fadeInTab 0.25s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
                     <h3 id="page-editor-title" style="color:var(--primary); margin:0; display:flex; align-items:center; gap:8px;">
                         <span class="material-icons">edit_note</span> Neue Einzelseite anlegen
@@ -73,24 +77,33 @@ foreach ($pages as $pg) {
                     <input type="hidden" name="action" id="page_form_action" value="add_page">
                     <input type="hidden" name="id" id="page_id" value="">
 
-                    <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
-                        <div class="form-group">
-                            <label for="page_title" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Seitentitel *</label>
-                            <input type="text" id="page_title" name="title" class="form-control" placeholder="z. B. Nachhaltigkeit &amp; Weidenanbau" required oninput="autoGeneratePageSlug(this.value)">
+                    <!-- Sprach-Reiter im Seiteneditor -->
+                    <?php if (count($active_langs) > 1): ?>
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:1.5rem; flex-wrap:wrap; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-color);">
+                            <span style="font-size:0.88rem; font-weight:700; color:var(--text-secondary); margin-right:4px;">
+                                <span class="material-icons" style="font-size:16px; vertical-align:middle;">translate</span> Inhaltssprache:
+                            </span>
+                            <button type="button" class="btn btn-primary page-lang-tab-btn" id="btn-page-lang-<?php echo $primary_lang; ?>" onclick="switchPageLangTab('<?php echo $primary_lang; ?>')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
+                                <span><?php echo $supported_langs[$primary_lang]['flag']; ?></span>
+                                <span><?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?> (Hauptsprache)</span>
+                            </button>
+                            <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
+                                <button type="button" class="btn btn-outline page-lang-tab-btn" id="btn-page-lang-<?php echo $al; ?>" onclick="switchPageLangTab('<?php echo $al; ?>')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
+                                    <span><?php echo $supported_langs[$al]['flag']; ?></span>
+                                    <span><?php echo htmlspecialchars($supported_langs[$al]['name']); ?></span>
+                                </button>
+                            <?php endforeach; ?>
                         </div>
+                    <?php endif; ?>
+
+                    <!-- Gemeinsame Einstellungen: Status, Hauptmenü-Einbindung, Basis-Slug -->
+                    <div class="grid-3" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; border:1px solid var(--border-color);">
                         <div class="form-group">
                             <label for="page_slug" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
                                 URL-Slug (Pfad) *
                                 <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(z. B. nachhaltigkeit)</span>
                             </label>
                             <input type="text" id="page_slug" name="slug" class="form-control" placeholder="nachhaltigkeit" required pattern="[a-z0-9_-]+">
-                        </div>
-                    </div>
-
-                    <div class="grid-3" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
-                        <div class="form-group">
-                            <label for="page_nav_label" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Menü-Beschriftung</label>
-                            <input type="text" id="page_nav_label" name="nav_label" class="form-control" placeholder="z. B. Nachhaltigkeit">
                         </div>
                         <div class="form-group">
                             <label for="page_status" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Status</label>
@@ -103,25 +116,82 @@ foreach ($pages as $pg) {
                             <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Hauptmenü-Einbindung</label>
                             <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.95rem; margin-top:6px;">
                                 <input type="checkbox" id="page_in_nav" name="in_nav" value="1">
-                                Im Hauptmenü anzeigen
+                                <span>Im Hauptmenü verlinken</span>
                             </label>
                         </div>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1.25rem;">
-                        <label for="page_meta_desc" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
-                            Meta-Description für Suchmaschinen (SEO)
-                        </label>
-                        <input type="text" id="page_meta_desc" name="meta_description" class="form-control" placeholder="Kurze Beschreibung dieser Seite für Google &amp; Social Media">
+                    <!-- Panel: Hauptsprache (z. B. Deutsch) -->
+                    <div id="page-lang-panel-<?php echo $primary_lang; ?>" class="page-lang-panel">
+                        <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+                            <div class="form-group">
+                                <label for="page_title" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                    Seitentitel (<?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?>) *
+                                </label>
+                                <input type="text" id="page_title" name="title" class="form-control" placeholder="z. B. Nachhaltigkeit &amp; Weidenanbau" required oninput="autoGeneratePageSlug(this.value)">
+                            </div>
+                            <div class="form-group">
+                                <label for="page_nav_label" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                    Titel fürs Menü (Menü-Beschriftung)
+                                </label>
+                                <input type="text" id="page_nav_label" name="nav_label" class="form-control" placeholder="z. B. Nachhaltigkeit (leer = Seitentitel)">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="page_meta_desc" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                Meta-Description für Suchmaschinen (SEO)
+                            </label>
+                            <input type="text" id="page_meta_desc" name="meta_description" class="form-control" placeholder="Kurze Beschreibung dieser Seite für Google &amp; Social Media">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label for="page_content" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
+                                <span>Seiteninhalt (Markdown) *</span>
+                                <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">Überschriften mit #, Absätze, **Fett**, [Links](url)</span>
+                            </label>
+                            <textarea id="page_content" name="content" class="form-control" rows="12" placeholder="Schreibe hier den vollständigen Text deiner Seite..." required style="font-family: monospace; font-size:0.95rem; line-height:1.6;"></textarea>
+                        </div>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="page_content" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
-                            <span>Seiteninhalt (Markdown) *</span>
-                            <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">Überschriften mit #, Absätze, **Fett**, [Links](url)</span>
-                        </label>
-                        <textarea id="page_content" name="content" class="form-control" rows="12" placeholder="Schreibe hier den vollständigen Text deiner Seite..." required style="font-family: monospace; font-size:0.95rem; line-height:1.6;"></textarea>
-                    </div>
+                    <!-- Panels für weitere aktive Sprachen -->
+                    <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
+                        <div id="page-lang-panel-<?php echo $al; ?>" class="page-lang-panel" style="display:none;">
+                            <div style="background:rgba(59, 130, 246, 0.08); border:1px solid #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:1.25rem; font-size:0.88rem; color:#93c5fd; display:flex; align-items:center; gap:8px;">
+                                <span class="material-icons" style="font-size:18px; color:#60a5fa;">translate</span>
+                                <span>Übersetzung für <strong><?php echo $supported_langs[$al]['flag'] . ' ' . htmlspecialchars($supported_langs[$al]['name']); ?></strong>. Bleibt ein Feld leer, greift das System automatisch auf die Hauptsprache (<?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?>) zurück.</span>
+                            </div>
+
+                            <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+                                <div class="form-group">
+                                    <label for="trans_<?php echo $al; ?>_title" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                        Seitentitel (<?php echo htmlspecialchars($supported_langs[$al]['name']); ?>)
+                                    </label>
+                                    <input type="text" id="trans_<?php echo $al; ?>_title" name="trans_<?php echo $al; ?>_title" class="form-control" placeholder="Titel auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="trans_<?php echo $al; ?>_nav_label" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                        Titel fürs Menü auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>
+                                    </label>
+                                    <input type="text" id="trans_<?php echo $al; ?>_nav_label" name="trans_<?php echo $al; ?>_nav_label" class="form-control" placeholder="Menü-Titel auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>">
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="trans_<?php echo $al; ?>_meta_desc" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                    Meta-Description (<?php echo htmlspecialchars($supported_langs[$al]['name']); ?>)
+                                </label>
+                                <input type="text" id="trans_<?php echo $al; ?>_meta_desc" name="trans_<?php echo $al; ?>_meta_description" class="form-control" placeholder="SEO-Beschreibung auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>">
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 1.5rem;">
+                                <label for="trans_<?php echo $al; ?>_content" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
+                                    <span>Seiteninhalt (Markdown auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>)</span>
+                                </label>
+                                <textarea id="trans_<?php echo $al; ?>_content" name="trans_<?php echo $al; ?>_content" class="form-control" rows="12" placeholder="Übersetzter Markdown-Inhalt..." style="font-family: monospace; font-size:0.95rem; line-height:1.6;"></textarea>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
 
                     <div style="display:flex; justify-content:flex-end; gap:12px;">
                         <button type="button" class="btn btn-secondary" onclick="closePageEditor()">Abbrechen</button>
@@ -149,6 +219,7 @@ foreach ($pages as $pg) {
                             $is_published = ($p['status'] ?? 'published') === 'published';
                             $p_slug = $p['slug'] ?? '';
                             $p_url = '../?page=' . urlencode($p_slug);
+                            $p_nav = !empty($p['nav_label']) ? $p['nav_label'] : ($p['title'] ?? '');
                         ?>
                         <div class="card" style="padding:1.25rem 1.5rem; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
                             <div style="display:flex; align-items:center; gap:1rem; flex:1; min-width:280px;">
@@ -156,19 +227,40 @@ foreach ($pages as $pg) {
                                     <span class="material-icons">article</span>
                                 </div>
                                 <div>
-                                    <h4 style="margin:0 0 4px 0; font-size:1.05rem; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
-                                        <?php echo htmlspecialchars($p['title'] ?? 'Unbenannt'); ?>
+                                    <h4 style="margin:0 0 4px 0; font-size:1.05rem; color:var(--text-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                        <span><?php echo htmlspecialchars($p['title'] ?? 'Unbenannt'); ?></span>
                                         <?php if ($is_published): ?>
                                             <span style="font-size:0.7rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.1); padding:2px 8px; border-radius:999px;">Veröffentlicht</span>
                                         <?php else: ?>
                                             <span style="font-size:0.7rem; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.1); padding:2px 8px; border-radius:999px;">Entwurf</span>
                                         <?php endif; ?>
                                         <?php if (!empty($p['in_nav'])): ?>
-                                            <span style="font-size:0.7rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:2px 8px; border-radius:999px;">Im Menü</span>
+                                            <span style="font-size:0.7rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:2px 8px; border-radius:999px;" title="Titel im Menü: <?php echo htmlspecialchars($p_nav); ?>">
+                                                Menü: <strong><?php echo htmlspecialchars($p_nav); ?></strong>
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="font-size:0.7rem; color:var(--text-secondary); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:999px;">Nicht im Menü</span>
                                         <?php endif; ?>
                                     </h4>
-                                    <div style="font-size:0.85rem; color:var(--text-secondary); display:flex; gap:12px; flex-wrap:wrap;">
-                                        <span>Link: <code>?page=<?php echo htmlspecialchars($p_slug); ?></code></span>
+                                    
+                                    <div style="font-size:0.85rem; color:var(--text-secondary); display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:4px;">
+                                        <span>Pfad: <code>?page=<?php echo htmlspecialchars($p_slug); ?></code></span>
+                                        
+                                        <!-- Sprach-Badges -->
+                                        <span style="display:inline-flex; align-items:center; gap:4px;">
+                                            <span style="font-size:0.75rem; color:var(--text-secondary);">Sprachen:</span>
+                                            <span style="font-size:0.72rem; font-weight:700; background:rgba(16,185,129,0.15); color:#10b981; padding:1px 6px; border-radius:4px;" title="<?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?> (Hauptsprache)">
+                                                <?php echo $supported_langs[$primary_lang]['flag'] . ' ' . strtoupper($primary_lang); ?>
+                                            </span>
+                                            <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
+                                                <?php 
+                                                    $has_trans = !empty($p['translations'][$al]['title']) || !empty($p['translations'][$al]['content']) || !empty($p['translations'][$al]['nav_label']); 
+                                                ?>
+                                                <span style="font-size:0.72rem; font-weight:700; background:<?php echo $has_trans ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)'; ?>; color:<?php echo $has_trans ? '#10b981' : 'var(--text-secondary)'; ?>; padding:1px 6px; border-radius:4px; border:1px solid <?php echo $has_trans ? 'rgba(16,185,129,0.3)' : 'var(--border-color)'; ?>;" title="<?php echo $has_trans ? 'Übersetzung für ' . htmlspecialchars($supported_langs[$al]['name']) . ' vorhanden' : 'Keine Übersetzung (greift auf ' . htmlspecialchars($supported_langs[$primary_lang]['name']) . ' zurück)'; ?>">
+                                                    <?php echo $supported_langs[$al]['flag'] . ' ' . strtoupper($al); ?> <?php echo $has_trans ? '✓' : '—'; ?>
+                                                </span>
+                                            <?php endforeach; ?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -196,6 +288,27 @@ foreach ($pages as $pg) {
         </div>
 
         <script>
+        const PAGE_ACTIVE_LANGS = <?php echo json_encode($active_langs); ?>;
+        const PAGE_PRIMARY_LANG = <?php echo json_encode($primary_lang); ?>;
+
+        function switchPageLangTab(lang) {
+            document.querySelectorAll('.page-lang-panel').forEach(el => el.style.display = 'none');
+            const targetPanel = document.getElementById('page-lang-panel-' + lang);
+            if (targetPanel) {
+                targetPanel.style.display = 'block';
+            }
+
+            document.querySelectorAll('.page-lang-tab-btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline');
+            });
+            const activeBtn = document.getElementById('btn-page-lang-' + lang);
+            if (activeBtn) {
+                activeBtn.classList.remove('btn-outline');
+                activeBtn.classList.add('btn-primary');
+            }
+        }
+
         function openPageEditor() {
             document.getElementById('page-editor-box').style.display = 'block';
             document.getElementById('page-editor-title').innerHTML = '<span class="material-icons">add_circle</span> Neue Einzelseite anlegen';
@@ -208,6 +321,20 @@ foreach ($pages as $pg) {
             document.getElementById('page_in_nav').checked = false;
             document.getElementById('page_meta_desc').value = '';
             document.getElementById('page_content').value = '';
+
+            PAGE_ACTIVE_LANGS.forEach(lang => {
+                if (lang === PAGE_PRIMARY_LANG) return;
+                const tTitle = document.getElementById('trans_' + lang + '_title');
+                const tNav = document.getElementById('trans_' + lang + '_nav_label');
+                const tMeta = document.getElementById('trans_' + lang + '_meta_desc');
+                const tContent = document.getElementById('trans_' + lang + '_content');
+                if (tTitle) tTitle.value = '';
+                if (tNav) tNav.value = '';
+                if (tMeta) tMeta.value = '';
+                if (tContent) tContent.value = '';
+            });
+
+            switchPageLangTab(PAGE_PRIMARY_LANG);
             document.getElementById('page-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Seite anlegen';
             document.getElementById('page_title').focus();
         }
@@ -228,6 +355,22 @@ foreach ($pages as $pg) {
             document.getElementById('page_in_nav').checked = !!pageData.in_nav;
             document.getElementById('page_meta_desc').value = pageData.meta_description || '';
             document.getElementById('page_content').value = pageData.content || '';
+
+            const trans = pageData.translations || {};
+            PAGE_ACTIVE_LANGS.forEach(lang => {
+                if (lang === PAGE_PRIMARY_LANG) return;
+                const langTrans = trans[lang] || {};
+                const tTitle = document.getElementById('trans_' + lang + '_title');
+                const tNav = document.getElementById('trans_' + lang + '_nav_label');
+                const tMeta = document.getElementById('trans_' + lang + '_meta_desc');
+                const tContent = document.getElementById('trans_' + lang + '_content');
+                if (tTitle) tTitle.value = langTrans.title || '';
+                if (tNav) tNav.value = langTrans.nav_label || '';
+                if (tMeta) tMeta.value = langTrans.meta_description || '';
+                if (tContent) tContent.value = langTrans.content || '';
+            });
+
+            switchPageLangTab(PAGE_PRIMARY_LANG);
             document.getElementById('page-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Änderungen speichern';
             document.getElementById('page-editor-box').scrollIntoView({ behavior: 'smooth' });
         }

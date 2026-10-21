@@ -10,6 +10,11 @@
 ?>
         <!-- ──────────────── SECTION 2: GALLERY ──────────────── -->
         <div id="tab-gallery" class="admin-section">
+            <?php 
+                $section_id = 'gallery';
+                $current_tab = 'tab-gallery';
+                include __DIR__ . '/partials/section_nav_bar.php';
+            ?>
             <!-- Active Layout Info Banner -->
             <?php 
                 $active_layout = $data['settings']['gallery_layout'] ?? 'ambient_blur';

@@ -38,6 +38,12 @@ $total_team = count($team);
                 </div>
             </div>
 
+            <?php 
+                $section_id = 'team';
+                $current_tab = 'tab-team';
+                include __DIR__ . '/partials/section_nav_bar.php';
+            ?>
+
             <!-- ──────────────── FORMULAR / EDITOR DRAWER ──────────────── -->
             <div id="team-editor-box" style="display:none; background:rgba(255,255,255,0.02); border:1px solid var(--primary); border-radius:16px; padding:2rem; margin-bottom:2.5rem; animation: fadeInTab 0.25s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
