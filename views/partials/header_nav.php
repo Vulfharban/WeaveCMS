@@ -24,18 +24,20 @@
     <!-- ======================================================================
          FRONTEND-MENÜ (HEADER NAVIGATION & MENÜ-TRIGGER)
          ====================================================================== -->
+    <?php 
+        $is_subpage_view = isset($_GET['page']) || isset($_GET['blog']);
+        $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?lang=' . urlencode($cur_lang) : './';
+        $logo_href = $is_subpage_view ? htmlspecialchars($home_url) : '#';
+    ?>
     <header class="header-nav">
         <div class="header-container">
-            <a href="#" class="logo"><?php if ($logo_pos === 'header_before'): echo $header_logo_html; endif; ?><span><?php echo htmlspecialchars($data['texts']['contact_name'] ?? 'Atelier Musterfrau'); ?></span><?php if ($logo_pos === 'header_after'): echo $header_logo_html; endif; ?></a>
+            <a href="<?php echo $logo_href; ?>" class="logo"><?php if ($logo_pos === 'header_before'): echo $header_logo_html; endif; ?><span><?php echo htmlspecialchars($data['texts']['contact_name'] ?? 'Atelier Musterfrau'); ?></span><?php if ($logo_pos === 'header_after'): echo $header_logo_html; endif; ?></a>
             <nav class="nav-links">
-                <?php 
-                    $is_subpage_view = isset($_GET['page']) || isset($_GET['blog']);
-                ?>
                 <?php foreach ($nav_items as $item): ?>
                     <?php 
                         $href = !empty($item['url']) 
                             ? htmlspecialchars($item['url']) 
-                            : ($is_subpage_view ? './#' . htmlspecialchars($item['id']) : '#' . htmlspecialchars($item['id']));
+                            : ($is_subpage_view ? htmlspecialchars($home_url . '#' . $item['id']) : '#' . htmlspecialchars($item['id']));
                     ?>
                     <a href="<?php echo $href; ?>" class="nav-item"><?php echo htmlspecialchars($item['nav_label']); ?></a>
                 <?php endforeach; ?>

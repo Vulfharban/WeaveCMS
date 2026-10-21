@@ -54,7 +54,9 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Direkte Kurslinks & Teilen** | 1-Klick-Kopieren von Einladungslinks und systemweites Teilen via Web Share API. | ✅ Integriert |
 | **Kursimpressionen / Rückblick** | Upload von Impressionen vergangener Termine und Workshops. | ✅ Integriert |
 | **Vollwertiges Blog- & Magazin-Modul** | Zeitbasierte Artikel, Status (Entwurf/Veröffentlicht), Teaser, Markdown, Beitragsbild und Einzelartikel-Ansicht (`?blog=slug`). | ✅ Integriert (v0.8.0) |
-| **Freie Einzelseiten (Custom Subpages)** | Beliebig viele Unterseiten (`?page=slug`) mit Markdown, SEO-Metadaten und optionaler Einbindung ins Menü. | ✅ Integriert (v0.8.0) |
+| **Freie Einzelseiten (Custom Subpages)** | Beliebig viele Unterseiten (`?page=slug`) mit Markdown, SEO-Metadaten, Menü-Einbindung und vollständiger Mehrsprachigkeit (Sprachreiter für jede aktive Sprache im Drawer-Editor). | ✅ Integriert (v0.8.5) |
+| **Individuelle Menü- & Sektionstitel** | Direkte Anpassung des Menü-Titels (`nav_label`), Sektions-Titels und der Menü-Sichtbarkeit für jede Inhaltsart (Schnell-Leiste in jedem Content-Tab sowie zentral im Sektionen-Manager inkl. Mehrsprachigkeit). | ✅ Integriert (v0.8.5) |
+| **Subpage Header-Clearance & Navigation** | Optimierter Freiraum für Standalone-Seiten (Blog-Artikel & Einzelseiten) unterhalb des Sticky-Headers sowie sprachbewusster Zurück-Button mit automatischer Sprachübergabe. | ✅ Integriert (v0.8.5) |
 | **FAQ / Häufige Fragen** | Akkordeon mit automatischer Google `FAQPage` Schema.org JSON-LD Einbettung. | ✅ Integriert (v0.8.0) |
 | **Team & Mitarbeiter** | Profilkarten mit Foto-Upload, Rolle/Spezialisierung, Kurzvita und Mail-Trigger. | ✅ Integriert (v0.8.0) |
 | **Download-Manager** | Bereitstellung von PDFs, Flyern und Dokumenten mit Dateigrößen- und Format-Anzeige. | ✅ Integriert (v0.8.0) |
@@ -119,7 +121,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | :--- | :--- | :---: |
 | **Geführter Webspace-Installer** | Automatischer Installations-Assistent (`install.php`) mit Server-Check, Seed-Daten und Auto-Locking. | ✅ Integriert (v0.4.0) |
 | **SEO- & OpenGraph-Engine** | Eigener Reiter *„SEO & Sharing“*, Meta-Title & Description mit Zeichenzählern, Social-Sharing-Bild-Upload, Roboter-Steuerung und Live SERP/Social-Card-Vorschau. | ✅ Integriert (v0.3.0) |
-| **Mehrsprachigkeit (i18n)** | Mehrsprachige Websites mit Sprachwechsler (DE, EN, etc.). | 🟡 Geplant (Phase 8) |
+| **Mehrsprachigkeit & Internationalisierung (i18n)** | 12 europäische Sprachen out-of-the-box (DE, EN, FR, IT, NL, ES, PT, EL, DA, NO, SV, FI), Sprachwechsler im Frontend, Cookie-Persistenz, Fallback-Kaskade, dynamische SEO hreflang- & OpenGraph-Tags. | ✅ Integriert (v0.8.0) |
 | **Automatischer Remote Version-Check** | Erkennung neuer Releases gegen konfigurierbare Update-URL mit Hinweisanzeige. | 🟡 Geplant (Phase 12) |
 | **Release-Build-Generator** | Automatische Erstellung von Voll-Paketen (Installer) und reinen Update-Paketen (ZIP/7z). | 🟡 Geplant (Phase 12) |
 
@@ -128,6 +130,19 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ## 📈 Release-Historie & Meilensteine
 
 ### v0.8.5 (Aktueller Entwicklungsstand)
+* **Individuelle Menü- & Sektionstitel für alle Inhaltsarten:**
+  * **Modulare Schnell-Leiste (`section_nav_bar.php`):** Direkte Bearbeitung von Titel fürs Menü (`nav_label`), Sektions-Titel (`title`) und Menü-Sichtbarkeit (`in_nav`) direkt im jeweiligen Inhalts-Tab (Galerie, Workshops, Blog, FAQs, Team, Preise, Downloads, Impressionen) ohne Tab-Wechsel.
+  * **Zentraler Sektionen-Manager:** Dediziertes Verwaltungsmodal unter *„Texte & Übersetzungen“* (`tab_texts.php`) zur Bearbeitung von Menü-Titeln aller Hauptsektionen inklusive mehrsprachiger Übersetzungen (`translations`) für alle aktiven Sprachen.
+  * **Automatischer Tab-Redirect:** Formular-Handling via `target_tab` im `AdminController` leitet Administratoren nach dem Speichern nahtlos zum ursprünglichen Content-Tab zurück.
+* **Freie Einzelseiten (Custom Subpages) mit nativer Mehrsprachigkeit:**
+  * **Mehrsprachiger Drawer-Editor:** Tab-Leiste für alle im System aktivierten Sprachen (DE, EN, FR, IT, etc.) im Einzelseiten-Editor (`tab_pages.php`).
+  * **Vollständige Inhaltsübersetzung:** Getrennte Pflege von Seitentitel, Menü-Bezeichnung (`nav_label`), SEO-Meta-Description und Markdown-Inhalt je Zielsprache.
+  * **Dynamische Frontend-Kaskade:** `FrontendController` liest automatisch die passende Sprachversion aus und aktualisiert Seitentitel, Meta-Tags, Menü-Label und Inhalt mit Fallback auf die Hauptsprache.
+  * **Sprach-Badges im Backend:** Übersichtliche Kennzeichnung gepflegter Sprachvarianten direkt in den Seitenkarten.
+* **Frontend Subpage-Optimierung & Sprachkontinuität:**
+  * **Header-Clearance & Sichtbarkeit:** Beseitigung von Überdeckungen durch den Sticky-Header auf Einzelseiten (`?page=slug`) und Blog-Leseansichten (`?blog=slug`) durch optimalen 100px Abstand (`margin-top`).
+  * **High-Contrast Zurück-Button:** Modernes, barrierefreies Button-Design mit Hover-Transformation, dezentem Schatten und klarem Icon.
+  * **Sprachpersistente Navigation:** Zurück-Links (`btn.back_home`, `btn.back_overview`) und Header-Navigations-Anker behalten den aktiven Sprachparameter (`?lang=xx`) auch bei Subpage-Aufrufen lückenlos bei.
 * **Content-Hub, Blog-System & Flexible Menü-Platzierung:**
   * **Backend-Menü Reorganisation (Content-Hub):** Bündelung aller Inhaltsbereiche unter einem zentralen Menüpunkt *„Inhalte & Seiten“* (`.admin-nav`) mit kontextsensitiver Sub-Navigationsleiste (`.admin-subnav`) für blitzschnellen Wechsel zwischen Startseite, Blog, Galerie, Workshops, Impressionen und Impressum.
   * **Vollwertiges Blog- & Magazin-Modul:** Artikel-Management im Admin-Panel (`tab-blog`) mit Beitragsbildern, SEO-Slugs, Markdown-Inhalten, Datumsangaben, Autoren und Veröffentlichungsstatus (`Veröffentlicht` / `Entwurf`).

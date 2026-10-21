@@ -24,6 +24,7 @@ class FrontendController {
         // 1. Spracherkennung & mehrsprachige Text-Aufbereitung
         LanguageManager::setData($data);
         $cur_lang = LanguageManager::detectLanguage($data);
+        $primary_lang = LanguageManager::getPrimaryLanguage($data);
         $og_locale = LanguageManager::getLocale($cur_lang);
         $active_languages = LanguageManager::getActiveLanguages($data);
         $lang_switch_items = LanguageManager::getLanguageSwitchItems($data);
@@ -150,6 +151,7 @@ class FrontendController {
         return compact(
             'data',
             'cur_lang',
+            'primary_lang',
             'og_locale',
             'active_languages',
             'lang_switch_items',

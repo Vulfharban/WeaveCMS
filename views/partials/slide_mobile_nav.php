@@ -20,12 +20,13 @@
         <nav style="display: flex; flex-direction: column; gap: 1.5rem;">
             <?php 
                 $is_subpage_view = isset($_GET['page']) || isset($_GET['blog']);
+                $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?lang=' . urlencode($cur_lang) : './';
             ?>
             <?php foreach ($nav_items as $item): ?>
                 <?php 
                     $href = !empty($item['url']) 
                         ? htmlspecialchars($item['url']) 
-                        : ($is_subpage_view ? './#' . htmlspecialchars($item['id']) : '#' . htmlspecialchars($item['id']));
+                        : ($is_subpage_view ? htmlspecialchars($home_url . '#' . $item['id']) : '#' . htmlspecialchars($item['id']));
                 ?>
                 <a href="<?php echo $href; ?>" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;"><?php echo htmlspecialchars($item['nav_label']); ?></a>
             <?php endforeach; ?>
