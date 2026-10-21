@@ -24,7 +24,7 @@ if ($sec_item):
     $sec_title = $sec_item['title'] ?? '';
     $sec_in_nav = !empty($sec_item['in_nav']);
 ?>
-<div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 18px; margin-bottom: 2rem;">
+<div style="background: rgba(255, 255, 255, 0.65); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 18px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
     <form method="POST" action="" style="margin:0; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
         <input type="hidden" name="action" value="update_section">
@@ -38,13 +38,13 @@ if ($sec_item):
 
         <div style="display:flex; align-items:center; gap:12px; flex:1; flex-wrap:wrap; min-width:280px;">
             <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:180px;">
-                <label style="font-size:0.8rem; color:var(--text-secondary); white-space:nowrap;">Titel fürs Menü:</label>
-                <input type="text" name="nav_label" class="form-control" value="<?php echo htmlspecialchars($sec_nav_label); ?>" placeholder="z. B. <?php echo htmlspecialchars($sec_title); ?>" required style="padding:5px 10px; font-size:0.85rem; height:auto;">
+                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); white-space:nowrap;">Titel fürs Menü:</label>
+                <input type="text" name="nav_label" class="form-control" value="<?php echo htmlspecialchars($sec_nav_label); ?>" placeholder="z. B. <?php echo htmlspecialchars($sec_title); ?>" required style="background:#ffffff; border:1px solid rgba(62,50,40,0.2); color:var(--text-primary); padding:5px 10px; font-size:0.85rem; height:auto; border-radius:8px;">
             </div>
 
             <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:180px;">
-                <label style="font-size:0.8rem; color:var(--text-secondary); white-space:nowrap;">Sektions-Titel:</label>
-                <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($sec_title); ?>" placeholder="Titel der Sektion" style="padding:5px 10px; font-size:0.85rem; height:auto;">
+                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); white-space:nowrap;">Sektions-Titel:</label>
+                <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($sec_title); ?>" placeholder="Titel der Sektion" style="background:#ffffff; border:1px solid rgba(62,50,40,0.2); color:var(--text-primary); padding:5px 10px; font-size:0.85rem; height:auto; border-radius:8px;">
             </div>
 
             <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-primary); cursor:pointer; white-space:nowrap;">
