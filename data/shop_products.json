@@ -11,7 +11,19 @@
         "unlimited": false,
         "image": "images/basket_classic.jpg",
         "active": true,
-        "created_at": "2026-10-22 07:51:58"
+        "created_at": "2026-10-22 07:51:58",
+        "cost_price": 22.46,
+        "location": "Hauptlager A",
+        "min_stock": 3,
+        "supplier": "Eigenfertigung / Atelier",
+        "supplier_sku": "",
+        "unit": "Stück",
+        "barcode": "",
+        "margin_unit": 27.44,
+        "margin_percent": 55,
+        "is_low_stock": false,
+        "is_out_of_stock": false,
+        "margin_euro": 27.44
     },
     {
         "id": "prod_diy02",
@@ -25,7 +37,19 @@
         "unlimited": false,
         "image": "images/diy_kit.jpg",
         "active": true,
-        "created_at": "2026-10-22 07:51:58"
+        "created_at": "2026-10-22 07:51:58",
+        "cost_price": 13.46,
+        "location": "Hauptlager A",
+        "min_stock": 3,
+        "supplier": "Eigenfertigung / Atelier",
+        "supplier_sku": "",
+        "unit": "Stück",
+        "barcode": "",
+        "margin_unit": 16.44,
+        "margin_percent": 55,
+        "is_low_stock": false,
+        "is_out_of_stock": false,
+        "margin_euro": 16.44
     },
     {
         "id": "prod_buch03",
@@ -39,7 +63,19 @@
         "unlimited": false,
         "image": "",
         "active": true,
-        "created_at": "2026-10-22 07:51:58"
+        "created_at": "2026-10-22 07:51:58",
+        "cost_price": 11.03,
+        "location": "Hauptlager A",
+        "min_stock": 3,
+        "supplier": "Eigenfertigung / Atelier",
+        "supplier_sku": "",
+        "unit": "Stück",
+        "barcode": "",
+        "margin_unit": 13.47,
+        "margin_percent": 55,
+        "is_low_stock": false,
+        "is_out_of_stock": false,
+        "margin_euro": 13.47
     },
     {
         "id": "prod_gut04",
@@ -53,6 +89,18 @@
         "unlimited": true,
         "image": "",
         "active": true,
-        "created_at": "2026-10-22 07:51:58"
+        "created_at": "2026-10-22 07:51:58",
+        "cost_price": 33.75,
+        "location": "Hauptlager A",
+        "min_stock": 3,
+        "supplier": "Eigenfertigung / Atelier",
+        "supplier_sku": "",
+        "unit": "Stück",
+        "barcode": "",
+        "margin_unit": 41.25,
+        "margin_percent": 55,
+        "is_low_stock": false,
+        "is_out_of_stock": false,
+        "margin_euro": 41.25
     }
 ]

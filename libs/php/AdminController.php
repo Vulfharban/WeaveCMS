@@ -230,7 +230,7 @@ class AdminController {
         if (!empty($_GET['tab']) && is_string($_GET['tab'])) {
             return trim($_GET['tab']);
         }
-        if (strpos($action, 'shop') !== false || strpos($action, 'webtrees') !== false) {
+        if (strpos($action, 'shop') !== false || strpos($action, 'webtrees') !== false || strpos($action, 'inventory') !== false || strpos($action, 'inv_') !== false) {
             return 'tab-plugins';
         }
         if (strpos($action, 'blog') !== false) {

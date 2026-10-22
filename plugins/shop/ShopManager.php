@@ -236,6 +236,10 @@ class ShopManager {
         }
         self::saveProducts($products);
 
+        if (class_exists('PluginManager')) {
+            PluginManager::doAction('shop_order_created', $newOrder);
+        }
+
         return $newOrder;
     }
 
