@@ -542,3 +542,50 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Benachrichtigung des Systemadministrators bei wiederholten, koordinierten Brute-Force-Angriffen oder unbefugten Manipulationsversuchen im Live-Betrieb.
 - [ ] **17.6 Prüfung & Abnahme:**
   - Live-Deployment-Checkliste auf echtem Webspace durchlaufen (SSL-Score A+, Header-Analyse via securityheaders.com).
+
+---
+
+### Phase 18: Flexible Website-Architektur (Klassische Multi-Page Website & Zusätzliche modulare One-Pager)
+*Ziel: Ermöglicht dem Seitenbetreiber den nahtlosen Wechsel zwischen modernem One-Pager (Standard nach Installation) und einer klassischen Multi-Page-Website mit separaten Einzelseiten für Inhaltsbereiche, sowie die Erstellung beliebiger zusätzlicher modularer Endlos-Scroll-Landingpages.*
+
+- [ ] **18.1 Globaler Architektur-Wahlschalter im Adminbereich:**
+  - Standard nach Erstinstallation: *One-Pager (alle Sektionen auf der Startseite mit Anker-Navigation)*.
+  - Wählbare Modi:
+    1. **One-Pager (Default):** Bewährte fortlaufende Startseite mit allen aktiven Sektionen.
+    2. **Klassische Multi-Page Website:** Sektionen (Galerie, Workshops, Shop, Blog, Downloads, Stammbaum, Über mich) erhalten eigene URLs (`/?page=galerie`, `/?page=kurse` bzw. `/galerie`, `/kurse`), während die Startseite eine kompakte Landingpage / Hero-Überblick darstellt.
+    3. **Individuell / Hybrid:** Im Sektionen-Manager kann pro Sektion frei gewählt werden: *„Anzeige auf: [ Startseite | Eigene Unterseite (/slug) | Landingpage X ]“*.
+- [ ] **18.2 Zusätzliche modulare Endlos-Scroll-Seiten (Landingpage-Builder):**
+  - Erweiterung der Einzelseiten-Verwaltung (`tab_pages.php`) um den Seitentyp:
+    - *Standard-Content-Seite:* Freier Text, Markdown, HTML, Bilder.
+    - *Modulare Sektions-Landingpage:* Zusammenstellung beliebiger Sektionen in frei wählbarer Reihenfolge (z. B. Weihnachts-Aktion, Special-Workshop-Page, Portfolio-Showcase).
+  - Jede modulare Seite erhält ihre eigene URL, eigene Meta-Angaben (SEO) und wird als fortlaufender Sektionen-Stack gerendert.
+- [ ] **18.3 Intelligente Menü- & Routing-Engine:**
+  - Automatische Anpassung der Navigation:
+    - Verlinkung auf Sektionen derselben Seite nutzt `#sektion` (weiches Scrollen).
+    - Verlinkung auf separate Seiten nutzt die entsprechende Seiten-URL (`/?page=slug` oder Clean URL).
+    - Menü-Sync im Sektionen-Manager bleibt erhalten.
+- [ ] **18.4 Prüfung & Abnahme:**
+  - Umschalten von One-Pager auf Multi-Page testen: Alle Bereiche als Einzelseiten erreichbar, Menülinks leiten korrekt weiter.
+  - Zusätzliche modulare Sektions-Seite erstellen (z. B. 3 Sektionen gestackt) und im Frontend aufrufen.
+
+---
+
+### Phase 19: Menü-Aufbau, Position-Selector im Design-Bereich & Plugin-Theme-Erweiterbarkeit
+*Ziel: Hochgradig flexible Navigation mit 3 wählbaren Menüstilen im Design-Tab (2x waagerecht, 1x senkrecht/Sidebar) sowie einer Plugin-Schnittstelle zur Bereitstellung individueller Menüarten und Themes.*
+
+- [ ] **19.1 Menü-Position & Typ-Selector im Design-Tab:**
+  - Konfigurationsfeld im Adminbereich unter *Design & Themes*:
+    1. **Waagerecht Minimal (Standard):** Bewährte schlanke Kopfzeilen-Navigation mit Logo und Text-Links.
+    2. **Waagerecht mit Icons/Grafiken:** Horizontale Menüleiste mit passenden Symbolen (Material-Icons oder Custom-Icons) vor jedem Menüpunkt für visuelle Orientierung.
+    3. **Senkrecht (Sidebar-Navigation):** Vertikale Menüleiste (wahlweise links oder rechts fixiert / sticky) mit responsiver Ein-/Ausklapp-Funktion auf Mobilgeräten.
+- [ ] **19.2 Icon- & Grafik-Zuweisung für Menüpunkte:**
+  - Automatisches Fallback auf Standard-Icons der Sektionstypen (`photo_library`, `event`, `storefront`, `account_tree`, etc.).
+  - Im Sektionen- & Seiteneditor optionales Icon-Auswahlfeld für individuelle Grafiken / Symbole.
+- [ ] **19.3 Plugin-Schnittstelle für Menüarten & Themes:**
+  - Neuer Filter-Hook `theme_register_menu_types`: Plugins können eigene Menüarten registrieren (z. B. *Fullscreen-Overlay-Menü*, *macOS-style Floating Dock*, *Off-Canvas Mega-Menü*).
+  - Action-Hook `frontend_render_navigation`: Erlaubt Plugins das vollständige Überschreiben oder Rendern benutzerdefinierter Navigationsleisten.
+  - Filter-Hook `theme_register_layouts`: Plugins können eigene Page-Templates und Themes bereitstellen.
+- [ ] **19.4 Prüfung & Abnahme:**
+  - Umschalten zwischen allen 3 Menüarten im Design-Tab.
+  - Prüfen der Desktop- und Mobilansicht für horizontale und vertikale Sidebar-Navigation.
+  - Test-Plugin zur Registrierung eines individuellen Menüstils über den neuen Plugin-Hook.
