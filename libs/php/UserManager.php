@@ -273,7 +273,7 @@ class UserManager {
             'add_custom_page', 'update_custom_page', 'delete_custom_page',
             'add_faq', 'update_faq', 'delete_faq',
             'add_team_member', 'update_team_member', 'delete_team_member',
-            'add_download', 'update_download', 'delete_download',
+            'add_download', 'edit_download', 'update_download', 'delete_download', 'reset_download_counter',
             'add_pricing_plan', 'update_pricing_plan', 'delete_pricing_plan',
             'add_blog_post', 'update_blog_post', 'delete_blog_post',
             'update_profile_password'

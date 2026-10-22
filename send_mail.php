@@ -82,10 +82,30 @@ if (empty($message) || mb_strlen($message, 'UTF-8') < 5) {
     send_json_response(['success' => false, 'error' => 'Bitte gib eine Nachricht mit mindestens 5 Zeichen ein.']);
 }
 
-// 3. Spamschutz-Icon prüfen (muss mit der Zielaufgabe übereinstimmen und zu den 4 aktiven Symbolen gehören)
-$allowed_icons = array_keys(get_active_captcha_icons($data));
-if (empty($selected_icon) || empty($target_icon) || $selected_icon !== $target_icon || !in_array($selected_icon, $allowed_icons, true)) {
-    send_json_response(['success' => false, 'error' => 'Die Sicherheitsprüfung (Symbol-Auswahl) war nicht korrekt. Bitte versuche es erneut.']);
+// 3. Multi-Captcha Sicherheitsprüfung (Phase 16)
+$captcha_mode = CaptchaManager::getMode($data);
+
+if ($captcha_mode === CaptchaManager::MODE_ICONS) {
+    $selected_icon = trim($_POST['selected_icon'] ?? '');
+    $target_icon = trim($_POST['target_icon'] ?? '');
+    $allowed_icons = array_keys(get_active_captcha_icons($data));
+    if (empty($selected_icon) || empty($target_icon) || $selected_icon !== $target_icon || !in_array($selected_icon, $allowed_icons, true)) {
+        send_json_response(['success' => false, 'error' => 'Die Sicherheitsprüfung (Symbol-Auswahl) war nicht korrekt. Bitte versuche es erneut.']);
+    }
+} elseif ($captcha_mode === CaptchaManager::MODE_MATH) {
+    $math_answer = trim($_POST['captcha_math_answer'] ?? '');
+    $math_hash = trim($_POST['captcha_math_hash'] ?? '');
+    if (!CaptchaManager::verifyMathChallenge($math_answer, $math_hash)) {
+        send_json_response(['success' => false, 'error' => 'Die Sicherheitsprüfung (Rechenaufgabe) war nicht korrekt. Bitte versuche es erneut.']);
+    }
+} elseif ($captcha_mode === CaptchaManager::MODE_CANVAS) {
+    $canvas_answer = trim($_POST['captcha_canvas_answer'] ?? '');
+    $canvas_hash = trim($_POST['captcha_canvas_hash'] ?? '');
+    if (!CaptchaManager::verifyCanvasChallenge($canvas_answer, 'contact', $canvas_hash)) {
+        send_json_response(['success' => false, 'error' => 'Der eingegebene Bestätigungscode war nicht korrekt. Bitte versuche es erneut.']);
+    }
+} elseif ($captcha_mode === CaptchaManager::MODE_HONEYPOT) {
+    // Honeypot & Time-Trap sind aktiv
 }
 
 // 3b. Anfrage lokal im Admin-Postfach archivieren (unabhängig vom Mailversand)

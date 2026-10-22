@@ -324,10 +324,13 @@ function showToast(msg) {
  * @returns {boolean}
  */
 function validateSystemForm(form) {
-    const checkedCaptcha = form.querySelectorAll('input[name="captcha_icons[]"]:checked');
-    if (checkedCaptcha.length !== 4) {
-        alert(`⚠️ Spamschutz-Symbole:\n\nBitte wähle genau 4 Symbole für den Spamschutz im Kontaktformular aus!\n(Aktuell ausgewählt: ${checkedCaptcha.length} von 4)`);
-        return false;
+    const selectedMode = form.querySelector('input[name="captcha_mode"]:checked')?.value || 'icons';
+    if (selectedMode === 'icons') {
+        const checkedCaptcha = form.querySelectorAll('input[name="captcha_icons[]"]:checked');
+        if (checkedCaptcha.length !== 4) {
+            alert(`⚠️ Spamschutz-Symbole:\n\nBitte wähle genau 4 Symbole für den Spamschutz im Kontaktformular aus!\n(Aktuell ausgewählt: ${checkedCaptcha.length} von 4)`);
+            return false;
+        }
     }
     return true;
 }

@@ -199,6 +199,7 @@ class AdminController {
             case 'add_download':
             case 'edit_download':
             case 'delete_download':
+            case 'reset_download_counter':
                 self::handleDownloadAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
@@ -446,6 +447,9 @@ class AdminController {
             $impressum_placement = 'both';
         }
         $data['settings']['impressum_placement'] = $impressum_placement;
+
+        // Besucher-Barrierefreiheitsleiste (Phase 16)
+        $data['settings']['accessibility_bar_enabled'] = !empty($_POST['accessibility_bar_enabled']);
 
         // Mehrsprachigkeit (Phase 8): Primärsprache & aktive Sprachen
         $supported = LanguageManager::getSupportedLanguages();
@@ -730,9 +734,17 @@ class AdminController {
         $data['settings']['smtp']['from_email'] = $smtp_from_email;
         $data['settings']['smtp']['from_name'] = $smtp_from_name;
 
+        // Modulare Captcha-Auswahl-Engine (Phase 16)
+        $captcha_mode = trim($_POST['captcha_mode'] ?? CaptchaManager::MODE_ICONS);
+        if (in_array($captcha_mode, [CaptchaManager::MODE_ICONS, CaptchaManager::MODE_MATH, CaptchaManager::MODE_CANVAS, CaptchaManager::MODE_HONEYPOT], true)) {
+            $data['settings']['captcha_mode'] = $captcha_mode;
+        }
+
+        $data['settings']['impressum_email_captcha'] = !empty($_POST['impressum_email_captcha']);
+
         $submitted_captcha = $_POST['captcha_icons'] ?? [];
         $captcha_error = false;
-        if (is_array($submitted_captcha)) {
+        if (is_array($submitted_captcha) && !empty($submitted_captcha)) {
             $all_available_icons = CaptchaManager::getAllIcons();
             $valid_captcha_icons = [];
             foreach ($submitted_captcha as $c_id) {
@@ -742,10 +754,12 @@ class AdminController {
             }
             if (count($valid_captcha_icons) === 4) {
                 $data['settings']['captcha_icons'] = $valid_captcha_icons;
-            } elseif (count($valid_captcha_icons) !== 4) {
+            } elseif ($captcha_mode === CaptchaManager::MODE_ICONS) {
                 $captcha_error = true;
                 $error_msg = 'Bitte wähle genau 4 Symbole für den Spamschutz im Kontaktformular aus (aktuell ausgewählt: ' . count($valid_captcha_icons) . ').';
             }
+        } elseif ($captcha_mode === CaptchaManager::MODE_ICONS && empty($data['settings']['captcha_icons'])) {
+            $data['settings']['captcha_icons'] = ['basket', 'branch', 'paw', 'sun'];
         }
 
         if (!$captcha_error) {
@@ -1716,38 +1730,83 @@ class AdminController {
     }
 
     /**
-     * Verarbeitet Aktionen für Downloads & Dokumente.
+     * Verarbeitet Aktionen für Downloads & Software (Phase 16).
      */
     public static function handleDownloadAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
         if (!isset($data['downloads']) || !is_array($data['downloads'])) {
             $data['downloads'] = [];
         }
 
+        // Hilfsfunktion zum Parsen von Feature-Bulletpoints
+        $parseFeatures = function($rawInput): array {
+            if (is_array($rawInput)) {
+                return array_values(array_filter(array_map('trim', $rawInput)));
+            }
+            $lines = explode("\n", str_replace("\r", '', (string)$rawInput));
+            return array_values(array_filter(array_map('trim', $lines)));
+        };
+
+        // Hilfsfunktion zum Parsen von Screenshot-Pfaden
+        $parseScreenshots = function($rawInput): array {
+            if (is_array($rawInput)) {
+                return array_values(array_filter(array_map('trim', $rawInput)));
+            }
+            $items = preg_split('/[\r\n,]+/', (string)$rawInput);
+            return array_values(array_filter(array_map('trim', $items)));
+        };
+
         if ($action === 'add_download') {
             $title = trim($_POST['title'] ?? '');
             if (empty($title)) {
-                $error_msg = 'Bitte gib einen Dokumenttitel an.';
+                $error_msg = 'Bitte gib einen Dokumenttitel oder Software-Namen an.';
                 return;
             }
 
-            $docInfo = ImageUploader::uploadDocument('download_file');
-            if (!$docInfo) {
-                $error_msg = 'Bitte wähle eine gültige Datei aus (Erlaubt: PDF, ZIP, DOCX, TXT etc.).';
-                return;
+            $fileSource = ($_POST['file_source'] ?? 'upload') === 'external' ? 'external' : 'upload';
+            $externalUrl = trim($_POST['external_url'] ?? '');
+            $filePath = '';
+            $fileSize = trim($_POST['file_size'] ?? '');
+
+            if ($fileSource === 'external') {
+                if (empty($externalUrl) || !filter_var($externalUrl, FILTER_VALIDATE_URL)) {
+                    $error_msg = 'Bitte gib eine gültige externe Download-URL an (z. B. GitHub Release oder Cloud-Speicher).';
+                    return;
+                }
+            } else {
+                $docInfo = ImageUploader::uploadDocument('download_file');
+                if (!$docInfo) {
+                    $error_msg = 'Bitte wähle eine gültige Datei aus (Erlaubt: PDF, ZIP, DOCX, TXT etc.).';
+                    return;
+                }
+                $filePath = $docInfo['path'];
+                if (empty($fileSize)) {
+                    $fileSize = $docInfo['size'];
+                }
             }
 
             $newDl = [
                 'id' => 'dl_' . uniqid(),
                 'title' => $title,
                 'description' => trim($_POST['description'] ?? ''),
-                'file_path' => $docInfo['path'],
-                'file_size' => $docInfo['size'],
+                'category' => trim($_POST['category'] ?? 'Software'),
+                'file_source' => $fileSource,
+                'file_path' => $filePath,
+                'external_url' => $externalUrl,
+                'file_size' => $fileSize,
+                'version' => trim($_POST['version'] ?? ''),
+                'platform' => trim($_POST['platform'] ?? ''),
+                'license' => trim($_POST['license'] ?? ''),
+                'features' => $parseFeatures($_POST['features'] ?? ''),
+                'screenshots' => $parseScreenshots($_POST['screenshots'] ?? ''),
+                'changelog' => trim($_POST['changelog'] ?? ''),
+                'show_counter' => !empty($_POST['show_counter']),
+                'download_count' => 0,
                 'created_at' => date('Y-m-d H:i:s')
             ];
 
             $data['downloads'][] = $newDl;
             if (save_data($dataFile, $data)) {
-                $success_msg = 'Dokument „' . htmlspecialchars($title) . '“ erfolgreich bereitgestellt!';
+                $success_msg = 'Download-Eintrag „' . htmlspecialchars($title) . '“ erfolgreich angelegt!';
             } else {
                 $error_msg = 'Fehler beim Speichern.';
             }
@@ -1762,18 +1821,32 @@ class AdminController {
                 }
             }
             if ($found_idx === -1) {
-                $error_msg = 'Dokument nicht gefunden.';
+                $error_msg = 'Download-Eintrag nicht gefunden.';
                 return;
             }
 
             $title = trim($_POST['title'] ?? '');
             if (empty($title)) {
-                $error_msg = 'Bitte gib einen Dokumenttitel an.';
+                $error_msg = 'Bitte gib einen Dokumenttitel oder Software-Namen an.';
                 return;
             }
 
+            $fileSource = ($_POST['file_source'] ?? 'upload') === 'external' ? 'external' : 'upload';
+            $externalUrl = trim($_POST['external_url'] ?? '');
+            $fileSize = trim($_POST['file_size'] ?? ($data['downloads'][$found_idx]['file_size'] ?? ''));
+
             $data['downloads'][$found_idx]['title'] = $title;
             $data['downloads'][$found_idx]['description'] = trim($_POST['description'] ?? '');
+            $data['downloads'][$found_idx]['category'] = trim($_POST['category'] ?? 'Software');
+            $data['downloads'][$found_idx]['file_source'] = $fileSource;
+            $data['downloads'][$found_idx]['external_url'] = $externalUrl;
+            $data['downloads'][$found_idx]['version'] = trim($_POST['version'] ?? '');
+            $data['downloads'][$found_idx]['platform'] = trim($_POST['platform'] ?? '');
+            $data['downloads'][$found_idx]['license'] = trim($_POST['license'] ?? '');
+            $data['downloads'][$found_idx]['features'] = $parseFeatures($_POST['features'] ?? '');
+            $data['downloads'][$found_idx]['screenshots'] = $parseScreenshots($_POST['screenshots'] ?? '');
+            $data['downloads'][$found_idx]['changelog'] = trim($_POST['changelog'] ?? '');
+            $data['downloads'][$found_idx]['show_counter'] = !empty($_POST['show_counter']);
 
             if (!empty($_FILES['download_file']['name'])) {
                 $docInfo = ImageUploader::uploadDocument('download_file');
@@ -1781,12 +1854,31 @@ class AdminController {
                     $data['downloads'][$found_idx]['file_path'] = $docInfo['path'];
                     $data['downloads'][$found_idx]['file_size'] = $docInfo['size'];
                 }
+            } elseif (!empty($_POST['existing_file']) && $fileSource === 'upload') {
+                $data['downloads'][$found_idx]['file_path'] = trim($_POST['existing_file']);
+                $data['downloads'][$found_idx]['file_size'] = $fileSize;
             }
 
             if (save_data($dataFile, $data)) {
-                $success_msg = 'Dokument „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
+                $success_msg = 'Download-Eintrag „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
             } else {
                 $error_msg = 'Fehler beim Speichern.';
+            }
+
+        } elseif ($action === 'reset_download_counter') {
+            $dl_id = $_POST['id'] ?? '';
+            $found = false;
+            foreach ($data['downloads'] as $idx => $d) {
+                if ((string)($d['id'] ?? '') === (string)$dl_id) {
+                    $data['downloads'][$idx]['download_count'] = 0;
+                    $found = true;
+                    break;
+                }
+            }
+            if ($found && save_data($dataFile, $data)) {
+                $success_msg = 'Download-Zähler erfolgreich auf 0 zurückgesetzt.';
+            } else {
+                $error_msg = 'Eintrag nicht gefunden.';
             }
 
         } elseif ($action === 'delete_download') {
@@ -1798,12 +1890,12 @@ class AdminController {
 
             if (count($data['downloads']) < $orig_count) {
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Dokument gelöscht.';
+                    $success_msg = 'Download-Eintrag gelöscht.';
                 } else {
                     $error_msg = 'Fehler beim Speichern.';
                 }
             } else {
-                $error_msg = 'Dokument nicht gefunden.';
+                $error_msg = 'Download-Eintrag nicht gefunden.';
             }
         }
     }

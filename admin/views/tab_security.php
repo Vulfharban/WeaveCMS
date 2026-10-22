@@ -15,36 +15,123 @@
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="update_security">
 
-                <!-- 1. SPAMSCHUTZ / CAPTCHA-SYMBOLE -->
+                <!-- 1. SPAMSCHUTZ / MODULARE CAPTCHA-ENGINE (PHASE 16) -->
+                <?php
+                    $cur_captcha_mode = CaptchaManager::getMode($data);
+                    $impressum_email_protected = CaptchaManager::isImpressumEmailProtected($data);
+                ?>
                 <h3 style="font-size: 1.2rem; margin-top: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
                     <span style="display:flex; align-items:center; gap:8px;">
-                        <span class="material-icons" style="color:var(--primary);">verified_user</span> Spamschutz-Bilder für das Kontaktformular (Captcha)
+                        <span class="material-icons" style="color:var(--primary);">verified_user</span> Aktives Captcha-Verfahren &amp; Bot-Schutz
                     </span>
-                    <span id="captcha-counter-badge" style="font-size:0.85rem; padding:4px 12px; border-radius:20px; font-weight:600; background:rgba(46,98,72,0.12); color:var(--primary);">
+                    <span id="captcha-counter-badge" style="font-size:0.85rem; padding:4px 12px; border-radius:20px; font-weight:600; background:rgba(46,98,72,0.12); color:var(--primary); <?php echo ($cur_captcha_mode !== 'icons') ? 'display:none;' : ''; ?>">
                         Ausgewählt: <span id="captcha-count"><?php echo count(get_active_captcha_icons($data)); ?></span> von 4 Symbolen
                     </span>
                 </h3>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
-                    Wähle hier genau <strong>4 der 12 zur Verfügung stehenden Symbole</strong> aus. Diese 4 Symbole werden deinen Besuchern im Kontaktformular angezeigt, wobei bei jeder Anfrage eines davon per Zufall als Sicherheitsaufgabe gelöst werden muss.
+                    Wähle hier das gewünschte Spamschutz-Verfahren für dein Kontaktformular aus. Alle Verfahren sind 100% DSGVO-konform ohne externe Tracker.
                 </p>
 
-                <?php 
-                    $all_icons = get_all_captcha_icons();
-                    $active_icons_keys = array_keys(get_active_captcha_icons($data));
-                ?>
+                <!-- Captcha-Modus Auswahl-Kacheln -->
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 1.5rem;">
+                    <label class="captcha-mode-card" style="display:flex; flex-direction:column; padding:14px; border:2px solid <?php echo ($cur_captcha_mode === 'icons') ? 'var(--primary)' : 'var(--border-color)'; ?>; border-radius:12px; background:<?php echo ($cur_captcha_mode === 'icons') ? 'rgba(46,98,72,0.06)' : 'rgba(0,0,0,0.015)'; ?>; cursor:pointer;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                            <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem;">🌿 Symbol-Captcha</span>
+                            <input type="radio" name="captcha_mode" value="icons" <?php echo ($cur_captcha_mode === 'icons') ? 'checked' : ''; ?> onchange="onCaptchaModeChange(this.value)">
+                        </div>
+                        <span style="font-size:0.8rem; color:var(--text-secondary); line-height:1.35;">
+                            Klick-Auswahl aus 4 Natur- und Flechtsymbolen. Der bewährte WeaveCMS Standard.
+                        </span>
+                    </label>
 
-                <div class="captcha-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-bottom: 2rem;">
-                    <?php foreach ($all_icons as $icon_id => $icon_meta): 
-                        $is_checked = in_array($icon_id, $active_icons_keys, true);
-                    ?>
-                        <label class="captcha-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 14px 10px; border: 2px solid <?php echo $is_checked ? 'var(--primary)' : 'var(--border-color)'; ?>; border-radius: 14px; background: <?php echo $is_checked ? 'rgba(46,98,72,0.08)' : 'rgba(0,0,0,0.015)'; ?>; cursor:pointer; user-select:none; transition: all 0.2s ease; position:relative; text-align:center;">
-                            <input type="checkbox" name="captcha_icons[]" value="<?php echo htmlspecialchars($icon_id); ?>" <?php echo $is_checked ? 'checked' : ''; ?> style="position:absolute; top:8px; right:8px; width:17px; height:17px; accent-color:var(--primary); cursor:pointer;" onchange="updateCaptchaSelection(this);">
-                            <span style="font-size: 2.2rem; line-height: 1.2; margin-bottom: 6px;"><?php echo $icon_meta['symbol']; ?></span>
-                            <span style="font-weight: 600; font-size: 0.86rem; color: var(--text-primary); margin-bottom: 2px;"><?php echo htmlspecialchars($icon_meta['name']); ?></span>
-                            <span style="font-size: 0.72rem; color: var(--text-secondary);"><?php echo htmlspecialchars($icon_meta['prompt']); ?></span>
-                        </label>
-                    <?php endforeach; ?>
+                    <label class="captcha-mode-card" style="display:flex; flex-direction:column; padding:14px; border:2px solid <?php echo ($cur_captcha_mode === 'math') ? 'var(--primary)' : 'var(--border-color)'; ?>; border-radius:12px; background:<?php echo ($cur_captcha_mode === 'math') ? 'rgba(46,98,72,0.06)' : 'rgba(0,0,0,0.015)'; ?>; cursor:pointer;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                            <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem;">🔢 Mathe-Aufgabe</span>
+                            <input type="radio" name="captcha_mode" value="math" <?php echo ($cur_captcha_mode === 'math') ? 'checked' : ''; ?> onchange="onCaptchaModeChange(this.value)">
+                        </div>
+                        <span style="font-size:0.8rem; color:var(--text-secondary); line-height:1.35;">
+                            Dynamische Zufallsaufgabe (z. B. „4 + 3 = ?“). Einfach und hochgradig barrierefrei.
+                        </span>
+                    </label>
+
+                    <label class="captcha-mode-card" style="display:flex; flex-direction:column; padding:14px; border:2px solid <?php echo ($cur_captcha_mode === 'canvas') ? 'var(--primary)' : 'var(--border-color)'; ?>; border-radius:12px; background:<?php echo ($cur_captcha_mode === 'canvas') ? 'rgba(46,98,72,0.06)' : 'rgba(0,0,0,0.015)'; ?>; cursor:pointer;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                            <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem;">🎨 Canvas-Zahlen</span>
+                            <input type="radio" name="captcha_mode" value="canvas" <?php echo ($cur_captcha_mode === 'canvas') ? 'checked' : ''; ?> onchange="onCaptchaModeChange(this.value)">
+                        </div>
+                        <span style="font-size:0.8rem; color:var(--text-secondary); line-height:1.35;">
+                            5-stelliger Code im Canvas mit Rauschlinien. Immun gegen Text-Scraper.
+                        </span>
+                    </label>
+
+                    <label class="captcha-mode-card" style="display:flex; flex-direction:column; padding:14px; border:2px solid <?php echo ($cur_captcha_mode === 'honeypot') ? 'var(--primary)' : 'var(--border-color)'; ?>; border-radius:12px; background:<?php echo ($cur_captcha_mode === 'honeypot') ? 'rgba(46,98,72,0.06)' : 'rgba(0,0,0,0.015)'; ?>; cursor:pointer;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                            <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem;">🥷 Unsichtbarer Bot-Schutz</span>
+                            <input type="radio" name="captcha_mode" value="honeypot" <?php echo ($cur_captcha_mode === 'honeypot') ? 'checked' : ''; ?> onchange="onCaptchaModeChange(this.value)">
+                        </div>
+                        <span style="font-size:0.8rem; color:var(--text-secondary); line-height:1.35;">
+                            Honeypot-Falle + Time-Trap ohne sichtbare Frage. Höchster Komfort für Besucher.
+                        </span>
+                    </label>
                 </div>
+
+                <!-- Symbol-Auswahl (nur sichtbar bei Modus 'icons') -->
+                <div id="captcha-icons-section" style="<?php echo ($cur_captcha_mode !== 'icons') ? 'display:none;' : ''; ?> margin-bottom: 2rem;">
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 0.75rem;">
+                        Wähle hier genau <strong>4 der 12 zur Verfügung stehenden Symbole</strong> aus:
+                    </p>
+                    <?php 
+                        $all_icons = get_all_captcha_icons();
+                        $active_icons_keys = array_keys(get_active_captcha_icons($data));
+                    ?>
+                    <div class="captcha-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;">
+                        <?php foreach ($all_icons as $icon_id => $icon_meta): 
+                            $is_checked = in_array($icon_id, $active_icons_keys, true);
+                        ?>
+                            <label class="captcha-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 14px 10px; border: 2px solid <?php echo $is_checked ? 'var(--primary)' : 'var(--border-color)'; ?>; border-radius: 14px; background: <?php echo $is_checked ? 'rgba(46,98,72,0.08)' : 'rgba(0,0,0,0.015)'; ?>; cursor:pointer; user-select:none; transition: all 0.2s ease; position:relative; text-align:center;">
+                                <input type="checkbox" name="captcha_icons[]" value="<?php echo htmlspecialchars($icon_id); ?>" <?php echo $is_checked ? 'checked' : ''; ?> style="position:absolute; top:8px; right:8px; width:17px; height:17px; accent-color:var(--primary); cursor:pointer;" onchange="updateCaptchaSelection(this);">
+                                <span style="font-size: 2.2rem; line-height: 1.2; margin-bottom: 6px;"><?php echo $icon_meta['symbol']; ?></span>
+                                <span style="font-weight: 600; font-size: 0.86rem; color: var(--text-primary); margin-bottom: 2px;"><?php echo htmlspecialchars($icon_meta['name']); ?></span>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary);"><?php echo htmlspecialchars($icon_meta['prompt']); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- Anti-Scraping E-Mail-Schutz im Impressum -->
+                <div style="background:rgba(0,0,0,0.02); border:1px solid var(--border-color); border-radius:12px; padding:1.25rem; margin-bottom:2rem;">
+                    <label style="display:inline-flex; align-items:flex-start; gap:10px; cursor:pointer;">
+                        <input type="checkbox" name="impressum_email_captcha" value="1" <?php echo $impressum_email_protected ? 'checked' : ''; ?> style="width:18px; height:18px; margin-top:2px;">
+                        <div>
+                            <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem; display:block;">
+                                🛡️ E-Mail-Adresse im Impressum mit aktiver Captcha-Prüfung schützen (Anti-Scraping)
+                            </span>
+                            <span style="font-size:0.84rem; color:var(--text-secondary); line-height:1.4; display:block; margin-top:2px;">
+                                Verhindert, dass automatisierte Adress-Harvester und Spam-Crawler deine E-Mail-Adresse im Klartext auslesen. Besucher schalten die Adresse per Klick und 5-stelligem Canvas-Code frei.
+                            </span>
+                        </div>
+                    </label>
+                </div>
+
+                <script>
+                function onCaptchaModeChange(mode) {
+                    const iconsSec = document.getElementById('captcha-icons-section');
+                    const badge = document.getElementById('captcha-counter-badge');
+                    if (iconsSec) iconsSec.style.display = (mode === 'icons') ? 'block' : 'none';
+                    if (badge) badge.style.display = (mode === 'icons') ? 'inline-block' : 'none';
+
+                    document.querySelectorAll('.captcha-mode-card').forEach(card => {
+                        const input = card.querySelector('input[type="radio"]');
+                        if (input && input.checked) {
+                            card.style.borderColor = 'var(--primary)';
+                            card.style.background = 'rgba(46,98,72,0.06)';
+                        } else {
+                            card.style.borderColor = 'var(--border-color)';
+                            card.style.background = 'rgba(0,0,0,0.015)';
+                        }
+                    });
+                }
+                </script>
 
                 <!-- 2. E-MAIL & SMTP VERSAND -->
                 <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem; display:flex; align-items:center; gap:8px;">

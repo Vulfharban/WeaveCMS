@@ -425,28 +425,68 @@ function sendRequestEmail(e, contactEmail) {
         return;
     }
 
-    // 3. Icon-Spamschutz-Prüfung (Option 1)
-    if (!selectedSpamIconId) {
-        const promptText = currentTargetSpamIcon ? currentTargetSpamIcon.prompt : 'das geforderte Symbol';
-        if (feedback) {
-            feedback.innerText = `Bitte klicke oben kurz zur Bestätigung auf ${promptText}.`;
-            feedback.style.display = 'block';
-        } else {
-            alert(`Bitte bestätige den Spamschutz durch Klick auf ${promptText}.`);
-        }
-        return;
-    }
+    // 3. Multi-Captcha Prüfung je nach Modus (Phase 16)
+    const captchaModeEl = document.getElementById('req-captcha-mode');
+    const captchaMode = captchaModeEl ? captchaModeEl.value : 'icons';
 
-    if (!currentTargetSpamIcon || selectedSpamIconId !== currentTargetSpamIcon.id) {
-        const promptText = currentTargetSpamIcon ? currentTargetSpamIcon.prompt : 'das richtige Symbol';
-        if (feedback) {
-            feedback.innerText = `Das war leider nicht richtig. Bitte klicke auf ${promptText}.`;
-            feedback.style.display = 'block';
-        } else {
-            alert(`Das war leider nicht richtig. Bitte klicke auf ${promptText}.`);
+    let mathAnswer = '';
+    let mathHash = '';
+    let canvasAnswer = '';
+    let canvasHash = '';
+
+    if (captchaMode === 'icons') {
+        if (!selectedSpamIconId) {
+            const promptText = currentTargetSpamIcon ? currentTargetSpamIcon.prompt : 'das geforderte Symbol';
+            if (feedback) {
+                feedback.innerText = `Bitte klicke oben kurz zur Bestätigung auf ${promptText}.`;
+                feedback.style.display = 'block';
+            } else {
+                alert(`Bitte bestätige den Spamschutz durch Klick auf ${promptText}.`);
+            }
+            return;
         }
-        generateSpamProtection();
-        return;
+
+        if (!currentTargetSpamIcon || selectedSpamIconId !== currentTargetSpamIcon.id) {
+            const promptText = currentTargetSpamIcon ? currentTargetSpamIcon.prompt : 'das richtige Symbol';
+            if (feedback) {
+                feedback.innerText = `Das war leider nicht richtig. Bitte klicke auf ${promptText}.`;
+                feedback.style.display = 'block';
+            } else {
+                alert(`Das war leider nicht richtig. Bitte klicke auf ${promptText}.`);
+            }
+            generateSpamProtection();
+            return;
+        }
+    } else if (captchaMode === 'math') {
+        const mathInput = document.getElementById('req-math-answer');
+        mathAnswer = mathInput ? mathInput.value.trim() : '';
+        const mathHashInput = document.getElementById('req-math-hash');
+        mathHash = mathHashInput ? mathHashInput.value.trim() : '';
+        if (!mathAnswer) {
+            if (feedback) {
+                feedback.innerText = 'Bitte löse die Rechenaufgabe zur Sicherheitsbestätigung.';
+                feedback.style.display = 'block';
+            } else {
+                alert('Bitte löse die Rechenaufgabe.');
+            }
+            if (mathInput) mathInput.focus();
+            return;
+        }
+    } else if (captchaMode === 'canvas') {
+        const canvasInput = document.getElementById('req-canvas-answer');
+        canvasAnswer = canvasInput ? canvasInput.value.trim() : '';
+        const canvasHashInput = document.getElementById('req-canvas-hash');
+        canvasHash = canvasHashInput ? canvasHashInput.value.trim() : '';
+        if (!canvasAnswer || canvasAnswer.length !== 5) {
+            if (feedback) {
+                feedback.innerText = 'Bitte gib den 5-stelligen Code aus dem Sicherheitsbild ein.';
+                feedback.style.display = 'block';
+            } else {
+                alert('Bitte gib den 5-stelligen Code ein.');
+            }
+            if (canvasInput) canvasInput.focus();
+            return;
+        }
     }
 
     // 4. Formulareingaben auslesen & validieren
@@ -490,8 +530,16 @@ function sendRequestEmail(e, contactEmail) {
         archiveData.append('email', email);
         archiveData.append('phone', phone);
         archiveData.append('message', message);
-        archiveData.append('selected_icon', selectedSpamIconId);
-        archiveData.append('target_icon', currentTargetSpamIcon.id);
+        if (captchaMode === 'icons') {
+            archiveData.append('selected_icon', selectedSpamIconId);
+            archiveData.append('target_icon', currentTargetSpamIcon ? currentTargetSpamIcon.id : '');
+        } else if (captchaMode === 'math') {
+            archiveData.append('captcha_math_answer', mathAnswer);
+            archiveData.append('captcha_math_hash', mathHash);
+        } else if (captchaMode === 'canvas') {
+            archiveData.append('captcha_canvas_answer', canvasAnswer);
+            archiveData.append('captcha_canvas_hash', canvasHash);
+        }
         archiveData.append('website', honeypot ? honeypot.value : '');
         archiveData.append('course_ref', window.CURRENT_COURSE_REF || '');
         archiveData.append('archive_only', '1');
@@ -523,7 +571,9 @@ function sendRequestEmail(e, contactEmail) {
         }
 
         // Spamschutz frisch würfeln
-        generateSpamProtection();
+        if (captchaMode === 'icons') {
+            generateSpamProtection();
+        }
         return;
     }
 
@@ -536,8 +586,16 @@ function sendRequestEmail(e, contactEmail) {
     formData.append('email', email);
     formData.append('phone', phone);
     formData.append('message', message);
-    formData.append('selected_icon', selectedSpamIconId);
-    formData.append('target_icon', currentTargetSpamIcon.id);
+    if (captchaMode === 'icons') {
+        formData.append('selected_icon', selectedSpamIconId);
+        formData.append('target_icon', currentTargetSpamIcon ? currentTargetSpamIcon.id : '');
+    } else if (captchaMode === 'math') {
+        formData.append('captcha_math_answer', mathAnswer);
+        formData.append('captcha_math_hash', mathHash);
+    } else if (captchaMode === 'canvas') {
+        formData.append('captcha_canvas_answer', canvasAnswer);
+        formData.append('captcha_canvas_hash', canvasHash);
+    }
     formData.append('website', honeypot ? honeypot.value : '');
     formData.append('course_ref', window.CURRENT_COURSE_REF || '');
 
@@ -666,6 +724,9 @@ function initFrontendListeners() {
         }, { passive: true });
     }
 
+    // ──────────────── CANVAS CAPTCHA & ANTI-SCRAPING EMAIL (PHASE 16) ────────────────
+    renderContactCanvasCaptcha(false);
+
     // Beim Laden: Spamschutz initialisieren & ggf. direkt zu per URL übergebenem Kurs scrollen
     generateSpamProtection();
 
@@ -675,6 +736,7 @@ function initFrontendListeners() {
         menuToggle.addEventListener('change', function() {
             if (this.checked) {
                 generateSpamProtection();
+                renderContactCanvasCaptcha(false);
             }
         });
     }
@@ -689,6 +751,142 @@ function initFrontendListeners() {
             }, 300);
         }
     }
+}
+
+/**
+ * Zeichnet einen 5-stelligen Zahlencode verzerrt mit Rauschlinien auf ein HTML5 Canvas.
+ * @param {HTMLCanvasElement} canvas
+ * @param {string} code
+ */
+function drawDistortedCanvas(canvas, code) {
+    if (!canvas || !code) return;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Hintergrund-Verlauf
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, '#f8f9fa');
+    gradient.addColorStop(1, '#e9ecef');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    // Rauschlinien gegen OCR / Text-Scraper
+    for (let i = 0; i < 4; i++) {
+        ctx.strokeStyle = `rgba(${Math.random() * 80 + 30}, ${Math.random() * 80 + 30}, ${Math.random() * 80 + 30}, 0.25)`;
+        ctx.lineWidth = Math.random() * 1.5 + 1;
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * width, Math.random() * height);
+        ctx.lineTo(Math.random() * width, Math.random() * height);
+        ctx.stroke();
+    }
+
+    // Verzerrte Zeichen zeichnen
+    ctx.font = 'bold 20px Arial, sans-serif';
+    const spacing = width / (code.length + 1);
+
+    for (let i = 0; i < code.length; i++) {
+        ctx.save();
+        const x = spacing * (i + 1) + (Math.random() - 0.5) * 5;
+        const y = height / 2 + 7 + (Math.random() - 0.5) * 5;
+        const rotation = (Math.random() - 0.5) * 0.35;
+
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+        ctx.fillStyle = '#2e6248';
+        ctx.shadowColor = 'rgba(0,0,0,0.2)';
+        ctx.shadowBlur = 2;
+        ctx.fillText(code[i], -6, 0);
+        ctx.restore();
+    }
+}
+
+/**
+ * Initialisiert das Canvas-Captcha im Kontaktformular.
+ */
+function renderContactCanvasCaptcha(forceNew) {
+    const canvas = document.getElementById('contact-captcha-canvas');
+    if (!canvas) return;
+    if (forceNew) {
+        let code = '';
+        for (let i = 0; i < 5; i++) code += Math.floor(Math.random() * 10);
+        canvas.setAttribute('data-code', code);
+        const hashInput = document.getElementById('req-canvas-hash');
+        if (hashInput) hashInput.value = ''; // Server-Fallback
+    }
+    const code = canvas.getAttribute('data-code');
+    drawDistortedCanvas(canvas, code);
+}
+
+/**
+ * Öffnet das Canvas-Captcha für die E-Mail-Freischaltung im Impressum (Anti-Scraping).
+ */
+function openImpressumEmailCaptcha() {
+    const box = document.getElementById('impressum-email-captcha-box');
+    if (box) {
+        box.style.display = 'block';
+        fetchImpressumCaptcha();
+    }
+}
+
+/**
+ * Lädt einen neuen Canvas-Code vom Server für das Impressum.
+ */
+function fetchImpressumCaptcha() {
+    fetch('api/verify_email_captcha.php?action=get_challenge')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.code) {
+                const canvas = document.getElementById('impressum-captcha-canvas');
+                if (canvas) {
+                    canvas.setAttribute('data-code', data.code);
+                    drawDistortedCanvas(canvas, data.code);
+                }
+            }
+        }).catch(() => {});
+}
+
+/**
+ * Verifiziert den eingegebenen Code und schaltet die E-Mail-Adresse im Impressum frei.
+ */
+function verifyImpressumCaptcha() {
+    const input = document.getElementById('impressum-captcha-input');
+    const feedback = document.getElementById('impressum-captcha-feedback');
+    const code = input ? input.value.trim() : '';
+
+    if (!code) {
+        if (feedback) {
+            feedback.innerText = 'Bitte gib den 5-stelligen Code ein.';
+            feedback.style.display = 'block';
+        }
+        return;
+    }
+
+    fetch('api/verify_email_captcha.php?action=verify&code=' + encodeURIComponent(code))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.email) {
+                const wrapper = document.getElementById('impressum-email-wrapper');
+                const box = document.getElementById('impressum-email-captcha-box');
+                if (box) box.style.display = 'none';
+                if (wrapper) {
+                    wrapper.innerHTML = `<a href="mailto:${data.email}" style="color:var(--primary); font-weight:600; text-decoration:underline;">${data.email}</a>`;
+                }
+            } else {
+                if (feedback) {
+                    feedback.innerText = data.error || 'Code leider nicht korrekt.';
+                    feedback.style.display = 'block';
+                }
+                fetchImpressumCaptcha();
+            }
+        }).catch(() => {
+            if (feedback) {
+                feedback.innerText = 'Verbindungsfehler beim Verifizieren.';
+                feedback.style.display = 'block';
+            }
+        });
 }
 
 // Event-Listener beim Laden des DOMs ausführen
