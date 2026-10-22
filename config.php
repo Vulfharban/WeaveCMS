@@ -35,6 +35,7 @@ require_once __DIR__ . '/libs/php/MarkdownParser.php';
 require_once __DIR__ . '/libs/php/ContactInbox.php';
 require_once __DIR__ . '/libs/php/UserManager.php';
 require_once __DIR__ . '/libs/php/StatsManager.php';
+require_once __DIR__ . '/libs/php/PluginManager.php';
 require_once __DIR__ . '/libs/php/AdminController.php';
 require_once __DIR__ . '/libs/php/LanguageManager.php';
 require_once __DIR__ . '/libs/php/FrontendController.php';

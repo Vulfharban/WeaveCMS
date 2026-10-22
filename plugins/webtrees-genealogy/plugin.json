@@ -1,0 +1,12 @@
+{
+    "name": "Webtrees Stammbaum-Integration",
+    "slug": "webtrees-genealogy",
+    "version": "1.0.0",
+    "author": "WeaveCMS Genealogie-Team",
+    "description": "Bindet Stammbäume, Ahnentafeln, Familienchroniken und interaktive Genealogie-Diagramme aus Webtrees nahtlos und datenschutzkonform in deine WeaveCMS-Website ein.",
+    "category": "integration",
+    "icon": "account_tree",
+    "entry_file": "plugin.php",
+    "requires_core": ">=0.4.0",
+    "settings_tab": "webtrees"
+}

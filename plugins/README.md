@@ -1,143 +1,114 @@
-# WeaveCMS – Plugin- & Modulsystem
+# WeaveCMS – Modulares Plugin- & Erweiterungssystem (Phase 13)
 
-Willkommen im Plugin-Verzeichnis von WeaveCMS! Hier werden alle Erweiterungen, Custom-Module und Integrationen für WeaveCMS abgelegt.
-
----
-
-## 🏛️ Architektur-Konzept & Philosophie
-
-Das WeaveCMS Plugin-System folgt denselben Kernwerten wie das CMS selbst:
-* **Zero-Bloat:** Keine schweren Composer- oder Node.js-Abhängigkeiten – native, saubere PHP-Module.
-* **Isolation & Stabilität:** Jedes Plugin liegt in seinem eigenen isolierten Unterordner (`plugins/<plugin-slug>/`).
-* **Sicherheit First:** Direkte Web-Aufrufe sensibler Dateien sind per `.htaccess` unterbunden.
-* **1-Klick-Verwaltung:** Plugins können im WeaveCMS-Adminbereich übersichtlich eingesehen, aktiviert und deaktiviert werden.
+Das Plugin-System von WeaveCMS erlaubt es Entwicklern und Betreibern, die Funktionalität des CMS modular zu erweitern, ohne den Core-Code zu verändern.
 
 ---
 
-## 📁 Ordner- & Dateistruktur eines Plugins
+## Verzeichnisstruktur eines Plugins
 
-Jedes Plugin besitzt ein eindeutiges Verzeichnis mit seinem Slug (z. B. `webtrees-genealogy`):
+Jedes Plugin liegt in einem eigenen Unterverzeichnis unterhalb von `plugins/<plugin-slug>/`:
 
 ```text
 plugins/
-└── mein-modul/
-    ├── plugin.json        # Pflicht: Metadaten-Manifest des Plugins
-    ├── plugin.php         # Pflicht: Haupteinstiegspunkt & Registrierung
-    ├── admin/             # Optional: Eigene Backend-Views, Einstellungs-Tabs oder Formulare
-    │   └── settings.php
-    ├── views/             # Optional: Frontend-Partials, Sektions-Templates oder Shortcodes
-    │   └── section.php
-    └── assets/            # Optional: Eigene CSS-Stylesheets, Icons oder JS-Skripte
-        ├── style.css
-        └── script.js
+└── <plugin-slug>/
+    ├── plugin.json        # Pflicht: Metadaten-Manifest
+    ├── plugin.php         # Pflicht: Haupteinstiegspunkt & Hook-Registrierungen
+    ├── admin/             # Optional: Eigene Backend-Views und Einstellungsmasken
+    ├── views/             # Optional: Frontend-Templates & Sektionen
+    └── assets/            # Optional: Statische Dateien (CSS, JS, Icons)
 ```
 
 ---
 
-## 📋 Das Manifest: `plugin.json`
+## 1. Das Manifest (`plugin.json`)
 
-Jedes Plugin muss im Wurzelverzeichnis eine gültige `plugin.json` bereitstellen:
+Jedes Plugin muss eine gültige `plugin.json` enthalten:
 
 ```json
 {
-  "name": "Webtrees Stammbaum-Integration",
-  "slug": "webtrees-genealogy",
+  "name": "Mein Plugin Name",
+  "slug": "mein-plugin",
   "version": "1.0.0",
-  "author": "WeaveCMS Team",
-  "description": "Bindet interaktive Stammbäume, Ahnentafeln und genealogische Personenübersichten aus Webtrees nahtlos in WeaveCMS ein.",
+  "author": "Entwickler Name",
+  "description": "Kurze Beschreibung des Funktionsumfangs.",
   "category": "integration",
+  "icon": "extension",
   "entry_file": "plugin.php",
-  "requires_core": ">=0.9.0",
-  "settings_tab": "webtrees",
-  "enabled": true
+  "requires_core": ">=0.4.0",
+  "settings_tab": "mein_plugin_tab"
 }
 ```
 
-### Manifest-Felder im Detail:
-| Feld | Typ | Beschreibung |
-| :--- | :--- | :--- |
-| `name` | String | Lesbarer Anzeigename des Moduls im Adminbereich |
-| `slug` | String | Eindeutige Kennung (Kleinbuchstaben, Ziffern, Bindestriche) |
-| `version` | String | Semantische Versionsnummer (z. B. `1.0.0`) |
-| `author` | String | Entwickler oder Organisation |
-| `description`| String | Kurzbeschreibung der Funktionsweise |
-| `category` | String | `theme` (Design/Layout), `content` (Inhalte/Sektionen), `auth` (Rechte/Rollen) oder `integration` (Drittsysteme) |
-| `entry_file` | String | PHP-Startdatei relativ zum Plugin-Ordner (Standard: `plugin.php`) |
-| `requires_core`| String | Mindestversion von WeaveCMS (z. B. `>=0.9.0`) |
-| `settings_tab`| String | Optionaler Bezeichner für einen eigenen Admin-Reiter |
-| `enabled` | Bool | Standard-Aktivierungsstatus |
+### Kategorien:
+- `content`: Eigene Sektionen, Markdown-Filter, Blog-Erweiterungen
+- `integration`: Externe APIs, Stammbaum-Systeme (z. B. Webtrees), Social Media
+- `theme`: Design-Vorlagen, CSS-Erweiterungen, Farbpaletten
+- `security`: Erweiterte Berechtigungsstufen, zusätzliche 2FA
 
 ---
 
-## 🚀 Schritt-für-Schritt-Anleitung: Eigenes Modul einbinden
+## 2. Der Haupteinstiegspunkt (`plugin.php`)
 
-### Schritt 1: Ordner anlegen
-Erstelle im Verzeichnis `plugins/` einen neuen Ordner mit dem gewünschten Slug:
-```bash
-plugins/mein-modul/
-```
-
-### Schritt 2: Manifest `plugin.json` anlegen
-Erstelle die Datei `plugins/mein-modul/plugin.json` nach dem obigen Schema.
-
-### Schritt 3: Einstiegsdatei `plugin.php` erstellen
-In `plugin.php` definierst du die Logik und klinkst dich in die WeaveCMS-Hooks ein:
+Die `plugin.php` wird geladen, wenn das Plugin im Backend aktiviert wurde. Hier werden Hooks registriert:
 
 ```php
 <?php
-/**
- * Plugin Name: Mein Erstes WeaveCMS Modul
- * Plugin Slug: mein-modul
- */
-
-// Direkten Aufruf verhindern
-if (!defined('WEAVE_VERSION') && !defined('WEAVECMS_ROOT')) {
+// Direkten Zugriff verhindern
+if (!class_exists('PluginManager')) {
     exit;
 }
 
-// 1. Aktion beim Initialisieren registrieren
-PluginManager::addAction('init', function() {
-    // Initialisierungs-Logik
+// Action Hook: Eigenen Einstellungsbereich im Adminbereich einhängen
+PluginManager::addAction('admin_render_plugin_settings_mein-plugin', function($data, $csrf_token) {
+    $config = PluginManager::getPluginConfig('mein-plugin', $data);
+    require __DIR__ . '/admin/settings.php';
 });
 
-// 2. Eigene Frontend-Sektion für den Sektionen-Manager bereitstellen
-PluginManager::addFilter('register_sections', function(array $sections) {
-    $sections[] = [
-        'id' => 'mein_modul_section',
-        'type' => 'custom_module',
-        'title' => 'Mein Modul-Bereich',
-        'nav_label' => 'Modul',
-        'visible' => true,
-        'in_nav' => true,
-        'render_callback' => function($vm) {
-            echo '<div class="custom-module-box">Inhalt meines Moduls</div>';
-        }
+// Filter Hook: Shortcodes im Content auflösen
+PluginManager::addFilter('content_shortcodes', function($content, $data) {
+    if (strpos($content, '[mein_shortcode]') !== false) {
+        return str_replace('[mein_shortcode]', '<div class="alert alert-info">Hallo Welt!</div>', $content);
+    }
+    return $content;
+});
+
+// Filter Hook: Konfiguration vor dem Speichern validieren
+PluginManager::addFilter('plugin_validate_config_mein-plugin', function($submitted, $data) {
+    return [
+        'api_key' => trim($submitted['api_key'] ?? '')
     ];
-    return $sections;
 });
 ```
 
 ---
 
-## 🔌 Typische Einsatzbereiche für Plugins
+## 3. Standard-Hooks in WeaveCMS
 
-1. **Themen & Layout-Erweiterungen:**
-   * Bereitstellung alternativer CSS-Farbpaletten, Typografien und Header-Varianten.
-2. **Contentseiten & Modulare Sektionen:**
-   * Individuelle Inhaltsbausteine wie Kalender, Rechner, Buchungstools oder interaktive Karten.
-3. **Berechtigungs- & Benutzererweiterungen:**
-   * Eigene Rollen (z. B. Moderator, Redakteur, Vereinsmitglied) und individuelle Zugriffsregeln für das RBAC-System.
-4. **Drittsystem-Integrationen & Datenbrücken:**
-   * Anbindung von externen Datenbanken, Cloud-Diensten oder Fachanwendungen.
+### Action Hooks
+| Hook | Beschreibung | Parameter |
+|------|--------------|-----------|
+| `plugins_loaded` | Alle aktiven Plugins wurden geladen | `$context` ('admin', 'frontend', 'all') |
+| `plugin_loaded` | Ein einzelnes Plugin wurde geladen | `$slug`, `$manifest`, `$context` |
+| `plugin_activated` | Ein Plugin wurde aktiviert | `$slug`, `$manifest` |
+| `plugin_deactivated` | Ein Plugin wurde deaktiviert | `$slug` |
+| `admin_render_plugin_settings_{slug}` | Rendert die Einstellungen des Plugins | `$data`, `$csrf_token` |
+| `frontend_render_custom_section` | Rendert eine eigene Sektion im Frontend | `$sectionId`, `$data` |
+
+### Filter Hooks
+| Hook | Beschreibung | Parameter |
+|------|--------------|-----------|
+| `content_shortcodes` | Transformation von Text & Markdown | `$content`, `$data` |
+| `plugin_validate_config_{slug}` | Validierung der Einstellungen vor Speicherung | `$submittedData`, `$data` |
 
 ---
 
-## 🌳 Geplantes Pilot-Plugin: Webtrees Stammbäume (`webtrees-genealogy`)
+## 4. Konfiguration lesen & schreiben
 
-Als erstes offizielles Pilot-Plugin wird die **Webtrees Stammbaum-Integration** entwickelt:
-* **Zweck:** Nahtlose Einbindung von Stammbäumen und Ahnenforschung aus einer bestehenden Webtrees-Installation.
-* **Funktionen:**
-  * Direkte Schnittstelle zur Webtrees-Datenbank (MySQL/MariaDB) oder GEDCOM-Exporten.
-  * Interaktive Darstellung von Vorfahrentafeln, Nachkommenbäumen und Familienübersichten im WeaveCMS-Frontend.
-  * Automatische DSGVO-konforme Ausblendung / Anonymisierung von Daten lebender Personen.
-  * Komfortable Einstellungsmaske im WeaveCMS-Adminpanel zur Auswahl von Stammbäumen und Sichtbarkeitsfiltern.
+```php
+// Konfiguration auslesen (mit Defaults)
+$config = PluginManager::getPluginConfig('mein-plugin', $data, ['default_key' => 'default_val']);
+
+// Konfiguration speichern (im Admin-Controller oder Plugin-Action)
+PluginManager::savePluginConfig('mein-plugin', $newConfig, $data);
+save_data($dataFile, $data);
+```

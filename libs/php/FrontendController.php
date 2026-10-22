@@ -219,6 +219,9 @@ class FrontendController {
         $filePath = dirname(__DIR__, 2) . '/views/sections/' . $sectionId . '.php';
         if (file_exists($filePath)) {
             require $filePath;
+        } else {
+            // Hook für Plugins anbieten, eigene Sektionen zu rendern (Phase 13)
+            PluginManager::doAction('frontend_render_custom_section', $sectionId, $vars['data'] ?? []);
         }
     }
 
@@ -230,6 +233,7 @@ class FrontendController {
      */
     public static function renderPage(array $data): void {
         StatsManager::recordHit();
+        PluginManager::loadActivePlugins($data, 'frontend');
         $vm = self::prepareViewModel($data);
 
         // Prüfung auf Einzelartikel-Aufruf: ?blog=slug

@@ -12,7 +12,8 @@
 $p_title = htmlspecialchars($active_page['title'] ?? 'Seite');
 $p_slug = htmlspecialchars($active_page['slug'] ?? '');
 $p_content_raw = $active_page['content'] ?? '';
-$p_content_html = MarkdownParser::parse($p_content_raw);
+$p_content_parsed = MarkdownParser::parse($p_content_raw);
+$p_content_html = PluginManager::applyFilters('content_shortcodes', $p_content_parsed, $data);
 ?>
 
 <?php
