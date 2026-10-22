@@ -152,9 +152,15 @@ class SectionManager {
      */
     public static function getVisibleSections(array $data): array {
         $sections = self::ensureSections($data);
-        return array_values(array_filter($sections, function($sec) {
+        $visible = array_values(array_filter($sections, function($sec) {
             return !empty($sec['visible']);
         }));
+
+        if (class_exists('PluginManager')) {
+            $visible = PluginManager::applyFilters('visible_sections', $visible, $data);
+        }
+
+        return $visible;
     }
 
     /**

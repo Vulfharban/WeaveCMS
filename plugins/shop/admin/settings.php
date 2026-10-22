@@ -285,11 +285,13 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                     </div>
 
                     <label style="display:flex; align-items:center; gap: 8px; font-weight: 600; cursor:pointer; margin-bottom: 10px;">
+                        <input type="hidden" name="payment_credit_card[enabled]" value="0">
                         <input type="checkbox" name="payment_credit_card[enabled]" value="1" <?php echo $cc_enabled ? 'checked' : ''; ?>>
                         <span>Kreditkarte als Bezahlmethode aktivieren</span>
                     </label>
 
                     <label style="display:flex; align-items:center; gap: 8px; font-size: 0.88rem; cursor:pointer; margin-bottom: 10px;">
+                        <input type="hidden" name="payment_credit_card[sandbox]" value="0">
                         <input type="checkbox" name="payment_credit_card[sandbox]" value="1" <?php echo $cc_sandbox ? 'checked' : ''; ?>>
                         <span>Sandbox- / Testmodus (Autorisiert Testkarten)</span>
                     </label>
@@ -310,11 +312,13 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                     </div>
 
                     <label style="display:flex; align-items:center; gap: 8px; font-weight: 600; cursor:pointer; margin-bottom: 10px;">
+                        <input type="hidden" name="payment_paypal[enabled]" value="0">
                         <input type="checkbox" name="payment_paypal[enabled]" value="1" <?php echo $pp_enabled ? 'checked' : ''; ?>>
                         <span>PayPal als Bezahlmethode aktivieren</span>
                     </label>
 
                     <label style="display:flex; align-items:center; gap: 8px; font-size: 0.88rem; cursor:pointer; margin-bottom: 10px;">
+                        <input type="hidden" name="payment_paypal[sandbox]" value="0">
                         <input type="checkbox" name="payment_paypal[sandbox]" value="1" <?php echo $pp_sandbox ? 'checked' : ''; ?>>
                         <span>PayPal Sandbox-Modus</span>
                     </label>
@@ -336,11 +340,13 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                     </div>
 
                     <label style="display:flex; align-items:center; gap: 8px; font-weight: 700; color: #1e3a8a; cursor:pointer; margin-bottom: 10px;">
+                        <input type="hidden" name="payment_wero[enabled]" value="0">
                         <input type="checkbox" name="payment_wero[enabled]" value="1" <?php echo $wero_enabled ? 'checked' : ''; ?>>
                         <span>WERO Bezahlung aktivieren</span>
                     </label>
 
                     <label style="display:flex; align-items:center; gap: 8px; font-size: 0.88rem; cursor:pointer; margin-bottom: 10px;">
+                        <input type="hidden" name="payment_wero[sandbox]" value="0">
                         <input type="checkbox" name="payment_wero[sandbox]" value="1" <?php echo $wero_sandbox ? 'checked' : ''; ?>>
                         <span>WERO Testmodus / Simulator</span>
                     </label>
@@ -406,6 +412,7 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
 
                 <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
                     <label style="display:flex; align-items:center; gap: 8px; font-weight: 600; cursor:pointer;">
+                        <input type="hidden" name="small_business" value="0">
                         <input type="checkbox" name="small_business" value="1" <?php echo $small_business ? 'checked' : ''; ?>>
                         <span>Kleinunternehmerregelung anwenden (§ 19 UStG: Keine Umsatzsteuerausweisung)</span>
                     </label>
@@ -414,6 +421,7 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                 <h4 style="margin: 0 0 1rem; font-size: 1.1rem; font-weight: 700;">Startseiten-Integration</h4>
 
                 <label style="display:flex; align-items:center; gap: 8px; font-weight: 600; cursor:pointer; margin-bottom: 1rem;">
+                    <input type="hidden" name="section_enabled" value="0">
                     <input type="checkbox" name="section_enabled" value="1" <?php echo $section_enabled ? 'checked' : ''; ?>>
                     <span>🌿 Eigenständige Shop-Sektion auf der Startseite aktivieren</span>
                 </label>
