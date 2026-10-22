@@ -52,45 +52,198 @@ class Installer {
     }
 
     /**
-     * Führt den vollständigen System-Check (Health Check) durch.
-     * Prüft: PHP-Version (>= 8.0), Dateirechte (data/, images/uploads/, backups/),
-     * PHP-Erweiterungen (pdo, gd, mbstring, json, curl).
+     * Konvertiert Größenangaben aus php.ini (z. B. 128M, 2G, 64K) in Bytes.
+     * @param string $size
+     * @return int
+     */
+    public static function parseSize(string $size): int {
+        $size = trim($size);
+        if ($size === '' || $size === '-1') return -1;
+        $unit = strtolower(substr($size, -1));
+        $val = (float)$size;
+        switch ($unit) {
+            case 'g': $val *= 1024 * 1024 * 1024; break;
+            case 'm': $val *= 1024 * 1024; break;
+            case 'k': $val *= 1024; break;
+        }
+        return (int)round($val);
+    }
+
+    /**
+     * Führt den vollständigen System-Check (Health Check) vor der Installation durch.
+     * Prüft:
+     * - PHP-Laufzeitumgebung (Version >= 8.0, memory_limit, upload_max_filesize, post_max_size, max_execution_time, Zeitzone)
+     * - Dateisystem & Schreibrechte (Root /, data/, images/uploads/, images/branding/, backups/, data.sample.json)
+     * - PHP-Module & Treiber (pdo, pdo_mysql, pdo_sqlite, gd, mbstring, json, curl, fileinfo, zip)
+     * - Webserver-Umgebung & URL-Rewrite (Apache mod_rewrite, .htaccess)
+     * - Empfohlene Einstellungen für php.ini und Apache
      * @return array
      */
     public static function runHealthCheck() {
         $root = self::rootPath();
+
         $results = [
             'can_install' => true,
-            'php_version' => [
-                'name' => 'PHP-Version (Mindestens 8.0)',
-                'current' => PHP_VERSION,
-                'min' => '8.0.0',
-                'ok' => version_compare(PHP_VERSION, '8.0.0', '>='),
-                'required' => true,
-                'message' => version_compare(PHP_VERSION, '8.0.0', '>=') 
-                    ? 'PHP ' . PHP_VERSION . ' erfüllt alle Voraussetzungen.' 
-                    : 'PHP 8.0 oder höher ist zwingend erforderlich (Aktuell: ' . PHP_VERSION . ').'
+            'summary' => [
+                'passed' => 0,
+                'warnings' => 0,
+                'errors' => 0
             ],
+            'php_version' => [],
+            'php_env' => [],
             'directories' => [],
-            'extensions' => []
+            'extensions' => [],
+            'webserver' => [],
+            'recommendations' => []
         ];
 
-        // Verzeichnisse prüfen und bei Bedarf sicher anlegen
+        // ──────────────── 1. PHP-Laufzeitumgebung ────────────────
+        $phpVerOk = version_compare(PHP_VERSION, '8.0.0', '>=');
+        $phpVerWarn = version_compare(PHP_VERSION, '8.1.0', '<');
+        $results['php_version'] = [
+            'name' => 'PHP-Version (Mindestens 8.0)',
+            'current' => PHP_VERSION,
+            'min' => '8.0.0',
+            'ok' => $phpVerOk,
+            'is_warn' => $phpVerOk && $phpVerWarn,
+            'required' => true,
+            'message' => $phpVerOk 
+                ? ($phpVerWarn ? 'PHP ' . PHP_VERSION . ' erfüllt die Mindestanforderung (>= 8.0). PHP 8.1+ wird empfohlen.' : 'PHP ' . PHP_VERSION . ' erfüllt alle modernen Anforderungen.') 
+                : 'PHP 8.0 oder höher ist zwingend erforderlich (Aktuell: ' . PHP_VERSION . ').'
+        ];
+        if (!$phpVerOk) {
+            $results['can_install'] = false;
+            $results['summary']['errors']++;
+        } else {
+            $results['summary']['passed']++;
+        }
+
+        $memStr = ini_get('memory_limit') ?: '128M';
+        $memBytes = self::parseSize($memStr);
+        $memOk = ($memBytes === -1 || $memBytes >= 64 * 1024 * 1024);
+        $memWarn = ($memBytes > 0 && $memBytes < 128 * 1024 * 1024);
+        $results['php_env']['memory_limit'] = [
+            'name' => 'Arbeitsspeicher (memory_limit)',
+            'current' => $memStr,
+            'ok' => $memOk,
+            'is_warn' => $memWarn,
+            'required' => true,
+            'message' => ($memBytes === -1 || $memBytes >= 128 * 1024 * 1024)
+                ? 'Ausreichend Arbeitsspeicher für Bildverarbeitung und Caching verfügbar.'
+                : ($memOk ? 'Mindestanforderung erfüllt (>= 64M). Empfohlen werden mindestens 128M.' : 'Zu wenig Arbeitsspeicher! Mindestens 64M in php.ini erforderlich.')
+        ];
+        if (!$memOk) {
+            $results['can_install'] = false;
+            $results['summary']['errors']++;
+        } elseif ($memWarn) {
+            $results['summary']['warnings']++;
+        } else {
+            $results['summary']['passed']++;
+        }
+
+        $upMaxStr = ini_get('upload_max_filesize') ?: '2M';
+        $upMaxBytes = self::parseSize($upMaxStr);
+        $upWarn = ($upMaxBytes < 8 * 1024 * 1024);
+        $results['php_env']['upload_max_filesize'] = [
+            'name' => 'Max. Upload-Dateigröße (upload_max_filesize)',
+            'current' => $upMaxStr,
+            'ok' => true,
+            'is_warn' => $upWarn,
+            'required' => false,
+            'message' => $upWarn 
+                ? 'Aktuell ' . $upMaxStr . '. Für hochauflösende Fotos und Medien werden >= 8M empfohlen (in php.ini).' 
+                : 'Ausreichend für Medien- und Foto-Uploads.'
+        ];
+        if ($upWarn) $results['summary']['warnings']++; else $results['summary']['passed']++;
+
+        $postMaxStr = ini_get('post_max_size') ?: '8M';
+        $postMaxBytes = self::parseSize($postMaxStr);
+        $postWarn = ($postMaxBytes < $upMaxBytes);
+        $results['php_env']['post_max_size'] = [
+            'name' => 'Max. POST-Datengröße (post_max_size)',
+            'current' => $postMaxStr,
+            'ok' => !$postWarn,
+            'is_warn' => $postWarn,
+            'required' => false,
+            'message' => $postWarn 
+                ? 'post_max_size (' . $postMaxStr . ') ist kleiner als upload_max_filesize (' . $upMaxStr . '). Bitte in php.ini anpassen!' 
+                : 'POST-Größe ist passend zur Upload-Größe konfiguriert.'
+        ];
+        if ($postWarn) $results['summary']['warnings']++; else $results['summary']['passed']++;
+
+        $maxExecTime = (int)(ini_get('max_execution_time') ?: 0);
+        $execWarn = ($maxExecTime > 0 && $maxExecTime < 30);
+        $results['php_env']['max_execution_time'] = [
+            'name' => 'Skript-Laufzeit (max_execution_time)',
+            'current' => ($maxExecTime === 0 ? 'Unbegrenzt' : $maxExecTime . 's'),
+            'ok' => true,
+            'is_warn' => $execWarn,
+            'required' => false,
+            'message' => $execWarn 
+                ? 'Mit ' . $maxExecTime . 's recht kurz bemessen. Empfohlen werden mindestens 30s oder 60s für Backups.' 
+                : 'Ausreichende Laufzeit für Dateioperationen und Backups.'
+        ];
+        if ($execWarn) $results['summary']['warnings']++; else $results['summary']['passed']++;
+
+        $tz = date_default_timezone_get();
+        $results['php_env']['timezone'] = [
+            'name' => 'Server-Zeitzone (date.timezone)',
+            'current' => $tz ?: 'Nicht gesetzt',
+            'ok' => !empty($tz),
+            'is_warn' => false,
+            'required' => false,
+            'message' => !empty($tz) ? 'Zeitzone aktiv gesetzt (' . $tz . ').' : 'Keine Standard-Zeitzone definiert.'
+        ];
+        $results['summary']['passed']++;
+
+        // ──────────────── 2. Dateisystem & Schreibrechte ────────────────
+        // Root-Verzeichnis prüfen
+        $rootWritable = is_dir($root) && is_writable($root);
+        if (!$rootWritable) {
+            $testFile = $root . '/.write_test_' . uniqid();
+            if (@file_put_contents($testFile, 'test') !== false) {
+                $rootWritable = true;
+                @unlink($testFile);
+            }
+        }
+        $results['directories']['root'] = [
+            'name' => 'Hauptverzeichnis (/)',
+            'path' => $root,
+            'exists' => true,
+            'writable' => $rootWritable,
+            'ok' => $rootWritable,
+            'required' => true,
+            'message' => $rootWritable 
+                ? 'Beschreibbar (erforderlich für data.json, installed.lock, config.local.php).' 
+                : 'Hauptverzeichnis nicht beschreibbar! Schreibrechte erforderlich (z. B. chmod 755 / 775).'
+        ];
+        if (!$rootWritable) {
+            $results['can_install'] = false;
+            $results['summary']['errors']++;
+        } else {
+            $results['summary']['passed']++;
+        }
+
         $dirs_to_check = [
             'data' => [
                 'path' => $root . '/data',
                 'label' => 'Datenverzeichnis (data/)',
-                'protected' => true
+                'required' => true
             ],
             'uploads' => [
                 'path' => $root . '/images/uploads',
                 'label' => 'Upload-Verzeichnis (images/uploads/)',
-                'protected' => false
+                'required' => true
+            ],
+            'branding' => [
+                'path' => $root . '/images/branding',
+                'label' => 'Branding-Verzeichnis (images/branding/)',
+                'required' => true
             ],
             'backups' => [
                 'path' => $root . '/backups',
                 'label' => 'Backup-Archiv (backups/)',
-                'protected' => true
+                'required' => true
             ]
         ];
 
@@ -101,7 +254,6 @@ class Installer {
             }
             $writable = is_dir($p) && is_writable($p);
             if (!$writable) {
-                // Testdatei schreiben, falls is_writable unter Windows täuscht
                 $test_file = $p . '/.write_test_' . uniqid();
                 if (@file_put_contents($test_file, 'test') !== false) {
                     $writable = true;
@@ -115,26 +267,83 @@ class Installer {
                 'exists' => is_dir($p),
                 'writable' => $writable,
                 'ok' => $writable,
-                'required' => true,
+                'required' => $info['required'],
                 'message' => $writable 
                     ? 'Beschreibbar und einsatzbereit.' 
                     : 'Keine Schreibrechte vorhanden. Bitte Zugriffsrechte (z.B. chmod 755/775) anpassen.'
             ];
 
-            if (!$writable) {
+            if (!$writable && $info['required']) {
                 $results['can_install'] = false;
+                $results['summary']['errors']++;
+            } else {
+                $results['summary']['passed']++;
             }
         }
 
-        // PHP-Module prüfen
+        // Beispieldaten-Vorlage prüfen
+        $sampleFile = $root . '/data.sample.json';
+        $sampleExists = file_exists($sampleFile) && is_readable($sampleFile);
+        $results['directories']['sample_seed'] = [
+            'name' => 'Beispieldaten-Vorlage (data.sample.json)',
+            'path' => $sampleFile,
+            'exists' => $sampleExists,
+            'writable' => true,
+            'ok' => $sampleExists,
+            'required' => false,
+            'message' => $sampleExists 
+                ? 'Lesbar und bereit für optionale Beispieldaten-Einrichtung.' 
+                : 'Nicht gefunden (Installation startet mit sauberem Minimal-Datensatz).'
+        ];
+        $results['summary']['passed']++;
+
+        // ──────────────── 3. PHP-Module & Erweiterungen ────────────────
         $extensions_to_check = [
-            'pdo' => ['name' => 'PDO (Datenbank-Treiber-Basis)', 'required' => true],
-            'pdo_mysql' => ['name' => 'PDO MySQL (MySQL / MariaDB Unterstützung)', 'required' => false],
-            'pdo_sqlite' => ['name' => 'PDO SQLite (Lokale SQLite SQL-Dateien)', 'required' => false],
-            'gd' => ['name' => 'GD Library (Bildverarbeitung & Thumbnails)', 'required' => true],
-            'mbstring' => ['name' => 'mbstring (Multibyte-Zeichenketten & UTF-8)', 'required' => true],
-            'json' => ['name' => 'JSON (Datenverarbeitung)', 'required' => true],
-            'curl' => ['name' => 'cURL (Netzwerk- & Update-Prüfung)', 'required' => false]
+            'pdo' => [
+                'name' => 'PDO (Datenbank-Treiber-Basis)',
+                'required' => true,
+                'desc' => 'Zwingend für sichere SQL-Verbindungen & Abstraktionsschicht.'
+            ],
+            'pdo_mysql' => [
+                'name' => 'PDO MySQL (MySQL & MariaDB Treiber)',
+                'required' => false,
+                'desc' => 'Erforderlich für den relationalen SQL-Datenbankmodus.'
+            ],
+            'pdo_sqlite' => [
+                'name' => 'PDO SQLite (SQLite-Treiber)',
+                'required' => false,
+                'desc' => 'Optional für lokale SQLite-Datenbankdateien.'
+            ],
+            'gd' => [
+                'name' => 'GD Library (Bildverarbeitung & Captchas)',
+                'required' => true,
+                'desc' => 'Erforderlich für Thumbnail-Generierung, Bildskalierung & Anti-Spam.'
+            ],
+            'mbstring' => [
+                'name' => 'mbstring (Multibyte UTF-8)',
+                'required' => true,
+                'desc' => 'Erforderlich für saubere UTF-8 Textverarbeitung & Umlaute.'
+            ],
+            'json' => [
+                'name' => 'JSON (Daten- & Konfigurations-Engine)',
+                'required' => true,
+                'desc' => 'Erforderlich für Flat-File Speicherung und AJAX-Schnittstellen.'
+            ],
+            'curl' => [
+                'name' => 'cURL (Netzwerk- & Update-Prüfung)',
+                'required' => false,
+                'desc' => 'Empfohlen für automatisierte Update-Checks und Webhooks.'
+            ],
+            'fileinfo' => [
+                'name' => 'fileinfo (MIME-Typ-Validierung)',
+                'required' => false,
+                'desc' => 'Dringend empfohlen für sichere Datei-Upload-Prüfung.'
+            ],
+            'zip' => [
+                'name' => 'ZipArchive (ZIP-Komprimierung)',
+                'required' => false,
+                'desc' => 'Empfohlen für 1-Klick-Sicherungen und Theme-/Plugin-Pakete.'
+            ]
         ];
 
         foreach ($extensions_to_check as $ext => $info) {
@@ -146,18 +355,120 @@ class Installer {
                 'required' => $info['required'],
                 'ok' => $loaded || !$info['required'],
                 'message' => $loaded 
-                    ? 'Modul aktiv.' 
-                    : ($info['required'] ? 'Fehlt! Bitte in php.ini aktivieren.' : 'Optional, wird empfohlen.')
+                    ? 'Modul aktiv und einsatzbereit.' 
+                    : ($info['required'] ? 'Fehlt! Bitte in php.ini aktivieren (extension=' . $ext . ').' : 'Optional (' . $info['desc'] . ').')
             ];
 
             if ($info['required'] && !$loaded) {
                 $results['can_install'] = false;
+                $results['summary']['errors']++;
+            } elseif (!$loaded && !$info['required']) {
+                $results['summary']['warnings']++;
+            } else {
+                $results['summary']['passed']++;
             }
         }
 
-        if (!$results['php_version']['ok']) {
-            $results['can_install'] = false;
+        // ──────────────── 4. Webserver & URL-Rewrite (.htaccess) ────────────────
+        $serverSoftware = $_SERVER['SERVER_SOFTWARE'] ?? (PHP_SAPI === 'cli' ? 'PHP CLI / Terminal' : 'Webserver');
+        $isApache = (stripos($serverSoftware, 'apache') !== false) || function_exists('apache_get_modules');
+        $isNginx = stripos($serverSoftware, 'nginx') !== false;
+        $isIis = stripos($serverSoftware, 'iis') !== false;
+        $htaccessExists = file_exists($root . '/.htaccess');
+
+        $rewriteStatus = [
+            'name' => 'URL-Rewrite & .htaccess Schutz',
+            'server' => $serverSoftware,
+            'is_apache' => $isApache,
+            'htaccess' => $htaccessExists,
+            'ok' => true,
+            'badge' => 'Aktiviert',
+            'message' => ''
+        ];
+
+        if (function_exists('apache_get_modules')) {
+            $apacheMods = apache_get_modules();
+            if (in_array('mod_rewrite', $apacheMods, true)) {
+                $rewriteStatus['ok'] = true;
+                $rewriteStatus['badge'] = 'mod_rewrite aktiv';
+                $rewriteStatus['message'] = 'Apache mod_rewrite ist aktiv und .htaccess wird unterstützt.';
+            } else {
+                $rewriteStatus['ok'] = false;
+                $rewriteStatus['badge'] = 'mod_rewrite fehlt';
+                $rewriteStatus['message'] = 'mod_rewrite ist deaktiviert! Bitte in Apache (httpd.conf) aktivieren (LoadModule rewrite_module).';
+                $results['summary']['warnings']++;
+            }
+        } elseif ($isApache) {
+            $rewriteStatus['ok'] = $htaccessExists;
+            $rewriteStatus['badge'] = $htaccessExists ? 'Apache (.htaccess aktiv)' : 'Keine .htaccess';
+            $rewriteStatus['message'] = $htaccessExists 
+                ? 'Apache-Umgebung erkannt. Bitte sicherstellen, dass AllowOverride All in der VirtualHost-Konfiguration aktiv ist.' 
+                : 'Keine .htaccess-Datei im Hauptverzeichnis gefunden!';
+            if (!$htaccessExists) $results['summary']['warnings']++; else $results['summary']['passed']++;
+        } elseif ($isNginx) {
+            $rewriteStatus['ok'] = true;
+            $rewriteStatus['badge'] = 'Nginx VHost';
+            $rewriteStatus['message'] = 'Nginx erkannt. URL-Rewrites und Verzeichnisschutz bitte in der nginx.conf des VHosts pflegen.';
+            $results['summary']['passed']++;
+        } elseif ($isIis) {
+            $webConfig = file_exists($root . '/web.config');
+            $rewriteStatus['ok'] = $webConfig;
+            $rewriteStatus['badge'] = $webConfig ? 'web.config aktiv' : 'web.config fehlt';
+            $rewriteStatus['message'] = $webConfig ? 'Microsoft IIS mit web.config erkannt.' : 'Microsoft IIS erkannt. web.config für URL-Rewrites empfohlen.';
+            if (!$webConfig) $results['summary']['warnings']++; else $results['summary']['passed']++;
+        } else {
+            $rewriteStatus['ok'] = true;
+            $rewriteStatus['badge'] = 'Aktiv';
+            $rewriteStatus['message'] = 'Webserver ' . $serverSoftware . ' unterstützt Standard-Routing.';
+            $results['summary']['passed']++;
         }
+        $results['webserver'] = $rewriteStatus;
+
+        // ──────────────── 5. Konfigurations-Empfehlungen (php.ini & Apache) ────────────────
+        $results['recommendations'] = [
+            [
+                'directive' => 'upload_max_filesize',
+                'current' => $upMaxStr,
+                'recommended' => '16M',
+                'description' => 'Maximale Upload-Größe für hochauflösende Fotos & Dokumente.'
+            ],
+            [
+                'directive' => 'post_max_size',
+                'current' => $postMaxStr,
+                'recommended' => '18M',
+                'description' => 'Muss mindestens so groß oder etwas größer als upload_max_filesize sein.'
+            ],
+            [
+                'directive' => 'memory_limit',
+                'current' => $memStr,
+                'recommended' => '128M',
+                'description' => 'Arbeitsspeicher für Bildbearbeitung, Thumbnails und Caching.'
+            ],
+            [
+                'directive' => 'max_execution_time',
+                'current' => ($maxExecTime === 0 ? 'Unbegrenzt' : $maxExecTime . 's'),
+                'recommended' => '60s',
+                'description' => 'Skript-Timeout für große Datei-Uploads und Backup-Erstellung.'
+            ],
+            [
+                'directive' => 'date.timezone',
+                'current' => $tz ?: 'Nicht gesetzt',
+                'recommended' => 'Europe/Berlin',
+                'description' => 'Standard-Zeitzone für Logeinträge, Kurse und Blogartikel.'
+            ],
+            [
+                'directive' => 'opcache.enable',
+                'current' => ini_get('opcache.enable') ? '1 (Aktiv)' : '0 (Inaktiv)',
+                'recommended' => '1',
+                'description' => 'PHP Bytecode-Beschleuniger für 3-5x schnellere Ladezeiten.'
+            ],
+            [
+                'directive' => 'Apache AllowOverride',
+                'current' => $htaccessExists ? 'Aktiviert (.htaccess vorhanden)' : 'Prüfen',
+                'recommended' => 'AllowOverride All',
+                'description' => 'In httpd.conf / VirtualHost, damit Verzeichnisschutz und Rewrites greifen.'
+            ]
+        ];
 
         return $results;
     }
@@ -190,6 +501,13 @@ class Installer {
         }
         $uploads_htaccess = "# PHP-Skript-Ausführung in Uploads unterbinden\n<FilesMatch \"\.(php|phtml|php3|php4|php5|php7|php8|phps|cgi|pl|exe)$\">\n    <IfModule mod_authz_core.c>\n        Require all denied\n    </IfModule>\n    <IfModule !mod_authz_core.c>\n        Order Allow,Deny\n        Deny from all\n    </IfModule>\n</FilesMatch>\n";
         @file_put_contents($uploads_dir . '/.htaccess', $uploads_htaccess);
+
+        // 4. images/branding/ schützen vor PHP-Code-Ausführung
+        $branding_dir = $root . '/images/branding';
+        if (!is_dir($branding_dir)) {
+            @mkdir($branding_dir, 0755, true);
+        }
+        @file_put_contents($branding_dir . '/.htaccess', $uploads_htaccess);
     }
 
     /**
