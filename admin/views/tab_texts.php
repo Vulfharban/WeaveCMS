@@ -79,6 +79,17 @@
                                                 Kein Menü-Link
                                             </span>
                                         <?php endif; ?>
+                                        <?php 
+                                            $sec_place = $sec['placement'] ?? 'both';
+                                            $place_badge = [
+                                                'both' => ['label' => 'Startseite & Einzelseite', 'bg' => 'rgba(16,185,129,0.1)', 'color' => '#10b981'],
+                                                'home' => ['label' => 'Nur Startseite', 'bg' => 'rgba(245,158,11,0.1)', 'color' => '#d97706'],
+                                                'page' => ['label' => 'Nur Unterseite', 'bg' => 'rgba(99,102,241,0.1)', 'color' => '#6366f1']
+                                            ][$sec_place] ?? ['label' => 'Standard', 'bg' => 'rgba(0,0,0,0.05)', 'color' => 'var(--text-secondary)'];
+                                        ?>
+                                        <span style="font-size:0.7rem; font-weight:600; color:<?php echo $place_badge['color']; ?>; background:<?php echo $place_badge['bg']; ?>; padding:2px 8px; border-radius:999px;">
+                                            <?php echo htmlspecialchars($place_badge['label']); ?>
+                                        </span>
                                     </div>
                                     <div style="font-size:0.8rem; color:var(--text-secondary);">
                                         Typ: <code style="font-family:monospace;"><?php echo htmlspecialchars($sec['type']); ?></code>
@@ -176,11 +187,24 @@
                             </div>
                         </div>
 
-                        <div class="form-group" style="margin-bottom:1.5rem;">
-                            <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; color:var(--text-primary); font-size:0.95rem;">
-                                <input type="checkbox" id="sec_edit_in_nav" name="in_nav" value="1">
-                                <span>Im Hauptmenü verlinken</span>
-                            </label>
+                        <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem; margin-bottom:1.5rem; align-items:start;">
+                            <div class="form-group">
+                                <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; color:var(--text-primary); font-size:0.95rem; margin-top:1.8rem;">
+                                    <input type="checkbox" id="sec_edit_in_nav" name="in_nav" value="1">
+                                    <span>Im Hauptmenü verlinken</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block; font-size:0.92rem;">
+                                    Platzierung &amp; Anzeige
+                                </label>
+                                <select id="sec_edit_placement" name="placement" class="form-control" style="background:#ffffff; border:1px solid rgba(62,50,40,0.22); color:var(--text-primary); border-radius:10px; padding:9px 12px; font-size:0.95rem;">
+                                    <option value="both">Startseite &amp; Eigene Einzelseite (Beides)</option>
+                                    <option value="home">Nur auf Startseite</option>
+                                    <option value="page">Nur als eigene Einzelseite (/?page=slug)</option>
+                                </select>
+                                <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:4px;">Steuert, wo diese Sektion im Multi-Page- oder Hybrid-Modus ausgegeben wird.</small>
+                            </div>
                         </div>
 
                         <?php if (count($active_langs) > 1): ?>
@@ -353,6 +377,7 @@
             document.getElementById('sec_edit_title').value = sec.title || '';
             document.getElementById('sec_edit_nav_label').value = sec.nav_label || '';
             document.getElementById('sec_edit_in_nav').checked = !!sec.in_nav;
+            document.getElementById('sec_edit_placement').value = sec.placement || 'both';
             document.getElementById('sec-editor-heading').innerHTML = '<span class="material-icons">edit</span> Menü-Titel anpassen: ' + (sec.title || sec.id);
 
             const trans = sec.translations || {};

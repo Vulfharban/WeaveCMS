@@ -69,6 +69,8 @@ class FrontendController {
 
         // 6. Modulare Sektionen & Navigationsmenü
         $visible_sections = SectionManager::getVisibleSections($data);
+        $home_sections = SectionManager::getSectionsForHomePage($data);
+        $site_architecture = SectionManager::getSiteArchitecture($data);
         $nav_items = SectionManager::getNavItems($data);
         if (empty($nav_items)) {
             $nav_items = [
@@ -161,6 +163,8 @@ class FrontendController {
             'base_path',
             'selected_course_id',
             'visible_sections',
+            'home_sections',
+            'site_architecture',
             'nav_items',
             'logo_motif',
             'logo_color',
@@ -272,7 +276,7 @@ class FrontendController {
             return;
         }
 
-        // Prüfung auf Freie Einzelseite: ?page=slug
+        // Prüfung auf Freie Einzelseite oder Modulare Landingpage: ?page=slug
         $requested_page_slug = trim($_GET['page'] ?? '');
         $active_page = null;
         if (!empty($requested_page_slug) && !empty($data['pages'])) {
@@ -311,7 +315,14 @@ class FrontendController {
 
             self::renderPartial('head', $vm);
             self::renderPartial('header_nav', $vm);
-            self::renderPartial('page_single', $vm);
+            
+            // Phase 18.2: Modulare Sektions-Landingpage vs. Standard-Content-Seite
+            if (($active_page['page_type'] ?? 'content') === 'modular') {
+                self::renderPartial('page_modular', $vm);
+            } else {
+                self::renderPartial('page_single', $vm);
+            }
+
             self::renderPartial('footer', $vm);
             self::renderPartial('slide_contact', $vm);
             self::renderPartial('slide_impressum', $vm);
@@ -320,13 +331,33 @@ class FrontendController {
             return;
         }
 
-        // 1. Header & Navigation
+        // Phase 18.1 / 18.3: Prüfung auf Standalone-Sektion (Multi-Page Website & Hybrid-Routing)
+        if (!empty($requested_page_slug)) {
+            $sec = SectionManager::getSectionById($requested_page_slug, $data);
+            if ($sec && SectionManager::isSectionStandalonePage($requested_page_slug, $data)) {
+                $vm['meta_title'] = htmlspecialchars($sec['title']) . ' | ' . ($data['texts']['contact_name'] ?? 'WeaveCMS');
+                $vm['active_section'] = $sec;
+
+                self::renderPartial('head', $vm);
+                self::renderPartial('header_nav', $vm);
+                self::renderPartial('section_single', $vm);
+                self::renderPartial('footer', $vm);
+                self::renderPartial('slide_contact', $vm);
+                self::renderPartial('slide_impressum', $vm);
+                self::renderPartial('slide_mobile_nav', $vm);
+                self::renderPartial('scripts', $vm);
+                return;
+            }
+        }
+
+        // 1. Header & Navigation (Startseite)
         self::renderPartial('head', $vm);
         self::renderPartial('header_nav', $vm);
 
-        // 2. Hauptinhalte (Modulare Sektionen in konfigurierter Reihenfolge)
+        // 2. Hauptinhalte (Startseiten-Sektionen nach gewähltem Architektur-Modus)
         echo '<main class="container">';
-        foreach ($vm['visible_sections'] as $sec) {
+        $renderSections = !empty($vm['home_sections']) ? $vm['home_sections'] : $vm['visible_sections'];
+        foreach ($renderSections as $sec) {
             $secType = !empty($sec['type']) ? $sec['type'] : ($sec['id'] ?? '');
             self::renderSection($secType, $vm);
         }

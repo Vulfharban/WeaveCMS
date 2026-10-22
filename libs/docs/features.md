@@ -62,6 +62,9 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Download-Manager** | Bereitstellung von PDFs, Flyern und Dokumenten mit Dateigrößen- und Format-Anzeige. | ✅ Integriert (v0.8.0) |
 | **Leistungen & Preise** | Preistabellen / Servicekarten mit Bestseller-Badges, Feature-Checklisten und Anfrage-Button. | ✅ Integriert (v0.8.0) |
 | **Modulare Sektionen & Seiten-Manager** | Sektionen beliebig anordnen, ein- oder ausblenden mit automatischer Menü-Synchronisation. | ✅ Integriert (v0.6.0) |
+| **Globaler Architektur-Wahlschalter (Phase 18)** | Umschalten zwischen **One-Pager** (Standard), **Klassischer Multi-Page Website** (Startseite + separate Unterseiten `?page=slug` für Galerie, Kurse, Shop, Blog, Downloads, Stammbaum etc.) und **Hybrid-Modus** (freie Zuweisung je Sektion: Startseite / Einzelseite / Beides). | ✅ Integriert (Phase 18) |
+| **Modulare Sektions-Landingpages (Landingpage-Builder)** | Erstellung unbegrenzter zusätzlicher Endlos-Scroll-Seiten mit frei wählbaren, gestackten Inhalts-Sektionen, eigenem Intro, individuellem URL-Slug und SEO-Metadaten. | ✅ Integriert (Phase 18) |
+| **Intelligente Routing- & Menü-Engine** | Vollautomatische Navigation: Anker-Links (`#sektion`) für Sektionen der aktuellen Seite, direkte Seitenlinks (`?page=slug`) für ausgelagerte Einzelseiten, sprachbewusster Logo-Home-Link. | ✅ Integriert (Phase 18) |
 | **Webtrees Stammbaum-Sektion im Sektionen-Manager** | Nahtlose Steuerung der Stammbaum-Sektion über den zentralen Sektionen-Manager (Verschieben, Ein-/Ausblenden und automatische Menü-Synchronisation). | ✅ Integriert (v0.9.5) |
 | **Inhalte-Hub im Backend** | Übersichtliche Sub-Navigation (`.admin-subnav`) unter „Inhalte & Seiten“ für alle Content-Bereiche. | ✅ Integriert (v0.8.0) |
 
@@ -151,7 +154,29 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.9.5 (Aktueller Entwicklungsstand)
+### v0.9.6 (Aktueller Entwicklungsstand)
+* **Flexible Website-Architektur & Modulare Landingpages (Phase 18):**
+  * **Globaler Architektur-Wahlschalter (18.1):**
+    * Konfigurierbar im Reiter *„Darstellung & Design“* (`tab_settings.php`) mit 3 wählbaren Kacheln:
+      1. `One-Pager (Standard)`: Alle aktiven Inhaltsbereiche liegen fortlaufend auf der Startseite mit weicher Anker-Navigation (`#sektion`).
+      2. `Klassische Multi-Page Website`: Startseite als kompakte Begrüßung / Teaser; Hauptsektionen (Galerie, Workshops, Shop, Blog, Downloads, Stammbaum) erhalten eigene URLs (`?page=sektion_id`) und laufen als vollwertige Einzelseiten.
+      3. `Individuell / Hybrid`: Freie Zuweisung pro Sektion im Sektionen-Manager (`Startseite & Einzelseite [Beides]`, `Nur auf Startseite`, `Nur als eigene Einzelseite`).
+  * **Zusätzliche modulare Endlos-Scroll-Seiten / Landingpage-Builder (18.2):**
+    * Erweiterung der Seiten-Verwaltung (`tab_pages.php`) um den Seitentyp:
+      * `Standard-Inhalt`: Freier Text, Markdown, HTML, Bilder.
+      * `Modulare Sektions-Landingpage`: Interaktive Zusammenstellung beliebiger Sektionen (Hero, Galerie, Workshops, Blog, Preise, Downloads, Stammbaum, Shop) in frei wählbarer Reihenfolge.
+    * Eigene URLs (`?page=slug`), eigene SEO-Metadaten (Title, Description) und dediziertes Template `views/partials/page_modular.php` mit optionalem Einleitungs-Banner.
+  * **Intelligente Routing- & Menü-Engine (18.3):**
+    * `FrontendController::renderPage`: Automatisches Erkennen und Rendern von Modularen Landingpages (`page_modular.php`) sowie Standalone-Sektionen (`section_single.php`) mit barrierefreiem Breadcrumb-Zurück-Button.
+    * `SectionManager::getNavItems`: Dynamische Generierung von Anker-Links (`#sektion`) für Sektionen der aktuellen Seite und direkten Subpage-Links (`?page=sektion_id`) für ausgelagerte Bereiche.
+    * Barrierefreie Logo-Rückkehr: Klick auf das Logo führt von Einzelseiten zuverlässig zur Startseite (`./`) zurück.
+* **Audit & Härtung Plugin-System (Phase 13) & Barrierefreiheit (Phase 16):**
+  * **Behebung von Closure-Referenz-Warnungen:** Bereinigung des `plugin_config_saved_webtrees-genealogy` Action-Handlers zur Verhinderung von PHP-Warnungen bei Variadic-Aufrufen in `PluginManager::doAction`.
+  * **Bidirektionale Sektions-Synchronisation:** `PluginManager::savePluginConfig` synchronisiert Sichtbarkeit (`section_enabled`) und Titel (`section_title`) nun automatisch mit `SectionManager`.
+  * **Spam-Captcha Icon-Key Härtung:** Behebung der `Undefined array key "id"` PHP-Warnung in `slide_contact.php` durch robusten Fallback auf den assoziativen Array-Key.
+  * **100 % Testabdeckung:** 25/25 Tests für Phase 13 und 7/7 Tests für Phase 18 laufen fehlerfrei durch.
+
+### v0.9.5
 * **Logo- & Branding-Verwaltung (Phase 11):**
   * **4 flexible Logo-Typen:** Wählbar zwischen *Reiner Text* (Typografie aus Einstellungen), *Eigenes Bild-Logo* (vollflächige Header-Grafik), *Icon & Text kombiniert* sowie *SVG-Naturmotiven* (Hundetatzen).
   * **Sicherer Datei-Upload & XSS-Schutz:** Upload von SVG, PNG, WebP und JPG mit automatischer Vektorbereinigung (`ImageUploader::sanitizeSvg`) gegen schädliche Skripte, Event-Handler (`onload=`, `onerror=`) oder Javascript-URIs.

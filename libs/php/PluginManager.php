@@ -444,6 +444,18 @@ class PluginManager {
         $validatedConfig = self::applyFilters("plugin_validate_config_{$slug}", $config, $data);
         $data['plugins']['configs'][$slug] = $validatedConfig;
 
+        // Automatische Synchronisation für registrierte Sektionen in SectionManager sicherstellen
+        if (class_exists('SectionManager')) {
+            SectionManager::ensureSections($data);
+            $secId = ($slug === 'webtrees-genealogy') ? 'webtrees' : $slug;
+            if (isset($validatedConfig['section_enabled'])) {
+                SectionManager::setVisibility($data, $secId, (bool)$validatedConfig['section_enabled']);
+            }
+            if (!empty($validatedConfig['section_title'])) {
+                SectionManager::updateSection($data, $secId, ['title' => $validatedConfig['section_title']]);
+            }
+        }
+
         self::doAction("plugin_config_saved_{$slug}", $validatedConfig, $data);
 
         if (class_exists('SecurityManager')) {

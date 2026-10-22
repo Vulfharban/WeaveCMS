@@ -549,23 +549,23 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 18: Flexible Website-Architektur (Klassische Multi-Page Website & Zusätzliche modulare One-Pager)
 *Ziel: Ermöglicht dem Seitenbetreiber den nahtlosen Wechsel zwischen modernem One-Pager (Standard nach Installation) und einer klassischen Multi-Page-Website mit separaten Einzelseiten für Inhaltsbereiche, sowie die Erstellung beliebiger zusätzlicher modularer Endlos-Scroll-Landingpages.*
 
-- [ ] **18.1 Globaler Architektur-Wahlschalter im Adminbereich:**
+- [x] **18.1 Globaler Architektur-Wahlschalter im Adminbereich:**
   - Standard nach Erstinstallation: *One-Pager (alle Sektionen auf der Startseite mit Anker-Navigation)*.
   - Wählbare Modi:
     1. **One-Pager (Default):** Bewährte fortlaufende Startseite mit allen aktiven Sektionen.
     2. **Klassische Multi-Page Website:** Sektionen (Galerie, Workshops, Shop, Blog, Downloads, Stammbaum, Über mich) erhalten eigene URLs (`/?page=galerie`, `/?page=kurse` bzw. `/galerie`, `/kurse`), während die Startseite eine kompakte Landingpage / Hero-Überblick darstellt.
     3. **Individuell / Hybrid:** Im Sektionen-Manager kann pro Sektion frei gewählt werden: *„Anzeige auf: [ Startseite | Eigene Unterseite (/slug) | Landingpage X ]“*.
-- [ ] **18.2 Zusätzliche modulare Endlos-Scroll-Seiten (Landingpage-Builder):**
+- [x] **18.2 Zusätzliche modulare Endlos-Scroll-Seiten (Landingpage-Builder):**
   - Erweiterung der Einzelseiten-Verwaltung (`tab_pages.php`) um den Seitentyp:
     - *Standard-Content-Seite:* Freier Text, Markdown, HTML, Bilder.
     - *Modulare Sektions-Landingpage:* Zusammenstellung beliebiger Sektionen in frei wählbarer Reihenfolge (z. B. Weihnachts-Aktion, Special-Workshop-Page, Portfolio-Showcase).
   - Jede modulare Seite erhält ihre eigene URL, eigene Meta-Angaben (SEO) und wird als fortlaufender Sektionen-Stack gerendert.
-- [ ] **18.3 Intelligente Menü- & Routing-Engine:**
+- [x] **18.3 Intelligente Menü- & Routing-Engine:**
   - Automatische Anpassung der Navigation:
     - Verlinkung auf Sektionen derselben Seite nutzt `#sektion` (weiches Scrollen).
     - Verlinkung auf separate Seiten nutzt die entsprechende Seiten-URL (`/?page=slug` oder Clean URL).
     - Menü-Sync im Sektionen-Manager bleibt erhalten.
-- [ ] **18.4 Prüfung & Abnahme:**
+- [x] **18.4 Prüfung & Abnahme:**
   - Umschalten von One-Pager auf Multi-Page testen: Alle Bereiche als Einzelseiten erreichbar, Menülinks leiten korrekt weiter.
   - Zusätzliche modulare Sektions-Seite erstellen (z. B. 3 Sektionen gestackt) und im Frontend aufrufen.
 

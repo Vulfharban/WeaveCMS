@@ -787,6 +787,58 @@
                 </div>
 
                 <!-- ==========================================================
+                     WEBSITE-ARCHITEKTUR & SEITEN-STRUKTUR (PHASE 18)
+                     ========================================================== -->
+                <h3 style="font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons" style="color:var(--primary);">account_tree</span> Website-Architektur &amp; Seiten-Struktur
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height:1.5;">
+                    Bestimme hier, wie deine Website strukturiert ist. Du kannst jederzeit nahtlos zwischen modernem One-Pager und einer klassischen Multi-Page Website wechseln:
+                </p>
+
+                <?php 
+                    $cur_arch = SectionManager::getSiteArchitecture($data);
+                ?>
+
+                <div class="layout-options-grid" style="margin-bottom: 2rem;">
+                    <!-- Option 1: One-Pager (Default) -->
+                    <label class="layout-card <?php echo ($cur_arch === 'onepage') ? 'selected' : ''; ?>" onclick="selectLayoutCard(this)">
+                        <input type="radio" name="site_architecture" value="onepage" <?php echo ($cur_arch === 'onepage') ? 'checked' : ''; ?>>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="layout-badge">⭐ Standard (One-Pager)</span>
+                        </div>
+                        <h4 style="margin:0; font-size:1.15rem; color:var(--text-primary);">One-Pager</h4>
+                        <p style="color:var(--text-secondary); font-size:0.88rem; margin:0; line-height:1.4;">
+                            Alle aktiven Inhaltsbereiche (Galerie, Workshops, Blog, Downloads etc.) liegen fortlaufend auf der Startseite. Die Menüpunkte springen sanft per Anker (#sektion) dorthin.
+                        </p>
+                    </label>
+
+                    <!-- Option 2: Multi-Page -->
+                    <label class="layout-card <?php echo ($cur_arch === 'multipage') ? 'selected' : ''; ?>" onclick="selectLayoutCard(this)">
+                        <input type="radio" name="site_architecture" value="multipage" <?php echo ($cur_arch === 'multipage') ? 'checked' : ''; ?>>
+                        <div>
+                            <span class="layout-badge" style="background:rgba(59, 130, 246, 0.15); color:#2563eb;">Klassisch</span>
+                        </div>
+                        <h4 style="margin:0; font-size:1.15rem; color:var(--text-primary);">Klassische Multi-Page Website</h4>
+                        <p style="color:var(--text-secondary); font-size:0.88rem; margin:0; line-height:1.4;">
+                            Startseite als kompakte Begrüßung / Teaser. Hauptbereiche (Galerie, Workshops, Blog, Downloads, Shop, Stammbaum) erhalten eigene URLs (/?page=galerie etc.) und werden als eigenständige Unterseiten aufgerufen.
+                        </p>
+                    </label>
+
+                    <!-- Option 3: Hybrid -->
+                    <label class="layout-card <?php echo ($cur_arch === 'hybrid') ? 'selected' : ''; ?>" onclick="selectLayoutCard(this)">
+                        <input type="radio" name="site_architecture" value="hybrid" <?php echo ($cur_arch === 'hybrid') ? 'checked' : ''; ?>>
+                        <div>
+                            <span class="layout-badge" style="background:rgba(217, 119, 6, 0.15); color:var(--accent);">Flexibel</span>
+                        </div>
+                        <h4 style="margin:0; font-size:1.15rem; color:var(--text-primary);">Individuell / Hybrid</h4>
+                        <p style="color:var(--text-secondary); font-size:0.88rem; margin:0; line-height:1.4;">
+                            Volle Freiheit: Im Sektionen-Manager kann für jede Sektion einzeln festgelegt werden, ob sie auf der Startseite, als Einzelseite oder auf beiden erscheinen soll.
+                        </p>
+                    </label>
+                </div>
+
+                <!-- ==========================================================
                      BESUCHER-BARRIEREFREIHEITSLEISTE (PHASE 16)
                      ========================================================== -->
                 <h3 style="font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">

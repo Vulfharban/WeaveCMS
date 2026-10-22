@@ -97,14 +97,21 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                         </div>
                     <?php endif; ?>
 
-                    <!-- Gemeinsame Einstellungen: Status, Hauptmenü-Einbindung, Basis-Slug -->
-                    <div class="grid-3" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; border:1px solid var(--border-color);">
+                    <!-- Gemeinsame Einstellungen: Status, Seitentyp, Hauptmenü-Einbindung, Basis-Slug -->
+                    <div class="grid-4" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; border:1px solid var(--border-color);">
                         <div class="form-group">
                             <label for="page_slug" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
                                 URL-Slug (Pfad) *
-                                <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(z. B. nachhaltigkeit)</span>
+                                <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(z. B. aktion)</span>
                             </label>
-                            <input type="text" id="page_slug" name="slug" class="form-control" placeholder="nachhaltigkeit" required pattern="[a-z0-9_-]+">
+                            <input type="text" id="page_slug" name="slug" class="form-control" placeholder="aktion" required pattern="[a-z0-9_-]+">
+                        </div>
+                        <div class="form-group">
+                            <label for="page_type" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Seitentyp</label>
+                            <select id="page_type" name="page_type" class="form-control" onchange="togglePageTypeMode(this.value)">
+                                <option value="content">Standard-Inhalt (Text/Markdown)</option>
+                                <option value="modular">Modulare Sektions-Landingpage</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="page_status" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Status</label>
@@ -119,6 +126,35 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                                 <input type="checkbox" id="page_in_nav" name="in_nav" value="1">
                                 <span>Im Hauptmenü verlinken</span>
                             </label>
+                        </div>
+                    </div>
+
+                    <!-- Phase 18.2: Modulare Sektionen-Auswahl (Landingpage-Stack) -->
+                    <div id="modular-sections-box" style="display:none; background:rgba(46,98,72,0.06); border:1px solid rgba(46,98,72,0.3); border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+                        <h4 style="color:var(--primary); margin:0 0 0.4rem 0; font-size:1.05rem; display:flex; align-items:center; gap:6px;">
+                            <span class="material-icons">view_quilt</span> Sektionen für diese modulare Landingpage zusammenstellen
+                        </h4>
+                        <p style="color:var(--text-secondary); font-size:0.85rem; margin:0 0 1rem 0;">
+                            Wähle die gewünschten Inhaltsbereiche aus, die auf dieser Seite als fortlaufender Sektionen-Stack gerendert werden:
+                        </p>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap:10px;">
+                            <?php 
+                            $avail_sections = SectionManager::ensureSections($data);
+                            $sec_type_icons = [
+                                'hero' => 'flag', 'gallery' => 'photo_library', 'courses' => 'event',
+                                'past_courses' => 'photo_camera', 'blog' => 'newspaper', 'about' => 'badge',
+                                'custom_text' => 'article', 'pricing' => 'sell', 'faq' => 'quiz',
+                                'team' => 'groups', 'downloads' => 'file_download', 'webtrees' => 'account_tree', 'shop' => 'storefront'
+                            ];
+                            foreach ($avail_sections as $asec):
+                                $aicon = $sec_type_icons[$asec['type']] ?? 'dashboard';
+                            ?>
+                                <label style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:#ffffff; border:1px solid var(--border-color); border-radius:10px; cursor:pointer; font-size:0.9rem;">
+                                    <input type="checkbox" name="page_sections[]" value="<?php echo htmlspecialchars($asec['id']); ?>" class="modular-sec-checkbox" style="width:16px; height:16px; accent-color:var(--primary);">
+                                    <span class="material-icons" style="font-size:18px; color:var(--primary);"><?php echo $aicon; ?></span>
+                                    <span style="font-weight:600; color:var(--text-primary);"><?php echo htmlspecialchars($asec['title']); ?></span>
+                                </label>
+                            <?php endforeach; ?>
                         </div>
                     </div>
 
@@ -230,6 +266,19 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                                 <div>
                                     <h4 style="margin:0 0 4px 0; font-size:1.05rem; color:var(--text-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                                         <span><?php echo htmlspecialchars($p['title'] ?? 'Unbenannt'); ?></span>
+                                        <?php 
+                                            $is_modular = ($p['page_type'] ?? 'content') === 'modular';
+                                            $sec_count = count($p['page_sections'] ?? []);
+                                        ?>
+                                        <?php if ($is_modular): ?>
+                                            <span style="font-size:0.7rem; font-weight:700; color:#8b5cf6; background:rgba(139,92,246,0.1); padding:2px 8px; border-radius:999px;">
+                                                Modulare Landingpage (<?php echo $sec_count; ?> Sektionen)
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="font-size:0.7rem; font-weight:600; color:var(--text-secondary); background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:999px;">
+                                                Standard-Inhalt
+                                            </span>
+                                        <?php endif; ?>
                                         <?php if ($is_published): ?>
                                             <span style="font-size:0.7rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.1); padding:2px 8px; border-radius:999px;">Veröffentlicht</span>
                                         <?php else: ?>
@@ -311,6 +360,13 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             }
         }
 
+        function togglePageTypeMode(type) {
+            const modBox = document.getElementById('modular-sections-box');
+            if (modBox) {
+                modBox.style.display = (type === 'modular') ? 'block' : 'none';
+            }
+        }
+
         function openPageEditor() {
             document.getElementById('page-editor-box').style.display = 'block';
             document.getElementById('page-editor-title').innerHTML = '<span class="material-icons">add_circle</span> Neue Einzelseite anlegen';
@@ -318,11 +374,17 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             document.getElementById('page_id').value = '';
             document.getElementById('page_title').value = '';
             document.getElementById('page_slug').value = '';
+            document.getElementById('page_type').value = 'content';
             document.getElementById('page_nav_label').value = '';
             document.getElementById('page_status').value = 'published';
             document.getElementById('page_in_nav').checked = false;
             document.getElementById('page_meta_desc').value = '';
             document.getElementById('page_content').value = '';
+
+            document.querySelectorAll('.modular-sec-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            togglePageTypeMode('content');
 
             PAGE_ACTIVE_LANGS.forEach(lang => {
                 if (lang === PAGE_PRIMARY_LANG) return;
@@ -352,11 +414,19 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             document.getElementById('page_id').value = pageData.id || '';
             document.getElementById('page_title').value = pageData.title || '';
             document.getElementById('page_slug').value = pageData.slug || '';
+            const pType = pageData.page_type || 'content';
+            document.getElementById('page_type').value = pType;
             document.getElementById('page_nav_label').value = pageData.nav_label || '';
             document.getElementById('page_status').value = pageData.status || 'published';
             document.getElementById('page_in_nav').checked = !!pageData.in_nav;
             document.getElementById('page_meta_desc').value = pageData.meta_description || '';
             document.getElementById('page_content').value = pageData.content || '';
+
+            const chosenSecs = Array.isArray(pageData.page_sections) ? pageData.page_sections : [];
+            document.querySelectorAll('.modular-sec-checkbox').forEach(cb => {
+                cb.checked = chosenSecs.includes(cb.value);
+            });
+            togglePageTypeMode(pType);
 
             const trans = pageData.translations || {};
             PAGE_ACTIVE_LANGS.forEach(lang => {

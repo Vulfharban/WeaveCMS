@@ -102,8 +102,10 @@
                                 Sicherheitsprüfung: Klicke auf <strong><?php echo htmlspecialchars($initial_target['prompt'] ?? 'den Weidenzweig 🌿'); ?></strong>
                             </label>
                             <div id="spam-icon-grid" class="spam-icon-grid">
-                                <?php foreach ($server_active_icons as $srv_icon): ?>
-                                    <button type="button" class="spam-icon-btn" title="<?php echo htmlspecialchars($srv_icon['name']); ?>" data-icon-id="<?php echo htmlspecialchars($srv_icon['id']); ?>" onclick="selectSpamIcon('<?php echo htmlspecialchars($srv_icon['id']); ?>', this);">
+                                <?php foreach ($server_active_icons as $srv_key => $srv_icon): 
+                                    $srv_id = $srv_icon['id'] ?? $srv_key;
+                                ?>
+                                    <button type="button" class="spam-icon-btn" title="<?php echo htmlspecialchars($srv_icon['name']); ?>" data-icon-id="<?php echo htmlspecialchars($srv_id); ?>" onclick="selectSpamIcon('<?php echo htmlspecialchars($srv_id); ?>', this);">
                                         <span class="spam-icon-symbol"><?php echo $srv_icon['symbol']; ?></span>
                                         <span class="spam-icon-label"><?php echo htmlspecialchars($srv_icon['name']); ?></span>
                                     </button>

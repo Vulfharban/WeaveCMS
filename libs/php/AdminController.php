@@ -492,6 +492,13 @@ class AdminController {
         }
         $data['settings']['impressum_placement'] = $impressum_placement;
 
+        // Phase 18: Globaler Website-Architektur-Wahlschalter
+        $site_architecture = $_POST['site_architecture'] ?? SectionManager::ARCHITECTURE_ONEPAGE;
+        if (!in_array($site_architecture, [SectionManager::ARCHITECTURE_ONEPAGE, SectionManager::ARCHITECTURE_MULTIPAGE, SectionManager::ARCHITECTURE_HYBRID], true)) {
+            $site_architecture = SectionManager::ARCHITECTURE_ONEPAGE;
+        }
+        $data['settings']['site_architecture'] = $site_architecture;
+
         // Besucher-Barrierefreiheitsleiste (Phase 16)
         $data['settings']['accessibility_bar_enabled'] = !empty($_POST['accessibility_bar_enabled']);
 
@@ -618,10 +625,16 @@ class AdminController {
                 }
             }
 
+            $placement = $_POST['placement'] ?? 'both';
+            if (!in_array($placement, ['both', 'home', 'page'], true)) {
+                $placement = 'both';
+            }
+
             if (SectionManager::updateSection($data, $sec_id, [
                 'title' => $title,
                 'nav_label' => $nav_label,
                 'in_nav' => $in_nav,
+                'placement' => $placement,
                 'translations' => $translations
             ])) {
                 if (save_data($dataFile, $data)) {
@@ -1497,10 +1510,18 @@ class AdminController {
                 }
             }
 
+            $page_type = in_array($_POST['page_type'] ?? '', ['content', 'modular'], true) ? $_POST['page_type'] : 'content';
+            $page_sections = [];
+            if ($page_type === 'modular' && isset($_POST['page_sections']) && is_array($_POST['page_sections'])) {
+                $page_sections = array_values(array_filter($_POST['page_sections'], 'is_string'));
+            }
+
             $newPage = [
                 'id' => 'page_' . uniqid(),
                 'title' => $title,
                 'slug' => $slug,
+                'page_type' => $page_type,
+                'page_sections' => $page_sections,
                 'nav_label' => trim($_POST['nav_label'] ?? ''),
                 'status' => in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published',
                 'in_nav' => !empty($_POST['in_nav']),
@@ -1569,8 +1590,16 @@ class AdminController {
                 }
             }
 
+            $page_type = in_array($_POST['page_type'] ?? '', ['content', 'modular'], true) ? $_POST['page_type'] : 'content';
+            $page_sections = [];
+            if ($page_type === 'modular' && isset($_POST['page_sections']) && is_array($_POST['page_sections'])) {
+                $page_sections = array_values(array_filter($_POST['page_sections'], 'is_string'));
+            }
+
             $data['pages'][$found_idx]['title'] = $title;
             $data['pages'][$found_idx]['slug'] = $slug;
+            $data['pages'][$found_idx]['page_type'] = $page_type;
+            $data['pages'][$found_idx]['page_sections'] = $page_sections;
             $data['pages'][$found_idx]['nav_label'] = trim($_POST['nav_label'] ?? '');
             $data['pages'][$found_idx]['status'] = in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published';
             $data['pages'][$found_idx]['in_nav'] = !empty($_POST['in_nav']);
