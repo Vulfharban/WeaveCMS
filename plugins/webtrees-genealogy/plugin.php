@@ -44,7 +44,87 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
     }, $content);
 });
 
-// 3. Eigene Sektion für das Frontend registrieren (falls im Plugin aktiviert)
+// 3. Eigene Sektion für den Sektionen-Manager & das Frontend registrieren
+PluginManager::addFilter('registered_sections', function($sections, $data) {
+    if (!PluginManager::isPluginActive('webtrees-genealogy', $data)) {
+        return $sections;
+    }
+    $config = PluginManager::getPluginConfig('webtrees-genealogy', $data);
+    $isEnabled = !empty($config['section_enabled']);
+    $sections[] = [
+        'id' => 'webtrees',
+        'type' => 'webtrees',
+        'title' => !empty($config['section_title']) ? $config['section_title'] : 'Familienstammbaum & Ahnenforschung',
+        'nav_label' => 'Stammbaum',
+        'visible' => $isEnabled,
+        'in_nav' => true,
+        'plugin' => 'webtrees-genealogy',
+        'can_delete' => false
+    ];
+    return $sections;
+});
+
+// Fallback für getVisibleSections
+PluginManager::addFilter('visible_sections', function($sections, $data) {
+    if (!PluginManager::isPluginActive('webtrees-genealogy', $data)) {
+        return $sections;
+    }
+    $config = PluginManager::getPluginConfig('webtrees-genealogy', $data);
+    if (!empty($config['section_enabled'])) {
+        $hasWebtrees = false;
+        foreach ($sections as $s) {
+            if (($s['id'] ?? '') === 'webtrees') {
+                $hasWebtrees = true;
+                break;
+            }
+        }
+        if (!$hasWebtrees) {
+            $sections[] = [
+                'id' => 'webtrees',
+                'type' => 'webtrees',
+                'title' => !empty($config['section_title']) ? $config['section_title'] : 'Familienstammbaum & Ahnenforschung',
+                'nav_label' => 'Stammbaum',
+                'visible' => true,
+                'in_nav' => true,
+                'plugin' => 'webtrees-genealogy'
+            ];
+        }
+    }
+    return $sections;
+});
+
+// Synchronisation mit data['sections'] beim Speichern der Plugin-Einstellungen
+PluginManager::addAction('plugin_config_saved_webtrees-genealogy', function($config, &$data) {
+    if (class_exists('SectionManager')) {
+        SectionManager::ensureSections($data);
+        $sectionEnabled = !empty($config['section_enabled']);
+        $found = false;
+        foreach ($data['sections'] as &$sec) {
+            if (($sec['id'] ?? '') === 'webtrees') {
+                $sec['visible'] = $sectionEnabled;
+                if (!empty($config['section_title'])) {
+                    $sec['title'] = $config['section_title'];
+                }
+                $found = true;
+                break;
+            }
+        }
+        if (!$found && $sectionEnabled) {
+            $data['sections'][] = [
+                'id' => 'webtrees',
+                'type' => 'webtrees',
+                'title' => !empty($config['section_title']) ? $config['section_title'] : 'Familienstammbaum & Ahnenforschung',
+                'nav_label' => 'Stammbaum',
+                'visible' => true,
+                'in_nav' => true,
+                'plugin' => 'webtrees-genealogy',
+                'can_delete' => false
+            ];
+        }
+    }
+});
+
+// 4. Eigene Sektion für das Frontend rendern
 PluginManager::addAction('frontend_render_custom_section', function($sectionKey, $data) {
     if ($sectionKey !== 'webtrees') {
         return;
@@ -56,7 +136,8 @@ PluginManager::addAction('frontend_render_custom_section', function($sectionKey,
 
     $params = [
         'title' => $config['section_title'] ?? 'Familienstammbaum & Ahnenforschung',
-        'subtitle' => $config['section_subtitle'] ?? 'Entdecke unsere Familiengeschichte interaktiv aus Webtrees.'
+        'subtitle' => $config['section_subtitle'] ?? 'Entdecke unsere Familiengeschichte interaktiv aus Webtrees.',
+        'is_section' => true
     ];
 
     require __DIR__ . '/views/tree_embed.php';

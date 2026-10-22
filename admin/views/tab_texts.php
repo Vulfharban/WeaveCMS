@@ -26,7 +26,13 @@
                     'past_courses' => 'photo_camera',
                     'blog' => 'newspaper',
                     'about' => 'badge',
-                    'custom_text' => 'article'
+                    'custom_text' => 'article',
+                    'pricing' => 'sell',
+                    'faq' => 'quiz',
+                    'team' => 'groups',
+                    'downloads' => 'file_download',
+                    'webtrees' => 'account_tree',
+                    'shop' => 'storefront'
                 ];
 
                 $active_langs = LanguageManager::getActiveLanguages($data);
@@ -50,6 +56,7 @@
                         <?php 
                             $is_vis = !empty($sec['visible']);
                             $icon = $type_icons[$sec['type']] ?? 'dashboard';
+                            $is_plugin_sec = !empty($sec['plugin']) || in_array($sec['type'], ['webtrees', 'shop'], true);
                         ?>
                         <div style="display:flex; align-items:center; justify-content:space-between; background: #ffffff; border: 1px solid <?php echo $is_vis ? 'var(--border-color)' : 'rgba(239,68,68,0.2)'; ?>; border-radius: 12px; padding: 10px 16px; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.02); <?php if (!$is_vis) echo 'opacity: 0.65;'; ?>">
                             <div style="display:flex; align-items:center; gap: 14px;">
@@ -58,6 +65,11 @@
                                 <div>
                                     <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                                         <span><?php echo htmlspecialchars($sec['title']); ?></span>
+                                        <?php if ($is_plugin_sec): ?>
+                                            <span style="font-size:0.7rem; font-weight:700; color:#059669; background:rgba(5,150,105,0.1); padding:2px 8px; border-radius:999px;">
+                                                Plugin
+                                            </span>
+                                        <?php endif; ?>
                                         <?php if (!empty($sec['in_nav'])): ?>
                                             <span style="font-size:0.7rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:2px 8px; border-radius:999px;">
                                                 Menü: <strong><?php echo htmlspecialchars($sec['nav_label']); ?></strong>

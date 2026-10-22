@@ -105,9 +105,31 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
 });
 
 // -----------------------------------------------------------------------------
-// 4. Eigene Sektion für das Frontend registrieren (falls im Plugin aktiviert)
+// 4. Eigene Sektion für den Sektionen-Manager & das Frontend registrieren
 // -----------------------------------------------------------------------------
+PluginManager::addFilter('registered_sections', function($sections, $data) {
+    if (!PluginManager::isPluginActive('shop', $data)) {
+        return $sections;
+    }
+    $config = PluginManager::getPluginConfig('shop', $data);
+    $isEnabled = !empty($config['section_enabled']);
+    $sections[] = [
+        'id'        => 'shop',
+        'type'      => 'shop',
+        'title'     => !empty($config['section_title']) ? $config['section_title'] : 'Unser Webshop & Produkte',
+        'nav_label' => 'Shop',
+        'visible'   => $isEnabled,
+        'in_nav'    => true,
+        'plugin'    => 'shop',
+        'can_delete'=> false
+    ];
+    return $sections;
+});
+
 PluginManager::addFilter('visible_sections', function($sections, $data) {
+    if (!PluginManager::isPluginActive('shop', $data)) {
+        return $sections;
+    }
     $config = PluginManager::getPluginConfig('shop', $data);
     if (!empty($config['section_enabled'])) {
         $hasShop = false;
@@ -124,11 +146,42 @@ PluginManager::addFilter('visible_sections', function($sections, $data) {
                 'title'     => $config['section_title'] ?? 'Unser Webshop & Produkte',
                 'nav_label' => 'Shop',
                 'visible'   => true,
-                'in_nav'    => true
+                'in_nav'    => true,
+                'plugin'    => 'shop'
             ];
         }
     }
     return $sections;
+});
+
+PluginManager::addAction('plugin_config_saved_shop', function($config, &$data) {
+    if (class_exists('SectionManager')) {
+        SectionManager::ensureSections($data);
+        $sectionEnabled = !empty($config['section_enabled']);
+        $found = false;
+        foreach ($data['sections'] as &$sec) {
+            if (($sec['id'] ?? '') === 'shop') {
+                $sec['visible'] = $sectionEnabled;
+                if (!empty($config['section_title'])) {
+                    $sec['title'] = $config['section_title'];
+                }
+                $found = true;
+                break;
+            }
+        }
+        if (!$found && $sectionEnabled) {
+            $data['sections'][] = [
+                'id'        => 'shop',
+                'type'      => 'shop',
+                'title'     => !empty($config['section_title']) ? $config['section_title'] : 'Unser Webshop & Produkte',
+                'nav_label' => 'Shop',
+                'visible'   => true,
+                'in_nav'    => true,
+                'plugin'    => 'shop',
+                'can_delete'=> false
+            ];
+        }
+    }
 });
 
 PluginManager::addAction('frontend_render_custom_section', function($sectionKey, $data) {

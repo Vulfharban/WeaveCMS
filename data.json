@@ -173,7 +173,7 @@
             "type": "team",
             "title": "Unser Team & Meister",
             "nav_label": "Team",
-            "visible": true,
+            "visible": false,
             "in_nav": true
         },
         {
@@ -192,6 +192,15 @@
             "nav_label": "Über mich",
             "visible": false,
             "in_nav": true
+        },
+        {
+            "id": "webtrees",
+            "type": "webtrees",
+            "title": "Familienstammbaum & Ahnenforschung",
+            "nav_label": "Stammbaum",
+            "visible": true,
+            "in_nav": true,
+            "plugin": "webtrees-genealogy"
         }
     ],
     "seo": {
@@ -551,13 +560,12 @@
             "role": "admin",
             "active": true,
             "created_at": "2026-10-22 07:34:31",
-            "last_login": "2026-10-22 07:34:31"
+            "last_login": "2026-10-22 10:44:18"
         }
     ],
     "plugins": {
         "active": [
-            "shop",
-            "inventory"
+            "webtrees-genealogy"
         ],
         "configs": {
             "shop": {
@@ -567,6 +575,18 @@
                 "section_enabled": false,
                 "section_title": "Unser Webshop & Produkte",
                 "section_subtitle": "Handgefertigte Unikate, kreative DIY-Sets und Zubehör direkt online bestellen."
+            },
+            "webtrees-genealogy": {
+                "webtrees_path": "/webtrees",
+                "webtrees_url": "/webtrees",
+                "tree_id": "tree1",
+                "embed_mode": "interactive_iframe",
+                "default_person": "I1",
+                "iframe_height": 750,
+                "section_enabled": true,
+                "section_title": "Familienstammbaum & Ahnenforschung",
+                "section_subtitle": "Entdecke unsere Familiengeschichte, Vorfahren und historische Dokumente interaktiv aus Webtrees.",
+                "embed_token": ""
             }
         }
     }

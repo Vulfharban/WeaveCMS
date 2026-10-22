@@ -142,6 +142,24 @@ class SectionManager {
                 }
             }
         }
+
+        // Plugin-registrierte Sektionen einbinden (z. B. Webtrees Stammbaum, Online-Shop)
+        if (class_exists('PluginManager')) {
+            $pluginSections = PluginManager::applyFilters('registered_sections', [], $data);
+            if (!empty($pluginSections) && is_array($pluginSections)) {
+                $existing_ids = [];
+                foreach ($data['sections'] as $s) {
+                    $existing_ids[] = $s['id'] ?? ($s['type'] ?? '');
+                }
+                foreach ($pluginSections as $pSec) {
+                    $secId = $pSec['id'] ?? ($pSec['type'] ?? '');
+                    if (!empty($secId) && !in_array($secId, $existing_ids, true)) {
+                        $data['sections'][] = $pSec;
+                    }
+                }
+            }
+        }
+
         return $data['sections'];
     }
 
@@ -152,8 +170,28 @@ class SectionManager {
      */
     public static function getVisibleSections(array $data): array {
         $sections = self::ensureSections($data);
-        $visible = array_values(array_filter($sections, function($sec) {
-            return !empty($sec['visible']);
+        $visible = array_values(array_filter($sections, function($sec) use ($data) {
+            if (empty($sec['visible'])) {
+                return false;
+            }
+
+            // Falls Sektion zu einem Plugin gehört, muss dieses Plugin auch aktiv und aktiviert sein
+            $pluginSlug = $sec['plugin'] ?? '';
+            if (empty($pluginSlug)) {
+                if (($sec['type'] ?? '') === 'webtrees') $pluginSlug = 'webtrees-genealogy';
+                if (($sec['type'] ?? '') === 'shop') $pluginSlug = 'shop';
+            }
+            if (!empty($pluginSlug) && class_exists('PluginManager')) {
+                if (!PluginManager::isPluginActive($pluginSlug, $data)) {
+                    return false;
+                }
+                $cfg = PluginManager::getPluginConfig($pluginSlug, $data);
+                if (isset($cfg['section_enabled']) && empty($cfg['section_enabled'])) {
+                    return false;
+                }
+            }
+
+            return true;
         }));
 
         if (class_exists('PluginManager')) {
@@ -229,6 +267,11 @@ class SectionManager {
             if ($sec['id'] === $id) {
                 if (isset($attributes['title'])) {
                     $sec['title'] = trim((string)$attributes['title']);
+                    if ($id === 'webtrees' && isset($data['plugins']['configs']['webtrees-genealogy'])) {
+                        $data['plugins']['configs']['webtrees-genealogy']['section_title'] = $sec['title'];
+                    } elseif ($id === 'shop' && isset($data['plugins']['configs']['shop'])) {
+                        $data['plugins']['configs']['shop']['section_title'] = $sec['title'];
+                    }
                 }
                 if (isset($attributes['nav_label'])) {
                     $sec['nav_label'] = trim((string)$attributes['nav_label']);
@@ -285,7 +328,18 @@ class SectionManager {
         self::ensureSections($data);
         foreach ($data['sections'] as &$sec) {
             if ($sec['id'] === $id) {
-                $sec['visible'] = ($visible !== null) ? $visible : empty($sec['visible']);
+                $newVis = ($visible !== null) ? $visible : empty($sec['visible']);
+                $sec['visible'] = $newVis;
+
+                // Plugin-Konfiguration synchron halten
+                if (!empty($sec['plugin']) && isset($data['plugins']['configs'][$sec['plugin']])) {
+                    $data['plugins']['configs'][$sec['plugin']]['section_enabled'] = $newVis;
+                } elseif ($id === 'webtrees' && isset($data['plugins']['configs']['webtrees-genealogy'])) {
+                    $data['plugins']['configs']['webtrees-genealogy']['section_enabled'] = $newVis;
+                } elseif ($id === 'shop' && isset($data['plugins']['configs']['shop'])) {
+                    $data['plugins']['configs']['shop']['section_enabled'] = $newVis;
+                }
+
                 return true;
             }
         }

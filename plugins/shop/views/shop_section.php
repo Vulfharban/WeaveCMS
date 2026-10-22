@@ -31,7 +31,7 @@ foreach ($activeProducts as $p) {
 }
 ?>
 
-<div class="shop-section-container" style="margin: 3rem 0; position: relative;">
+<div id="shop" class="shop-section-container" style="margin: 3rem 0; scroll-margin-top: 100px; position: relative;">
     <!-- Sektions-Kopf -->
     <div class="shop-header" style="text-align: center; max-width: 800px; margin: 0 auto 2.5rem;">
         <div style="display:inline-flex; align-items:center; gap:8px; padding: 6px 16px; border-radius: 20px; background: rgba(46,98,72,0.1); color: var(--primary); font-size: 0.88rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
