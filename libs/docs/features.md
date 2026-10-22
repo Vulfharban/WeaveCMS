@@ -40,6 +40,9 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Flexibles Logo-System** | Einstellbare Hundetatzen-Motive und freie Platzierung (im Header oder Hero-Bereich). | ✅ Integriert |
 | **Erweitertes Logo- & Favicon-Management** | Eigener Upload für SVG-, PNG-, WebP- und Favicon-Dateien (.ico, .svg, .png), stufenlose Höhenskalierung (24–100 px), Side-by-Side Live-Vorschau (Hell/Dunkel), XSS-Sanitizing für SVGs und dynamische Favicon- & Touch-Icon-Einbindung. | ✅ Integriert (Phase 11) |
 | **Mobile Responsiveness & WCAG-Audit** | WCAG 2.5.5 / 2.5.8 Touch-Targets (>= 44 × 44 px) für Navigation, Close-Trigger und Lightbox; iOS Safari Auto-Zoom-Prävention (16px Input-Schutz) und `overflow-x: clip` Schutz für 360–414 px Displays. | ✅ Integriert (Phase 11) |
+| **3 Menüstile & Position-Selector (Phase 19)** | Wählbar unter *Darstellung & Design*: `Waagerecht Minimal` (Standard), `Waagerecht mit Icons` und `Senkrecht / Sidebar` (wahlweise links oder rechts fixiert mit responsiver Mobilansicht <= 992px). | ✅ Integriert (v0.9.7) |
+| **Icon- & Symbol-Zuweisung für Menüpunkte (Phase 19)** | Automatisches Fallback auf Standard-Material-Icons (`photo_library`, `event`, `newspaper`, etc.) sowie individuelles Icon-Feld im Sektionen- und Seiteneditor. | ✅ Integriert (v0.9.7) |
+| **Plugin-Theme- & Navigations-Hooks (Phase 19)** | Filter-Hooks `theme_register_menu_types` und `theme_register_layouts` sowie Action-Hook `frontend_render_navigation` zum Überschreiben der Navigation durch Erweiterungen. | ✅ Integriert (v0.9.7) |
 
 ---
 
@@ -154,7 +157,25 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.9.6 (Aktueller Entwicklungsstand)
+### v0.9.7 (Aktueller Entwicklungsstand)
+* **Menü-Aufbau, Position-Selector im Design-Bereich & Plugin-Theme-Erweiterbarkeit (Phase 19):**
+  * **Menü-Position & Typ-Selector im Design-Tab (19.1):**
+    * Konfigurationsfeld im Adminbereich unter *„Darstellung & Design“* (`tab_settings.php`) mit interaktiven Kacheln:
+      1. `Waagerecht Minimal (Standard)`: Bewährte schlanke Kopfzeilen-Navigation mit Logo und Text-Links.
+      2. `Waagerecht mit Icons`: Horizontale Menüleiste mit passenden Google Material-Icons vor jedem Menüpunkt für visuelle Orientierung.
+      3. `Senkrecht (Sidebar-Navigation)`: Feste vertikale Seitenleiste links oder rechts mit Branding oben, Links im Zentrum und Trigger/Sprachwechsler unten. Auf kleineren Displays (&lt;= 992px) automatische, barrierefreie Einklappung in eine schlanke Kopfzeile mit Hamburger-Drawer.
+    * Zusätzlicher Ausrichtungs-Selector (`sidebar_position`): Wahlweise links (`left`, Standard) oder rechts (`right`) fixiert.
+  * **Icon- & Symbol-Zuweisung für Menüpunkte (19.2):**
+    * Intelligentes Standard-Icon-Mapping in `SectionManager::getDefaultIcon`: Automatische Symbole für alle Sektionstypen (`photo_library`, `event`, `newspaper`, `storefront`, `account_tree`, `file_download`, `quiz`, `groups`, `sell`, `badge`, `flag`, `article`).
+    * Optionales Icon-Eingabefeld mit Live-Vorschau im Sektionen-Manager (`tab_texts.php`) und im Freie-Einzelseiten-Editor (`tab_pages.php`).
+    * Bereitstellung der Symbole über `SectionManager::getNavItems` für Frontend-Header, vertikale Sidebar und mobile Slide-in-Navigation.
+  * **Plugin-Schnittstelle für Menüarten & Themes (19.3):**
+    * Neuer Filter-Hook `theme_register_menu_types`: Ermöglicht Plugins das Registrieren individueller Menüarten (z. B. macOS Floating Dock, Fullscreen Overlay).
+    * Neuer Action-Hook `frontend_render_navigation`: Erlaubt Plugins das vollständige Rendern und Überschreiben benutzerdefinierter Navigationsleisten.
+    * Neuer Filter-Hook `theme_register_layouts`: Ermöglicht Plugins die Registrierung eigener Page-Templates (`ThemeManager::getAvailableLayouts`).
+  * **100 % Testabdeckung:** 28/28 automatisierte Tests (`test_phase19.php`) validieren Menüstil-Umschaltung, Fallbacks, Icon-Resolution und Hook-Ausführung.
+
+### v0.9.6
 * **Flexible Website-Architektur & Modulare Landingpages (Phase 18):**
   * **Globaler Architektur-Wahlschalter (18.1):**
     * Konfigurierbar im Reiter *„Darstellung & Design“* (`tab_settings.php`) mit 3 wählbaren Kacheln:

@@ -30,11 +30,47 @@ class SectionManager {
     const ARCHITECTURE_HYBRID = 'hybrid';
 
     /**
+     * Phase 19: Menü-Stile & Positionen.
+     */
+    const MENU_STYLE_HORIZONTAL_MINIMAL = 'horizontal_minimal';
+    const MENU_STYLE_HORIZONTAL_ICONS   = 'horizontal_icons';
+    const MENU_STYLE_VERTICAL_SIDEBAR   = 'vertical_sidebar';
+    const SIDEBAR_POS_LEFT  = 'left';
+    const SIDEBAR_POS_RIGHT = 'right';
+
+    /**
      * Sektions-Platzierung (Startseite vs. Unterseite vs. Beides).
      */
     const PLACEMENT_BOTH = 'both';
     const PLACEMENT_HOME = 'home';
     const PLACEMENT_PAGE = 'page';
+
+    /**
+     * Liefert das Standard-Material-Icon für einen Sektionstyp oder ein Element (Phase 19).
+     * @param string $typeOrId
+     * @return string
+     */
+    public static function getDefaultIcon(string $typeOrId): string {
+        $map = [
+            'hero' => 'flag',
+            'gallery' => 'photo_library',
+            'courses' => 'event',
+            'past_courses' => 'photo_camera',
+            'blog' => 'newspaper',
+            'pricing' => 'sell',
+            'faq' => 'quiz',
+            'team' => 'groups',
+            'downloads' => 'file_download',
+            'about' => 'badge',
+            'custom_text' => 'article',
+            'webtrees' => 'account_tree',
+            'shop' => 'storefront',
+            'contact' => 'mail',
+            'impressum' => 'policy',
+            'page' => 'article'
+        ];
+        return $map[$typeOrId] ?? 'bookmark';
+    }
 
     /**
      * Standard-Sektionen für WeaveCMS.
@@ -346,6 +382,9 @@ class SectionManager {
             $placement = $item['placement'] ?? self::PLACEMENT_BOTH;
             $isSeparatePage = false;
 
+            // Phase 19: Standard- oder individuelles Icon auflösen
+            $item['icon'] = !empty($item['icon']) ? trim((string)$item['icon']) : self::getDefaultIcon($item['type'] ?? $item['id']);
+
             if ($arch === self::ARCHITECTURE_MULTIPAGE) {
                 // In Multi-Page haben Sektionen außer Hero/reinen Home-Sektionen eigene URLs
                 if ($secId !== 'hero' && $placement !== self::PLACEMENT_HOME) {
@@ -380,7 +419,8 @@ class SectionManager {
                         'url' => '?page=' . urlencode($page['slug'] ?? '') . ($curLang !== $primaryLang ? '&lang=' . urlencode($curLang) : ''),
                         'is_external_link' => true,
                         'is_custom_page' => true,
-                        'page_type' => $page['page_type'] ?? 'content'
+                        'page_type' => $page['page_type'] ?? 'content',
+                        'icon' => !empty($page['icon']) ? trim((string)$page['icon']) : 'article'
                     ];
                 }
             }
@@ -406,10 +446,10 @@ class SectionManager {
     }
 
     /**
-     * Aktualisiert Titel, Menü-Beschriftung, Menü-Sichtbarkeit, Platzierung und Übersetzungen einer Sektion.
+     * Aktualisiert Titel, Menü-Beschriftung, Menü-Sichtbarkeit, Platzierung, Icon und Übersetzungen einer Sektion.
      * @param array $data
      * @param string $id
-     * @param array $attributes ['title' => ..., 'nav_label' => ..., 'in_nav' => ..., 'placement' => ..., 'translations' => ...]
+     * @param array $attributes ['title' => ..., 'nav_label' => ..., 'in_nav' => ..., 'placement' => ..., 'icon' => ..., 'translations' => ...]
      * @return bool
      */
     public static function updateSection(array &$data, string $id, array $attributes): bool {
@@ -435,6 +475,9 @@ class SectionManager {
                     if (in_array($p, [self::PLACEMENT_BOTH, self::PLACEMENT_HOME, self::PLACEMENT_PAGE], true)) {
                         $sec['placement'] = $p;
                     }
+                }
+                if (isset($attributes['icon'])) {
+                    $sec['icon'] = trim((string)$attributes['icon']);
                 }
                 if (isset($attributes['translations']) && is_array($attributes['translations'])) {
                     $sec['translations'] = $attributes['translations'];

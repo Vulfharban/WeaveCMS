@@ -499,6 +499,20 @@ class AdminController {
         }
         $data['settings']['site_architecture'] = $site_architecture;
 
+        // Phase 19: Menü-Stil & Sidebar-Position
+        $cur_menu_types = ThemeManager::getMenuTypes($data);
+        $menu_style = $_POST['menu_style'] ?? ThemeManager::MENU_HORIZONTAL_MINIMAL;
+        if (!isset($cur_menu_types[$menu_style])) {
+            $menu_style = ThemeManager::MENU_HORIZONTAL_MINIMAL;
+        }
+        $data['settings']['menu_style'] = $menu_style;
+
+        $sidebar_position = $_POST['sidebar_position'] ?? ThemeManager::SIDEBAR_LEFT;
+        if (!in_array($sidebar_position, [ThemeManager::SIDEBAR_LEFT, ThemeManager::SIDEBAR_RIGHT], true)) {
+            $sidebar_position = ThemeManager::SIDEBAR_LEFT;
+        }
+        $data['settings']['sidebar_position'] = $sidebar_position;
+
         // Besucher-Barrierefreiheitsleiste (Phase 16)
         $data['settings']['accessibility_bar_enabled'] = !empty($_POST['accessibility_bar_enabled']);
 
@@ -630,11 +644,15 @@ class AdminController {
                 $placement = 'both';
             }
 
+            // Phase 19: Material-Icon
+            $icon = trim($_POST['icon'] ?? '');
+
             if (SectionManager::updateSection($data, $sec_id, [
                 'title' => $title,
                 'nav_label' => $nav_label,
                 'in_nav' => $in_nav,
                 'placement' => $placement,
+                'icon' => $icon,
                 'translations' => $translations
             ])) {
                 if (save_data($dataFile, $data)) {
@@ -1523,6 +1541,7 @@ class AdminController {
                 'page_type' => $page_type,
                 'page_sections' => $page_sections,
                 'nav_label' => trim($_POST['nav_label'] ?? ''),
+                'icon' => trim($_POST['icon'] ?? ''),
                 'status' => in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published',
                 'in_nav' => !empty($_POST['in_nav']),
                 'meta_description' => trim($_POST['meta_description'] ?? ''),
@@ -1601,6 +1620,7 @@ class AdminController {
             $data['pages'][$found_idx]['page_type'] = $page_type;
             $data['pages'][$found_idx]['page_sections'] = $page_sections;
             $data['pages'][$found_idx]['nav_label'] = trim($_POST['nav_label'] ?? '');
+            $data['pages'][$found_idx]['icon'] = trim($_POST['icon'] ?? '');
             $data['pages'][$found_idx]['status'] = in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published';
             $data['pages'][$found_idx]['in_nav'] = !empty($_POST['in_nav']);
             $data['pages'][$found_idx]['meta_description'] = trim($_POST['meta_description'] ?? '');

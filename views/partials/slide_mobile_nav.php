@@ -27,18 +27,28 @@
                     $href = !empty($item['url']) 
                         ? htmlspecialchars($item['url']) 
                         : ($is_subpage_view ? htmlspecialchars($home_url . '#' . $item['id']) : '#' . htmlspecialchars($item['id']));
+                    $icon = !empty($item['icon']) ? $item['icon'] : SectionManager::getDefaultIcon($item['type'] ?? $item['id']);
                 ?>
-                <a href="<?php echo $href; ?>" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block;"><?php echo htmlspecialchars($item['nav_label']); ?></a>
+                <a href="<?php echo $href; ?>" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:flex; align-items:center; gap:12px;">
+                    <span class="material-icons" style="font-size:22px; color:var(--primary);"><?php echo htmlspecialchars($icon); ?></span>
+                    <span><?php echo htmlspecialchars($item['nav_label']); ?></span>
+                </a>
             <?php endforeach; ?>
             <?php 
                 $contact_place = $data['settings']['contact_placement'] ?? 'both';
                 $impressum_place = $data['settings']['impressum_placement'] ?? 'both';
             ?>
             <?php if ($contact_place === 'header' || $contact_place === 'both'): ?>
-                <label for="menu-toggle" onclick="closeMobileMenuAndOpenContact()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);"><?php echo htmlspecialchars(__('nav.contact', 'Kontakt')); ?></label>
+                <label for="menu-toggle" onclick="closeMobileMenuAndOpenContact()" class="nav-item" style="cursor: pointer; font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:flex; align-items:center; gap:12px; color: var(--primary);">
+                    <span class="material-icons" style="font-size:22px;">mail</span>
+                    <span><?php echo htmlspecialchars(__('nav.contact', 'Kontakt')); ?></span>
+                </label>
             <?php endif; ?>
             <?php if ($impressum_place === 'header' || $impressum_place === 'both'): ?>
-                <label for="menu-toggle-impressum" onclick="closeMobileMenuAndOpenImpressum()" class="nav-item" style="cursor: pointer; font-size: 1.3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:block; color: var(--primary);"><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></label>
+                <label for="menu-toggle-impressum" onclick="closeMobileMenuAndOpenImpressum()" class="nav-item" style="cursor: pointer; font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:flex; align-items:center; gap:12px; color: var(--primary);">
+                    <span class="material-icons" style="font-size:22px;">policy</span>
+                    <span><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></span>
+                </label>
             <?php endif; ?>
         </nav>
         <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>

@@ -97,8 +97,8 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                         </div>
                     <?php endif; ?>
 
-                    <!-- Gemeinsame Einstellungen: Status, Seitentyp, Hauptmenü-Einbindung, Basis-Slug -->
-                    <div class="grid-4" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; border:1px solid var(--border-color);">
+                    <!-- Gemeinsame Einstellungen: Status, Seitentyp, Hauptmenü-Einbindung, Basis-Slug, Icon -->
+                    <div class="grid-5" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; border:1px solid var(--border-color);">
                         <div class="form-group">
                             <label for="page_slug" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
                                 URL-Slug (Pfad) *
@@ -120,11 +120,21 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                                 <option value="draft">Entwurf (Nur im Admin sichtbar)</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="page_icon" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                Menü-Icon
+                                <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(Material-Icon)</span>
+                            </label>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <input type="text" id="page_icon" name="icon" class="form-control" placeholder="article" oninput="updatePageIconPreview(this.value)">
+                                <span id="page_icon_preview" class="material-icons" style="font-size:22px; color:var(--primary); min-width:28px; text-align:center;">article</span>
+                            </div>
+                        </div>
                         <div class="form-group" style="display:flex; flex-direction:column; justify-content:center;">
                             <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Hauptmenü-Einbindung</label>
                             <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.95rem; margin-top:6px;">
                                 <input type="checkbox" id="page_in_nav" name="in_nav" value="1">
-                                <span>Im Hauptmenü verlinken</span>
+                                <span>Im Menü verlinken</span>
                             </label>
                         </div>
                     </div>
@@ -261,7 +271,7 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                         <div class="card" style="padding:1.25rem 1.5rem; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
                             <div style="display:flex; align-items:center; gap:1rem; flex:1; min-width:280px;">
                                 <div style="width:42px; height:42px; border-radius:8px; background:rgba(46,98,72,0.1); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                                    <span class="material-icons">article</span>
+                                    <span class="material-icons"><?php echo htmlspecialchars(!empty($p['icon']) ? $p['icon'] : 'article'); ?></span>
                                 </div>
                                 <div>
                                     <h4 style="margin:0 0 4px 0; font-size:1.05rem; color:var(--text-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -375,6 +385,8 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             document.getElementById('page_title').value = '';
             document.getElementById('page_slug').value = '';
             document.getElementById('page_type').value = 'content';
+            document.getElementById('page_icon').value = 'article';
+            updatePageIconPreview('article');
             document.getElementById('page_nav_label').value = '';
             document.getElementById('page_status').value = 'published';
             document.getElementById('page_in_nav').checked = false;
@@ -407,6 +419,13 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             document.getElementById('page-editor-box').style.display = 'none';
         }
 
+        function updatePageIconPreview(val) {
+            const prev = document.getElementById('page_icon_preview');
+            if (prev) {
+                prev.textContent = val && val.trim() ? val.trim() : 'article';
+            }
+        }
+
         function editPage(pageData) {
             document.getElementById('page-editor-box').style.display = 'block';
             document.getElementById('page-editor-title').innerHTML = '<span class="material-icons">edit</span> Einzelseite bearbeiten';
@@ -416,6 +435,8 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             document.getElementById('page_slug').value = pageData.slug || '';
             const pType = pageData.page_type || 'content';
             document.getElementById('page_type').value = pType;
+            document.getElementById('page_icon').value = pageData.icon || 'article';
+            updatePageIconPreview(pageData.icon || 'article');
             document.getElementById('page_nav_label').value = pageData.nav_label || '';
             document.getElementById('page_status').value = pageData.status || 'published';
             document.getElementById('page_in_nav').checked = !!pageData.in_nav;

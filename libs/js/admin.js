@@ -142,6 +142,19 @@ function selectLayoutCard(cardEl) {
 }
 
 /**
+ * Phase 19: Wählt den Menüstil aus und schaltet bei Bedarf die Sidebar-Optionen sichtbar.
+ * @param {HTMLElement} cardEl
+ * @param {string} styleKey
+ */
+function selectMenuStyleCard(cardEl, styleKey) {
+    selectLayoutCard(cardEl);
+    const sidebarOpts = document.getElementById('sidebar-position-options');
+    if (sidebarOpts) {
+        sidebarOpts.style.display = (styleKey === 'vertical_sidebar') ? 'block' : 'none';
+    }
+}
+
+/**
  * Wählt ein Hundetatzen-Motiv aus und aktiviert das zugehörige Radio-Element.
  * @param {HTMLElement} cardEl - Das angeklickte Label-Element
  * @param {string} motifVal - Wert des Motivs ('paw_simple', 'paw_beach', 'paw_willow', 'none')
