@@ -253,25 +253,30 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
-### Phase 9: Umfassende Sicherheits-Härtung & Schwachstellen-Prävention
-*Ziel: Absicherung gegen gängige Web-Angriffe (OWASP Top 10) und Schutz vor automatisierten Exploits.*
+### Phase 9: Anwendungs-Sicherheits-Härtung & Schwachstellen-Prävention (Core & Testsystem)
+*Ziel: Fundierte Absicherung gegen Web-Angriffe (OWASP Top 10), Upload-Exploits und Brute-Force – vollständig lauffähig und testbar im lokalen Entwicklungssystem ohne Aussperrungsrisiko.*
 
-- [ ] **9.1 HTTP Security Header:**
-  - Auslieferung moderner Header: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Content-Security-Policy` und `HSTS`.
-- [ ] **9.2 Brute-Force-Schutz & Rate-Limiting:**
-  - Login & PIN: Nach 5 Fehlversuchen progressive Zeitverzögerung und 15-minütige Sperre.
-  - Kontaktformular: Rate-Limiting gegen Spambots und Flooding.
-- [ ] **9.3 Dateisicherheit & Verzeichnis-Abschirmung:**
-  - Direkter Browser-Aufruf von `data.json`, `contacts.json`, `config.php`, `.git/`, Backups und Logs via `.htaccess` strikt blockiert (`403 Forbidden`).
-  - Upload-Audit: MIME-Type Magic-Byte-Prüfung (`finfo_file`), Neukompilierung via GD (EXIF-PHP-Bereinigung), kryptografische Zufallsnamen, Ausführungsverbot für Skripte im Upload-Ordner.
-- [ ] **9.4 XSS-, CSRF- & Injection-Prävention:**
+- [x] **9.1 Adaptive HTTP Security Header:**
+  - Auslieferung moderner Sicherheits-Header im Core: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`.
+  - Dynamische Anpassung: HSTS und HTTPS-spezifische Header werden nur bei echter HTTPS-Verbindung aktiviert (verhindert Verbindungsfehler auf lokalem `http://localhost`).
+- [x] **9.2 Brute-Force-Schutz & Rate-Limiting mit Dev-Sicherheitsnetz:**
+  - Login & PIN: Nach 5 Fehlversuchen progressive Zeitverzögerung und 15-minütige Sperre mit strukturierter Tracking-Ablage (`data/rate_limits.json`).
+  - Dev-Sicherheitsmechanismus: Lokale IP-Adressen (`127.0.0.1`, `::1`) können im Testsystem im Notfall schnell entriegelt werden.
+  - Kontaktformular: Intelligentes Rate-Limiting gegen automatisiertes Spambot-Flooding.
+- [x] **9.3 Dateisicherheit & Upload-Audit:**
+  - Vollständige `.htaccess`-Abschirmung: Direkter Aufruf von `data.json`, `contacts.json`, `config*.php`, `.git/`, `backups/`, `logs/` und `libs/` strikt blockiert (`403 Forbidden`).
+  - Upload-Härtung in `ImageUploader`: Echte MIME-Type Magic-Byte-Prüfung (`finfo_file`), Neukompilierung via GD (Bereinigung versteckter PHP-Payloads in EXIF-Metadaten), kryptografische Zufallsnamen, Ausführungsverbot für Skripte im Upload-Ordner.
+- [x] **9.4 XSS-, CSRF- & Injection-Prävention:**
   - Durchgängiges `htmlspecialchars(..., ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')`.
-  - Konsequenter CSRF-Token-Schutz für alle POST-Aktionen.
-  - Prepared Statements bei allen Datenbanktreibern.
-- [ ] **9.5 Session-Härtung & Audit-Log:**
-  - Cookies mit `HttpOnly`, `Secure` und `SameSite=Strict`. Session-ID-Regeneration bei Login, Inaktivitäts-Timeout und internes Sicherheits-Log (`logs/security.log`).
-- [ ] **9.6 Prüfung & Abnahme:**
-  - Sicherheitsaudit durchführen und Schutzmechanismen validieren.
+  - Konsequenter CSRF-Token-Schutz für alle Backend-POST-Aktionen und Formular-Endpoints.
+  - Verifizierung von Prepared Statements bei allen Datenbanktreibern.
+- [x] **9.5 Session-Härtung & Audit-Log:**
+  - Cookies mit `HttpOnly`, `SameSite=Strict` und dynamischem `Secure`-Flag (aktiviert bei HTTPS).
+  - Session-ID-Regeneration bei Login & PIN-Authentifizierung (`session_regenerate_id(true)`).
+  - Inaktivitäts-Timeout (automatischer Logout nach konfigurierbarer Leerlaufzeit).
+  - Internes Sicherheits-Audit-Log (`logs/security.log`) zur Nachvollziehbarkeit sicherheitsrelevanter Aktionen.
+- [x] **9.6 Prüfung & Abnahme:**
+  - Sicherheitsaudit durchführen: Fehllogins testen, Rate-Limiting verifizieren, Upload-Sicherheitscheck durchführen.
 
 ---
 
@@ -548,3 +553,23 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Klick auf Download durchführen: Datei lädt herunter und Zähler inkrementiert atomar.
   - Captcha-Verfahren im Admin umschalten (Symbol ➔ Mathe ➔ Canvas ➔ Honeypot) und Kontaktformular auf Funktionsfähigkeit prüfen.
   - Besucher-Barrierefreiheitsleiste im Theme-Manager aktivieren: Umschalten von Dark Mode und Schriftzoom im Frontend testen.
+
+---
+
+### Phase 17: Live-Server-Deployment, SSL/HSTS-Härtung & Produktions-Sicherheit
+*Ziel: Spezialisierte Server- und Domain-Härtung für den produktiven Produktivbetrieb im Internet (Linux/Apache/Nginx mit echtem SSL-Zertifikat und Reverse-Proxy-Schutz).*
+
+- [ ] **17.1 Strikte HSTS-Policy & SSL-Preloading:**
+  - Konfigurierbare Aktivierung von `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` ausschließlich für bestätigte Live-Domains mit aktivem SSL-Zertifikat.
+- [ ] **17.2 Production-CSP (Content Security Policy) & Subresource Integrity (SRI):**
+  - Schärfung der CSP-Direktiven für Produktivumgebungen gegen Inline-Script-Injektionen und unbefugte Drittquellen.
+  - Hash-/Integrity-Prüfung (`integrity="sha384-..."`) für extern bezogene Ressourcen.
+- [ ] **17.3 Linux-Dateisystem-Berechtigungen & Permissions-Audit:**
+  - Audit-Prüfung der POSIX-Dateirechte im Dashboard (`chmod 0640` für Konfigurationen und `.env`, `chmod 0750` für Systemordner).
+  - Warnhinweis im Dashboard bei ungesicherten Rechten auf Linux-Webspaces.
+- [ ] **17.4 Reverse-Proxy & Trusted-Proxy IP-Filter:**
+  - Schutz vor IP-Spoofing: Nur definierte Upstream-Proxies (z. B. Cloudflare IPs oder lokaler Nginx Reverse-Proxy) dürfen den `X-Forwarded-For` bzw. `CF-Connecting-IP` Header für das Rate-Limiting setzen.
+- [ ] **17.5 Automatisierte Admin-E-Mail-Alarmierung:**
+  - Benachrichtigung des Systemadministrators bei wiederholten, koordinierten Brute-Force-Angriffen oder unbefugten Manipulationsversuchen im Live-Betrieb.
+- [ ] **17.6 Prüfung & Abnahme:**
+  - Live-Deployment-Checkliste auf echtem Webspace durchlaufen (SSL-Score A+, Header-Analyse via securityheaders.com).

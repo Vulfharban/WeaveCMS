@@ -42,14 +42,34 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 
 // 3. Login-Verifikation bei Formularübermittlung
 $login_error = '';
+if (!empty($_SESSION['login_notice'])) {
+    $login_error = $_SESSION['login_notice'];
+    unset($_SESSION['login_notice']);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
-    $password = $_POST['password'] ?? '';
-    $pin = $_POST['pin'] ?? '';
-    if (AuthManager::login($password, $pin, $data)) {
-        header('Location: ./');
-        exit;
+    $submitted_csrf = $_POST['csrf_token'] ?? '';
+    if (!AuthManager::verifyCsrfToken($submitted_csrf)) {
+        $login_error = 'Sicherheitswarnung (CSRF): Das Formular-Token ist abgelaufen. Bitte versuche es erneut.';
+    } elseif (SecurityManager::isRateLimited('admin_login')) {
+        $rem = SecurityManager::getLockoutRemaining('admin_login');
+        $mins = max(1, ceil($rem / 60));
+        $login_error = "Zu viele Fehlversuche! Der Zugang ist für {$mins} Minute(n) gesperrt ({$rem}s verbleibend).";
     } else {
-        $login_error = 'Ungültiges Passwort oder PIN-Code. Bitte versuche es erneut.';
+        $password = $_POST['password'] ?? '';
+        $pin = $_POST['pin'] ?? '';
+        if (AuthManager::login($password, $pin, $data)) {
+            header('Location: ./');
+            exit;
+        } else {
+            if (SecurityManager::isRateLimited('admin_login')) {
+                $rem = SecurityManager::getLockoutRemaining('admin_login');
+                $mins = max(1, ceil($rem / 60));
+                $login_error = "Zu viele Fehlversuche! Der Zugang wurde für {$mins} Minute(n) gesperrt.";
+            } else {
+                $login_error = 'Ungültiges Passwort oder PIN-Code. Bitte versuche es erneut.';
+            }
+        }
     }
 }
 

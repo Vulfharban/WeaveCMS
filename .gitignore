@@ -17,6 +17,8 @@ data/database.sqlite
 backups/*.zip
 backups/*.json
 data/contacts.json
+data/rate_limits.json
+logs/
 
 # Uploads
 images/uploads/*

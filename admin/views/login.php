@@ -31,6 +31,7 @@
 
             <form method="POST" action="">
                 <input type="hidden" name="login" value="1">
+                <input type="hidden" name="csrf_token" value="<?php echo AuthManager::getCsrfToken(); ?>">
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label for="password" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">Passwort</label>
                     <div style="position:relative;">

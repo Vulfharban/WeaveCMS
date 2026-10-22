@@ -32,6 +32,6 @@ Options -Indexes
 # 4. Schutz von internen Ordnern vor direktem Web-Aufruf
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    # Sperrt den direkten Web-Zugriff auf Backups, Rohdaten, PHP-Bibliotheken und Template-Views
-    RewriteRule ^(backups|data|views|admin/views)/ - [F,L]
+    # Sperrt den direkten Web-Zugriff auf Backups, Rohdaten, PHP-Bibliotheken, Template-Views und Logs
+    RewriteRule ^(backups|data|views|admin/views|libs/php|libs/docs|logs)/ - [F,L]
 </IfModule>
