@@ -36,6 +36,9 @@ if (!empty($url) && !empty($tree)) {
     if (!empty($person)) {
         $treeUrl .= '/individual/' . rawurlencode($person);
     }
+    if (!empty($token)) {
+        $treeUrl .= '?token=' . rawurlencode($token);
+    }
 }
 ?>
 
