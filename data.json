@@ -556,8 +556,18 @@
     ],
     "plugins": {
         "active": [
-            "shop"
+            "shop",
+            "inventory"
         ],
-        "configs": []
+        "configs": {
+            "shop": {
+                "currency": "EUR",
+                "shipping_cost": 4.9,
+                "free_shipping_min": 50,
+                "section_enabled": false,
+                "section_title": "Unser Webshop & Produkte",
+                "section_subtitle": "Handgefertigte Unikate, kreative DIY-Sets und Zubehör direkt online bestellen."
+            }
+        }
     }
 }
