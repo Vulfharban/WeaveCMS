@@ -91,4 +91,16 @@
         })();
     </script>
 </head>
-<body>
+<?php
+    $active_menu_style = class_exists('ThemeManager') ? ThemeManager::getActiveMenuStyle($data) : 'horizontal_minimal';
+    $active_sidebar_pos = class_exists('ThemeManager') ? ThemeManager::getSidebarPosition($data) : 'left';
+    $frontend_body_classes = ['weave-frontend'];
+    $frontend_body_classes[] = 'menu-' . str_replace('_', '-', $active_menu_style);
+    if ($active_menu_style === 'vertical_sidebar') {
+        $frontend_body_classes[] = 'has-sidebar';
+        $frontend_body_classes[] = 'has-sidebar-' . $active_sidebar_pos;
+    } else {
+        $frontend_body_classes[] = 'has-header-top';
+    }
+?>
+<body class="<?php echo implode(' ', $frontend_body_classes); ?>">

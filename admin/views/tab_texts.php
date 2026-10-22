@@ -64,6 +64,10 @@
                                 <span class="material-icons" style="color:var(--primary); font-size:20px;"><?php echo $icon; ?></span>
                                 <div>
                                     <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                        <?php 
+                                            $disp_icon = !empty($sec['icon']) ? $sec['icon'] : SectionManager::getDefaultIcon($sec['type'] ?? $sec['id']);
+                                        ?>
+                                        <span class="material-icons" style="font-size:18px; color:var(--primary); vertical-align:middle;" title="Icon: <?php echo htmlspecialchars($disp_icon); ?>"><?php echo htmlspecialchars($disp_icon); ?></span>
                                         <span><?php echo htmlspecialchars($sec['title']); ?></span>
                                         <?php if ($is_plugin_sec): ?>
                                             <span style="font-size:0.7rem; font-weight:700; color:#059669; background:rgba(5,150,105,0.1); padding:2px 8px; border-radius:999px;">
@@ -187,7 +191,7 @@
                             </div>
                         </div>
 
-                        <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem; margin-bottom:1.5rem; align-items:start;">
+                        <div class="grid-3" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:1.5rem; align-items:start;">
                             <div class="form-group">
                                 <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; color:var(--text-primary); font-size:0.95rem; margin-top:1.8rem;">
                                     <input type="checkbox" id="sec_edit_in_nav" name="in_nav" value="1">
@@ -204,6 +208,16 @@
                                     <option value="page">Nur als eigene Einzelseite (/?page=slug)</option>
                                 </select>
                                 <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:4px;">Steuert, wo diese Sektion im Multi-Page- oder Hybrid-Modus ausgegeben wird.</small>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block; font-size:0.92rem;">
+                                    Material-Icon (Symbol)
+                                </label>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <input type="text" id="sec_edit_icon" name="icon" class="form-control" placeholder="z. B. photo_library" style="background:#ffffff; border:1px solid rgba(62,50,40,0.22); color:var(--text-primary); border-radius:10px; padding:9px 12px; font-size:0.95rem;" oninput="updateSecIconPreview(this.value)">
+                                    <span id="sec_edit_icon_preview" class="material-icons" style="font-size:24px; color:var(--primary); min-width:32px; text-align:center;">bookmark</span>
+                                </div>
+                                <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:4px;">Google Material-Icon Name. Leer lassen für Standard.</small>
                             </div>
                         </div>
 
@@ -378,6 +392,8 @@
             document.getElementById('sec_edit_nav_label').value = sec.nav_label || '';
             document.getElementById('sec_edit_in_nav').checked = !!sec.in_nav;
             document.getElementById('sec_edit_placement').value = sec.placement || 'both';
+            document.getElementById('sec_edit_icon').value = sec.icon || '';
+            updateSecIconPreview(sec.icon || '');
             document.getElementById('sec-editor-heading').innerHTML = '<span class="material-icons">edit</span> Menü-Titel anpassen: ' + (sec.title || sec.id);
 
             const trans = sec.translations || {};
@@ -391,6 +407,13 @@
 
             document.getElementById('section-editor-box').scrollIntoView({ behavior: 'smooth' });
             document.getElementById('sec_edit_nav_label').focus();
+        }
+
+        function updateSecIconPreview(val) {
+            const prev = document.getElementById('sec_edit_icon_preview');
+            if (prev) {
+                prev.textContent = val && val.trim() ? val.trim() : 'bookmark';
+            }
         }
 
         function closeSectionEditor() {

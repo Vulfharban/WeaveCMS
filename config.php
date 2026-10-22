@@ -38,6 +38,7 @@ require_once __DIR__ . '/libs/php/StatsManager.php';
 require_once __DIR__ . '/libs/php/PluginManager.php';
 require_once __DIR__ . '/libs/php/AdminController.php';
 require_once __DIR__ . '/libs/php/LanguageManager.php';
+require_once __DIR__ . '/libs/php/ThemeManager.php';
 require_once __DIR__ . '/libs/php/FrontendController.php';
 
 /**

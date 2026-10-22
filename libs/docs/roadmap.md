@@ -574,19 +574,19 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 19: Menü-Aufbau, Position-Selector im Design-Bereich & Plugin-Theme-Erweiterbarkeit
 *Ziel: Hochgradig flexible Navigation mit 3 wählbaren Menüstilen im Design-Tab (2x waagerecht, 1x senkrecht/Sidebar) sowie einer Plugin-Schnittstelle zur Bereitstellung individueller Menüarten und Themes.*
 
-- [ ] **19.1 Menü-Position & Typ-Selector im Design-Tab:**
+- [x] **19.1 Menü-Position & Typ-Selector im Design-Tab:**
   - Konfigurationsfeld im Adminbereich unter *Design & Themes*:
     1. **Waagerecht Minimal (Standard):** Bewährte schlanke Kopfzeilen-Navigation mit Logo und Text-Links.
     2. **Waagerecht mit Icons/Grafiken:** Horizontale Menüleiste mit passenden Symbolen (Material-Icons oder Custom-Icons) vor jedem Menüpunkt für visuelle Orientierung.
     3. **Senkrecht (Sidebar-Navigation):** Vertikale Menüleiste (wahlweise links oder rechts fixiert / sticky) mit responsiver Ein-/Ausklapp-Funktion auf Mobilgeräten.
-- [ ] **19.2 Icon- & Grafik-Zuweisung für Menüpunkte:**
+- [x] **19.2 Icon- & Grafik-Zuweisung für Menüpunkte:**
   - Automatisches Fallback auf Standard-Icons der Sektionstypen (`photo_library`, `event`, `storefront`, `account_tree`, etc.).
   - Im Sektionen- & Seiteneditor optionales Icon-Auswahlfeld für individuelle Grafiken / Symbole.
-- [ ] **19.3 Plugin-Schnittstelle für Menüarten & Themes:**
+- [x] **19.3 Plugin-Schnittstelle für Menüarten & Themes:**
   - Neuer Filter-Hook `theme_register_menu_types`: Plugins können eigene Menüarten registrieren (z. B. *Fullscreen-Overlay-Menü*, *macOS-style Floating Dock*, *Off-Canvas Mega-Menü*).
   - Action-Hook `frontend_render_navigation`: Erlaubt Plugins das vollständige Überschreiben oder Rendern benutzerdefinierter Navigationsleisten.
   - Filter-Hook `theme_register_layouts`: Plugins können eigene Page-Templates und Themes bereitstellen.
-- [ ] **19.4 Prüfung & Abnahme:**
+- [x] **19.4 Prüfung & Abnahme:**
   - Umschalten zwischen allen 3 Menüarten im Design-Tab.
   - Prüfen der Desktop- und Mobilansicht für horizontale und vertikale Sidebar-Navigation.
   - Test-Plugin zur Registrierung eines individuellen Menüstils über den neuen Plugin-Hook.

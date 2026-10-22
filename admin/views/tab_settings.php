@@ -839,6 +839,62 @@
                 </div>
 
                 <!-- ==========================================================
+                     MENÜ-STIL, NAVIGATION & POSITION (PHASE 19)
+                     ========================================================== -->
+                <h3 style="font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons" style="color:var(--primary);">menu_open</span> Menü-Aufbau &amp; Navigations-Stil
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height:1.5;">
+                    Wähle hier die Gestaltungsart und Position deiner Website-Navigation. Bei der vertikalen Sidebar-Navigation klappt das Menü auf Mobilgeräten (&lt;= 992px) automatisch als kompakte Kopfzeile mit Slide-in-Drawer ein.
+                </p>
+
+                <?php 
+                    $cur_menu_style = ThemeManager::getActiveMenuStyle($data);
+                    $cur_sidebar_pos = ThemeManager::getSidebarPosition($data);
+                    $available_menu_types = ThemeManager::getMenuTypes($data);
+                ?>
+
+                <div class="layout-options-grid" style="margin-bottom: 1.5rem;">
+                    <?php foreach ($available_menu_types as $mKey => $mInfo): ?>
+                        <label class="layout-card <?php echo ($cur_menu_style === $mKey) ? 'selected' : ''; ?>" onclick="selectMenuStyleCard(this, '<?php echo htmlspecialchars($mKey); ?>')">
+                            <input type="radio" name="menu_style" value="<?php echo htmlspecialchars($mKey); ?>" <?php echo ($cur_menu_style === $mKey) ? 'checked' : ''; ?>>
+                            <div>
+                                <span class="layout-badge" <?php if (!empty($mInfo['badge']) && $mInfo['badge'] === 'Standard') echo 'style="background:rgba(46,98,72,0.15); color:var(--primary);"'; ?>>
+                                    <?php echo htmlspecialchars($mInfo['badge'] ?? 'Layout'); ?>
+                                </span>
+                            </div>
+                            <h4 style="margin:0; font-size:1.15rem; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+                                <span class="material-icons" style="color:var(--primary); font-size:22px;"><?php echo htmlspecialchars($mInfo['icon'] ?? 'menu'); ?></span>
+                                <span><?php echo htmlspecialchars($mInfo['title']); ?></span>
+                            </h4>
+                            <p style="color:var(--text-secondary); font-size:0.88rem; margin:0; line-height:1.4;">
+                                <?php echo htmlspecialchars($mInfo['description']); ?>
+                            </p>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- Zusätzliche Sidebar-Optionen (erscheinen wenn vertikale Sidebar gewählt ist) -->
+                <div id="sidebar-position-options" style="background:rgba(46,98,72,0.04); border:1px solid rgba(46,98,72,0.22); border-radius:12px; padding:1.25rem; margin-bottom:2rem; <?php echo ($cur_menu_style === 'vertical_sidebar') ? 'display:block;' : 'display:none;'; ?>">
+                    <span style="font-weight:700; font-size:0.98rem; color:var(--text-primary); display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                        <span class="material-icons" style="font-size:18px; color:var(--primary);">vertical_split</span> Ausrichtung der vertikalen Sidebar:
+                    </span>
+                    <p style="font-size:0.86rem; color:var(--text-secondary); margin-bottom:1rem; line-height:1.4;">
+                        Lege fest, an welchem Bildschirmrand die feste Seitenleiste auf Desktop-Displays andocken soll:
+                    </p>
+                    <div style="display:flex; gap:1.5rem; flex-wrap:wrap;">
+                        <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:0.95rem; font-weight:600;">
+                            <input type="radio" name="sidebar_position" value="left" <?php echo ($cur_sidebar_pos === 'left') ? 'checked' : ''; ?>>
+                            <span>Links fixiert (Standard)</span>
+                        </label>
+                        <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:0.95rem; font-weight:600;">
+                            <input type="radio" name="sidebar_position" value="right" <?php echo ($cur_sidebar_pos === 'right') ? 'checked' : ''; ?>>
+                            <span>Rechts fixiert</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ==========================================================
                      BESUCHER-BARRIEREFREIHEITSLEISTE (PHASE 16)
                      ========================================================== -->
                 <h3 style="font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
