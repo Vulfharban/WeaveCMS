@@ -280,25 +280,39 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
-### Phase 10: Mehrbenutzersystem & Rollenbasierte Rechteverwaltung (RBAC)
-*Ziel: Mehrere Benutzerkonten mit abgestuften Rechten (Administrator, Moderator, Content-User).*
+### Phase 10: Backend-Dashboard (Default-Startseite) & Mehrbenutzersystem (RBAC)
+*Ziel: Ein zentrales, informatives Backend-Dashboard als Standard-Startseite nach dem Login (Frontend-Zugriffe, Sicherheits-Monitor, Benutzerübersicht, Quick-Actions) sowie ein vollständiges Mehrbenutzersystem mit rollenbasierter Rechteverwaltung (Administrator, Moderator, Content-User).*
+*(Hinweis Workflow: Auf Kundenwunsch wird direkt im Anschluss Phase 13: Modulares Plugin-System vorgezogen).*
 
-- [ ] **10.1 Rollenmodell & Berechtigungsmatrix:**
-  - **Administrator (Superadmin):** Vollzugriff auf alle Bereiche (System, Sicherheit, Benutzer, Backups, SMTP, Design, Speicher).
-  - **Moderator:** Redaktionelle Leitung (Inhalte, Galerie, Termine, Impressionen, Postfach). Kein Zugriff auf System & Sicherheit.
-  - **Content-User (Redakteur):** Reine Inhaltspflege (Bilder hochladen, Termine eintragen). Kein Zugriff auf Struktur, Design oder System.
-- [ ] **10.2 Datenmodell für Benutzer (`users` in `data.json` bzw. DB-Tabelle `fb_users`):**
-  - Eindeutige ID, Benutzername, E-Mail, Bcrypt-Passworthash, Rolle, Aktiv-Status, Timestamps.
-- [ ] **10.3 Backend-Benutzerverwaltung (nur für Administratoren):**
-  - Übersichtstabelle aller Benutzer.
+- [x] **10.1 Backend-Dashboard als zentrale Übersichts-Startseite (`tab-dashboard`):**
+  - Neuer Standard-Reiter ganz links in `.admin-nav`, auf dem Administratoren und Redakteure nach dem Login landen.
+  - **KPI-Statistikkarten:**
+    - 👁️ **Frontend-Zugriffe & Traffic:** Leichtgewichtiger, DSGVO-konformer Aufruf-Zähler (Aufrufe heute & gesamt).
+    - 🛡️ **Sicherheits-Status:** Aktive Schutzmodule, Rate-Limit-Status und 0/X blockierte Angriffe.
+    - 📥 **Kontaktpostfach:** Status ungelesener Anfragen mit Direktlink.
+    - 👥 **Benutzerkonten:** Anzahl aktiver Nutzer aufgeteilt nach Rollen.
+  - **Zwei-Spalten-Monitor:**
+    - **Aktivitäts- & Zugriffs-Verlauf:** Übersicht der letzten Tage und neueste Postfacheingänge.
+    - **Sicherheits-Live-Monitor:** Auszug der letzten 5 Einträge aus `logs/security.log` mit Schweregrad-Badges.
+  - **Quick-Actions:** Schnellzugriffe für häufige Aktionen („Neuer Blogbeitrag“, „Bild hochladen“, „Benutzer anlegen“, „1-Klick-Backup“).
+- [x] **10.2 Rollenmodell & Berechtigungsmatrix (`UserManager`):**
+  - **Administrator (Superadmin):** Vollzugriff auf alle Bereiche (Dashboard, Inhalte, Postfach, Benutzer, Design, SEO, Sicherheit & Backups).
+  - **Moderator:** Redaktionelle Leitung (Dashboard, Inhalte & Seiten, Galerie, Blog, Termine, Postfach). Kein Zugriff auf System, Design oder Benutzerverwaltung.
+  - **Content-User (Redakteur):** Reine Inhaltspflege (Dashboard, Texte, Blog, Galerie). Kein Zugriff auf Struktur, Postfach, System oder Benutzer.
+- [x] **10.3 Datenmodell für Benutzer (`users` in `data.json` bzw. SQL-Tabelle `fb_users`):**
+  - Felder: `id`, `username`, `email`, `password_hash`, `role`, `active`, `created_at`, `last_login`.
+  - Automatische Migration / Seeding: Bisheriger Einzeladmin wird beim ersten Start nahtlos als initialer Superadmin registriert.
+- [x] **10.4 Backend-Benutzerverwaltung (Reiter `tab-users` für Administratoren):**
+  - Übersichtstabelle aller Benutzer mit Rollen-Badge, Status und letztem Login.
   - Neuanlage mit Rollenvergabe (*keine öffentliche Registrierung im Frontend!*).
-  - Benutzer sperren/bearbeiten und Passwörter PIN-geschützt zurücksetzen.
+  - Benutzer sperren/aktivieren, bearbeiten und Passwörter PIN-geschützt zurücksetzen.
   - Eigenes Profil für jeden angemeldeten Benutzer zur Passwortänderung.
-- [ ] **10.4 Serverseitiges Berechtigungs-Enforcement:**
-  - Jede Backend-Aktion validiert die Rolle strikt auf Serverebene (`require_role(...)`).
+- [x] **10.5 Serverseitiges Berechtigungs-Enforcement:**
+  - Jede Backend-Aktion validiert die Rolle strikt auf Serverebene (`UserManager::canAccessAction($action, $currentUser)`).
   - Backend-Navigation rendert nur erlaubte Reiter für den jeweiligen Benutzer.
-- [ ] **10.5 Prüfung & Abnahme:**
-  - Benutzer für alle 3 Rollen anlegen und Berechtigungsgrenzen testen.
+- [x] **10.6 Prüfung & Abnahme:**
+  - Test aller 3 Rollen (Admin, Moderator, Redakteur) bezüglich Sichtbarkeit und Aktionsgrenzen.
+  - Dashboard-KPIs und Zugriffs-Tracking im Browser verifizieren.
 
 ---
 

@@ -178,7 +178,7 @@ class AuthManager {
      * @param array|null $data
      * @return bool
      */
-    public static function login(string $password, string $pin, ?array $data = null): bool {
+    public static function login(string $password, string $pin, ?array &$data = null, ?string $usernameOrEmail = null): bool {
         self::initSession();
 
         // Brute-Force-Schutz für Login
@@ -187,11 +187,40 @@ class AuthManager {
             return false;
         }
 
+        $authenticatedUser = null;
+        if ($data !== null) {
+            $identifier = !empty($usernameOrEmail) ? $usernameOrEmail : 'admin';
+            $authenticatedUser = UserManager::authenticate($identifier, $password, $pin, $data);
+        }
+
+        if ($authenticatedUser !== null) {
+            SecurityManager::clearRateLimit('admin_login');
+            SecurityManager::regenerateSession(true);
+
+            $_SESSION['admin_logged_in'] = true;
+            UserManager::setCurrentUser($authenticatedUser);
+            $auth_hash = self::getAuthHash($data);
+
+            setcookie('admin_auth', $auth_hash, [
+                'expires'  => time() + 86400 * 30,
+                'path'     => '/',
+                'domain'   => '',
+                'secure'   => SecurityManager::isHttps(),
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
+
+            SecurityManager::logEvent('AUTH_LOGIN_SUCCESS', "Erfolgreicher Login für Benutzer '{$authenticatedUser['username']}' (Rolle: {$authenticatedUser['role']})", 'INFO');
+            return true;
+        }
+
         if (self::verifyAdminAuth($password, $pin, $data)) {
             SecurityManager::clearRateLimit('admin_login');
             SecurityManager::regenerateSession(true);
 
             $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_role'] = UserManager::ROLE_ADMIN;
+            $_SESSION['admin_username'] = 'admin';
             $auth_hash = self::getAuthHash($data);
 
             setcookie('admin_auth', $auth_hash, [
@@ -219,6 +248,7 @@ class AuthManager {
     public static function logout(): void {
         self::initSession();
         SecurityManager::logEvent('AUTH_LOGOUT', 'Administrator abgemeldet', 'INFO');
+        unset($_SESSION['admin_user_id'], $_SESSION['admin_username'], $_SESSION['admin_role'], $_SESSION['admin_logged_in']);
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();

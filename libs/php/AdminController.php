@@ -44,7 +44,7 @@ class AdminController {
     public static function handlePost(string $dataFile, array &$data, string $csrfToken): array {
         $success_msg = '';
         $error_msg = '';
-        $active_tab = 'tab-texts';
+        $active_tab = 'tab-dashboard';
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return [
@@ -71,7 +71,24 @@ class AdminController {
         // Automatische Reiter-Ermittlung anhand des Aktionsnamens
         $active_tab = self::determineActiveTab($action);
 
+        // RBAC-Berechtigungsprüfung auf Serverebene (Phase 10.5)
+        $cur_user = UserManager::getCurrentUser($data);
+        if (!UserManager::canExecuteAction($action, $cur_user['role'])) {
+            SecurityManager::logEvent('AUTH_UNAUTHORIZED', "Unbefugter Aufruf von '{$action}' durch '{$cur_user['username']}' (Rolle: {$cur_user['role']})", 'WARNING');
+            return [
+                'success_msg' => '',
+                'error_msg' => 'Fehlende Berechtigung: Deine Benutzerrolle erlaubt diese Aktion nicht.',
+                'active_tab' => $active_tab
+            ];
+        }
+
         switch ($action) {
+            case 'create_user':
+            case 'update_user':
+            case 'delete_user':
+                self::handleUserAction($action, $dataFile, $data, $success_msg, $error_msg);
+                break;
+
             case 'update_settings':
             case 'update_design':
                 self::handleSettings($dataFile, $data, $success_msg, $error_msg);
@@ -239,10 +256,63 @@ class AdminController {
             return 'tab-settings';
         } elseif (strpos($action, 'contact') !== false || strpos($action, 'impressum') !== false) {
             return 'tab-impressum';
+        } elseif (strpos($action, 'user') !== false) {
+            return 'tab-users';
         } elseif (strpos($action, 'texts') !== false || strpos($action, 'section') !== false) {
             return 'tab-texts';
         }
-        return 'tab-texts';
+        return 'tab-dashboard';
+    }
+
+    /**
+     * Verarbeitet Benutzer-Aktionen (Anlegen, Aktualisieren, Löschen) - Phase 10.
+     */
+    protected static function handleUserAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if ($action === 'create_user') {
+            $username = trim($_POST['new_username'] ?? '');
+            $email = trim($_POST['new_email'] ?? '');
+            $password = trim($_POST['new_password'] ?? '');
+            $role = trim($_POST['new_role'] ?? UserManager::ROLE_EDITOR);
+            $pin = trim($_POST['new_pin'] ?? '');
+
+            $res = UserManager::createUser($data, $username, $email, $password, $role, $pin);
+            if ($res['success']) {
+                save_data($dataFile, $data);
+                $success_msg = $res['message'];
+            } else {
+                $error_msg = $res['message'];
+            }
+        } elseif ($action === 'update_user') {
+            $id = trim($_POST['user_id'] ?? '');
+            $fields = [
+                'email'  => trim($_POST['edit_email'] ?? ''),
+                'role'   => trim($_POST['edit_role'] ?? ''),
+                'active' => isset($_POST['edit_active']) ? (int)$_POST['edit_active'] : 1
+            ];
+            if (!empty($_POST['edit_password'])) {
+                $fields['new_password'] = trim($_POST['edit_password']);
+            }
+            if (isset($_POST['edit_pin'])) {
+                $fields['new_pin'] = trim($_POST['edit_pin']);
+            }
+
+            $res = UserManager::updateUser($data, $id, $fields);
+            if ($res['success']) {
+                save_data($dataFile, $data);
+                $success_msg = $res['message'];
+            } else {
+                $error_msg = $res['message'];
+            }
+        } elseif ($action === 'delete_user') {
+            $id = trim($_POST['user_id'] ?? '');
+            $res = UserManager::deleteUser($data, $id);
+            if ($res['success']) {
+                save_data($dataFile, $data);
+                $success_msg = $res['message'];
+            } else {
+                $error_msg = $res['message'];
+            }
+        }
     }
 
     /**
