@@ -9,7 +9,7 @@
 require_once dirname(__DIR__) . '/ShopManager.php';
 
 $config = $config ?? [];
-$activeSubTab = $_GET['shop_subtab'] ?? 'products';
+$activeSubTab = $_GET['shop_subtab'] ?? $_POST['active_subtab'] ?? $_POST['shop_subtab'] ?? 'products';
 
 // Produkte & Bestellungen laden
 $products = ShopManager::getProducts();
@@ -78,19 +78,19 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
 
     <!-- Sub-Navigation -->
     <div style="display: flex; gap: 8px; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem;">
-        <a href="?tab=tab-plugins&shop_subtab=products" 
+        <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=products#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === 'products' ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === 'products' ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
             <span class="material-icons" style="font-size: 18px;">inventory_2</span> Produkte (<?php echo count($products); ?>)
         </a>
-        <a href="?tab=tab-plugins&shop_subtab=orders" 
+        <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=orders#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === 'orders' ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === 'orders' ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
             <span class="material-icons" style="font-size: 18px;">receipt_long</span> Bestellungen (<?php echo count($orders); ?>)
         </a>
-        <a href="?tab=tab-plugins&shop_subtab=payments" 
+        <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=payments#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === 'payments' ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === 'payments' ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
             <span class="material-icons" style="font-size: 18px;">payments</span> Zahlungsarten (CC, PayPal, WERO)
         </a>
-        <a href="?tab=tab-plugins&shop_subtab=settings" 
+        <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=settings#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === 'settings' ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === 'settings' ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
             <span class="material-icons" style="font-size: 18px;">tune</span> Shop-Einstellungen
         </a>
@@ -163,9 +163,11 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                                                 onclick='editShopProduct(<?php echo json_encode($p); ?>)'>
                                             <span class="material-icons" style="font-size: 16px;">edit</span>
                                         </button>
-                                        <form method="POST" action="" onsubmit="return confirm('Möchtest du dieses Produkt wirklich löschen?');" style="display:inline;">
+                                        <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=products#tab-plugins" onsubmit="return confirm('Möchtest du dieses Produkt wirklich löschen?');" style="display:inline;">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                             <input type="hidden" name="action" value="shop_delete_product">
+                                            <input type="hidden" name="target_tab" value="tab-plugins">
+                                            <input type="hidden" name="plugin_slug" value="shop">
                                             <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($p['id']); ?>">
                                             <button type="submit" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem; color: #ef4444;">
                                                 <span class="material-icons" style="font-size: 16px;">delete</span>
@@ -230,9 +232,11 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                                     </span>
                                 </td>
                                 <td style="padding: 12px 16px;">
-                                    <form method="POST" action="" style="display:inline;">
+                                    <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=orders#tab-plugins" style="display:inline;">
                                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                         <input type="hidden" name="action" value="shop_update_order_status">
+                                        <input type="hidden" name="target_tab" value="tab-plugins">
+                                        <input type="hidden" name="plugin_slug" value="shop">
                                         <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($o['order_id']); ?>">
                                         <select name="status" onchange="this.form.submit()" style="padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.82rem; font-weight: 600;">
                                             <option value="paid" <?php echo ($o['status'] ?? '') === 'paid' ? 'selected' : ''; ?>>🟢 Bezahlt</option>
@@ -260,10 +264,12 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
     <!-- SUBTAB 3: ZAHLUNGSARTEN (Kreditkarte, PayPal, WERO)                  -->
     <!-- ===================================================================== -->
     <?php elseif ($activeSubTab === 'payments'): ?>
-        <form method="POST" action="">
+        <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=payments#tab-plugins">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
             <input type="hidden" name="action" value="save_plugin_settings">
             <input type="hidden" name="plugin_slug" value="shop">
+            <input type="hidden" name="plugin_settings" value="shop">
+            <input type="hidden" name="target_tab" value="tab-plugins">
             <input type="hidden" name="active_subtab" value="payments">
 
             <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
@@ -366,10 +372,12 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
     <!-- SUBTAB 4: SHOP-EINSTELLUNGEN                                          -->
     <!-- ===================================================================== -->
     <?php elseif ($activeSubTab === 'settings'): ?>
-        <form method="POST" action="">
+        <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=settings#tab-plugins">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
             <input type="hidden" name="action" value="save_plugin_settings">
             <input type="hidden" name="plugin_slug" value="shop">
+            <input type="hidden" name="plugin_settings" value="shop">
+            <input type="hidden" name="target_tab" value="tab-plugins">
             <input type="hidden" name="active_subtab" value="settings">
 
             <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
@@ -449,9 +457,11 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
             <button type="button" onclick="closeShopProductModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
         </div>
 
-        <form method="POST" action="" style="padding:1.5rem;">
+        <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=products#tab-plugins" style="padding:1.5rem;">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
             <input type="hidden" name="action" id="shop-prod-action" value="shop_add_product">
+            <input type="hidden" name="target_tab" value="tab-plugins">
+            <input type="hidden" name="plugin_slug" value="shop">
             <input type="hidden" name="product_id" id="shop-prod-id" value="">
 
             <div class="grid" style="grid-template-columns: 2fr 1fr; gap:10px; margin-bottom:12px;">

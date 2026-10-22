@@ -423,11 +423,44 @@ function updateCaptchaSelection(changedCheckbox) {
  * Initialisiert den Admin-Bereich beim Laden (liest Hash aus der URL).
  */
 function initAdminListeners() {
-    const hashTab = (location.hash && location.hash.length > 1) ? location.hash.substring(1) : '';
-    if (hashTab && document.getElementById(hashTab)) {
-        switchTab(hashTab, false);
-    } else if (typeof serverActiveTab !== 'undefined' && serverActiveTab && document.getElementById(serverActiveTab)) {
-        switchTab(serverActiveTab, false);
+    let targetTab = '';
+
+    // 1. URL Query-Parameter ?tab= priorisieren
+    if (window.location.search) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const qTab = urlParams.get('tab');
+        if (qTab && document.getElementById(qTab)) {
+            targetTab = qTab;
+        }
+    }
+
+    // 2. URL-Hash #tab-... prüfen
+    if (!targetTab) {
+        const hashTab = (location.hash && location.hash.length > 1) ? location.hash.substring(1) : '';
+        if (hashTab && document.getElementById(hashTab)) {
+            targetTab = hashTab;
+        }
+    }
+
+    // 3. Serverseitig ermittelten aktiven Tab nutzen
+    if (!targetTab && typeof serverActiveTab !== 'undefined' && serverActiveTab && document.getElementById(serverActiveTab)) {
+        targetTab = serverActiveTab;
+    }
+
+    if (targetTab) {
+        switchTab(targetTab, false);
+    }
+
+    // Automatisch geöffnetes Plugin-Drawer aufrufen, falls plugin_settings übergeben wurde
+    if (window.location.search) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pluginSlug = urlParams.get('plugin_settings') || urlParams.get('plugin');
+        if (pluginSlug) {
+            const drawer = document.getElementById('plugin-settings-drawer-' + pluginSlug);
+            if (drawer) {
+                drawer.style.display = 'block';
+            }
+        }
     }
 
     // Sicherstellen, dass sensible PIN- & Passwortfelder NIEMALS durch Cache oder Browser-Autofill vorbelegt werden

@@ -7,7 +7,7 @@
  */
 
 $all_plugins = PluginManager::getAllPlugins($data);
-$active_settings_slug = $_GET['plugin_settings'] ?? null;
+$active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_POST['plugin_settings'] ?? null;
 ?>
 <!-- ──────────────── SECTION: PLUGINS & ERWEITERUNGEN ──────────────── -->
 <div id="tab-plugins" class="admin-section card" style="padding: 2.5rem;">
@@ -130,6 +130,16 @@ function togglePluginSettings(slug) {
     if (!el) return;
     const isHidden = (el.style.display === 'none' || el.style.display === '');
     el.style.display = isHidden ? 'block' : 'none';
+    if (window.history && window.history.replaceState) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', 'tab-plugins');
+        if (isHidden) {
+            url.searchParams.set('plugin_settings', slug);
+        } else {
+            url.searchParams.delete('plugin_settings');
+        }
+        history.replaceState(null, '', url.pathname + url.search + '#tab-plugins');
+    }
     if (isHidden) {
         el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }

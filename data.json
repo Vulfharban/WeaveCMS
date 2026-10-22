@@ -555,7 +555,9 @@
         }
     ],
     "plugins": {
-        "active": [],
+        "active": [
+            "shop"
+        ],
         "configs": []
     }
 }

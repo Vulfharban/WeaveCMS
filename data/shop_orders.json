@@ -1,5 +1,39 @@
 [
     {
+        "order_id": "ORD-20261022-0B9E00",
+        "status": "completed",
+        "payment_method": "wero",
+        "payment_ref": "WERO-EPI-1E539733F1AD",
+        "customer": {
+            "name": "Erika Musterfrau",
+            "email": "erika@beispiel.de",
+            "street": "Blumenweg 5",
+            "city": "München",
+            "zip": "80331",
+            "country": "Deutschland",
+            "notes": ""
+        },
+        "items": [
+            {
+                "id": "prod_korb01",
+                "title": "Handgefertigter Weidenkorb „Klassik“",
+                "sku": "KORB-01",
+                "price": 49.9,
+                "qty": 1,
+                "total": 49.9,
+                "image": "images/basket_classic.jpg",
+                "category": "Flechtkunst"
+            }
+        ],
+        "subtotal": 49.9,
+        "shipping": 4.9,
+        "tax": 7.97,
+        "total": 54.8,
+        "currency": "EUR",
+        "created_at": "2026-10-22 08:45:36",
+        "updated_at": "2026-10-22 08:45:37"
+    },
+    {
         "order_id": "ORD-20261022-0D4799",
         "status": "completed",
         "payment_method": "wero",
