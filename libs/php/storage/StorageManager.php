@@ -109,11 +109,6 @@ class StorageManager {
                 if ($createIfMissing) {
                     $cleanDb = str_replace('`', '``', $dbname);
                     $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$cleanDb}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-                    return [
-                        'success' => true,
-                        'message' => "Verbindung erfolgreich! Datenbank '{$dbname}' wurde neu angelegt (Server: {$version}).",
-                        'server_version' => $version
-                    ];
                 } else {
                     return [
                         'success' => true,
@@ -124,9 +119,39 @@ class StorageManager {
                 }
             }
 
+            // Benutzerrechte für Tabellen-Operationen (CREATE, INSERT, SELECT, DROP) verifizieren
+            try {
+                $dsnDb = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+                $pdoDb = new PDO($dsnDb, $user, $pass, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_TIMEOUT => 3
+                ]);
+
+                $testTable = '_weave_perm_test_' . substr(md5((string)uniqid()), 0, 8);
+                $pdoDb->exec("CREATE TABLE `{$testTable}` (`id` INT PRIMARY KEY AUTO_INCREMENT, `chk` VARCHAR(16)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                $pdoDb->exec("INSERT INTO `{$testTable}` (`chk`) VALUES ('ok')");
+                $stmtChk = $pdoDb->query("SELECT `chk` FROM `{$testTable}` LIMIT 1");
+                $chkVal = $stmtChk ? $stmtChk->fetchColumn() : null;
+                $pdoDb->exec("DROP TABLE IF EXISTS `{$testTable}`");
+
+                if ($chkVal !== 'ok') {
+                    return [
+                        'success' => false,
+                        'message' => "Verbindung zur Datenbank '{$dbname}' aufgebaut, aber Lese-/Schreibtest fehlgeschlagen.",
+                        'server_version' => $version
+                    ];
+                }
+            } catch (PDOException $permEx) {
+                return [
+                    'success' => false,
+                    'message' => "Verbindung hergestellt, aber Benutzer '{$user}' fehlen nötige Rechte (CREATE/INSERT/DROP) in '{$dbname}': " . $permEx->getMessage(),
+                    'server_version' => $version
+                ];
+            }
+
             return [
                 'success' => true,
-                'message' => "Verbindung zur Datenbank '{$dbname}' erfolgreich hergestellt! (Server: {$version})",
+                'message' => "Verbindung zur Datenbank '{$dbname}' erfolgreich! Benutzerrechte (CREATE, INSERT, SELECT, DROP) vollständig verifiziert (Server: {$version}).",
                 'server_version' => $version
             ];
         } catch (PDOException $e) {

@@ -341,6 +341,42 @@ if (!$is_locked && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_ins
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
+        .health-cat-header {
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin: 1.75rem 0 0.85rem 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .health-recs-details {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .health-recs-details summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            outline: none;
+            user-select: none;
+        }
+
+        .health-recs-details summary:hover {
+            color: #7dd3fc;
+        }
+
         /* Storage Choice Cards */
         .storage-cards {
             display: grid;
@@ -716,12 +752,44 @@ if (!$is_locked && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_ins
                      ═══════════════════════════════════════════════════════ -->
                 <div class="step-pane active" id="step-pane-1">
                     <h2 class="form-section-title">
-                        <span class="material-icons" style="color: #34d399;">verified</span> System-Voraussetzungen prüfen
+                        <span class="material-icons" style="color: #34d399;">verified</span> System-Voraussetzungen &amp; Vorab-Prüfung
                     </h2>
                     <p class="form-section-desc">
-                        WeaveCMS prüft automatisch, ob dein Server alle nötigen Module, Datenbank-Treiber und Schreibrechte besitzt.
+                        WeaveCMS prüft vor der Installation automatisch Dateirechte, PHP-Laufzeitumgebung, Datenbank-Treiber, URL-Rewrites und Server-Einstellungen.
                     </p>
 
+                    <!-- Scorecard Zusammenfassung -->
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 1.5rem;">
+                        <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:12px; text-align:center;">
+                            <div style="font-size:1.6rem; font-weight:800; color:#34d399;"><?php echo $health['summary']['passed']; ?></div>
+                            <div style="font-size:0.75rem; color:#94a3b8; font-weight:600; text-transform:uppercase;">Erfolgreich</div>
+                        </div>
+                        <div style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:12px; text-align:center;">
+                            <div style="font-size:1.6rem; font-weight:800; color:#fbbf24;"><?php echo $health['summary']['warnings']; ?></div>
+                            <div style="font-size:0.75rem; color:#94a3b8; font-weight:600; text-transform:uppercase;">Hinweise</div>
+                        </div>
+                        <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:12px; padding:12px; text-align:center;">
+                            <div style="font-size:1.6rem; font-weight:800; color:#f87171;"><?php echo $health['summary']['errors']; ?></div>
+                            <div style="font-size:0.75rem; color:#94a3b8; font-weight:600; text-transform:uppercase;">Fehler</div>
+                        </div>
+                    </div>
+
+                    <?php if ($health['can_install']): ?>
+                        <div class="alert alert-success" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; border-radius:12px; padding:12px 16px; margin-bottom:1.75rem; display:flex; align-items:center; gap:10px;">
+                            <span class="material-icons" style="font-size:24px;">check_circle</span>
+                            <div><strong>Systemvoraussetzungen erfüllt!</strong> WeaveCMS kann auf diesem Server fehlerfrei und sicher eingerichtet werden.</div>
+                        </div>
+                    <?php else: ?>
+                        <div class="alert alert-danger" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; border-radius:12px; padding:12px 16px; margin-bottom:1.75rem; display:flex; align-items:center; gap:10px;">
+                            <span class="material-icons" style="font-size:24px;">error</span>
+                            <div><strong>Mindestanforderungen nicht erfüllt.</strong> Bitte korrigiere die rot markierten Dateirechte oder PHP-Erweiterungen, bevor du fortfährst.</div>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- 1. PHP-Laufzeitumgebung -->
+                    <div class="health-cat-header">
+                        <span class="material-icons" style="color:#38bdf8; font-size:20px;">speed</span> 1. PHP-Laufzeit &amp; Server-Ressourcen
+                    </div>
                     <div class="health-list">
                         <!-- PHP Version -->
                         <div class="health-item">
@@ -734,12 +802,35 @@ if (!$is_locked && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_ins
                                     <div style="font-size: 0.85rem; color: var(--text-secondary);"><?php echo htmlspecialchars($health['php_version']['message']); ?></div>
                                 </div>
                             </div>
-                            <span class="health-badge <?php echo $health['php_version']['ok'] ? 'badge-ok' : 'badge-error'; ?>">
+                            <span class="health-badge <?php echo $health['php_version']['ok'] ? ($health['php_version']['is_warn'] ? 'badge-warn' : 'badge-ok') : 'badge-error'; ?>">
                                 <?php echo htmlspecialchars($health['php_version']['current']); ?>
                             </span>
                         </div>
 
-                        <!-- Verzeichnisse -->
+                        <!-- Weitere PHP Env Parameter -->
+                        <?php foreach ($health['php_env'] as $pEnv): ?>
+                            <div class="health-item">
+                                <div class="health-info">
+                                    <span class="material-icons" style="color: <?php echo $pEnv['ok'] ? ($pEnv['is_warn'] ? '#fbbf24' : '#34d399') : '#f87171'; ?>;">
+                                        <?php echo $pEnv['ok'] ? ($pEnv['is_warn'] ? 'warning' : 'check_circle') : 'cancel'; ?>
+                                    </span>
+                                    <div>
+                                        <div style="font-weight: 600;"><?php echo htmlspecialchars($pEnv['name']); ?></div>
+                                        <div style="font-size: 0.85rem; color: var(--text-secondary);"><?php echo htmlspecialchars($pEnv['message']); ?></div>
+                                    </div>
+                                </div>
+                                <span class="health-badge <?php echo $pEnv['ok'] ? ($pEnv['is_warn'] ? 'badge-warn' : 'badge-ok') : 'badge-error'; ?>">
+                                    <?php echo htmlspecialchars($pEnv['current']); ?>
+                                </span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <!-- 2. Dateisystem & Schreibrechte -->
+                    <div class="health-cat-header">
+                        <span class="material-icons" style="color:#fbbf24; font-size:20px;">folder_shared</span> 2. Dateisystem &amp; Schreibrechte
+                    </div>
+                    <div class="health-list">
                         <?php foreach ($health['directories'] as $d): ?>
                             <div class="health-item">
                                 <div class="health-info">
@@ -756,13 +847,18 @@ if (!$is_locked && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_ins
                                 </span>
                             </div>
                         <?php endforeach; ?>
+                    </div>
 
-                        <!-- PHP Module -->
+                    <!-- 3. PHP-Module & Erweiterungen -->
+                    <div class="health-cat-header">
+                        <span class="material-icons" style="color:#a78bfa; font-size:20px;">extension</span> 3. PHP-Erweiterungen &amp; Treiber
+                    </div>
+                    <div class="health-list">
                         <?php foreach ($health['extensions'] as $ext): ?>
                             <div class="health-item">
                                 <div class="health-info">
                                     <span class="material-icons" style="color: <?php echo $ext['ok'] ? '#34d399' : ($ext['required'] ? '#f87171' : '#fbbf24'); ?>;">
-                                        <?php echo $ext['ok'] ? 'extension' : 'warning'; ?>
+                                        <?php echo $ext['ok'] ? 'check_circle' : ($ext['required'] ? 'cancel' : 'info'); ?>
                                     </span>
                                     <div>
                                         <div style="font-weight: 600;"><?php echo htmlspecialchars($ext['name']); ?></div>
@@ -776,7 +872,81 @@ if (!$is_locked && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_ins
                         <?php endforeach; ?>
                     </div>
 
-                    <div class="btn-row">
+                    <!-- 4. Webserver & URL-Rewrite -->
+                    <div class="health-cat-header">
+                        <span class="material-icons" style="color:#34d399; font-size:20px;">dns</span> 4. Webserver &amp; URL-Rewrite (.htaccess)
+                    </div>
+                    <div class="health-list">
+                        <div class="health-item">
+                            <div class="health-info">
+                                <span class="material-icons" style="color: <?php echo $health['webserver']['ok'] ? '#34d399' : '#fbbf24'; ?>;">
+                                    <?php echo $health['webserver']['ok'] ? 'check_circle' : 'warning'; ?>
+                                </span>
+                                <div>
+                                    <div style="font-weight: 600;"><?php echo htmlspecialchars($health['webserver']['name']); ?></div>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                        <?php echo htmlspecialchars($health['webserver']['message']); ?>
+                                        <div style="font-size:0.78rem; opacity:0.8; margin-top:2px;">Erkannter Server: <code><?php echo htmlspecialchars($health['webserver']['server']); ?></code></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="health-badge <?php echo $health['webserver']['ok'] ? 'badge-ok' : 'badge-warn'; ?>">
+                                <?php echo htmlspecialchars($health['webserver']['badge']); ?>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 5. Empfohlene Einstellungen (php.ini & Apache) -->
+                    <details class="health-recs-details">
+                        <summary>
+                            <span class="material-icons" style="font-size:18px;">tune</span>
+                            <span>Empfohlene php.ini &amp; Apache-Einstellungen anzeigen (Kopierhilfe)</span>
+                            <span class="material-icons" style="font-size:16px; margin-left:auto;">expand_more</span>
+                        </summary>
+                        <div style="margin-top:1rem; font-size:0.88rem; line-height:1.5; color:#cbd5e1;">
+                            <p style="margin-bottom:0.75rem;">
+                                Die folgenden Einstellungen sind nicht zwingend erforderlich, garantieren jedoch optimale Performance, sicheren Verzeichnisschutz und problemlose Uploads großer Mediendateien:
+                            </p>
+                            <div style="overflow-x:auto; margin-bottom:1rem;">
+                                <table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:left;">
+                                    <thead>
+                                        <tr style="border-bottom:1px solid rgba(255,255,255,0.1); color:#94a3b8;">
+                                            <th style="padding:6px 8px;">Einstellung</th>
+                                            <th style="padding:6px 8px;">Aktuell</th>
+                                            <th style="padding:6px 8px;">Empfohlen</th>
+                                            <th style="padding:6px 8px;">Bedeutung</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($health['recommendations'] as $rec): ?>
+                                            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                                <td style="padding:6px 8px; font-weight:600; font-family:'JetBrains Mono', monospace; color:#38bdf8;"><?php echo htmlspecialchars($rec['directive']); ?></td>
+                                                <td style="padding:6px 8px; font-family:'JetBrains Mono', monospace; color:#cbd5e1;"><?php echo htmlspecialchars($rec['current']); ?></td>
+                                                <td style="padding:6px 8px; font-weight:600; color:#34d399; font-family:'JetBrains Mono', monospace;"><?php echo htmlspecialchars($rec['recommended']); ?></td>
+                                                <td style="padding:6px 8px; color:#94a3b8; font-size:0.8rem;"><?php echo htmlspecialchars($rec['description']); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div style="font-size:0.82rem; font-weight:600; margin-bottom:4px; color:#f8fafc;">Schnell-Konfiguration für deine php.ini:</div>
+                            <pre style="background:#090d16; border:1px solid var(--card-border); border-radius:8px; padding:10px 14px; font-family:'JetBrains Mono', monospace; font-size:0.8rem; color:#34d399; overflow-x:auto;">upload_max_filesize = 16M
+post_max_size = 18M
+memory_limit = 128M
+max_execution_time = 60
+date.timezone = "Europe/Berlin"
+opcache.enable = 1</pre>
+
+                            <div style="font-size:0.82rem; font-weight:600; margin-top:10px; margin-bottom:4px; color:#f8fafc;">Apache VirtualHost (.conf):</div>
+                            <pre style="background:#090d16; border:1px solid var(--card-border); border-radius:8px; padding:10px 14px; font-family:'JetBrains Mono', monospace; font-size:0.8rem; color:#38bdf8; overflow-x:auto;">&lt;Directory "<?php echo htmlspecialchars(Installer::rootPath()); ?>"&gt;
+    AllowOverride All
+    Require all granted
+&lt;/Directory&gt;</pre>
+                        </div>
+                    </details>
+
+                    <div class="btn-row" style="margin-top:2rem;">
                         <div></div>
                         <?php if ($health['can_install']): ?>
                             <button type="button" class="btn btn-primary" onclick="goToStep(2)">
@@ -850,44 +1020,44 @@ if (!$is_locked && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_ins
                         <div class="grid-2">
                             <div class="form-group">
                                 <label for="db_host">Datenbank-Host *</label>
-                                <input type="text" id="db_host" name="db_host" class="form-control" value="127.0.0.1" placeholder="localhost oder 127.0.0.1">
+                                <input type="text" id="db_host" name="db_host" class="form-control" value="127.0.0.1" placeholder="localhost oder 127.0.0.1" oninput="resetDbVerification()">
                             </div>
                             <div class="form-group">
                                 <label for="db_port">Port</label>
-                                <input type="number" id="db_port" name="db_port" class="form-control" value="3306" placeholder="3306">
+                                <input type="number" id="db_port" name="db_port" class="form-control" value="3306" placeholder="3306" oninput="resetDbVerification()">
                             </div>
                         </div>
 
                         <div class="grid-2">
                             <div class="form-group">
                                 <label for="db_name">Datenbankname *</label>
-                                <input type="text" id="db_name" name="db_name" class="form-control" value="weavecms" placeholder="z. B. weavecms">
+                                <input type="text" id="db_name" name="db_name" class="form-control" value="weavecms" placeholder="z. B. weavecms" oninput="resetDbVerification()">
                             </div>
                             <div class="form-group">
                                 <label for="db_prefix">Tabellen-Präfix</label>
-                                <input type="text" id="db_prefix" name="db_prefix" class="form-control" value="weave_" placeholder="weave_">
+                                <input type="text" id="db_prefix" name="db_prefix" class="form-control" value="weave_" placeholder="weave_" oninput="resetDbVerification()">
                             </div>
                         </div>
 
                         <div class="grid-2">
                             <div class="form-group">
                                 <label for="db_user">Benutzername *</label>
-                                <input type="text" id="db_user" name="db_user" class="form-control" value="root" placeholder="z. B. root oder db_user">
+                                <input type="text" id="db_user" name="db_user" class="form-control" value="root" placeholder="z. B. root oder db_user" oninput="resetDbVerification()">
                             </div>
                             <div class="form-group">
                                 <label for="db_pass">Datenbank-Passwort</label>
-                                <input type="password" id="db_pass" name="db_pass" class="form-control" placeholder="Passwort (falls vorhanden)">
+                                <input type="password" id="db_pass" name="db_pass" class="form-control" placeholder="Passwort (falls vorhanden)" oninput="resetDbVerification()">
                             </div>
                         </div>
 
                         <label class="checkbox-label" style="margin-top:0.5rem; margin-bottom:1.25rem; padding: 12px;">
-                            <input type="checkbox" id="db_create_if_missing" name="db_create_if_missing" value="1" checked>
+                            <input type="checkbox" id="db_create_if_missing" name="db_create_if_missing" value="1" checked onchange="resetDbVerification()">
                             <span style="font-size: 0.9rem; color:#cbd5e1;">Datenbank automatisch erzeugen, falls sie noch nicht existiert</span>
                         </label>
 
                         <div style="display:flex; align-items:center; gap: 12px; flex-wrap: wrap;">
                             <button type="button" class="btn btn-secondary" id="btn-test-db" onclick="testDatabaseConnection()">
-                                <span class="material-icons" style="font-size:18px;">bolt</span> Verbindung testen
+                                <span class="material-icons" style="font-size:18px;">bolt</span> Verbindung &amp; Benutzerrechte testen
                             </button>
                             <div id="db-test-feedback" style="font-size:0.9rem; display:none; align-items:center; gap:6px;"></div>
                         </div>
@@ -1191,6 +1361,17 @@ function selectStorage(type) {
     }
 }
 
+let dbVerified = false;
+
+function resetDbVerification() {
+    dbVerified = false;
+    const fb = document.getElementById('db-test-feedback');
+    if (fb) {
+        fb.style.display = 'none';
+        fb.innerHTML = '';
+    }
+}
+
 function validateStep2(silent = false) {
     const driver = document.getElementById('storage_driver_input').value;
     if (driver === 'mysql') {
@@ -1200,6 +1381,18 @@ function validateStep2(silent = false) {
 
         if (!host || !db || !user) {
             if (!silent) alert('Bitte fülle für MySQL mindestens Host, Datenbankname und Benutzername aus.');
+            return false;
+        }
+
+        if (!dbVerified) {
+            // Verbindung und Benutzerrechte vor dem Weitergehen zwingend testen
+            testDatabaseConnection(function(success) {
+                if (success) {
+                    if (!silent) goToStep(3);
+                } else {
+                    if (!silent) alert('Die MySQL-Datenbankverbindung konnte nicht verifiziert werden!\n\nBitte prüfe Server-Erreichbarkeit, Zugangsdaten und Benutzerrechte (CREATE, INSERT, SELECT, DROP).');
+                }
+            });
             return false;
         }
     }
@@ -1274,7 +1467,7 @@ function validateStep4(silent = false) {
     return true;
 }
 
-function testDatabaseConnection() {
+function testDatabaseConnection(callback) {
     const btn = document.getElementById('btn-test-db');
     const fb = document.getElementById('db-test-feedback');
     if (!btn || !fb) return;
@@ -1290,11 +1483,12 @@ function testDatabaseConnection() {
         fb.style.display = 'inline-flex';
         fb.style.color = '#f87171';
         fb.innerHTML = '<span class="material-icons" style="font-size:16px;">error</span> Bitte Host, Datenbankname und Benutzer angeben.';
+        if (typeof callback === 'function') callback(false);
         return;
     }
 
     btn.disabled = true;
-    btn.innerHTML = '<span class="material-icons" style="font-size:18px; animation: spin 1s linear infinite;">sync</span> Prüfe...';
+    btn.innerHTML = '<span class="material-icons" style="font-size:18px; animation: spin 1s linear infinite;">sync</span> Prüfe Verbindung &amp; Rechte...';
     fb.style.display = 'none';
 
     const formData = new URLSearchParams();
@@ -1313,22 +1507,28 @@ function testDatabaseConnection() {
     .then(res => res.json())
     .then(data => {
         btn.disabled = false;
-        btn.innerHTML = '<span class="material-icons" style="font-size:18px;">bolt</span> Verbindung testen';
+        btn.innerHTML = '<span class="material-icons" style="font-size:18px;">bolt</span> Verbindung &amp; Benutzerrechte testen';
         fb.style.display = 'inline-flex';
         if (data.success) {
+            dbVerified = true;
             fb.style.color = '#34d399';
             fb.innerHTML = '<span class="material-icons" style="font-size:16px;">check_circle</span> ' + escapeHtml(data.message);
+            if (typeof callback === 'function') callback(true);
         } else {
+            dbVerified = false;
             fb.style.color = '#f87171';
             fb.innerHTML = '<span class="material-icons" style="font-size:16px;">error</span> ' + escapeHtml(data.message);
+            if (typeof callback === 'function') callback(false);
         }
     })
     .catch(err => {
+        dbVerified = false;
         btn.disabled = false;
-        btn.innerHTML = '<span class="material-icons" style="font-size:18px;">bolt</span> Verbindung testen';
+        btn.innerHTML = '<span class="material-icons" style="font-size:18px;">bolt</span> Verbindung &amp; Benutzerrechte testen';
         fb.style.display = 'inline-flex';
         fb.style.color = '#f87171';
         fb.innerHTML = '<span class="material-icons" style="font-size:16px;">error</span> Serverfehler beim Verbindungstest.';
+        if (typeof callback === 'function') callback(false);
     });
 }
 
