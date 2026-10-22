@@ -34,10 +34,12 @@ $localExists = (!empty($docRoot) && (is_dir($testFsPath) || file_exists($testFsP
         </div>
     </div>
 
-    <form method="POST" action="">
+    <form method="POST" action="?tab=tab-plugins&plugin_settings=webtrees-genealogy#tab-plugins">
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
         <input type="hidden" name="action" value="save_plugin_settings">
         <input type="hidden" name="plugin_slug" value="webtrees-genealogy">
+        <input type="hidden" name="plugin_settings" value="webtrees-genealogy">
+        <input type="hidden" name="target_tab" value="tab-plugins">
 
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
             <div class="form-group" style="margin-bottom:0;">

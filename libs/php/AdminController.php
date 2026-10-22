@@ -44,7 +44,7 @@ class AdminController {
     public static function handlePost(string $dataFile, array &$data, string $csrfToken): array {
         $success_msg = '';
         $error_msg = '';
-        $active_tab = 'tab-dashboard';
+        $active_tab = !empty($_GET['tab']) ? preg_replace('/[^a-zA-Z0-9_\-]/', '', (string)$_GET['tab']) : 'tab-dashboard';
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return [
@@ -226,6 +226,12 @@ class AdminController {
     public static function determineActiveTab(string $action): string {
         if (!empty($_POST['target_tab']) && is_string($_POST['target_tab'])) {
             return trim($_POST['target_tab']);
+        }
+        if (!empty($_GET['tab']) && is_string($_GET['tab'])) {
+            return trim($_GET['tab']);
+        }
+        if (strpos($action, 'shop') !== false || strpos($action, 'webtrees') !== false) {
+            return 'tab-plugins';
         }
         if (strpos($action, 'blog') !== false) {
             return 'tab-blog';

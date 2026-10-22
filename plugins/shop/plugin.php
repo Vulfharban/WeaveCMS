@@ -23,7 +23,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
     if ($action === 'shop_add_product') {
         if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
             ShopManager::addProduct($_POST);
-            header('Location: ?tab=tab-plugins&shop_subtab=products&msg=product_added');
+            header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=products&msg=product_added#tab-plugins');
             exit;
         }
     }
@@ -35,7 +35,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             if (!empty($id)) {
                 ShopManager::updateProduct($id, $_POST);
             }
-            header('Location: ?tab=tab-plugins&shop_subtab=products&msg=product_updated');
+            header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=products&msg=product_updated#tab-plugins');
             exit;
         }
     }
@@ -47,7 +47,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             if (!empty($id)) {
                 ShopManager::deleteProduct($id);
             }
-            header('Location: ?tab=tab-plugins&shop_subtab=products&msg=product_deleted');
+            header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=products&msg=product_deleted#tab-plugins');
             exit;
         }
     }
@@ -60,7 +60,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             if (!empty($orderId) && !empty($newStatus)) {
                 ShopManager::updateOrderStatus($orderId, $newStatus);
             }
-            header('Location: ?tab=tab-plugins&shop_subtab=orders&msg=status_updated');
+            header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=orders&msg=status_updated#tab-plugins');
             exit;
         }
     }
