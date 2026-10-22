@@ -60,9 +60,10 @@ function switchTab(tabId, scrollToTop = true) {
         if (targetBtn) targetBtn.classList.add('active');
     }
     
-    // URL-Hash ohne natives Ankerspringen aktualisieren
+    // URL ohne veraltete Query-Parameter aktualisieren
     if (window.history && window.history.replaceState) {
-        history.replaceState(null, '', '#' + tabId);
+        const cleanUrl = window.location.pathname + '#' + tabId;
+        history.replaceState(null, '', cleanUrl);
     }
 
     if (scrollToTop) {
@@ -425,20 +426,20 @@ function updateCaptchaSelection(changedCheckbox) {
 function initAdminListeners() {
     let targetTab = '';
 
-    // 1. URL Query-Parameter ?tab= priorisieren
-    if (window.location.search) {
+    // 1. URL-Hash #tab-... priorisieren (falls vorhanden)
+    if (location.hash && location.hash.length > 1) {
+        const hashTab = location.hash.substring(1);
+        if (hashTab && document.getElementById(hashTab)) {
+            targetTab = hashTab;
+        }
+    }
+
+    // 2. URL Query-Parameter ?tab= prüfen (nur falls kein Hash da ist)
+    if (!targetTab && window.location.search) {
         const urlParams = new URLSearchParams(window.location.search);
         const qTab = urlParams.get('tab');
         if (qTab && document.getElementById(qTab)) {
             targetTab = qTab;
-        }
-    }
-
-    // 2. URL-Hash #tab-... prüfen
-    if (!targetTab) {
-        const hashTab = (location.hash && location.hash.length > 1) ? location.hash.substring(1) : '';
-        if (hashTab && document.getElementById(hashTab)) {
-            targetTab = hashTab;
         }
     }
 

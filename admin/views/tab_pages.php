@@ -75,6 +75,7 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                 <form method="POST" action="" id="page-form">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                     <input type="hidden" name="action" id="page_form_action" value="add_page">
+                    <input type="hidden" name="target_tab" value="tab-pages">
                     <input type="hidden" name="id" id="page_id" value="">
 
                     <!-- Sprach-Reiter im Seiteneditor -->
@@ -275,6 +276,7 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                                 <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Möchtest du diese Einzelseite wirklich unwiderruflich löschen?');">
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                     <input type="hidden" name="action" value="delete_page">
+                                    <input type="hidden" name="target_tab" value="tab-pages">
                                     <input type="hidden" name="id" value="<?php echo htmlspecialchars($p['id'] ?? ''); ?>">
                                     <button type="submit" class="btn btn-secondary" style="padding:6px 10px; color:#ef4444;" title="Seite löschen">
                                         <span class="material-icons" style="font-size:16px;">delete</span>
