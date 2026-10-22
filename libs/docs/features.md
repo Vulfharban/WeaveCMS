@@ -137,6 +137,8 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **WeaveCMS Shop-Plugin (`shop`)** | Vollwertiges E-Commerce-System mit Produktkatalog, digitalem Warenkorb-Drawer (`#shop-cart-drawer`), Floating-Cart-Badge und Bestandsprüfung. | ✅ Integriert (v0.9.0) |
+| **Lager- & Artikelverwaltung (`inventory`)** | Vollständiges Warenwirtschafts- & Inventursystem mit SKU, Lagerorten/Fächern, EK/VK-Preisen, Margenanalyse (€ / %), Meldebeständen mit Warn-Badges, Wareneingangsbuchung, Inventurabgleich, lückenlosem Audit-Trail (`inventory_log.json`) und CSV-Export für die Buchhaltung. 100 % kompatibel mit dem Shop-Plugin. | ✅ Integriert (v0.9.0) |
+| **Bidirektionale Shop-Kopplung & Auto-Deduction** | Nahtlose Synchronisation: Artikel werden als Shop-Produkte geteilt; Webshop-Bestellungen lösen über den `shop_order_created`-Hook sofortige Bestandsabzüge und revisionssichere Audit-Log-Einträge aus. | ✅ Integriert (v0.9.0) |
 | **Kreditkarten-Bezahlung** | Native Autorisierung von Visa, Mastercard und American Express mit mathematischer Luhn-10-Prüfsummenvalidierung, CVC- & Ablaufdatum-Check sowie Sandbox-Modus. | ✅ Integriert (v0.9.0) |
 | **PayPal Express-Integration** | Schnelle und sichere Bezahlung mit PayPal inklusive Transaktions-ID-Protokollierung. | ✅ Integriert (v0.9.0) |
 | **WERO European Instant Payment** | Das offizielle europäische Banken-Zahlverfahren der European Payments Initiative (EPI). Direkte Konto-zu-Konto Sofortzahlung via dynamic EPC069-12 SEPA-QR-Code (GiroCode) und Banking-App-Freigabe. | ✅ Integriert (v0.9.0) |
@@ -148,6 +150,15 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ## 📈 Release-Historie & Meilensteine
 
 ### v0.9.0 (Aktueller Entwicklungsstand)
+* **WeaveCMS Lager- & Artikelverwaltung (`plugins/inventory`):**
+  * **Zentrale Artikelstammdaten:** Verwaltung von Artikeln mit Artikelnummer (SKU), Barcode/EAN, Kategorie, Einheit (Stück, kg, m, etc.), Lagerort/Regalfach (z. B. Regal A-03), Lieferant und Lieferanten-Artikelnr.
+  * **Kalkulation, Margen & Lagerwert:** Erfassung von Netto-Einkaufspreisen (EK) und Verkaufspreisen (VK); automatische Berechnung von Rohgewinn/Marge in Euro und Prozent sowie dynamische Gesamtwert-Ermittlung (Gesamtlagerwert EK, Verkaufswert VK und potenzieller Rohgewinn).
+  * **Meldebestände & Frühwarnsystem:** Konfigurierbare Mindestbestände je Artikel mit visuellen Warn-Badges (*Knapp*, *Ausverkauft*, *Optimal*) und Schnellfiltern nach Handlungsbedarf.
+  * **Wareneingang (Zubuchung):** Schnelle und geführte Zubuchung gelieferter Ware mit Lieferschein-Referenz, Lieferanten-Zuordnung, EK-Preisanpassung und optionaler Notiz.
+  * **Revisionssicherer Audit-Trail (`data/inventory_log.json`):** Lückenlose Protokollierung aller Bestandsveränderungen (Erstanlage, Wareneingang, Webshop-Verkauf, manuelle Korrektur, Inventurabgleich) mit Vorher-/Nachher-Bestand, Zeitstempel, Referenz und ausführendem Benutzer.
+  * **Inventur & Stichtags-Abgleich:** Komfortable Zählliste zur schnellen Erfassung physischer Ist-Bestände mit automatischer Delta-Berechnung und Korrekturbuchung im Protokoll.
+  * **Buchhaltungs- & DATEV-tauglicher CSV-Export:** 1-Klick-Export des gesamten Lagerbestands inklusive aller Stammdaten, Lagerorte, EK/VK-Werte und Margen im UTF-8 BOM Excel/CSV-Format.
+  * **100 % Shop-Kompatibilität & Hook-Automation:** Teilt die Datenbasis `data/shop_products.json` mit dem WeaveCMS Shop-Plugin; bei erfolgreichen Shop-Bestellungen bucht der Hook `shop_order_created` die verkauften Mengen automatisch aus und hinterlegt die Bestellnummer im Lagerprotokoll.
 * **WeaveCMS Shop- & E-Commerce-Plugin (`plugins/shop`):**
   * **Vollwertiger Produktkatalog & Lagerverwaltung:** Produkte mit Titel, SKU/Artikelnummer, Kategorien, Preis, MwSt.-Satz oder Kleinunternehmerregelung (§ 19 UStG), Lagerbestand (inkl. Option für unbegrenzte/digitale Artikel), Produktbildern und Kurzbeschreibungen.
   * **Reaktiver Warenkorb & Slide-Out Drawer:** Schwebender Floating-Cart-Button mit Zähler-Badge (`#shop-cart-floating`), animierter Off-Canvas-Warenkorb (`#shop-cart-drawer`), Mengensteuerung (`+` / `-`), Artikelentfernung sowie automatische Berechnung von Zwischensumme, Versandkosten und Steuern via dedizierten AJAX-Endpunkt (`api/shop.php`).
