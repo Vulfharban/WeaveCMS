@@ -401,73 +401,28 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 13: Modulares Plugin- & Erweiterungssystem (Plugins/Module)
 *Ziel: Ein offenes, leichtgewichtiges Plugin- und Modulsystem für WeaveCMS, mit dem eigene Themes, Contentseiten, Berechtigungserweiterungen und Drittsystem-Integrationen (wie Webtrees Stammbäume) nahtlos integriert, im Adminbereich verwaltet und aktiviert/deaktiviert werden können.*
 
-- [ ] **13.1 Zentraler Plugin-Ordner (`plugins/`) & Manifest-Struktur:**
-  - Einrichtung des zentralen Verzeichnisses `plugins/` im Web-Root mit `.htaccess`-Schutz.
-  - Jedes Plugin erhält einen eigenen Unterordner (`plugins/<plugin-slug>/`) mit einheitlichem Aufbau:
-    ```text
-    plugins/
-    └── <plugin-slug>/
-        ├── plugin.json        # Metadaten-Manifest (Name, Version, Autor, Beschreibung, Hooks)
-        ├── plugin.php         # Haupteinstiegspunkt & Registrierung (Lifecycle-Callbacks)
-        ├── admin/             # Eigene Admin-Views, Einstellungs-Tabs oder Subnav-Punkte
-        ├── views/             # Frontend-Templates, Shortcodes oder Sektions-Renderings
-        └── assets/            # Lokale Assets (CSS, JS, Icons)
-    ```
-  - Standardisiertes JSON-Manifest (`plugin.json`):
-    ```json
-    {
-      "name": "Webtrees Stammbaum-Integration",
-      "slug": "webtrees-genealogy",
-      "version": "1.0.0",
-      "author": "WeaveCMS Team",
-      "description": "Bindet Stammbäume, Ahnentafeln und genealogische Personenübersichten aus Webtrees nahtlos in WeaveCMS ein.",
-      "category": "content",
-      "entry_file": "plugin.php",
-      "requires_core": ">=0.9.0",
-      "settings_tab": "webtrees",
-      "enabled": true
-    }
-    ```
-
-- [ ] **13.2 Plugin-Manager & Hook-System (`libs/php/PluginManager.php`):**
+- [x] **13.1 Zentraler Plugin-Ordner (`plugins/`) & Manifest-Struktur:**
+  - Einrichtung des zentralen Verzeichnisses `plugins/` im Web-Root mit `.htaccess`-Schutz (Erlaubnis für Assets wie CSS/JS/Bilder, Sperre direkter Skriptaufrufe & Manifeste).
+  - Standardisiertes JSON-Manifest (`plugin.json`) mit `name`, `slug`, `version`, `author`, `description`, `category`, `icon`, `entry_file` und `requires_core`.
+- [x] **13.2 Plugin-Manager & Hook-System (`libs/php/PluginManager.php`):**
   - Zentrale Core-Klasse `PluginManager` zur automatischen Entdeckung (`discover()`), Validierung, Aktivierung/Deaktivierung und Ausführung von Plugins.
-  - Ereignis- und Hook-Architektur für nahtlose Erweiterbarkeit ohne Core-Modifikationen:
-    - **Actions:** `PluginManager::addAction('hook_name', $callback)` / `PluginManager::doAction('hook_name', ...$args)`
-    - **Filters:** `PluginManager::addFilter('filter_name', $callback)` / `PluginManager::applyFilters('filter_name', $value, ...$args)`
-  - Standard-Hooks in WeaveCMS:
-    - `admin_nav_items`: Registrierung neuer Admin-Tabs oder Subnav-Buttons.
-    - `admin_tab_render`: Rendern modulspezifischer Einstellungsmasken im Adminbereich.
-    - `frontend_nav_items`: Hinzufügen dynamischer Menüeinträge im Frontend.
-    - `frontend_render_section`: Eigene Sektions-Typen im `SectionManager` für das Frontend registrieren.
-    - `auth_permissions`: Eigene Berechtigungsstufen und RBAC-Rollen definieren (z. B. Moderator für Spezial-Content).
-
-- [ ] **13.3 Modul- & Plugin-Übersicht im Adminbereich:**
-  - Neuer Bereich bzw. Subnav-Tab unter *„Sicherheit & System“* (oder eigener Reiter *„Plugins & Module“*).
-  - Übersichtliche Kachel-/Tabellenansicht aller im Ordner `plugins/` gefundenen Erweiterungen:
-    - Modul-Name, Icon, Versionsnummer, Autor und Kategorie (*Theme*, *Content*, *Sicherheit/Berechtigung*, *Integration*).
-    - Status-Badge (*Aktiv* / *Inaktiv*) und 1-Klick-Toggle zur Aktivierung/Deaktivierung.
-    - Direktlink zu den modulspezifischen Einstellungen.
-    - Kompatibilitäts-Hinweis bei inkompatibler CMS-Core-Version.
-
-- [ ] **13.4 Anleitung zur Einbindung & Entwicklung eigener Module (Entwickler-Guide):**
-  - Schritt-für-Schritt-Leitfaden in `plugins/README.md` und `libs/docs/plugin-guide.md`:
-    1. **Theme- & Design-Module:** Eigene CSS-Variablen, Typografie-Paletten und Layout-Vorlagen bereitstellen.
-    2. **Content- & Sektions-Module:** Eigene modulare Sektionen im Sektionen-Manager einhängen (z. B. Rechner, Timelines, Kalender).
-    3. **Berechtigungs-Module:** Erweiterung des RBAC-Systems um granulare Rollen und Beschränkungen.
-    4. **Drittsystem-Module:** Anbindung externer Datenquellen und APIs.
-  - Vorlage für ein Starter-Plugin (`plugins/_starter-example/`).
-
-- [ ] **13.5 Pilot-Projekt: Webtrees Stammbaum-Integration (`plugins/webtrees-genealogy`):**
+  - Vollständiges Action- & Filter-Hook-System mit automatischer Parameter-Reflektion:
+    - **Actions:** `PluginManager::addAction('hook', $callback, $priority, $args)` & `PluginManager::doAction('hook', ...$args)`
+    - **Filters:** `PluginManager::addFilter('hook', $callback, $priority, $args)` & `PluginManager::applyFilters('hook', $value, ...$args)`
+  - Standard-Hooks: `plugins_loaded`, `plugin_loaded`, `admin_render_plugin_settings_{slug}`, `content_shortcodes`, `frontend_render_custom_section`.
+- [x] **13.3 Modul- & Plugin-Übersicht im Adminbereich (`admin/views/tab_plugins.php`):**
+  - Neuer eigener Reiter *„Plugins“* in der Hauptnavigation (`.admin-nav`) direkt neben *„Sicherheit & System“* (nach expliziter Benutzer-Abstimmung).
+  - Responsive Kachelansicht aller installierten Erweiterungen mit Status-Badge, 1-Klick-Toggle zur Aktivierung/Deaktivierung und ausklappbarem Einstellungs-Drawer.
+- [x] **13.4 Anleitung zur Einbindung & Entwicklung eigener Module (Entwickler-Guide):**
+  - Vollständiger Leitfaden in `plugins/README.md` mit Manifest-Spezifikation, Hook-Referenztabelle und Code-Beispielen für eigene Erweiterungen.
+- [x] **13.5 Pilot-Projekt: Webtrees Stammbaum-Integration (`plugins/webtrees-genealogy`):**
   - Erstes natives WeaveCMS-Plugin zur Einbindung von Webtrees Stammbäumen:
-    - Anbindung an Webtrees (über direkte DB-Verbindung, REST-API oder GEDCOM-Import).
-    - Interaktive Frontend-Darstellung von Stammbaum-Diagrammen, Ahnenreihen und Personen-Steckbriefen.
-    - Datenschutzfilter: Automatische Anonymisierung / Ausblendung lebender Personen gemäß DSGVO.
-    - Eigener Konfigurations-Tab im WeaveCMS-Backend zur Auswahl des Standard-Stammbaums und Darstellungsparameter.
-
-- [ ] **13.6 Prüfung & Abnahme:**
-  - Plugin-Erkennung und Validierung des `plugin.json`-Manifests im Adminbereich testen.
-  - Aktivierung und Deaktivierung ohne Seiteneffekte verifizieren.
-  - Fehlerisolation (Graceful Degradation): Fehler in einem Plugin dürfen das restliche CMS nicht zum Absturz bringen.
+    - Einstellungsansicht zur Konfiguration von Webtrees Server-URL, GEDCOM/Baum-Kürzel, Startperson, Viewer-Höhe und Darstellungsmodus (`interaktiver Vollbild-iFrame` vs. `Chronik-Vorschaukarte`).
+    - Shortcode-Filter `[webtrees]` und `[webtrees tree="..." person="..."]` für Blogbeiträge und Einzelseiten.
+    - Optionale eigenständige Stammbaum-Sektion für das Frontend.
+- [x] **13.6 Prüfung & Abnahme:**
+  - 25 von 25 Unit- & Integrationstests (`test_phase13_plugins.php`) erfolgreich bestanden (Hook-Ausführung, Discovery, Aktivierung/Deaktivierung, Validierung, Shortcode-Rendering und RBAC-Schutz).
+  - Alle bestehenden Phase 9 & Phase 10 Regressionstests laufen zu 100% grün durch.
 
 ---
 

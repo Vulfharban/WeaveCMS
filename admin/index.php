@@ -36,6 +36,9 @@ $data = load_data($data_file, [
 // Benutzer-Datenmodell initialisieren (Superadmin-Seeding bei Bedarf)
 UserManager::ensureInitialized($data);
 
+// Aktive Plugins für Admin-Kontext initialisieren (Phase 13)
+PluginManager::loadActivePlugins($data, 'admin');
+
 // 2. Abmeldung (Logout) verarbeiten
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     AuthManager::logout();
@@ -217,6 +220,7 @@ if ($cur_user['role'] === UserManager::ROLE_ADMIN) {
     require __DIR__ . '/views/tab_settings.php';
     require __DIR__ . '/views/tab_seo.php';
     require __DIR__ . '/views/tab_security.php';
+    require __DIR__ . '/views/tab_plugins.php';
 }
 
 require __DIR__ . '/views/modals.php';

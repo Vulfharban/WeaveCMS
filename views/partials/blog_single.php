@@ -23,8 +23,9 @@ $p_tags = $active_post['tags'] ?? [];
 $word_count = str_word_count(strip_tags($p_content_raw));
 $read_time = max(1, ceil($word_count / 180));
 
-// Markdown parsen
-$p_content_html = MarkdownParser::parse($p_content_raw);
+// Markdown parsen & Plugin-Shortcodes anwenden
+$p_content_parsed = MarkdownParser::parse($p_content_raw);
+$p_content_html = PluginManager::applyFilters('content_shortcodes', $p_content_parsed, $data);
 
 $current_article_url = $site_url . '?blog=' . urlencode($active_post['slug'] ?? '');
 $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?lang=' . urlencode($cur_lang) : './';

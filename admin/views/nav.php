@@ -69,6 +69,9 @@
                 <button class="admin-nav-link" onclick="switchTab('tab-security')">
                     <span class="material-icons" style="font-size:18px;">security</span> Sicherheit &amp; System
                 </button>
+                <button class="admin-nav-link" onclick="switchTab('tab-plugins')">
+                    <span class="material-icons" style="font-size:18px;">extension</span> Plugins
+                </button>
             <?php endif; ?>
         </div>
 

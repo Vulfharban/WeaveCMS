@@ -89,6 +89,11 @@ class AdminController {
                 self::handleUserAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
+            case 'toggle_plugin':
+            case 'save_plugin_settings':
+                self::handlePluginAction($action, $dataFile, $data, $success_msg, $error_msg);
+                break;
+
             case 'update_settings':
             case 'update_design':
                 self::handleSettings($dataFile, $data, $success_msg, $error_msg);
@@ -252,6 +257,8 @@ class AdminController {
             strpos($action, 'migrate') !== false
         ) {
             return 'tab-security';
+        } elseif (strpos($action, 'plugin') !== false) {
+            return 'tab-plugins';
         } elseif (strpos($action, 'settings') !== false || strpos($action, 'design') !== false) {
             return 'tab-settings';
         } elseif (strpos($action, 'contact') !== false || strpos($action, 'impressum') !== false) {
@@ -262,6 +269,41 @@ class AdminController {
             return 'tab-texts';
         }
         return 'tab-dashboard';
+    }
+
+    /**
+     * Verarbeitet Plugin-Aktionen (Aktivieren, Deaktivieren, Konfiguration speichern) - Phase 13.
+     */
+    protected static function handlePluginAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        $slug = preg_replace('/[^a-z0-9_-]/', '', strtolower($_POST['plugin_slug'] ?? ''));
+        if (empty($slug)) {
+            $error_msg = 'Ungültige Plugin-Kennung.';
+            return;
+        }
+
+        if ($action === 'toggle_plugin') {
+            $targetState = (int)($_POST['target_state'] ?? 0);
+            if ($targetState === 1) {
+                $res = PluginManager::activatePlugin($slug, $data);
+            } else {
+                $res = PluginManager::deactivatePlugin($slug, $data);
+            }
+
+            if ($res['success']) {
+                save_data($dataFile, $data);
+                $success_msg = $res['message'];
+            } else {
+                $error_msg = $res['message'];
+            }
+        } elseif ($action === 'save_plugin_settings') {
+            $res = PluginManager::savePluginConfig($slug, $_POST, $data);
+            if ($res['success']) {
+                save_data($dataFile, $data);
+                $success_msg = $res['message'];
+            } else {
+                $error_msg = $res['message'];
+            }
+        }
     }
 
     /**
