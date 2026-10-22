@@ -28,6 +28,11 @@
         $is_subpage_view = isset($_GET['page']) || isset($_GET['blog']);
         $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?lang=' . urlencode($cur_lang) : './';
         $logo_href = $is_subpage_view ? htmlspecialchars($home_url) : '#';
+
+        // 0. Optionale Besucher-Barrierefreiheitsleiste (Phase 16)
+        if (!empty($data['settings']['accessibility_bar_enabled'])) {
+            include __DIR__ . '/accessibility_bar.php';
+        }
     ?>
     <header class="header-nav">
         <div class="header-container">

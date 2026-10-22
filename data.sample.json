@@ -244,7 +244,10 @@
             "it"
         ],
         "contact_placement": "footer",
-        "impressum_placement": "footer"
+        "impressum_placement": "footer",
+        "captcha_mode": "icons",
+        "impressum_email_captcha": false,
+        "accessibility_bar_enabled": false
     },
     "texts": {
         "hero_title": "Atelier Musterfrau",
@@ -386,20 +389,50 @@
     ],
     "downloads": [
         {
-            "id": "dl_1",
-            "title": "Pflegeanleitung für Naturgeflechte (PDF)",
-            "description": "Hilfreiche Tipps zu Reinigung, Luftfeuchtigkeit und Schutz vor direkter Witterung.",
-            "file_path": "images/default_wicker1.png",
-            "file_size": "120 KB",
-            "created_at": "2026-10-21 11:00:00"
+            "id": "dl_weavetool_studio",
+            "title": "WeaveTool Studio & Backup-Manager",
+            "description": "Leichtgewichtiges Verwaltungs- und Backup-Werkzeug für WeaveCMS-Instanzen mit SQLite-Synchronisation und Integritätsprüfung.",
+            "category": "Software",
+            "file_source": "external",
+            "external_url": "https://github.com/example/weavetool-releases/releases/download/v1.0.0/weavetool.zip",
+            "file_size": "8.4 MB",
+            "version": "v1.2.0",
+            "platform": "Windows 10/11, macOS, Linux",
+            "license": "MIT Open Source",
+            "features": [
+                "100% Offline-fähig ohne Cloud-Zwang",
+                "Unterstützt JSON- und SQLite-Speichertreiber",
+                "Automatische Integritätsprüfung gegen Datenverlust"
+            ],
+            "screenshots": [
+                "/images/default_wicker1.png"
+            ],
+            "changelog": "### v1.2.0 (2026-10-22)\n- Neu: Modulare Captcha-Auswahl-Engine integriert\n- Optimiert: Download-Klickcounter mit Bot-Filter\n- Fix: Barrierefreie Themes und Schriftgrößen-Zoom",
+            "show_counter": true,
+            "download_count": 48,
+            "created_at": "2026-10-22 09:00:00"
         },
         {
-            "id": "dl_2",
-            "title": "Jahresprogramm & Workshop-Übersicht 2026/27",
-            "description": "Alle Termine, Veranstaltungsorte und Kursinhalte auf einen Blick.",
-            "file_path": "images/korb_klassik.png",
-            "file_size": "340 KB",
-            "created_at": "2026-10-21 11:05:00"
+            "id": "dl_kursbroschuere_2026",
+            "title": "Werkstatt-Leitfaden & Kursbroschüre 2026",
+            "description": "Das vollständige Jahresprogramm mit allen Workshop-Terminen, Preisen, Materialempfehlungen und Packlisten.",
+            "category": "Dokumentation",
+            "file_source": "external",
+            "external_url": "https://example.com/downloads/kursbroschuere_2026.pdf",
+            "file_size": "2.1 MB",
+            "version": "2026.1",
+            "platform": "PDF",
+            "license": "Kostenfrei",
+            "features": [
+                "Alle Termine & Module auf einen Blick",
+                "Druckoptimiertes A4-Format",
+                "Inklusive Material- und Pflegeanleitung"
+            ],
+            "screenshots": [],
+            "changelog": "### Version 2026.1\n- Aktualisierte Termine für Herbst und Winter 2026\n- Neue Sonderkurse für Naturdesign integriert",
+            "show_counter": true,
+            "download_count": 132,
+            "created_at": "2026-10-22 09:15:00"
         }
     ],
     "pricing": [

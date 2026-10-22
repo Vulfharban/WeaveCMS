@@ -218,3 +218,137 @@ section {
 textarea.form-control {
     resize: vertical;
 }
+
+/* ==========================================================================
+   Besucher-Barrierefreiheitsleiste & Dark-Mode Theme (Phase 16)
+   ========================================================================== */
+[data-theme="dark"] {
+    --bg-dark: #161311;
+    --bg-card: rgba(32, 27, 24, 0.92);
+    --border-color: rgba(255, 255, 255, 0.12);
+    --text-primary: #f5eee8;
+    --text-secondary: #beb1a6;
+}
+
+[data-theme="dark"] body {
+    background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(46, 98, 72, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 90% 80%, rgba(178, 108, 57, 0.16) 0%, transparent 50%);
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .slide-menu {
+    background: var(--bg-card);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .form-control {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-control:focus {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .btn-outline,
+[data-theme="dark"] .btn-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* Accessibility Top-Bar */
+.accessibility-bar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 6px 1.25rem;
+    position: relative;
+    z-index: 1002;
+    backdrop-filter: blur(10px);
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.accessibility-container {
+    max-width: var(--container-max-width, 1200px);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.a11y-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.a11y-btn {
+    background: rgba(0, 0, 0, 0.035);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: inherit;
+}
+
+[data-theme="dark"] .a11y-btn {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.a11y-btn:hover {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+}
+
+/* Downloads & Software Styling */
+.dl-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.dl-filter-btn {
+    background: none;
+    border: none;
+    padding: 6px 14px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.dl-filter-btn:hover {
+    color: var(--text-primary);
+}
+
+.dl-filter-btn.active {
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(46, 98, 72, 0.3);
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

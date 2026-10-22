@@ -73,5 +73,19 @@
             --gallery-gap: <?php echo htmlspecialchars($gallery_gap, ENT_QUOTES, 'UTF-8'); ?>;
         }
     </style>
+
+    <!-- Sofortige Wiederherstellung von Besucher-Theme & Schriftzoom (Flash-Prävention) -->
+    <script>
+        (function() {
+            try {
+                var t = localStorage.getItem('weave_user_theme');
+                if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+                var z = localStorage.getItem('weave_user_zoom');
+                if (z && parseInt(z, 10) >= 85 && parseInt(z, 10) <= 125) {
+                    document.documentElement.style.fontSize = z + '%';
+                }
+            } catch(e) {}
+        })();
+    </script>
 </head>
 <body>

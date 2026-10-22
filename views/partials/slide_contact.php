@@ -90,22 +90,61 @@
                         <textarea id="req-msg" class="form-control" rows="5" style="padding:8px 12px;" placeholder="Deine Frage zu Kursen, Sonderanfertigungen oder Körben..." required></textarea>
                     </div>
 
-                    <!-- Spamschutz: Natur- & Flecht-Icon-Auswahl (1 Klick) -->
-                    <div class="form-group" style="margin-bottom: 1.25rem;">
-                        <label id="spam-protection-label" style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 0.9rem;">
-                            Sicherheitsprüfung: Klicke auf <strong><?php echo htmlspecialchars($initial_target['prompt'] ?? 'den Weidenzweig 🌿'); ?></strong>
-                        </label>
-                        <div id="spam-icon-grid" class="spam-icon-grid">
-                            <?php foreach ($server_active_icons as $srv_icon): ?>
-                                <button type="button" class="spam-icon-btn" title="<?php echo htmlspecialchars($srv_icon['name']); ?>" data-icon-id="<?php echo htmlspecialchars($srv_icon['id']); ?>" onclick="selectSpamIcon('<?php echo htmlspecialchars($srv_icon['id']); ?>', this);">
-                                    <span class="spam-icon-symbol"><?php echo $srv_icon['symbol']; ?></span>
-                                    <span class="spam-icon-label"><?php echo htmlspecialchars($srv_icon['name']); ?></span>
-                                </button>
-                            <?php endforeach; ?>
+                    <!-- Spamschutz: Modulares Captcha-Verfahren (Phase 16) -->
+                    <?php 
+                        $cur_mode = CaptchaManager::getMode($data);
+                    ?>
+                    <input type="hidden" id="req-captcha-mode" value="<?php echo htmlspecialchars($cur_mode); ?>">
+
+                    <?php if ($cur_mode === CaptchaManager::MODE_ICONS): ?>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label id="spam-protection-label" style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 0.9rem;">
+                                Sicherheitsprüfung: Klicke auf <strong><?php echo htmlspecialchars($initial_target['prompt'] ?? 'den Weidenzweig 🌿'); ?></strong>
+                            </label>
+                            <div id="spam-icon-grid" class="spam-icon-grid">
+                                <?php foreach ($server_active_icons as $srv_icon): ?>
+                                    <button type="button" class="spam-icon-btn" title="<?php echo htmlspecialchars($srv_icon['name']); ?>" data-icon-id="<?php echo htmlspecialchars($srv_icon['id']); ?>" onclick="selectSpamIcon('<?php echo htmlspecialchars($srv_icon['id']); ?>', this);">
+                                        <span class="spam-icon-symbol"><?php echo $srv_icon['symbol']; ?></span>
+                                        <span class="spam-icon-label"><?php echo htmlspecialchars($srv_icon['name']); ?></span>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+                            <input type="hidden" id="req-selected-icon" value="">
+                            <div id="spam-feedback" style="display:none; color: #ef4444; font-size: 0.82rem; margin-top: 6px; font-weight: 500;"></div>
                         </div>
-                        <input type="hidden" id="req-selected-icon" value="">
+
+                    <?php elseif ($cur_mode === CaptchaManager::MODE_MATH): ?>
+                        <?php $mathChallenge = CaptchaManager::generateMathChallenge(); ?>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="req-math-answer" style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 0.9rem;">
+                                Sicherheitsprüfung: <strong><?php echo htmlspecialchars($mathChallenge['question']); ?></strong> <span style="color:#ef4444;">*</span>
+                            </label>
+                            <input type="number" id="req-math-answer" name="captcha_math_answer" class="form-control" placeholder="Ergebnis..." required style="max-width: 140px; padding: 8px 12px;">
+                            <input type="hidden" id="req-math-hash" value="<?php echo htmlspecialchars($mathChallenge['hash']); ?>">
+                            <div id="spam-feedback" style="display:none; color: #ef4444; font-size: 0.82rem; margin-top: 6px; font-weight: 500;"></div>
+                        </div>
+
+                    <?php elseif ($cur_mode === CaptchaManager::MODE_CANVAS): ?>
+                        <?php $canvasChallenge = CaptchaManager::generateCanvasChallenge('contact'); ?>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 0.9rem;">
+                                Sicherheitsprüfung: Code eingeben <span style="color:#ef4444;">*</span>
+                            </label>
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                                <canvas id="contact-captcha-canvas" width="160" height="42" data-code="<?php echo htmlspecialchars($canvasChallenge['code']); ?>" style="background:#fff; border-radius:8px; border:1px solid var(--border-color);"></canvas>
+                                <button type="button" class="btn btn-secondary" onclick="renderContactCanvasCaptcha(true)" style="padding:6px 10px;" title="Neuen Code generieren">
+                                    <span class="material-icons" style="font-size:16px;">refresh</span>
+                                </button>
+                            </div>
+                            <input type="text" id="req-canvas-answer" name="captcha_canvas_answer" class="form-control" maxlength="5" placeholder="5-stelliger Code" required style="max-width: 160px; padding: 8px 12px; font-weight:700; letter-spacing:2px;">
+                            <input type="hidden" id="req-canvas-hash" value="<?php echo htmlspecialchars($canvasChallenge['hash']); ?>">
+                            <div id="spam-feedback" style="display:none; color: #ef4444; font-size: 0.82rem; margin-top: 6px; font-weight: 500;"></div>
+                        </div>
+
+                    <?php elseif ($cur_mode === CaptchaManager::MODE_HONEYPOT): ?>
+                        <!-- Stille Sicherheitsprüfung (Honeypot + Time-Trap aktiv) -->
                         <div id="spam-feedback" style="display:none; color: #ef4444; font-size: 0.82rem; margin-top: 6px; font-weight: 500;"></div>
-                    </div>
+                    <?php endif; ?>
 
                     <!-- Status-Meldungsbox für Feedback nach dem Senden -->
                     <div id="contact-status-box" style="display:none; margin-bottom: 1rem; padding: 12px 14px; border-radius: 10px; font-size: 0.88rem; line-height: 1.45;"></div>
