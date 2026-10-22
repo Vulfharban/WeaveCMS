@@ -37,9 +37,9 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Layout-Maße einstellbar** | Seitenbreite flexibel wählbar: Kompakt (1050 px), Standard (1200 px), Großzügig (1400 px). | ✅ Integriert |
 | **Feinjustierung Typografie & Ecken** | Schriftgrößen-Skalierung (95 %, 100 %, 108 %) und Kachel-Eckenabrundung (10 px, 20 px, 28 px). | ✅ Integriert |
 | **4 Galerie-Layouts wählbar** | **Smart Ambient-Blur** (weicher Bildhintergrund), **Masonry-Grid** (Pinterest-Stil), **Editorial-Grid** (Magazin-Look), **Classic 4:3** (fester Zuschnitt). | ✅ Integriert |
-| **Vollbild-Lightbox** | Reaktionsschnelle Lightbox mit Tastaturnavigation (Pfeiltasten, Esc) und Bildzähler. | ✅ Integriert |
 | **Flexibles Logo-System** | Einstellbare Hundetatzen-Motive und freie Platzierung (im Header oder Hero-Bereich). | ✅ Integriert |
-| **Erweitertes Logo- & Favicon-Management** | Eigener Upload für SVG-, PNG- und Favicon-Dateien inkl. Höhen-Skalierung. | 🟡 Geplant (Phase 11) |
+| **Erweitertes Logo- & Favicon-Management** | Eigener Upload für SVG-, PNG-, WebP- und Favicon-Dateien (.ico, .svg, .png), stufenlose Höhenskalierung (24–100 px), Side-by-Side Live-Vorschau (Hell/Dunkel), XSS-Sanitizing für SVGs und dynamische Favicon- & Touch-Icon-Einbindung. | ✅ Integriert (Phase 11) |
+| **Mobile Responsiveness & WCAG-Audit** | WCAG 2.5.5 / 2.5.8 Touch-Targets (>= 44 × 44 px) für Navigation, Close-Trigger und Lightbox; iOS Safari Auto-Zoom-Prävention (16px Input-Schutz) und `overflow-x: clip` Schutz für 360–414 px Displays. | ✅ Integriert (Phase 11) |
 
 ---
 
@@ -62,6 +62,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Download-Manager** | Bereitstellung von PDFs, Flyern und Dokumenten mit Dateigrößen- und Format-Anzeige. | ✅ Integriert (v0.8.0) |
 | **Leistungen & Preise** | Preistabellen / Servicekarten mit Bestseller-Badges, Feature-Checklisten und Anfrage-Button. | ✅ Integriert (v0.8.0) |
 | **Modulare Sektionen & Seiten-Manager** | Sektionen beliebig anordnen, ein- oder ausblenden mit automatischer Menü-Synchronisation. | ✅ Integriert (v0.6.0) |
+| **Webtrees Stammbaum-Sektion im Sektionen-Manager** | Nahtlose Steuerung der Stammbaum-Sektion über den zentralen Sektionen-Manager (Verschieben, Ein-/Ausblenden und automatische Menü-Synchronisation). | ✅ Integriert (v0.9.5) |
 | **Inhalte-Hub im Backend** | Übersichtliche Sub-Navigation (`.admin-subnav`) unter „Inhalte & Seiten“ für alle Content-Bereiche. | ✅ Integriert (v0.8.0) |
 
 ---
@@ -120,7 +121,8 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ### 8. Installation, Rollout & Updates
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
-| **Geführter Webspace-Installer** | Automatischer Installations-Assistent (`install.php`) mit Server-Check, Seed-Daten und Auto-Locking. | ✅ Integriert (v0.4.0) |
+| **Erweiterter Webspace-Installer & Pre-Flight Check** | Automatischer Installations-Assistent (`install.php`) mit 5-teiliger Vorab-Systemprüfung (PHP-Umgebung, Dateirechte, PHP-Module, Webserver & URL-Rewrite, php.ini Empfehlungen) und Auto-Locking. | ✅ Integriert (v0.9.5) |
+| **Datenbank-Preflight & Rechte-Verifikation** | Umfassender Vorab-Test für MySQL/MariaDB mit Validierung der Benutzerrechte (`CREATE TABLE`, `INSERT`, `SELECT`, `DROP`), Auto-Create und erzwungener Verifikation vor Schritt 3. | ✅ Integriert (v0.9.5) |
 | **SEO- & OpenGraph-Engine** | Eigener Reiter *„SEO & Sharing“*, Meta-Title & Description mit Zeichenzählern, Social-Sharing-Bild-Upload, Roboter-Steuerung und Live SERP/Social-Card-Vorschau. | ✅ Integriert (v0.3.0) |
 | **Mehrsprachigkeit & Internationalisierung (i18n)** | 12 europäische Sprachen out-of-the-box (DE, EN, FR, IT, NL, ES, PT, EL, DA, NO, SV, FI), Sprachwechsler im Frontend, Cookie-Persistenz, Fallback-Kaskade, dynamische SEO hreflang- & OpenGraph-Tags. | ✅ Integriert (v0.8.0) |
 | **Automatischer Remote Version-Check** | Erkennung neuer Releases gegen konfigurierbare Update-URL mit Hinweisanzeige im Dashboard. | ✅ Integriert (Phase 12) |
@@ -149,7 +151,33 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.9.0 (Aktueller Entwicklungsstand)
+### v0.9.5 (Aktueller Entwicklungsstand)
+* **Logo- & Branding-Verwaltung (Phase 11):**
+  * **4 flexible Logo-Typen:** Wählbar zwischen *Reiner Text* (Typografie aus Einstellungen), *Eigenes Bild-Logo* (vollflächige Header-Grafik), *Icon & Text kombiniert* sowie *SVG-Naturmotiven* (Hundetatzen).
+  * **Sicherer Datei-Upload & XSS-Schutz:** Upload von SVG, PNG, WebP und JPG mit automatischer Vektorbereinigung (`ImageUploader::sanitizeSvg`) gegen schädliche Skripte, Event-Handler (`onload=`, `onerror=`) oder Javascript-URIs.
+  * **Stufenlose Höhenskalierung (24 px bis 100 px):** Präziser Schieberegler mit Pixel-Anzeige und automatischer proportionaler Breitenanpassung (keine Verzerrung des Headers).
+  * **Side-by-Side Live-Vorschau:** Sofortige Ansicht des hochgeladenen Logos auf hellem und dunklem Hintergrund im Adminbereich via HTML5 `FileReader`.
+  * **Favicon- & Touch-Icon-Management:** Eigener Upload für `.ico`, `.svg` und `.png` mit integriertem Browser-Tab-Mockup und dynamischer Head-Generierung via `LogoRenderer::renderFaviconTags()`.
+* **Mobile Responsiveness & WCAG-Audit (Phase 11):**
+  * **WCAG 2.5.5 / 2.5.8 Touch-Targets:** Hamburger-Button (`#mobile-nav-trigger`), Slide-in-Close-Buttons und Vollbild-Lightbox-Schaltflächen (Vor, Zurück, Schließen) auf mindestens 44 × 44 px vergrößert.
+  * **iOS Safari Auto-Zoom-Prävention:** Alle Formularfelder (`.form-control`, `input`, `select`, `textarea`) erhalten unterhalb von 768px Viewport-Breite standardmäßig `font-size: 16px !important`, wodurch das automatische Hineinzoomen auf iPhones unterbunden wird.
+  * **Horizontaler Überlauf-Schutz:** Konsequenter Einsatz von `overflow-x: clip` und `overflow-x: hidden` gegen seitliches Scrollen auf Mobilgeräten (360 px – 414 px).
+* **Vorab-Systemprüfung (Pre-Flight Check) & erweiterte DB-Prüfung im Installer:**
+  * **Strukturierter 5-teiliger Pre-Flight Health Check (`install.php` & `Installer.php`):**
+    * 🚀 **PHP-Laufzeitumgebung:** Mindestanforderung (PHP >= 8.0), `memory_limit` (>= 64M Pflicht, >= 128M empfohlen), `upload_max_filesize`, `post_max_size`, `max_execution_time` und Server-Zeitzone.
+    * 📁 **Dateisystem & Schreibrechte:** Hauptverzeichnis (`/`), `data/`, `images/uploads/`, `images/branding/`, `backups/` und `data.sample.json`.
+    * 🧩 **PHP-Erweiterungen:** Prüfung auf `pdo`, `pdo_mysql`, `pdo_sqlite`, `gd`, `mbstring`, `json`, `curl`, `fileinfo` und `zip`.
+    * 🌐 **Webserver & URL-Rewrite:** Automatische Erkennung (Apache, Nginx, IIS), Überprüfung von `mod_rewrite` und `.htaccess`.
+    * 💡 **Empfohlene Server-Einstellungen:** Aufklappbarer Ratgeber mit Ist- vs. Empfohlen-Tabelle und kopierfertigen Code-Blöcken für `php.ini` und Apache VirtualHost (`AllowOverride All`).
+  * **Datenbank-Vorab-Check mit Benutzerrechte-Test (`StorageManager::testDbConnection`):**
+    * Automatische Verifikation von Serververbindung, Login, Datenbank-Existenz und Auto-Create.
+    * Echter Funktionstest der Benutzerrechte durch Erzeugen, Beschreiben, Lesen und Löschen einer temporären Testtabelle (`CREATE TABLE`, `INSERT`, `SELECT`, `DROP`).
+    * Erzwungene Prüfung im Installations-Assistenten: Bei Auswahl von MySQL wird der DB-Test beim Klick auf *„Weiter zu Schritt 3“* automatisch erzwungen und ein Weiterschalten bei fehlerhaften Zugangsdaten blockiert.
+* **Webtrees Stammbaum- & Sektionen-Manager Synchronisation:**
+  * Nahtlose Einbindung der Stammbaum-Sektion in den Sektionen-Manager zur freien Verschiebung und Ein-/Ausblendung.
+  * Behebung des Tab-Redirects beim Ein- und Ausblenden von Seiten (stabiler Verbleib im Inhalts-Tab `tab-pages`).
+
+### v0.9.0
 * **WeaveCMS Lager- & Artikelverwaltung (`plugins/inventory`):**
   * **Zentrale Artikelstammdaten:** Verwaltung von Artikeln mit Artikelnummer (SKU), Barcode/EAN, Kategorie, Einheit (Stück, kg, m, etc.), Lagerort/Regalfach (z. B. Regal A-03), Lieferant und Lieferanten-Artikelnr.
   * **Kalkulation, Margen & Lagerwert:** Erfassung von Netto-Einkaufspreisen (EK) und Verkaufspreisen (VK); automatische Berechnung von Rohgewinn/Marge in Euro und Prozent sowie dynamische Gesamtwert-Ermittlung (Gesamtlagerwert EK, Verkaufswert VK und potenzieller Rohgewinn).
