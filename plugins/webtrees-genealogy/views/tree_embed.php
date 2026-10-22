@@ -8,7 +8,12 @@
 $config = $config ?? [];
 $params = $params ?? [];
 
-$url = rtrim($params['url'] ?? ($config['webtrees_url'] ?? ''), '/');
+$rawPath = $params['path'] ?? $params['url'] ?? ($config['webtrees_path'] ?? ($config['webtrees_url'] ?? ''));
+if (preg_match('~^(https?:)?//~i', $rawPath)) {
+    $parsed = parse_url($rawPath);
+    $rawPath = $parsed['path'] ?? '';
+}
+$path = !empty($rawPath) ? ('/' . ltrim(preg_replace('/[^a-zA-Z0-9_\-\.\/]/', '', $rawPath), '/')) : '';
 $tree = $params['tree'] ?? ($config['tree_id'] ?? 'tree1');
 $person = $params['person'] ?? ($config['default_person'] ?? '');
 $mode = $params['mode'] ?? ($config['embed_mode'] ?? 'interactive_iframe');
@@ -21,18 +26,10 @@ $token = $params['token'] ?? ($config['embed_token'] ?? '');
 $title = $params['title'] ?? ($config['section_title'] ?? 'Familienstammbaum & Ahnenforschung');
 $subtitle = $params['subtitle'] ?? ($config['section_subtitle'] ?? 'Entdecke unsere Familiengeschichte interaktiv aus Webtrees.');
 
-// URL zum Stammbaum zusammenbauen
-$treeUrl = $url;
-if (!empty($url) && !empty($tree)) {
-    // Webtrees URL Schema
-    $query = ['ged' => $tree];
-    if (!empty($person)) {
-        $query['rootid'] = $person;
-    }
-    if (!empty($token)) {
-        $query['token'] = $token;
-    }
-    $treeUrl = $url . '/tree/' . rawurlencode($tree);
+// Lokalen Server-Pfad zum Stammbaum zusammenbauen
+$treeUrl = $path;
+if (!empty($path) && !empty($tree)) {
+    $treeUrl = rtrim($path, '/') . '/tree/' . rawurlencode($tree);
     if (!empty($person)) {
         $treeUrl .= '/individual/' . rawurlencode($person);
     }
@@ -43,13 +40,13 @@ if (!empty($url) && !empty($tree)) {
 ?>
 
 <div class="webtrees-embed-wrapper" style="margin: 2.5rem 0;">
-    <?php if (empty($url)): ?>
+    <?php if (empty($path)): ?>
         <!-- Hinweis wenn noch nicht eingerichtet -->
         <div style="background: rgba(0,0,0,0.02); border: 2px dashed var(--border-color); border-radius: 16px; padding: 2.5rem 1.5rem; text-align: center; max-width: 650px; margin: 0 auto;">
             <div style="font-size: 3rem; margin-bottom: 0.75rem;">🌳</div>
             <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text-primary);"><?php echo htmlspecialchars($title); ?></h3>
             <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-                Die Webtrees Stammbaum-Integration ist aktiv, jedoch wurde noch keine Webtrees Server-URL hinterlegt. Bitte trage die URL deines Stammbaums in den Plugin-Einstellungen im Adminbereich ein.
+                Die Webtrees Stammbaum-Integration ist aktiv, jedoch wurde noch kein lokaler Server-Pfad hinterlegt. Bitte trage den Pfad zur Webtrees-Startseite auf diesem Server (z. B. <code>/webtrees</code>) in den Plugin-Einstellungen im Adminbereich ein.
             </p>
             <?php if (!empty($_SESSION['admin_logged_in'])): ?>
                 <a href="admin/?tab=tab-plugins" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px;">
@@ -73,7 +70,7 @@ if (!empty($url) && !empty($tree)) {
                 <a href="<?php echo htmlspecialchars($treeUrl); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px; padding: 12px 26px; font-size: 1rem; text-decoration:none;">
                     <span class="material-icons">lan</span> Interaktiven Stammbaum öffnen
                 </a>
-                <a href="<?php echo htmlspecialchars($url . '/tree/' . rawurlencode($tree) . '/individual-list'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="display:inline-flex; align-items:center; gap:8px; padding: 12px 22px; font-size: 1rem; text-decoration:none;">
+                <a href="<?php echo htmlspecialchars($path . '/tree/' . rawurlencode($tree) . '/individual-list'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="display:inline-flex; align-items:center; gap:8px; padding: 12px 22px; font-size: 1rem; text-decoration:none;">
                     <span class="material-icons">people</span> Namensregister durchsuchen
                 </a>
             </div>

@@ -111,8 +111,9 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **CSRF-Schutz** | Kryptografische Tokens auf allen POST-Aktionen gegen Cross-Site-Request-Forgery. | ✅ Integriert |
 | **Zugriffssperren für Systemdateien** | `data.json`, `config.php`, `.git` und Backups sind vor direktem Browser-Zugriff geschützt. | ✅ Integriert |
 | **Sichere Sessions** | Session-Cookies mit `HttpOnly`, `SameSite` und automatischer Session-Zerstörung bei Abmeldung. | ✅ Integriert |
-| **Mehrbenutzersystem (RBAC)** | Benutzerrollen: Administrator, Moderator, Redakteur (Content-User). | 🟡 Geplant (Phase 10) |
-| **Brute-Force-Schutz & Rate-Limiting** | Progressive Verzögerung und temporäre Sperre nach wiederholten Fehlversuchen. | 🟡 Geplant (Phase 9) |
+| **Mehrbenutzersystem (RBAC)** | Benutzerrollen: Administrator, Moderator, Redakteur (Content-User) mit granularen Rechten. | ✅ Integriert (Phase 10) |
+| **Brute-Force-Schutz & Rate-Limiting** | Progressive Verzögerung und temporäre IP-Sperre nach wiederholten Fehlversuchen. | ✅ Integriert (Phase 9) |
+| **Audit- & Security-Logging** | Manipulationssicheres Protokollieren aller sicherheitsrelevanter Aktionen in `data/security.log`. | ✅ Integriert (Phase 9) |
 
 ---
 
@@ -122,16 +123,54 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Geführter Webspace-Installer** | Automatischer Installations-Assistent (`install.php`) mit Server-Check, Seed-Daten und Auto-Locking. | ✅ Integriert (v0.4.0) |
 | **SEO- & OpenGraph-Engine** | Eigener Reiter *„SEO & Sharing“*, Meta-Title & Description mit Zeichenzählern, Social-Sharing-Bild-Upload, Roboter-Steuerung und Live SERP/Social-Card-Vorschau. | ✅ Integriert (v0.3.0) |
 | **Mehrsprachigkeit & Internationalisierung (i18n)** | 12 europäische Sprachen out-of-the-box (DE, EN, FR, IT, NL, ES, PT, EL, DA, NO, SV, FI), Sprachwechsler im Frontend, Cookie-Persistenz, Fallback-Kaskade, dynamische SEO hreflang- & OpenGraph-Tags. | ✅ Integriert (v0.8.0) |
-| **Automatischer Remote Version-Check** | Erkennung neuer Releases gegen konfigurierbare Update-URL mit Hinweisanzeige. | 🟡 Geplant (Phase 12) |
-| **Plugin- & Modulsystem (Erweiterungen)** | Leichtgewichtiges Hook- & Event-System zur Einbindung eigener Module (Themes, Custom Content, Berechtigungen, Webtrees Stammbäume). | 🟡 Geplant (Phase 13) |
-| **Universelle Multi-Ratio Demo-Assets** | Kuratiertes Set neutraler Demo-Bilder verschiedener Seitenverhältnisse (3:4, 16:9, 1:1, 4:3) für optimale Galerie-Modi-Tests. | 🟡 Geplant (Phase 14) |
-| **Interaktiver Sandbox- & Demo-Modus** | Live-Ausprobieren von WeaveCMS ohne Speicherung (flüchtige Session-Sandbox, Banner & Auto-Reset). | 🟡 Geplant (Phase 15) |
+| **Automatischer Remote Version-Check** | Erkennung neuer Releases gegen konfigurierbare Update-URL mit Hinweisanzeige im Dashboard. | ✅ Integriert (Phase 12) |
+| **Modulares Plugin-System** | Vollwertiges Hook- & Event-System (`PluginManager`) für Erweiterungen im Ordner `/plugins` mit automatischer Entdeckung, Lebenszyklus und Admin-Einstellungen. | ✅ Integriert (Phase 13) |
+| **Universelle Multi-Ratio Demo-Assets** | Kuratiertes Set neutraler Demo-Bilder verschiedener Seitenverhältnisse (3:4, 16:9, 1:1, 4:3) für optimale Theme-Tests. | ✅ Integriert (Phase 14) |
+| **Interaktiver Sandbox- & Demo-Modus** | Live-Ausprobieren von WeaveCMS ohne Speicherung (flüchtige Session-Sandbox, Banner & Auto-Reset). | ✅ Integriert (Phase 15) |
+| **Modularer Download- & Software-Bereich** | Vollwertige Download-Karten mit Versions-Badges, OS/Plattform-Tags, Changelog-Drawer, Screenshot-Lightbox und manipulationsgeschütztem Klick-Counter mit Spambot-Filter. | ✅ Integriert (Phase 16) |
+| **Modulare Captcha-Auswahl-Engine** | Freie Wahl im Sicherheits-Tab zwischen Symbol-Captcha, Mathe-Rechen-Captcha, HTML5 Canvas-Zahlen-Captcha und unsichtbarem Honeypot sowie Anti-Scraping E-Mail-Schutz im Impressum. | ✅ Integriert (Phase 16) |
+| **Besucher-Barrierefreiheitsleiste** | Optionale Leiste am oberen Bildschirmrand mit Live Dark/Light-Mode (🌙/☀️), Schriftgrößen-Zoom (85 %–125 %) und Sprachwechsler. | ✅ Integriert (Phase 16) |
+
+---
+
+### 9. E-Commerce, Shop & Erweiterungen (Plugins)
+| Feature | Beschreibung | Status |
+| :--- | :--- | :---: |
+| **WeaveCMS Shop-Plugin (`shop`)** | Vollwertiges E-Commerce-System mit Produktkatalog, digitalem Warenkorb-Drawer (`#shop-cart-drawer`), Floating-Cart-Badge und Bestandsprüfung. | ✅ Integriert (v0.9.0) |
+| **Kreditkarten-Bezahlung** | Native Autorisierung von Visa, Mastercard und American Express mit mathematischer Luhn-10-Prüfsummenvalidierung, CVC- & Ablaufdatum-Check sowie Sandbox-Modus. | ✅ Integriert (v0.9.0) |
+| **PayPal Express-Integration** | Schnelle und sichere Bezahlung mit PayPal inklusive Transaktions-ID-Protokollierung. | ✅ Integriert (v0.9.0) |
+| **WERO European Instant Payment** | Das offizielle europäische Banken-Zahlverfahren der European Payments Initiative (EPI). Direkte Konto-zu-Konto Sofortzahlung via dynamic EPC069-12 SEPA-QR-Code (GiroCode) und Banking-App-Freigabe. | ✅ Integriert (v0.9.0) |
+| **Bestellverwaltung im Backend** | Übersicht aller eingegangenen Bestellungen, Kundendaten, Status-Workflow (`Bezahlt`, `In Bearbeitung`, `Versendet`, `Abgeschlossen`, `Storniert`) und Umsatz-Statistiken. | ✅ Integriert (v0.9.0) |
+| **Webtrees Stammbaum-Integration (Same-Server)** | Bindet Webtrees Stammbäume und Genealogie-Diagramme direkt in WeaveCMS ein. Aus Sicherheits- und Datenschutzgründen strikt auf denselben Server beschränkt (externe URLs werden unterbunden). | ✅ Integriert (v0.9.0) |
 
 ---
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.8.5 (Aktueller Entwicklungsstand)
+### v0.9.0 (Aktueller Entwicklungsstand)
+* **WeaveCMS Shop- & E-Commerce-Plugin (`plugins/shop`):**
+  * **Vollwertiger Produktkatalog & Lagerverwaltung:** Produkte mit Titel, SKU/Artikelnummer, Kategorien, Preis, MwSt.-Satz oder Kleinunternehmerregelung (§ 19 UStG), Lagerbestand (inkl. Option für unbegrenzte/digitale Artikel), Produktbildern und Kurzbeschreibungen.
+  * **Reaktiver Warenkorb & Slide-Out Drawer:** Schwebender Floating-Cart-Button mit Zähler-Badge (`#shop-cart-floating`), animierter Off-Canvas-Warenkorb (`#shop-cart-drawer`), Mengensteuerung (`+` / `-`), Artikelentfernung sowie automatische Berechnung von Zwischensumme, Versandkosten und Steuern via dedizierten AJAX-Endpunkt (`api/shop.php`).
+  * **SSL-gesichertes Multi-Step Checkout-Modal:** Kundendatenerfassung (Liefer- & Rechnungsadresse), Pflichtfeldprüfung und interaktiver Bezahlbereich.
+  * **Integrierte Multi-Payment-Engine:**
+    * 💳 **Kreditkarte:** Native Autorisierung von Visa, Mastercard und American Express mit mathematischer Luhn-10-Prüfsummenprüfung, CVC- & Ablaufdatum-Validierung sowie zuschaltbarem Sandbox-/Testmodus.
+    * 🅿️ **PayPal:** Express-Checkout-Option mit automatischer Generierung und Archivierung von Transaktions-Referenzen (`PAYID-...`).
+    * 🇪🇺 **WERO (European Payments Initiative / EPI):** Das neue europäische Zahlverfahren der europäischen Bankenallianz (Sparkassen, Volksbanken, Deutsche Bank, BNP Paribas uvm.). Bietet sofortige Konto-zu-Konto-Gutschriften über dynamisch generierte EPC069-12 SEPA-QR-Codes (GiroCode) zum Scannen mit jeder kompatiblen Banking-App.
+  * **Admin-Bestellverwaltung & KPI-Dashboard:** KPI-Kacheln für Gesamtumsatz, eingegangene Bestellungen und aktive Artikel; tabellarische Bestellübersicht mit Filter nach Zahlungsart (`Kreditkarte`, `PayPal`, `WERO`), editierbarem Status (`Bezahlt`, `In Bearbeitung`, `Versendet`, `Abgeschlossen`, `Storniert`) und Auftragsdetail-Modal.
+  * **Shortcode & Sektions-Integration:** Flexibel einbettbar über den Shortcode `[shop]` (mit optionalem Kategorie-Filter) sowie als eigene Sektion auf der Startseite aktivierbar.
+* **Webtrees Stammbaum-Integration (Same-Server Härtung):**
+  * **Strikte Same-Server-Bindung:** Webtrees-Installationen müssen zwingend auf demselben Server betrieben werden; externe Domains und Remote-URLs (`http://`, `https://`) werden aus Sicherheits- und Datenschutzgründen serverseitig unterbunden und bereinigt.
+  * **Lokale Server-Pfade:** Unterstützung flexibler Webroot-Pfade (z. B. `/webtrees` oder `/webtrees/index.php`) mit automatischer serverseitiger Verzeichnis- und Dateiprüfung im Adminbereich.
+* **Downloads, Software-Portal & Klick-Counter (Phase 16):**
+  * Download-Karten mit Versions-Badges (`v1.2.0`), Plattform-Kennzeichnung (Windows, macOS, Linux), Feature-Checklisten, Screenshot-Galerie mit Lightbox und responsivem Changelog-Modal.
+  * Manipulationssicherer Download-Proxy (`api/download.php?id=...`) mit Bot-Filter gegen Web-Crawler und atomarer Zähler-Aktualisierung.
+* **Modulare Captcha-Auswahl-Engine & Anti-Scraping E-Mail-Schutz:**
+  * Zentrale Wahl im Sicherheitsbereich zwischen 4 Verfahren: Symbol-Captcha, Mathe-Rechen-Captcha, dynamisches HTML5 Canvas-Zahlen-Captcha und unsichtbarer Honeypot.
+  * Optionaler E-Mail-Schutz im Impressum: E-Mail-Adresse wird erst nach Lösung eines interaktiven Canvas-Zahlencodes über `api/verify_email_captcha.php` freigeschaltet.
+* **Besucher-Barrierefreiheitsleiste:**
+  * Zuschaltbare Top-Bar mit Live Dark/Light-Mode (🌙/☀️ via `data-theme="dark"` und `localStorage`), 3-stufigem Basisschriftarten-Zoom (85 % bis 125 %) und integriertem Sprachwechsler.
+
+### v0.8.5
 * **Individuelle Menü- & Sektionstitel für alle Inhaltsarten:**
   * **Modulare Schnell-Leiste (`section_nav_bar.php`):** Direkte Bearbeitung von Titel fürs Menü (`nav_label`), Sektions-Titel (`title`) und Menü-Sichtbarkeit (`in_nav`) direkt im jeweiligen Inhalts-Tab (Galerie, Workshops, Blog, FAQs, Team, Preise, Downloads, Impressionen) ohne Tab-Wechsel.
   * **Zentraler Sektionen-Manager:** Dediziertes Verwaltungsmodal unter *„Texte & Übersetzungen“* (`tab_texts.php`) zur Bearbeitung von Menü-Titeln aller Hauptsektionen inklusive mehrsprachiger Übersetzungen (`translations`) für alle aktiven Sprachen.

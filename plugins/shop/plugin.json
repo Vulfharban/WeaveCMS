@@ -1,0 +1,12 @@
+{
+    "name": "WeaveCMS Shop & E-Commerce",
+    "slug": "shop",
+    "version": "1.0.0",
+    "author": "WeaveCMS Core Team",
+    "description": "Vollwertiges E-Commerce- & Shop-Plugin mit Warenkorb, digitaler Kasse, Produkt- und Bestellverwaltung sowie integrierten Zahlungsarten für Kreditkarte, PayPal und WERO (European Payments Initiative).",
+    "category": "e-commerce",
+    "icon": "shopping_cart",
+    "entry_file": "plugin.php",
+    "requires_core": ">=0.4.0",
+    "settings_tab": "shop"
+}
