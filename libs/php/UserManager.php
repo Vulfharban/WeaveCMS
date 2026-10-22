@@ -58,11 +58,14 @@ class UserManager {
                 $pinHash = password_hash($defaultPin, PASSWORD_DEFAULT);
             }
 
+            $adminUser = !empty($data['settings']['admin_username']) ? $data['settings']['admin_username'] : 'admin';
+            $adminEmail = !empty($data['texts']['contact_email']) ? $data['texts']['contact_email'] : 'admin@weavecms.local';
+
             $data['users'] = [
                 [
                     'id'            => 'usr_superadmin',
-                    'username'      => 'admin',
-                    'email'         => 'admin@weavecms.local',
+                    'username'      => $adminUser,
+                    'email'         => $adminEmail,
                     'password_hash' => $pwHash,
                     'pin_hash'      => $pinHash,
                     'role'          => self::ROLE_ADMIN,
@@ -133,11 +136,13 @@ class UserManager {
         }
 
         // Fallback für Superadmin aus bestehender Session
+        $fallbackUser = !empty($data['settings']['admin_username']) ? $data['settings']['admin_username'] : 'admin';
+        $fallbackEmail = !empty($data['texts']['contact_email']) ? $data['texts']['contact_email'] : 'admin@weavecms.local';
         return [
             'id'       => $userId ?? 'usr_superadmin',
-            'username' => $_SESSION['admin_username'] ?? 'admin',
+            'username' => $_SESSION['admin_username'] ?? $fallbackUser,
             'role'     => $_SESSION['admin_role'] ?? self::ROLE_ADMIN,
-            'email'    => 'admin@weavecms.local',
+            'email'    => $fallbackEmail,
             'active'   => true
         ];
     }
