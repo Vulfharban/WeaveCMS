@@ -319,35 +319,36 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 11: Eigenes Logo (Upload, Skalierung & Favicon) & Umfassendes Mobile-Responsiveness-Audit
 *Ziel: Volle visuelle Identität für jedes Projekt (flexibles Logo & Favicon) sowie perfekte, fehlerfreie Bedienung und Darstellung auf allen mobilen Geräten (Smartphones & Tablets).*
 
-- [ ] **11.1 Logo- & Branding-Verwaltung im Adminbereich:**
+- [x] **11.1 Logo- & Branding-Verwaltung im Adminbereich:**
   - Konfigurierbar im Bereich *„Design & Logo“*:
     - **Logo-Typ wählbar:**
       - *Reines Text-Logo mit Slogan* (Standard)
       - *Bild- / SVG-Logo*
       - *Kombination aus Bild-Icon + Text*
-    - **Logo-Upload:** Unterstützt SVG (vektorbasiert, randscharf), PNG (transparent), WebP und JPG.
-    - **Logo-Dimensionierung:** Schieberegler / Eingabefeld für maximale Höhe (z. B. 32px bis 100px) und automatische Breiten-Skalierung, damit der Header nicht verzerrt wird.
+    - **Logo-Upload:** Unterstützt SVG (vektorbasiert, randscharf mit XSS-Sanitizing), PNG (transparent), WebP und JPG.
+    - **Logo-Dimensionierung:** Schieberegler / Eingabefeld für maximale Höhe (24px bis 100px) und automatische Breiten-Skalierung ohne Verzerrung.
     - **Favicon-Upload:** Hochladen von `.ico`, `.svg` oder `.png` für Browser-Tabs und Smartphone-Home-Screen (`apple-touch-icon`).
-    - **Direkte Live-Vorschau:** Sofortige Ansicht des hochgeladenen Logos auf hellem und dunklem Header-Hintergrund.
-- [ ] **11.2 Frontend-Integration & Logo-Rendering (`index.php`):**
-  - Dynamisches Ausspielen des Bild- bzw. Text-Logos im Desktop-Header und mobilen Header.
+    - **Direkte Live-Vorschau:** Sofortige Ansicht des hochgeladenen Logos auf hellem und dunklem Header-Hintergrund inkl. Browser-Tab-Mockup.
+- [x] **11.2 Frontend-Integration & Logo-Rendering (`index.php`):**
+  - Dynamisches Ausspielen des Bild- bzw. Text-Logos im Desktop-Header und mobilen Header via `LogoRenderer`.
   - Saubere Einbindung im `<head>` als Favicon und App-Icon.
   - Automatisches Fallback auf den Projektnamen, falls kein Bild hochgeladen wurde.
-- [ ] **11.3 Vollständiges Mobile-Responsiveness-Audit (Alle Breakpoints):**
+- [x] **11.3 Vollständiges Mobile-Responsiveness-Audit (Alle Breakpoints):**
   - **Header & Navigation:**
-    - Hamburger-Button und Slide-In-Menü mit Touch-freundlichen Abständen (Mindesthöhe / Touch-Target >= 44x44px nach WCAG).
-    - Kein horizontales Scrollen / Layout-Brechen auf kleinen Displays (ab 360px Breite).
+    - Hamburger-Button und Slide-In-Menü mit Touch-freundlichen Abständen (Mindesthöhe / Touch-Target >= 44x44px nach WCAG 2.5.5 / 2.5.8).
+    - Kein horizontales Scrollen / Layout-Brechen auf kleinen Displays (ab 360px Breite via `overflow-x: clip` / `overflow-x: hidden`).
   - **Typografie & Formulare:**
     - Fließende Schriftgrößen via `clamp()`, lesbar ohne manuelles Zoomen.
     - Formulareingaben mit `font-size: 16px` auf mobilen Geräten (verhindert das automatische, störende Hineinzoomen auf iPhones/iOS Safari).
   - **Galerie & Lightbox auf Touch-Geräten:**
-    - Touch-/Swipe-Gestenunterstützung oder intuitive Schließen- und Weiter-Buttons in der Lightbox.
+    - Touch-/Swipe-Gestenunterstützung und WCAG-konforme 44x44px Schließen- und Weiter-Buttons in der Lightbox.
   - **Testmatrix:**
     - Smartphones (360px, 390px, 414px – iPhone SE, iPhone 14/15, Samsung Galaxy).
     - Tablets (768px, 820px, 1024px – iPad Portrait & Landscape).
-- [ ] **11.4 Prüfung & Abnahme:**
+- [x] **11.4 Prüfung & Abnahme:**
   - Eigenes SVG- und PNG-Logo hochladen, Größe anpassen und Responsiveness im Browser mit Device-Emulation überprüfen.
-  - Formulareingaben und Menübedienung auf Mobile-Viewports testen.
+  - Formulareingaben und Menübedienung auf Mobile-Viewports getestet.
+
 
 ---
 

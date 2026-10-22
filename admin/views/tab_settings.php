@@ -10,9 +10,10 @@
         <div id="tab-settings" class="admin-section card" style="padding: 2.5rem;">
             <h2 style="color: var(--primary); margin-bottom: 1.5rem;">🎨 Darstellung &amp; Design</h2>
             
-            <form method="POST" action="">
+            <form method="POST" action="" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="update_settings">
+                <input type="hidden" name="target_tab" value="tab-settings">
 
                 <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
                     <span class="material-icons" style="color:var(--primary);">view_quilt</span> Galerie-Layout &amp; Bilddarstellung
@@ -109,88 +110,278 @@
                     </label>
                 </div>
 
-                <!-- Website Logo Section -->
-                <h3 style="font-size: 1.25rem; margin-top: 1rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
-                    <span class="material-icons" style="color:var(--primary);">pets</span> Website-Logo (Hundetatze im Header)
-                </h3>
-                <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height:1.5;">
-                    Wähle das SVG-Motiv und die Farbe der Hundetatze, die oben im Header neben dem Seitentitel angezeigt wird.
-                </p>
-
+                <!-- Website Logo & Branding Section (Phase 11) -->
                 <?php 
+                    $cur_logo_type = LogoRenderer::getLogoType($data);
+                    $cur_logo_image = $data['settings']['logo_image'] ?? '';
+                    $cur_logo_max_height = max(24, min(120, (int)($data['settings']['logo_max_height'] ?? 44)));
+                    $cur_favicon = $data['settings']['favicon'] ?? '';
+                    $cur_logo_pos = $data['settings']['logo_position'] ?? 'header_before';
                     $cur_logo_motif = $data['settings']['hero_logo_motif'] ?? 'paw_simple';
                     $cur_logo_color = $data['settings']['hero_logo_color'] ?? '#b26c39';
+                    $site_title = $data['texts']['contact_name'] ?? 'Atelier Musterfrau';
                 ?>
+                <h3 style="font-size: 1.25rem; margin-top: 1rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons" style="color:var(--primary);">branding_watermark</span> Website-Logo, Branding &amp; Favicon
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height:1.5;">
+                    Gestalte die visuelle Identität deines Webauftritts. Wähle deinen bevorzugten Logo-Typ, lade ein eigenes Bild- oder SVG-Logo hoch, skaliere die Höhe stufenlos und hinterlege ein Favicon für Browser-Tabs und Smartphone-Homescreens.
+                </p>
 
-                <!-- Motif Selection Grid -->
+                <!-- 1. Logo-Typ Auswahl -->
+                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.5rem; display:block;">
+                    🏷️ Logo-Typ auswählen
+                </label>
                 <div class="layout-options-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom: 1.5rem;">
-                    <!-- Motif 1: Paw Simple -->
-                    <label class="layout-card <?php echo ($cur_logo_motif === 'paw_simple') ? 'selected' : ''; ?>" onclick="selectLogoMotif(this, 'paw_simple')">
-                        <input type="radio" name="hero_logo_motif" value="paw_simple" <?php echo ($cur_logo_motif === 'paw_simple') ? 'checked' : ''; ?>>
-                        <div style="display:flex; justify-content:center; align-items:center; padding: 10px 0;">
-                            <?php echo render_paw_logo('paw_simple', $cur_logo_color, 48); ?>
+                    <!-- Typ 1: Reines Text-Logo -->
+                    <label class="layout-card <?php echo ($cur_logo_type === 'text') ? 'selected' : ''; ?>" onclick="selectLogoType(this, 'text')">
+                        <input type="radio" name="logo_type" value="text" <?php echo ($cur_logo_type === 'text') ? 'checked' : ''; ?>>
+                        <div style="display:flex; justify-content:center; align-items:center; padding: 12px 0; font-size: 1.5rem; color: var(--primary);">
+                            <span class="material-icons" style="font-size: 32px;">title</span>
                         </div>
-                        <h4 style="margin:0; font-size:1.05rem; text-align:center; color:var(--text-primary);">Klassische Hundetatze</h4>
+                        <h4 style="margin:0; font-size:1.02rem; text-align:center; color:var(--text-primary);">Reines Text-Logo</h4>
                         <p style="color:var(--text-secondary); font-size:0.82rem; margin:0; text-align:center; line-height:1.3;">
-                            Klassischer Pfotenabdruck mit 4 einzeln positionierten Zehen.
+                            Klassische typografische Darstellung deines Namens/Ateliers ohne Grafik.
                         </p>
                     </label>
 
-                    <!-- Motif 2: Paw Branch (Naturzweig) -->
-                    <label class="layout-card <?php echo ($cur_logo_motif === 'paw_beach') ? 'selected' : ''; ?>" onclick="selectLogoMotif(this, 'paw_beach')">
-                        <input type="radio" name="hero_logo_motif" value="paw_beach" <?php echo ($cur_logo_motif === 'paw_beach') ? 'checked' : ''; ?>>
-                        <div style="display:flex; justify-content:center; align-items:center; padding: 10px 0;">
-                            <?php echo render_paw_logo('paw_beach', $cur_logo_color, 48); ?>
+                    <!-- Typ 2: Eigenes Bild- / SVG-Logo -->
+                    <label class="layout-card <?php echo ($cur_logo_type === 'image') ? 'selected' : ''; ?>" onclick="selectLogoType(this, 'image')">
+                        <input type="radio" name="logo_type" value="image" <?php echo ($cur_logo_type === 'image') ? 'checked' : ''; ?>>
+                        <div style="display:flex; justify-content:center; align-items:center; padding: 12px 0; font-size: 1.5rem; color: var(--primary);">
+                            <span class="material-icons" style="font-size: 32px;">image</span>
                         </div>
-                        <h4 style="margin:0; font-size:1.05rem; text-align:center; color:var(--text-primary);">Hundetatze &amp; Naturzweig</h4>
+                        <h4 style="margin:0; font-size:1.02rem; text-align:center; color:var(--text-primary);">Eigenes Bild-Logo</h4>
                         <p style="color:var(--text-secondary); font-size:0.82rem; margin:0; text-align:center; line-height:1.3;">
-                            Klassische Tatze mit einem dezenten, geschwungenen Naturzweig darunter.
+                            Vollständiges Firmen- oder Vereinslogo (SVG, PNG, WebP) als Header-Grafik.
                         </p>
                     </label>
 
-                    <!-- Motif 3: Paw Willow (Eleganter Weidenzweig) -->
-                    <label class="layout-card <?php echo ($cur_logo_motif === 'paw_willow') ? 'selected' : ''; ?>" onclick="selectLogoMotif(this, 'paw_willow')">
-                        <input type="radio" name="hero_logo_motif" value="paw_willow" <?php echo ($cur_logo_motif === 'paw_willow') ? 'checked' : ''; ?>>
-                        <div style="display:flex; justify-content:center; align-items:center; padding: 10px 0;">
-                            <?php echo render_paw_logo('paw_willow', $cur_logo_color, 48); ?>
+                    <!-- Typ 3: Icon + Text kombiniert -->
+                    <label class="layout-card <?php echo ($cur_logo_type === 'icon_text') ? 'selected' : ''; ?>" onclick="selectLogoType(this, 'icon_text')">
+                        <input type="radio" name="logo_type" value="icon_text" <?php echo ($cur_logo_type === 'icon_text') ? 'checked' : ''; ?>>
+                        <div style="display:flex; justify-content:center; align-items:center; padding: 12px 0; font-size: 1.5rem; color: var(--primary);">
+                            <span class="material-icons" style="font-size: 32px;">loyalty</span>
                         </div>
-                        <h4 style="margin:0; font-size:1.05rem; text-align:center; color:var(--text-primary);">Hundetatze &amp; Weidenzweig</h4>
+                        <h4 style="margin:0; font-size:1.02rem; text-align:center; color:var(--text-primary);">Icon &amp; Text kombiniert</h4>
                         <p style="color:var(--text-secondary); font-size:0.82rem; margin:0; text-align:center; line-height:1.3;">
-                            Tatze eingefasst von einem kunstvoll geschwungenen Weidenast mit Weidenblättern.
+                            Kompaktes Logo-Icon links neben deinem Firmen- oder Ateliernamen.
                         </p>
                     </label>
 
-                    <!-- Motif 4: None -->
-                    <label class="layout-card <?php echo ($cur_logo_motif === 'none') ? 'selected' : ''; ?>" onclick="selectLogoMotif(this, 'none')">
-                        <input type="radio" name="hero_logo_motif" value="none" <?php echo ($cur_logo_motif === 'none') ? 'checked' : ''; ?>>
-                        <div style="display:flex; justify-content:center; align-items:center; height: 50px; font-size:1.8rem; color:var(--text-secondary); opacity:0.5;">
-                            🚫
+                    <!-- Typ 4: SVG-Tatze -->
+                    <label class="layout-card <?php echo ($cur_logo_type === 'motif') ? 'selected' : ''; ?>" onclick="selectLogoType(this, 'motif')">
+                        <input type="radio" name="logo_type" value="motif" <?php echo ($cur_logo_type === 'motif') ? 'checked' : ''; ?>>
+                        <div style="display:flex; justify-content:center; align-items:center; padding: 12px 0; font-size: 1.5rem; color: var(--primary);">
+                            <span class="material-icons" style="font-size: 32px;">pets</span>
                         </div>
-                        <h4 style="margin:0; font-size:1.05rem; text-align:center; color:var(--text-primary);">Kein Logo</h4>
+                        <h4 style="margin:0; font-size:1.02rem; text-align:center; color:var(--text-primary);">SVG-Naturmotiv</h4>
                         <p style="color:var(--text-secondary); font-size:0.82rem; margin:0; text-align:center; line-height:1.3;">
-                            Nur Text im Header ohne Pfotengrafik anzeigen.
+                            WeaveCMS Hundetatzen- und Naturmotive mit anpassbarer Farbe.
                         </p>
                     </label>
                 </div>
 
-                <!-- Logo Position Section -->
-                <?php 
-                    $cur_logo_pos = $data['settings']['logo_position'] ?? 'header_before';
-                ?>
+                <!-- 2. Eigenes Logo Upload & Skalierung -->
+                <div id="logo-image-settings-box" style="display: <?php echo in_array($cur_logo_type, ['image', 'icon_text'], true) ? 'block' : 'none'; ?>; background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <h4 style="font-size: 1.05rem; margin-top: 0; margin-bottom: 0.5rem; color: var(--primary); display:flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size: 20px;">upload_file</span> Eigenes Logo hochladen &amp; skalieren
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.25rem;">
+                        Unterstützte Dateiformate: <strong>SVG</strong> (empfohlen für gestochenscharfe Vektoren), <strong>PNG</strong> (mit Transparenz), <strong>WebP</strong> oder <strong>JPG</strong>.
+                    </p>
+
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; align-items:start;">
+                        <!-- Upload & Slider -->
+                        <div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label style="font-weight:600; font-size:0.88rem; display:block; margin-bottom:6px;">Neue Logo-Datei auswählen:</label>
+                                <input type="file" name="logo_file" id="logo_file_input" accept=".svg,.png,.webp,.jpg,.jpeg,.gif" class="form-control" onchange="previewLogoFile(this)" style="background:#fff; padding:8px 12px;">
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <label style="font-weight:600; font-size:0.88rem; margin:0;">Maximale Logo-Höhe im Header:</label>
+                                    <span id="logo_height_display" style="font-family:monospace; font-weight:700; color:var(--primary); font-size:0.95rem;"><?php echo $cur_logo_max_height; ?> px</span>
+                                </div>
+                                <input type="range" name="logo_max_height" id="logo_max_height_range" min="24" max="100" value="<?php echo $cur_logo_max_height; ?>" class="form-control" oninput="updateLogoMaxHeight(this.value)" style="padding:0; height:auto; cursor:pointer;">
+                                <small style="color:var(--text-secondary); font-size:0.8rem; display:block; margin-top:4px;">Die Breite skaliert automatisch proportional mit, sodass dein Logo niemals verzerrt wird.</small>
+                            </div>
+
+                            <?php if (!empty($cur_logo_image)): ?>
+                                <div style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2); border-radius:10px; padding:10px 14px; margin-top:1rem;">
+                                    <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; color:#ef4444; font-weight:600; font-size:0.88rem; margin:0;">
+                                        <input type="checkbox" name="delete_logo" value="1">
+                                        <span>Aktuelles Logo entfernen / löschen</span>
+                                    </label>
+                                    <small style="display:block; color:var(--text-secondary); font-size:0.78rem; margin-top:3px; margin-left:24px;">Pfad: <?php echo htmlspecialchars($cur_logo_image); ?></small>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Live-Vorschau Hell & Dunkel -->
+                        <div>
+                            <label style="font-weight:600; font-size:0.88rem; display:block; margin-bottom:8px;">Live-Vorschau (Hell- &amp; Dunkelmodus):</label>
+                            
+                            <!-- Helle Box -->
+                            <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:12px; padding:14px 18px; margin-bottom:10px; display:flex; align-items:center; gap:12px; min-height:70px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                                <div id="preview-logo-container-light" style="display:flex; align-items:center; gap:10px;">
+                                    <?php if (!empty($cur_logo_image)): ?>
+                                        <img src="<?php echo htmlspecialchars($cur_logo_image); ?>" id="preview-logo-img-light" alt="Logo" style="max-height:<?php echo $cur_logo_max_height; ?>px; width:auto; object-fit:contain;">
+                                    <?php else: ?>
+                                        <div id="preview-logo-placeholder-light" style="width:40px; height:40px; background:rgba(0,0,0,0.05); border:1px dashed var(--border-color); border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); font-size:1.2rem;">🖼️</div>
+                                    <?php endif; ?>
+                                    <span id="preview-logo-text-light" style="font-weight:700; font-size:1.1rem; color:#3c342e; display:<?php echo ($cur_logo_type === 'image') ? 'none' : 'inline'; ?>;"><?php echo htmlspecialchars($site_title); ?></span>
+                                </div>
+                                <span style="margin-left:auto; font-size:0.75rem; color:#64748b; font-weight:600; text-transform:uppercase;">Hell</span>
+                            </div>
+
+                            <!-- Dunkle Box -->
+                            <div style="background:#161311; border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:14px 18px; display:flex; align-items:center; gap:12px; min-height:70px; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                                <div id="preview-logo-container-dark" style="display:flex; align-items:center; gap:10px;">
+                                    <?php if (!empty($cur_logo_image)): ?>
+                                        <img src="<?php echo htmlspecialchars($cur_logo_image); ?>" id="preview-logo-img-dark" alt="Logo" style="max-height:<?php echo $cur_logo_max_height; ?>px; width:auto; object-fit:contain;">
+                                    <?php else: ?>
+                                        <div id="preview-logo-placeholder-dark" style="width:40px; height:40px; background:rgba(255,255,255,0.1); border:1px dashed rgba(255,255,255,0.2); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#beb1a6; font-size:1.2rem;">🖼️</div>
+                                    <?php endif; ?>
+                                    <span id="preview-logo-text-dark" style="font-weight:700; font-size:1.1rem; color:#f5eee8; display:<?php echo ($cur_logo_type === 'image') ? 'none' : 'inline'; ?>;"><?php echo htmlspecialchars($site_title); ?></span>
+                                </div>
+                                <span style="margin-left:auto; font-size:0.75rem; color:#94a3b8; font-weight:600; text-transform:uppercase;">Dunkel</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Favicon-Verwaltung -->
+                <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <h4 style="font-size: 1.05rem; margin-top: 0; margin-bottom: 0.5rem; color: var(--primary); display:flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size: 20px;">tab</span> Favicon &amp; App-Icon (Browser-Reiter)
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.25rem;">
+                        Das Favicon erscheint im Browser-Tab, in Lesezeichen und als Touch-Icon auf Mobilgeräten. Unterstützt werden <strong>.ico</strong>, <strong>.svg</strong> oder <strong>.png</strong>.
+                    </p>
+
+                    <div style="display:flex; align-items:center; gap:2rem; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:260px;">
+                            <input type="file" name="favicon_file" accept=".ico,.svg,.png" class="form-control" style="background:#fff; padding:8px 12px;">
+                            <?php if (!empty($cur_favicon)): ?>
+                                <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; color:#ef4444; font-weight:600; font-size:0.85rem; margin-top:10px;">
+                                    <input type="checkbox" name="delete_favicon" value="1">
+                                    <span>Favicon entfernen / zurücksetzen</span>
+                                </label>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Browser Tab Mockup -->
+                        <div style="background:#e2e8f0; border-radius:12px 12px 0 0; padding:8px 12px 0 12px; display:inline-flex; align-items:flex-end;">
+                            <div style="background:#ffffff; border-radius:8px 8px 0 0; padding:7px 16px; display:flex; align-items:center; gap:8px; box-shadow:0 -1px 3px rgba(0,0,0,0.05);">
+                                <?php if (!empty($cur_favicon)): ?>
+                                    <img src="<?php echo htmlspecialchars($cur_favicon); ?>" alt="Favicon" style="width:16px; height:16px; object-fit:contain;">
+                                <?php else: ?>
+                                    <span style="font-size:14px; line-height:1;">🌿</span>
+                                <?php endif; ?>
+                                <span style="font-size:0.82rem; font-weight:600; color:#1e293b; max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><?php echo htmlspecialchars($site_title); ?></span>
+                                <span class="material-icons" style="font-size:14px; color:#94a3b8; margin-left:4px;">close</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. SVG-Tatze & Farb-Einstellungen (nur bei Motif aktiv) -->
+                <div id="logo-motif-settings-box" style="display: <?php echo ($cur_logo_type === 'motif') ? 'block' : 'none'; ?>; background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <h4 style="font-size: 1.05rem; margin-top: 0; margin-bottom: 0.5rem; color: var(--primary); display:flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size: 20px;">pets</span> SVG-Hundetatzen-Motiv auswählen
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.25rem;">
+                        Wähle das passende SVG-Naturmotiv für deine Website:
+                    </p>
+
+                    <!-- Motif Selection Grid -->
+                    <div class="layout-options-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 1.5rem;">
+                        <!-- Motif 1: Paw Simple -->
+                        <label class="layout-card <?php echo ($cur_logo_motif === 'paw_simple') ? 'selected' : ''; ?>" onclick="selectLogoMotif(this, 'paw_simple')">
+                            <input type="radio" name="hero_logo_motif" value="paw_simple" <?php echo ($cur_logo_motif === 'paw_simple') ? 'checked' : ''; ?>>
+                            <div style="display:flex; justify-content:center; align-items:center; padding: 10px 0;">
+                                <?php echo render_paw_logo('paw_simple', $cur_logo_color, 44); ?>
+                            </div>
+                            <h4 style="margin:0; font-size:0.95rem; text-align:center; color:var(--text-primary);">Klassische Hundetatze</h4>
+                            <p style="color:var(--text-secondary); font-size:0.8rem; margin:0; text-align:center; line-height:1.3;">
+                                Klassischer Pfotenabdruck mit 4 Zehen.
+                            </p>
+                        </label>
+
+                        <!-- Motif 2: Paw Branch (Naturzweig) -->
+                        <label class="layout-card <?php echo ($cur_logo_motif === 'paw_beach') ? 'selected' : ''; ?>" onclick="selectLogoMotif(this, 'paw_beach')">
+                            <input type="radio" name="hero_logo_motif" value="paw_beach" <?php echo ($cur_logo_motif === 'paw_beach') ? 'checked' : ''; ?>>
+                            <div style="display:flex; justify-content:center; align-items:center; padding: 10px 0;">
+                                <?php echo render_paw_logo('paw_beach', $cur_logo_color, 44); ?>
+                            </div>
+                            <h4 style="margin:0; font-size:0.95rem; text-align:center; color:var(--text-primary);">Tatze &amp; Naturzweig</h4>
+                            <p style="color:var(--text-secondary); font-size:0.8rem; margin:0; text-align:center; line-height:1.3;">
+                                Dezenter, geschwungener Zweig darunter.
+                            </p>
+                        </label>
+
+                        <!-- Motif 3: Paw Willow (Eleganter Weidenzweig) -->
+                        <label class="layout-card <?php echo ($cur_logo_motif === 'paw_willow') ? 'selected' : ''; ?>" onclick="selectLogoMotif(this, 'paw_willow')">
+                            <input type="radio" name="hero_logo_motif" value="paw_willow" <?php echo ($cur_logo_motif === 'paw_willow') ? 'checked' : ''; ?>>
+                            <div style="display:flex; justify-content:center; align-items:center; padding: 10px 0;">
+                                <?php echo render_paw_logo('paw_willow', $cur_logo_color, 44); ?>
+                            </div>
+                            <h4 style="margin:0; font-size:0.95rem; text-align:center; color:var(--text-primary);">Tatze &amp; Weidenast</h4>
+                            <p style="color:var(--text-secondary); font-size:0.8rem; margin:0; text-align:center; line-height:1.3;">
+                                Kunstvoller Weidenast mit Blättern.
+                            </p>
+                        </label>
+
+                        <!-- Motif 4: None -->
+                        <label class="layout-card <?php echo ($cur_logo_motif === 'none') ? 'selected' : ''; ?>" onclick="selectLogoMotif(this, 'none')">
+                            <input type="radio" name="hero_logo_motif" value="none" <?php echo ($cur_logo_motif === 'none') ? 'checked' : ''; ?>>
+                            <div style="display:flex; justify-content:center; align-items:center; height: 44px; font-size:1.6rem; color:var(--text-secondary); opacity:0.5;">
+                                🚫
+                            </div>
+                            <h4 style="margin:0; font-size:0.95rem; text-align:center; color:var(--text-primary);">Kein Motiv</h4>
+                            <p style="color:var(--text-secondary); font-size:0.8rem; margin:0; text-align:center; line-height:1.3;">
+                                Kein SVG-Motiv verwenden.
+                            </p>
+                        </label>
+                    </div>
+
+                    <!-- Color Selection & Chips -->
+                    <div style="background:#fff; border:1px solid var(--border-color); border-radius:10px; padding:1rem;">
+                        <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.5rem; display:block; font-size:0.88rem;">
+                            🎨 Farbe des SVG-Motivs
+                        </label>
+                        <div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <input type="color" id="hero_logo_color" name="hero_logo_color" value="<?php echo htmlspecialchars($cur_logo_color); ?>" oninput="updateLogoColor(this.value)" style="width:40px; height:40px; border:1px solid var(--border-color); border-radius:8px; cursor:pointer; background:transparent;">
+                                <span id="color_code_display" style="font-family:monospace; font-size:0.9rem; font-weight:600; color:var(--text-primary);"><?php echo htmlspecialchars($cur_logo_color); ?></span>
+                            </div>
+                            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem; border-color:rgba(178,108,57,0.3); color:#b26c39; font-weight:600;" onclick="setColorPreset('#b26c39')">🌿 Weiden-Braun</button>
+                                <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem; border-color:rgba(46,98,72,0.3); color:#2e6248; font-weight:600;" onclick="setColorPreset('#2e6248')">🌲 Wald-Grün</button>
+                                <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem; border-color:rgba(217,119,6,0.3); color:#d97706; font-weight:600;" onclick="setColorPreset('#d97706')">☀️ Bernstein</button>
+                                <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem; border-color:rgba(60,52,46,0.3); color:#3c342e; font-weight:600;" onclick="setColorPreset('#3c342e')">☕ Anthrazit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Logo Position Section -->
                 <label style="font-weight:700; color:var(--text-primary); margin-top:1.5rem; margin-bottom:0.5rem; display:block;">
-                    📍 Position des Logos
+                    📍 Position des Logos / Icons
                 </label>
                 <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem; line-height:1.4;">
-                    Bestimme, wo das Logo platziert werden soll. Die Größe passt sich automatisch mittig an die Schrifthöhe daneben an.
+                    Bestimme, wo das Logo bzw. das Icon platziert werden soll:
                 </p>
-                <div class="layout-options-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom: 2rem;">
+                <div class="layout-options-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom: 2.5rem;">
                     <!-- Pos 1: Header Before -->
                     <label class="layout-card <?php echo ($cur_logo_pos === 'header_before') ? 'selected' : ''; ?>" onclick="selectLogoPosition(this, 'header_before')">
                         <input type="radio" name="logo_position" value="header_before" <?php echo ($cur_logo_pos === 'header_before') ? 'checked' : ''; ?>>
                         <div style="display:flex; justify-content:center; align-items:center; gap:8px; font-weight:800; font-size:1.1rem; color:var(--text-primary); padding:10px 0;">
-                            <?php echo render_paw_logo($cur_logo_motif, $cur_logo_color, '1.2em'); ?> <span>Titel</span>
+                            <span class="material-icons" style="font-size:18px; color:var(--primary);">arrow_left</span> <span>Header: Links vor Titel</span>
                         </div>
-                        <h4 style="margin:0; font-size:0.98rem; text-align:center; color:var(--text-primary);">Header: Vor Seitentitel</h4>
+                        <h4 style="margin:0; font-size:0.95rem; text-align:center; color:var(--text-primary);">Header: Vor Seitentitel</h4>
                         <p style="color:var(--text-secondary); font-size:0.8rem; margin:0; text-align:center; line-height:1.3;">
                             Klassisch links vor dem Website-Namen in der Kopfzeile.
                         </p>
@@ -200,9 +391,9 @@
                     <label class="layout-card <?php echo ($cur_logo_pos === 'header_after') ? 'selected' : ''; ?>" onclick="selectLogoPosition(this, 'header_after')">
                         <input type="radio" name="logo_position" value="header_after" <?php echo ($cur_logo_pos === 'header_after') ? 'checked' : ''; ?>>
                         <div style="display:flex; justify-content:center; align-items:center; gap:8px; font-weight:800; font-size:1.1rem; color:var(--text-primary); padding:10px 0;">
-                            <span>Titel</span> <?php echo render_paw_logo($cur_logo_motif, $cur_logo_color, '1.2em'); ?>
+                            <span>Header: Rechts nach Titel</span> <span class="material-icons" style="font-size:18px; color:var(--primary);">arrow_right</span>
                         </div>
-                        <h4 style="margin:0; font-size:0.98rem; text-align:center; color:var(--text-primary);">Header: Nach Seitentitel</h4>
+                        <h4 style="margin:0; font-size:0.95rem; text-align:center; color:var(--text-primary);">Header: Nach Seitentitel</h4>
                         <p style="color:var(--text-secondary); font-size:0.8rem; margin:0; text-align:center; line-height:1.3;">
                             Rechts direkt hinter dem Website-Namen in der Kopfzeile.
                         </p>
@@ -212,11 +403,11 @@
                     <label class="layout-card <?php echo ($cur_logo_pos === 'hero_before') ? 'selected' : ''; ?>" onclick="selectLogoPosition(this, 'hero_before')">
                         <input type="radio" name="logo_position" value="hero_before" <?php echo ($cur_logo_pos === 'hero_before') ? 'checked' : ''; ?>>
                         <div style="display:flex; justify-content:center; align-items:center; gap:8px; font-weight:700; font-size:1.05rem; color:var(--text-primary); padding:10px 0;">
-                            <?php echo render_paw_logo($cur_logo_motif, $cur_logo_color, '1.15em'); ?> <span>Hero-Zeile</span>
+                            <span class="material-icons" style="font-size:18px; color:var(--accent);">flag</span> <span>Hero: Vor Hauptüberschrift</span>
                         </div>
-                        <h4 style="margin:0; font-size:0.98rem; text-align:center; color:var(--text-primary);">Hero: Vor dem Titel</h4>
+                        <h4 style="margin:0; font-size:0.95rem; text-align:center; color:var(--text-primary);">Hero: Vor dem Titel</h4>
                         <p style="color:var(--text-secondary); font-size:0.8rem; margin:0; text-align:center; line-height:1.3;">
-                            In der gleichen Zeile zentriert links vor der Hauptüberschrift.
+                            Zentriert vor der großen Hauptüberschrift auf der Startseite.
                         </p>
                     </label>
 
@@ -224,32 +415,13 @@
                     <label class="layout-card <?php echo ($cur_logo_pos === 'hero_after') ? 'selected' : ''; ?>" onclick="selectLogoPosition(this, 'hero_after')">
                         <input type="radio" name="logo_position" value="hero_after" <?php echo ($cur_logo_pos === 'hero_after') ? 'checked' : ''; ?>>
                         <div style="display:flex; justify-content:center; align-items:center; gap:8px; font-weight:700; font-size:1.05rem; color:var(--text-primary); padding:10px 0;">
-                            <span>Hero-Zeile</span> <?php echo render_paw_logo($cur_logo_motif, $cur_logo_color, '1.15em'); ?>
+                            <span>Hero: Nach Hauptüberschrift</span> <span class="material-icons" style="font-size:18px; color:var(--accent);">flag</span>
                         </div>
-                        <h4 style="margin:0; font-size:0.98rem; text-align:center; color:var(--text-primary);">Hero: Nach dem Titel</h4>
+                        <h4 style="margin:0; font-size:0.95rem; text-align:center; color:var(--text-primary);">Hero: Nach dem Titel</h4>
                         <p style="color:var(--text-secondary); font-size:0.8rem; margin:0; text-align:center; line-height:1.3;">
-                            In der gleichen Zeile zentriert rechts hinter der Hauptüberschrift.
+                            Zentriert direkt hinter der großen Hauptüberschrift.
                         </p>
                     </label>
-                </div>
-
-                <!-- Color Selection & Chips -->
-                <div class="form-group" style="background:rgba(0,0,0,0.02); border:1px solid var(--border-color); border-radius:12px; padding:1.25rem; margin-bottom:2.5rem;">
-                    <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.75rem; display:block;">
-                        🎨 Farbe der Hundetatze
-                    </label>
-                    <div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap;">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <input type="color" id="hero_logo_color" name="hero_logo_color" value="<?php echo htmlspecialchars($cur_logo_color); ?>" oninput="updateLogoColor(this.value)" style="width:44px; height:44px; border:1px solid var(--border-color); border-radius:10px; cursor:pointer; background:transparent;">
-                            <span id="color_code_display" style="font-family:monospace; font-size:0.95rem; font-weight:600; color:var(--text-primary);"><?php echo htmlspecialchars($cur_logo_color); ?></span>
-                        </div>
-                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                            <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:0.82rem; border-color:rgba(178,108,57,0.3); color:#b26c39; font-weight:600;" onclick="setColorPreset('#b26c39')">🌿 Weiden-Braun (#b26c39)</button>
-                            <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:0.82rem; border-color:rgba(46,98,72,0.3); color:#2e6248; font-weight:600;" onclick="setColorPreset('#2e6248')">🌲 Wald-Grün (#2e6248)</button>
-                            <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:0.82rem; border-color:rgba(217,119,6,0.3); color:#d97706; font-weight:600;" onclick="setColorPreset('#d97706')">☀️ Bernstein (#d97706)</button>
-                            <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:0.82rem; border-color:rgba(60,52,46,0.3); color:#3c342e; font-weight:600;" onclick="setColorPreset('#3c342e')">☕ Anthrazit (#3c342e)</button>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- ==========================================================

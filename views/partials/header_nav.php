@@ -36,7 +36,7 @@
     ?>
     <header class="header-nav">
         <div class="header-container">
-            <a href="<?php echo $logo_href; ?>" class="logo"><?php if ($logo_pos === 'header_before'): echo $header_logo_html; endif; ?><span><?php echo htmlspecialchars($data['texts']['contact_name'] ?? 'Atelier Musterfrau'); ?></span><?php if ($logo_pos === 'header_after'): echo $header_logo_html; endif; ?></a>
+            <?php echo LogoRenderer::renderLogoLink($data, $logo_href); ?>
             <nav class="nav-links">
                 <?php foreach ($nav_items as $item): ?>
                     <?php 

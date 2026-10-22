@@ -421,6 +421,97 @@ function updateCaptchaSelection(changedCheckbox) {
 }
 
 /**
+ * Schaltet den Logo-Typ im Design-Tab um (text, image, icon_text, motif).
+ * @param {HTMLElement} cardEl 
+ * @param {string} typeVal 
+ */
+function selectLogoType(cardEl, typeVal) {
+    if (!cardEl) return;
+    const container = cardEl.closest('.layout-selector');
+    if (container) {
+        container.querySelectorAll('.layout-card').forEach(c => c.classList.remove('selected'));
+        cardEl.classList.add('selected');
+    }
+    const radio = cardEl.querySelector('input[type="radio"]');
+    if (radio) {
+        radio.checked = true;
+    }
+
+    const imgBox = document.getElementById('logo-image-settings-box');
+    if (imgBox) {
+        imgBox.style.display = (typeVal === 'image' || typeVal === 'icon_text') ? 'block' : 'none';
+    }
+
+    const motifBox = document.getElementById('logo-motif-settings-box');
+    if (motifBox) {
+        motifBox.style.display = (typeVal === 'motif') ? 'block' : 'none';
+    }
+
+    const textLight = document.getElementById('preview-logo-text-light');
+    const textDark = document.getElementById('preview-logo-text-dark');
+    if (textLight) textLight.style.display = (typeVal === 'image') ? 'none' : 'inline';
+    if (textDark) textDark.style.display = (typeVal === 'image') ? 'none' : 'inline';
+}
+
+/**
+ * Aktualisiert die Anzeige und Live-Vorschau der Logo-Höhe.
+ * @param {number|string} val 
+ */
+function updateLogoMaxHeight(val) {
+    const disp = document.getElementById('logo_height_display');
+    if (disp) disp.textContent = val + ' px';
+
+    const lightImg = document.getElementById('preview-logo-img-light');
+    if (lightImg) lightImg.style.maxHeight = val + 'px';
+
+    const darkImg = document.getElementById('preview-logo-img-dark');
+    if (darkImg) darkImg.style.maxHeight = val + 'px';
+}
+
+/**
+ * Erzeugt eine sofortige Live-Vorschau für hochgeladene Logo-Dateien im Browser.
+ * @param {HTMLInputElement} input 
+ */
+function previewLogoFile(input) {
+    if (!input || !input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const hRange = document.getElementById('logo_max_height_range');
+        const hVal = hRange ? hRange.value : 44;
+        
+        ['light', 'dark'].forEach(theme => {
+            const container = document.getElementById('preview-logo-container-' + theme);
+            if (!container) return;
+
+            let img = document.getElementById('preview-logo-img-' + theme);
+            const placeholder = document.getElementById('preview-logo-placeholder-' + theme);
+
+            if (!img) {
+                img = document.createElement('img');
+                img.id = 'preview-logo-img-' + theme;
+                img.alt = 'Logo';
+                img.style.objectFit = 'contain';
+                img.style.width = 'auto';
+                if (placeholder) {
+                    placeholder.replaceWith(img);
+                } else {
+                    container.insertBefore(img, container.firstChild);
+                }
+            } else if (placeholder) {
+                placeholder.remove();
+            }
+
+            img.src = e.target.result;
+            img.style.maxHeight = hVal + 'px';
+        });
+    };
+
+    reader.readAsDataURL(file);
+}
+
+/**
  * Initialisiert den Admin-Bereich beim Laden (liest Hash aus der URL).
  */
 function initAdminListeners() {
