@@ -37,7 +37,18 @@ if (!empty($path) && !empty($tree)) {
         $treeUrl .= '?token=' . rawurlencode($token);
     }
 }
+$isSection = !empty($params['is_section']);
 ?>
+
+<?php if ($isSection): ?>
+<section id="webtrees" class="section section-webtrees" style="margin-bottom: 5rem; scroll-margin-top: 100px;">
+    <h2 style="margin-bottom: 1rem; text-align: center; color: var(--accent);"><?php echo htmlspecialchars($title); ?></h2>
+    <?php if (!empty($subtitle)): ?>
+        <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 3rem auto;">
+            <?php echo htmlspecialchars($subtitle); ?>
+        </p>
+    <?php endif; ?>
+<?php endif; ?>
 
 <div class="webtrees-embed-wrapper" style="margin: 2.5rem 0;">
     <?php if (empty($path)): ?>
@@ -111,3 +122,7 @@ if (!empty($path) && !empty($tree)) {
         </div>
     <?php endif; ?>
 </div>
+
+<?php if ($isSection): ?>
+</section>
+<?php endif; ?>
