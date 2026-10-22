@@ -228,8 +228,11 @@ class Installer {
         if (empty($contact_email) || !filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
             return ['success' => false, 'error' => 'Bitte gib eine gültige E-Mail-Adresse für Kontaktanfragen ein.'];
         }
-        if (empty($admin_user)) {
-            $admin_user = 'admin';
+        if (empty($admin_user) || strlen($admin_user) < 3) {
+            return ['success' => false, 'error' => 'Der Administrator-Benutzername muss mindestens 3 Zeichen lang sein.'];
+        }
+        if (!preg_match('/^[a-zA-Z0-9_\-\.]{3,32}$/', $admin_user)) {
+            return ['success' => false, 'error' => 'Der Administrator-Benutzername darf nur aus 3 bis 32 Buchstaben, Ziffern, Punkten, Unter- oder Bindestrichen bestehen.'];
         }
         if (strlen($admin_pass) < 8) {
             return ['success' => false, 'error' => 'Das Administrator-Passwort muss mindestens 8 Zeichen lang sein.'];
@@ -285,8 +288,8 @@ class Installer {
         }
 
         // Hashes erzeugen
-        $password_hash = password_hash($admin_pass, PASSWORD_BCRYPT);
-        $pin_hash = password_hash($admin_pin, PASSWORD_BCRYPT);
+        $password_hash = password_hash($admin_pass, PASSWORD_DEFAULT);
+        $pin_hash = password_hash($admin_pin, PASSWORD_DEFAULT);
 
         // Einstellungen konfigurieren
         $base_data['settings']['upload_dir'] = 'images/uploads';
@@ -298,6 +301,22 @@ class Installer {
         $base_data['settings']['accent_color'] = $chosen_colors['accent'];
         $base_data['settings']['bg_color'] = $chosen_colors['bg'];
         $base_data['settings']['welcome_shown'] = false; // Schritt 5: Willkommens-Modal triggern
+
+        // Phase 10: Initialen Administrator-Benutzer mit höchster Berechtigungsstufe (Superadmin / ROLE_ADMIN) anlegen
+        require_once __DIR__ . '/UserManager.php';
+        $base_data['users'] = [
+            [
+                'id'            => 'usr_superadmin',
+                'username'      => $admin_user,
+                'email'         => $contact_email,
+                'password_hash' => $password_hash,
+                'pin_hash'      => $pin_hash,
+                'role'          => UserManager::ROLE_ADMIN,
+                'active'        => true,
+                'created_at'    => date('Y-m-d H:i:s'),
+                'last_login'    => date('Y-m-d H:i:s')
+            ]
+        ];
 
         // Mehrsprachigkeit (Phase 8): Primärsprache & aktive Sprachen
         require_once __DIR__ . '/LanguageManager.php';
@@ -435,13 +454,27 @@ class Installer {
             return ['success' => false, 'error' => 'Konnte installed.lock nicht erstellen.'];
         }
 
-        // Admin-Session initialisieren
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+        // Admin-Session initialisieren mit höchster Berechtigungsstufe (Superadmin)
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            @session_start();
         }
         $_SESSION['admin_logged_in'] = true;
+        $_SESSION['admin_user_id'] = 'usr_superadmin';
+        $_SESSION['admin_username'] = $admin_user;
+        $_SESSION['admin_role'] = UserManager::ROLE_ADMIN;
+
         $auth_hash = md5($password_hash . ':' . $pin_hash);
-        setcookie('admin_auth', $auth_hash, time() + 86400 * 30, '/');
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443);
+        if (!headers_sent()) {
+            setcookie('admin_auth', $auth_hash, [
+                'expires'  => time() + 86400 * 30,
+                'path'     => '/',
+                'domain'   => '',
+                'secure'   => $isHttps,
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
+        }
 
         return ['success' => true, 'site_name' => $site_name];
     }

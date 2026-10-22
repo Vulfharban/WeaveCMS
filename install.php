@@ -1001,15 +1001,16 @@ if (!$is_locked && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_ins
                      ═══════════════════════════════════════════════════════ -->
                 <div class="step-pane" id="step-pane-4">
                     <h2 class="form-section-title">
-                        <span class="material-icons" style="color: #34d399;">lock</span> Administrator-Zugangsdaten
+                        <span class="material-icons" style="color: #34d399;">admin_panel_settings</span> Administrator-Zugangsdaten (Superadmin)
                     </h2>
                     <p class="form-section-desc">
-                        WeaveCMS nutzt ein sicheres Zweistufen-System: Ein starkes Passwort für den Login und eine PIN für sensible Aktionen (z. B. Backup-Restore).
+                        Der hier angelegte Benutzer erhält immer die höchste Berechtigungsstufe (Administrator) mit unbeschränktem Vollzugriff auf alle Bereiche (Dashboard, Benutzerverwaltung, Inhalte, Design, Sicherheit &amp; Backups).
                     </p>
 
                     <div class="form-group">
                         <label for="admin_user">Administrator-Benutzername *</label>
-                        <input type="text" id="admin_user" name="admin_user" class="form-control" value="admin" required>
+                        <input type="text" id="admin_user" name="admin_user" class="form-control" value="admin" placeholder="z. B. admin oder dein Wunschname" required>
+                        <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:4px;">Mindestens 3 Zeichen. Erhält automatisch die höchste Berechtigungsstufe (Administrator).</div>
                     </div>
 
                     <div class="grid-2">
@@ -1232,11 +1233,22 @@ function validateStep3(silent = false) {
 }
 
 function validateStep4(silent = false) {
+    const user = document.getElementById('admin_user').value.trim();
     const pass = document.getElementById('admin_pass').value;
     const passConf = document.getElementById('admin_pass_confirm').value;
     const pin = document.getElementById('admin_pin').value.trim();
     const pinConf = document.getElementById('admin_pin_confirm').value.trim();
 
+    if (user.length < 3) {
+        if (!silent) alert('Der Administrator-Benutzername muss mindestens 3 Zeichen lang sein.');
+        document.getElementById('admin_user').focus();
+        return false;
+    }
+    if (!/^[a-zA-Z0-9_\-\.]{3,32}$/.test(user)) {
+        if (!silent) alert('Der Benutzername darf nur aus 3 bis 32 Buchstaben, Ziffern, Punkten, Unter- oder Bindestrichen bestehen.');
+        document.getElementById('admin_user').focus();
+        return false;
+    }
     if (pass.length < 8) {
         if (!silent) alert('Das Administrator-Passwort muss mindestens 8 Zeichen lang sein.');
         document.getElementById('admin_pass').focus();
