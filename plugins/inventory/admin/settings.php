@@ -569,6 +569,7 @@ $locations = $config['locations'] ?? ['Hauptlager A', 'Regal B-01', 'Regal B-02'
 
             <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid var(--border-color);">
                 <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">
+                    <input type="hidden" name="active" value="0">
                     <input type="checkbox" name="active" id="inv-form-active" value="1" checked>
                     <span>Im Online-Shop anbieten</span>
                 </label>

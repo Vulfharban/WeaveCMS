@@ -120,7 +120,7 @@ class InventoryManager {
         $item['barcode']      = trim($data['barcode'] ?? ($item['barcode'] ?? ''));
         $item['unlimited']    = !empty($data['unlimited']);
         $item['image']        = trim($data['image'] ?? ($item['image'] ?? ''));
-        $item['active']       = !isset($data['active']) || !empty($data['active']);
+        $item['active']       = $isNew ? (!isset($data['active']) || !empty($data['active'])) : !empty($data['active']);
         $item['updated_at']   = date('Y-m-d H:i:s');
 
         // Bestandshistorie protokollieren, falls sich der Bestand geändert hat
