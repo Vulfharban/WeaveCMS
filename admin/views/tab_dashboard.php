@@ -114,10 +114,10 @@
                     <span class="material-icons" style="font-size:18px; color:var(--primary);">bolt</span> Schnellzugriffe &amp; Aktionen
                 </h4>
                 <div style="display:flex; flex-wrap:wrap; gap:10px;">
-                    <button type="button" class="btn btn-outline" style="padding:7px 14px; font-size:0.86rem; display:inline-flex; align-items:center; gap:6px;" onclick="switchTab('tab-content', 'tab-blog')">
+                    <button type="button" class="btn btn-outline" style="padding:7px 14px; font-size:0.86rem; display:inline-flex; align-items:center; gap:6px;" onclick="switchTab('tab-blog')">
                         <span class="material-icons" style="font-size:17px; color:var(--primary);">article</span> Neuer Blogartikel
                     </button>
-                    <button type="button" class="btn btn-outline" style="padding:7px 14px; font-size:0.86rem; display:inline-flex; align-items:center; gap:6px;" onclick="switchTab('tab-content', 'tab-gallery')">
+                    <button type="button" class="btn btn-outline" style="padding:7px 14px; font-size:0.86rem; display:inline-flex; align-items:center; gap:6px;" onclick="switchTab('tab-gallery')">
                         <span class="material-icons" style="font-size:17px; color:var(--primary);">add_photo_alternate</span> Bild hochladen
                     </button>
                     <?php if ($cur_user['role'] === UserManager::ROLE_ADMIN): ?>

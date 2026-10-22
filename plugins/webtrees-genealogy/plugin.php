@@ -64,8 +64,11 @@ PluginManager::addAction('frontend_render_custom_section', function($sectionKey,
 
 // 4. Validierung der Konfigurationsdaten vor dem Speichern
 PluginManager::addFilter('plugin_validate_config_webtrees-genealogy', function($submitted, $data) {
-    $cleaned = [];
-    $cleaned['webtrees_url'] = filter_var(trim($submitted['webtrees_url'] ?? ''), FILTER_VALIDATE_URL) ? trim($submitted['webtrees_url']) : '';
+    $rawUrl = trim($submitted['webtrees_url'] ?? '');
+    if (!empty($rawUrl) && !preg_match('~^https?://~i', $rawUrl)) {
+        $rawUrl = 'https://' . $rawUrl;
+    }
+    $cleaned['webtrees_url'] = filter_var($rawUrl, FILTER_VALIDATE_URL) ? $rawUrl : '';
     $cleaned['tree_id'] = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', trim($submitted['tree_id'] ?? 'tree1'));
     $cleaned['embed_mode'] = in_array($submitted['embed_mode'] ?? '', ['interactive_iframe', 'family_preview']) ? $submitted['embed_mode'] : 'interactive_iframe';
     $cleaned['default_person'] = trim($submitted['default_person'] ?? '');
