@@ -112,6 +112,7 @@ $localExists = (!empty($docRoot) && (is_dir($testFsPath) || file_exists($testFsP
         <!-- Sektions-Steuerung für die Startseite -->
         <div style="background: rgba(46,98,72,0.05); border: 1px solid rgba(46,98,72,0.2); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
             <label style="display:flex; align-items:center; gap: 10px; cursor:pointer; font-weight: 600; font-size: 0.95rem; margin-bottom: 1rem;">
+                <input type="hidden" name="section_enabled" value="0">
                 <input type="checkbox" name="section_enabled" value="1" <?php echo $section_enabled ? 'checked' : ''; ?> style="width: 18px; height: 18px; accent-color: var(--primary);">
                 <span>🌿 Eigenständige Stammbaum-Sektion auf der Startseite aktivieren</span>
             </label>

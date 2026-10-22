@@ -501,6 +501,7 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                 </div>
                 <div style="display:flex; align-items:center; padding-top:20px;">
                     <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">
+                        <input type="hidden" name="unlimited" value="0">
                         <input type="checkbox" name="unlimited" id="shop-prod-unlimited" value="1">
                         <span>Digital / Unbegrenzt</span>
                     </label>
@@ -519,6 +520,7 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
 
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">
+                    <input type="hidden" name="active" value="0">
                     <input type="checkbox" name="active" id="shop-prod-active" value="1" checked>
                     <span>Im Shop sichtbar</span>
                 </label>

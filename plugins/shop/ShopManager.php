@@ -108,9 +108,9 @@ class ShopManager {
                 if (isset($data['price'])) $p['price'] = max(0.01, round((float)str_replace(',', '.', (string)$data['price']), 2));
                 if (isset($data['tax_rate'])) $p['tax_rate'] = (int)$data['tax_rate'];
                 if (isset($data['stock'])) $p['stock'] = max(0, (int)$data['stock']);
-                if (isset($data['unlimited'])) $p['unlimited'] = !empty($data['unlimited']);
+                $p['unlimited'] = !empty($data['unlimited']);
                 if (isset($data['image'])) $p['image'] = trim($data['image']);
-                if (isset($data['active'])) $p['active'] = !empty($data['active']);
+                $p['active'] = !empty($data['active']);
                 $p['updated_at'] = date('Y-m-d H:i:s');
                 $found = true;
                 break;
