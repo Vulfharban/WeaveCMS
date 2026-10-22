@@ -275,4 +275,162 @@ class ImageUploader {
 
         return null;
     }
+
+    /**
+     * Erlaubte Dateiendungen für Logos.
+     */
+    public const ALLOWED_LOGO_EXTENSIONS = ['svg', 'png', 'webp', 'jpg', 'jpeg', 'gif'];
+
+    /**
+     * Erlaubte Dateiendungen für Favicons.
+     */
+    public const ALLOWED_FAVICON_EXTENSIONS = ['ico', 'svg', 'png'];
+
+    /**
+     * Bereinigt und validiert SVG-Inhalte gegen XSS-Injektionen.
+     * @param string $filePath
+     * @return bool
+     */
+    public static function sanitizeSvg(string $filePath): bool {
+        if (!file_exists($filePath)) {
+            return false;
+        }
+        $content = (string)file_get_contents($filePath);
+        if (empty($content)) {
+            return false;
+        }
+
+        // Grundlegende Prüfung auf SVG-Wurzelelement
+        if (stripos($content, '<svg') === false) {
+            return false;
+        }
+
+        // Bösartige Skripte, Event-Handler und Remote-Scripts erkennen & ablehnen
+        $dangerousPatterns = [
+            '/<script\b[^>]*>/i',
+            '/<\/script>/i',
+            '/on\w+\s*=/i',
+            '/javascript\s*:/i',
+            '/data\s*:\s*text\/html/i',
+            '/<iframe\b[^>]*>/i',
+            '/<embed\b[^>]*>/i',
+            '/<object\b[^>]*>/i'
+        ];
+
+        foreach ($dangerousPatterns as $pattern) {
+            if (preg_match($pattern, $content)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Lädt ein Logo hoch (unterstützt SVG, PNG, WebP, JPG, GIF).
+     * @param string $fileInputName
+     * @return string|null Relativer Webpfad (z. B. '/images/branding/logo_xyz.svg')
+     */
+    public static function uploadLogo(string $fileInputName): ?string {
+        if (!isset($_FILES[$fileInputName]) || $_FILES[$fileInputName]['error'] !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $file = $_FILES[$fileInputName];
+        $origName = $file['name'] ?? 'logo';
+        $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+
+        if (!in_array($ext, self::ALLOWED_LOGO_EXTENSIONS, true)) {
+            if (class_exists('SecurityManager')) {
+                SecurityManager::logEvent('UPLOAD_LOGO_EXT_BLOCKED', "Unerlaubte Logo-Endung: {$origName} (.{$ext})", 'WARNING');
+            }
+            return null;
+        }
+
+        // SVG gesondert prüfen & desinfizieren
+        if ($ext === 'svg') {
+            if (!self::sanitizeSvg($file['tmp_name'])) {
+                if (class_exists('SecurityManager')) {
+                    SecurityManager::logEvent('UPLOAD_SVG_REJECTED', "Unsichere oder korrupte SVG-Datei abgelehnt: {$origName}", 'WARNING');
+                }
+                return null;
+            }
+        } else {
+            // Standard-Bilder via Magic Bytes & GD prüfen
+            $expectedMimes = self::ALLOWED_IMAGE_MIMES[$ext] ?? [];
+            if (!empty($expectedMimes) && !self::verifyMimeType($file['tmp_name'], $expectedMimes)) {
+                if (class_exists('SecurityManager')) {
+                    SecurityManager::logEvent('UPLOAD_MIME_BLOCKED', "Ungültiger MIME-Type für Logo: {$origName}", 'WARNING');
+                }
+                return null;
+            }
+            if (!self::sanitizeImageWithGd($file['tmp_name'], $ext)) {
+                return null;
+            }
+        }
+
+        $root = dirname(__DIR__, 2);
+        $brandDir = $root . '/images/branding/';
+        if (!is_dir($brandDir)) {
+            @mkdir($brandDir, 0755, true);
+        }
+
+        $newFilename = 'logo_' . bin2hex(random_bytes(6)) . '.' . $ext;
+        $dest = $brandDir . $newFilename;
+
+        if (move_uploaded_file($file['tmp_name'], $dest)) {
+            if (class_exists('SecurityManager')) {
+                SecurityManager::logEvent('UPLOAD_LOGO_OK', "Neues Logo hochgeladen: {$newFilename}", 'INFO');
+            }
+            return '/images/branding/' . $newFilename;
+        }
+
+        return null;
+    }
+
+    /**
+     * Lädt ein Favicon hoch (unterstützt ICO, SVG, PNG).
+     * @param string $fileInputName
+     * @return string|null Relativer Webpfad (z. B. '/images/branding/favicon_xyz.ico')
+     */
+    public static function uploadFavicon(string $fileInputName): ?string {
+        if (!isset($_FILES[$fileInputName]) || $_FILES[$fileInputName]['error'] !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $file = $_FILES[$fileInputName];
+        $origName = $file['name'] ?? 'favicon';
+        $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+
+        if (!in_array($ext, self::ALLOWED_FAVICON_EXTENSIONS, true)) {
+            if (class_exists('SecurityManager')) {
+                SecurityManager::logEvent('UPLOAD_FAVICON_EXT_BLOCKED', "Unerlaubte Favicon-Endung: {$origName} (.{$ext})", 'WARNING');
+            }
+            return null;
+        }
+
+        if ($ext === 'svg') {
+            if (!self::sanitizeSvg($file['tmp_name'])) {
+                return null;
+            }
+        }
+
+        $root = dirname(__DIR__, 2);
+        $brandDir = $root . '/images/branding/';
+        if (!is_dir($brandDir)) {
+            @mkdir($brandDir, 0755, true);
+        }
+
+        $newFilename = 'favicon_' . bin2hex(random_bytes(6)) . '.' . $ext;
+        $dest = $brandDir . $newFilename;
+
+        if (move_uploaded_file($file['tmp_name'], $dest)) {
+            if (class_exists('SecurityManager')) {
+                SecurityManager::logEvent('UPLOAD_FAVICON_OK', "Neues Favicon hochgeladen: {$newFilename}", 'INFO');
+            }
+            return '/images/branding/' . $newFilename;
+        }
+
+        return null;
+    }
 }

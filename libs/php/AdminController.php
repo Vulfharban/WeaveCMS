@@ -376,6 +376,43 @@ class AdminController {
         $data['settings']['gallery_layout'] = $gallery_layout;
         $data['settings']['gallery_lightbox'] = !empty($_POST['gallery_lightbox']);
 
+        // Phase 11: Logo- & Branding-Verwaltung
+        $logo_type = $_POST['logo_type'] ?? 'text';
+        if (!in_array($logo_type, ['text', 'image', 'icon_text', 'motif'], true)) {
+            $logo_type = 'text';
+        }
+        $data['settings']['logo_type'] = $logo_type;
+
+        $logo_max_height = (int)($_POST['logo_max_height'] ?? 44);
+        if ($logo_max_height < 24 || $logo_max_height > 120) {
+            $logo_max_height = 44;
+        }
+        $data['settings']['logo_max_height'] = $logo_max_height;
+
+        // Logo Upload
+        if (!empty($_FILES['logo_file']['name'])) {
+            $uploadedLogo = ImageUploader::uploadLogo('logo_file');
+            if ($uploadedLogo) {
+                $data['settings']['logo_image'] = $uploadedLogo;
+            } else {
+                $error_msg = 'Fehler beim Hochladen des Logos (nur SVG, PNG, WebP, JPG erlaubt).';
+            }
+        } elseif (!empty($_POST['delete_logo'])) {
+            $data['settings']['logo_image'] = '';
+        }
+
+        // Favicon Upload
+        if (!empty($_FILES['favicon_file']['name'])) {
+            $uploadedFav = ImageUploader::uploadFavicon('favicon_file');
+            if ($uploadedFav) {
+                $data['settings']['favicon'] = $uploadedFav;
+            } else {
+                $error_msg = 'Fehler beim Hochladen des Favicons (nur ICO, SVG, PNG erlaubt).';
+            }
+        } elseif (!empty($_POST['delete_favicon'])) {
+            $data['settings']['favicon'] = '';
+        }
+
         $hero_logo_motif = $_POST['hero_logo_motif'] ?? 'paw_simple';
         if (!in_array($hero_logo_motif, ['paw_simple', 'paw_beach', 'paw_willow', 'none'])) {
             $hero_logo_motif = 'paw_simple';

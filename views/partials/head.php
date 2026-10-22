@@ -34,6 +34,9 @@
     <meta name="robots" content="<?php echo htmlspecialchars($meta_robots, ENT_QUOTES, 'UTF-8'); ?>">
     <link rel="canonical" href="<?php echo htmlspecialchars($canonical_url, ENT_QUOTES, 'UTF-8'); ?>">
 
+    <!-- 1.1 Favicon & App-Touch-Icon (Phase 11) -->
+    <?php echo LogoRenderer::renderFaviconTags($data); ?>
+
     <?php if (!empty($active_languages) && count($active_languages) > 1): ?>
         <!-- Mehrsprachige hreflang-Tags für Suchmaschinen -->
         <?php foreach ($active_languages as $aLang): ?>

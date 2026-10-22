@@ -92,4 +92,98 @@ class LogoRenderer {
 
         return $svg;
     }
+
+    /**
+     * Ermittelt den aktiven Logo-Typ ('text', 'image', 'icon_text', 'motif').
+     * @param array $data
+     * @return string
+     */
+    public static function getLogoType(array $data): string {
+        $settings = $data['settings'] ?? [];
+        if (!empty($settings['logo_type'])) {
+            return $settings['logo_type'];
+        }
+        // Abwärtskompatibilität: Falls hero_logo_motif gewählt wurde
+        $motif = $settings['hero_logo_motif'] ?? 'paw_simple';
+        if ($motif !== 'none') {
+            return 'motif';
+        }
+        return 'text';
+    }
+
+    /**
+     * Rendert das vollständige Header-Logo inklusive Link.
+     * @param array $data
+     * @param string $href
+     * @param string $extraClass
+     * @return string
+     */
+    public static function renderLogoLink(array $data, string $href = '#', string $extraClass = ''): string {
+        $type = self::getLogoType($data);
+        $settings = $data['settings'] ?? [];
+        $title = !empty($settings['site_title']) ? $settings['site_title'] : ($data['texts']['contact_name'] ?? 'Atelier Musterfrau');
+        $logoImg = $settings['logo_image'] ?? '';
+        $maxHeight = max(24, min(120, (int)($settings['logo_max_height'] ?? 44)));
+        $logoPos = $settings['logo_position'] ?? 'header_before';
+
+        $root = dirname(__DIR__, 2);
+        $hasImgFile = !empty($logoImg) && file_exists($root . '/' . ltrim($logoImg, '/'));
+
+        $content = '';
+
+        if ($type === 'image' && $hasImgFile) {
+            // Reines Bild-Logo
+            $content = '<img src="' . htmlspecialchars($logoImg) . '" alt="' . htmlspecialchars($title) . '" class="site-logo-image" style="max-height:' . $maxHeight . 'px; width:auto; height:auto; display:inline-block; vertical-align:middle; object-fit:contain;">';
+        } elseif ($type === 'icon_text' && $hasImgFile) {
+            // Kombination Bild-Icon + Text
+            $iconHtml = '<img src="' . htmlspecialchars($logoImg) . '" alt="" class="site-logo-icon" style="max-height:' . $maxHeight . 'px; width:auto; height:auto; display:inline-block; vertical-align:middle; margin-right:10px; object-fit:contain;">';
+            $content = $iconHtml . '<span>' . htmlspecialchars($title) . '</span>';
+        } elseif ($type === 'motif') {
+            // SVG-Motiv (Tatze)
+            $motif = $settings['hero_logo_motif'] ?? 'paw_simple';
+            $color = $settings['hero_logo_color'] ?? '#b26c39';
+            $motifHtml = ($logoPos === 'header_before' || $logoPos === 'header_after')
+                ? self::renderPawLogo($motif, $color, '1.2em', 'header-paw-logo')
+                : '';
+
+            $content = ($logoPos === 'header_before' ? $motifHtml : '')
+                . '<span>' . htmlspecialchars($title) . '</span>'
+                . ($logoPos === 'header_after' ? $motifHtml : '');
+        } else {
+            // Reines Text-Logo
+            $content = '<span>' . htmlspecialchars($title) . '</span>';
+        }
+
+        $classAttr = 'logo' . (!empty($extraClass) ? (' ' . htmlspecialchars($extraClass)) : '') . ' logo-type-' . htmlspecialchars($type);
+        return '<a href="' . htmlspecialchars($href) . '" class="' . $classAttr . '">' . $content . '</a>';
+    }
+
+    /**
+     * Rendert das Favicon-Tag für den HTML-Head.
+     * @param array $data
+     * @return string
+     */
+    public static function renderFaviconTags(array $data): string {
+        $favicon = $data['settings']['favicon'] ?? '';
+        $root = dirname(__DIR__, 2);
+
+        if (!empty($favicon) && file_exists($root . '/' . ltrim($favicon, '/'))) {
+            $ext = strtolower(pathinfo($favicon, PATHINFO_EXTENSION));
+            $mimeMap = [
+                'ico' => 'image/x-icon',
+                'svg' => 'image/svg+xml',
+                'png' => 'image/png',
+                'webp' => 'image/webp'
+            ];
+            $mime = $mimeMap[$ext] ?? 'image/x-icon';
+            $cleanUrl = htmlspecialchars($favicon);
+            return '<link rel="icon" type="' . $mime . '" href="' . $cleanUrl . '">' . "\n    "
+                 . '<link rel="apple-touch-icon" href="' . $cleanUrl . '">';
+        }
+
+        // Fallback: Inline SVG-Favicon mit elegantem Naturblatt
+        $svgFavicon = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌿</text></svg>';
+        return '<link rel="icon" href="' . $svgFavicon . '">' . "\n    "
+             . '<link rel="apple-touch-icon" href="' . $svgFavicon . '">';
+    }
 }

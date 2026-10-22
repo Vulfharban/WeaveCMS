@@ -127,6 +127,11 @@
     position: absolute;
     top: 1.5rem;
     right: 1.5rem;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: none;
     color: var(--text-secondary);
@@ -203,6 +208,10 @@
     
     #mobile-nav-trigger {
         display: inline-flex !important;
+        min-width: 44px;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
     }
     
     .container {
