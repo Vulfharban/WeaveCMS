@@ -7,10 +7,10 @@
  * Hilfsfunktionen für Templates und Module bereit.
  */
 
-// 1. Session für die Admin-Authentifizierung starten
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// 1. Kern-Sicherheitsmanager laden, Sicherheitsheader senden & gehärtete Session starten (Phase 9)
+require_once __DIR__ . '/libs/php/SecurityManager.php';
+SecurityManager::applySecurityHeaders();
+SecurityManager::initSecureSession();
 
 // 2. Standard-Fallback-Zugangsdaten & Tokens
 define('DEFAULT_ADMIN_PASSWORD', 'admin123123');

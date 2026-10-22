@@ -14,9 +14,7 @@ class AuthManager {
      * @return void
      */
     public static function initSession(): void {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        SecurityManager::initSecureSession();
     }
 
     /**
@@ -72,6 +70,7 @@ class AuthManager {
         $auth_hash = self::getAuthHash($data);
         if (isset($_COOKIE['admin_auth']) && hash_equals($auth_hash, $_COOKIE['admin_auth'])) {
             $_SESSION['admin_logged_in'] = true;
+            SecurityManager::regenerateSession(true);
             return true;
         }
 
@@ -79,7 +78,15 @@ class AuthManager {
         $admin_token = defined('ADMIN_TOKEN') ? ADMIN_TOKEN : 'xyz123';
         if (isset($_GET['token']) && $_GET['token'] === $admin_token) {
             $_SESSION['admin_logged_in'] = true;
-            setcookie('admin_auth', $auth_hash, time() + 86400 * 30, '/');
+            SecurityManager::regenerateSession(true);
+            setcookie('admin_auth', $auth_hash, [
+                'expires'  => time() + 86400 * 30,
+                'path'     => '/',
+                'domain'   => '',
+                'secure'   => SecurityManager::isHttps(),
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
             return true;
         }
 
@@ -122,6 +129,7 @@ class AuthManager {
 
     /**
      * Verifiziert ausschließlich die Sicherheits-PIN für geschützte Aktionen (z. B. Restore, Migration).
+     * Mit automatischem Brute-Force-Schutz (Phase 9.2).
      * @param string $pin
      * @param array|null $data
      * @return bool
@@ -130,22 +138,41 @@ class AuthManager {
         if (empty($pin)) {
             return false;
         }
-        $pin_hash = $data['settings']['admin_pin_hash'] ?? null;
-        if ($pin_hash && password_verify($pin, $pin_hash)) {
-            return true;
+
+        // Brute-Force-Schutz für PIN
+        if (SecurityManager::isRateLimited('admin_pin')) {
+            SecurityManager::logEvent('AUTH_PIN_BLOCKED', 'PIN-Verifizierung abgewiesen wegen Rate-Limit-Sperre', 'WARNING');
+            return false;
         }
+
+        $pin_hash = $data['settings']['admin_pin_hash'] ?? null;
+        $is_valid = false;
+
+        if ($pin_hash && password_verify($pin, $pin_hash)) {
+            $is_valid = true;
+        }
+
         $default_pin = defined('DEFAULT_ADMIN_PIN') ? DEFAULT_ADMIN_PIN : '1977';
         if (!$pin_hash && ($pin === $default_pin || $pin === '1977')) {
-            return true;
+            $is_valid = true;
         }
         if ($pin === $default_pin || $pin === '1977' || $pin === '1605071977' || $pin === '1234') {
+            $is_valid = true;
+        }
+
+        if ($is_valid) {
+            SecurityManager::clearRateLimit('admin_pin');
+            SecurityManager::logEvent('AUTH_PIN_SUCCESS', 'Sicherheits-PIN erfolgreich verifiziert', 'INFO');
             return true;
         }
+
+        $fails = SecurityManager::recordFailedAttempt('admin_pin');
+        SecurityManager::logEvent('AUTH_PIN_FAIL', "Fehlgeschlagene PIN-Verifizierung (Fehlversuch {$fails})", 'WARNING');
         return false;
     }
 
     /**
-     * Meldet den Administrator an und setzt Sitzungs-Flags und Cookies.
+     * Meldet den Administrator an und setzt Sitzungs-Flags und Cookies (Phase 9.2 & 9.5).
      * @param string $password
      * @param string $pin
      * @param array|null $data
@@ -153,12 +180,35 @@ class AuthManager {
      */
     public static function login(string $password, string $pin, ?array $data = null): bool {
         self::initSession();
+
+        // Brute-Force-Schutz für Login
+        if (SecurityManager::isRateLimited('admin_login')) {
+            SecurityManager::logEvent('AUTH_LOGIN_BLOCKED', 'Anmeldeversuch abgewiesen wegen Rate-Limit-Sperre', 'WARNING');
+            return false;
+        }
+
         if (self::verifyAdminAuth($password, $pin, $data)) {
+            SecurityManager::clearRateLimit('admin_login');
+            SecurityManager::regenerateSession(true);
+
             $_SESSION['admin_logged_in'] = true;
             $auth_hash = self::getAuthHash($data);
-            setcookie('admin_auth', $auth_hash, time() + 86400 * 30, '/');
+
+            setcookie('admin_auth', $auth_hash, [
+                'expires'  => time() + 86400 * 30,
+                'path'     => '/',
+                'domain'   => '',
+                'secure'   => SecurityManager::isHttps(),
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
+
+            SecurityManager::logEvent('AUTH_LOGIN_SUCCESS', 'Erfolgreicher Administrator-Login', 'INFO');
             return true;
         }
+
+        $fails = SecurityManager::recordFailedAttempt('admin_login');
+        SecurityManager::logEvent('AUTH_LOGIN_FAIL', "Fehlgeschlagener Administrator-Login (Fehlversuch {$fails})", 'WARNING');
         return false;
     }
 
@@ -168,15 +218,27 @@ class AuthManager {
      */
     public static function logout(): void {
         self::initSession();
+        SecurityManager::logEvent('AUTH_LOGOUT', 'Administrator abgemeldet', 'INFO');
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000,
-                $params['path'], $params['domain'],
-                $params['secure'], $params['httponly']
-            );
+            setcookie(session_name(), '', [
+                'expires'  => time() - 42000,
+                'path'     => $params['path'],
+                'domain'   => $params['domain'],
+                'secure'   => $params['secure'],
+                'httponly' => $params['httponly'],
+                'samesite' => $params['samesite'] ?? 'Lax'
+            ]);
         }
         session_destroy();
-        setcookie('admin_auth', '', time() - 3600, '/');
+        setcookie('admin_auth', '', [
+            'expires'  => time() - 3600,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => SecurityManager::isHttps(),
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
     }
 }

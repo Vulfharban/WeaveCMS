@@ -31,13 +31,25 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/libs/php/Mailer.php';
 require_once __DIR__ . '/libs/php/ContactInbox.php';
 
+// 1. Rate-Limiting gegen Spambots & Flooding (Phase 9.2: max. 5 Anfragen je 5 Minuten)
+if (SecurityManager::isRateLimited('contact_form', 5, 300)) {
+    $rem = SecurityManager::getLockoutRemaining('contact_form', 5, 300);
+    $mins = max(1, ceil($rem / 60));
+    SecurityManager::logEvent('CONTACT_RATELIMIT', 'Kontaktformular-Anfrage abgewiesen wegen Rate-Limit-Sperre', 'WARNING');
+    send_json_response([
+        'success' => false,
+        'error' => "Zu viele Anfragen in kurzer Zeit. Bitte warte {$mins} Minute(n) vor dem nächsten Absenden."
+    ]);
+}
+
 // Datenbasis laden
 $data_file = __DIR__ . '/data.json';
 $data = load_data($data_file);
 
-// 1. Honeypot-Prüfung (Unsichtbares Feld für Bots)
+// 2. Honeypot-Prüfung (Unsichtbares Feld für Bots)
 $honeypot = trim($_POST['website'] ?? '');
 if (!empty($honeypot)) {
+    SecurityManager::logEvent('SPAMBOT_CAUGHT', 'Spambot im Honeypot-Feld abgefangen', 'WARNING');
     // Spambot gefangen: Wir täuschen Erfolg vor, versenden aber nichts (stilles Verwerfen)
     send_json_response(['success' => true, 'message' => 'Vielen Dank! Deine Nachricht wurde empfangen.']);
 }
@@ -85,6 +97,10 @@ ContactInbox::add([
     'message' => $message,
     'course_ref' => $course_ref,
 ]);
+
+// Rate-Limit-Zähler aktualisieren und Sicherheits-Event protokollieren
+SecurityManager::recordFailedAttempt('contact_form', 300);
+SecurityManager::logEvent('CONTACT_RECEIVED', 'Kontaktanfrage empfangen von ' . $email, 'INFO');
 
 // Reiner Archivierungsmodus (Besucher sendet per Mailto-Programm)
 if (!empty($_POST['archive_only'])) {
