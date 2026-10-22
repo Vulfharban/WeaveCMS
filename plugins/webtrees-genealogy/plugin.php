@@ -94,7 +94,7 @@ PluginManager::addFilter('visible_sections', function($sections, $data) {
 });
 
 // Synchronisation mit data['sections'] beim Speichern der Plugin-Einstellungen
-PluginManager::addAction('plugin_config_saved_webtrees-genealogy', function($config, &$data) {
+PluginManager::addAction('plugin_config_saved_webtrees-genealogy', function($config, $data) {
     if (class_exists('SectionManager')) {
         SectionManager::ensureSections($data);
         $sectionEnabled = !empty($config['section_enabled']);

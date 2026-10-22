@@ -23,6 +23,20 @@ class SectionManager {
     const TYPE_PRICING = 'pricing';
 
     /**
+     * Phase 18: Website-Architektur-Modi.
+     */
+    const ARCHITECTURE_ONEPAGE = 'onepage';
+    const ARCHITECTURE_MULTIPAGE = 'multipage';
+    const ARCHITECTURE_HYBRID = 'hybrid';
+
+    /**
+     * Sektions-Platzierung (Startseite vs. Unterseite vs. Beides).
+     */
+    const PLACEMENT_BOTH = 'both';
+    const PLACEMENT_HOME = 'home';
+    const PLACEMENT_PAGE = 'page';
+
+    /**
      * Standard-Sektionen für WeaveCMS.
      * @return array
      */
@@ -35,7 +49,8 @@ class SectionManager {
                 'nav_label' => 'Start',
                 'visible' => true,
                 'in_nav' => false,
-                'can_delete' => false
+                'can_delete' => false,
+                'placement' => self::PLACEMENT_HOME
             ],
             [
                 'id' => 'gallery',
@@ -44,7 +59,8 @@ class SectionManager {
                 'nav_label' => 'Galerie',
                 'visible' => true,
                 'in_nav' => true,
-                'can_delete' => false
+                'can_delete' => false,
+                'placement' => self::PLACEMENT_BOTH
             ],
             [
                 'id' => 'courses',
@@ -53,7 +69,8 @@ class SectionManager {
                 'nav_label' => 'Workshops',
                 'visible' => true,
                 'in_nav' => true,
-                'can_delete' => false
+                'can_delete' => false,
+                'placement' => self::PLACEMENT_BOTH
             ],
             [
                 'id' => 'past_courses',
@@ -62,7 +79,8 @@ class SectionManager {
                 'nav_label' => 'Impressionen',
                 'visible' => true,
                 'in_nav' => false,
-                'can_delete' => false
+                'can_delete' => false,
+                'placement' => self::PLACEMENT_BOTH
             ],
             [
                 'id' => 'blog',
@@ -71,7 +89,8 @@ class SectionManager {
                 'nav_label' => 'Blog',
                 'visible' => true,
                 'in_nav' => true,
-                'can_delete' => false
+                'can_delete' => false,
+                'placement' => self::PLACEMENT_BOTH
             ],
             [
                 'id' => 'pricing',
@@ -80,7 +99,8 @@ class SectionManager {
                 'nav_label' => 'Preise',
                 'visible' => true,
                 'in_nav' => true,
-                'can_delete' => false
+                'can_delete' => false,
+                'placement' => self::PLACEMENT_BOTH
             ],
             [
                 'id' => 'faq',
@@ -89,7 +109,8 @@ class SectionManager {
                 'nav_label' => 'FAQ',
                 'visible' => true,
                 'in_nav' => true,
-                'can_delete' => false
+                'can_delete' => false,
+                'placement' => self::PLACEMENT_BOTH
             ],
             [
                 'id' => 'team',
@@ -98,7 +119,8 @@ class SectionManager {
                 'nav_label' => 'Team',
                 'visible' => true,
                 'in_nav' => true,
-                'can_delete' => false
+                'can_delete' => false,
+                'placement' => self::PLACEMENT_BOTH
             ],
             [
                 'id' => 'downloads',
@@ -107,7 +129,8 @@ class SectionManager {
                 'nav_label' => 'Downloads',
                 'visible' => true,
                 'in_nav' => false,
-                'can_delete' => false
+                'can_delete' => false,
+                'placement' => self::PLACEMENT_BOTH
             ],
             [
                 'id' => 'about',
@@ -116,9 +139,23 @@ class SectionManager {
                 'nav_label' => 'Über mich',
                 'visible' => true,
                 'in_nav' => true,
-                'can_delete' => false
+                'can_delete' => false,
+                'placement' => self::PLACEMENT_BOTH
             ]
         ];
+    }
+
+    /**
+     * Liefert den aktuellen Website-Architekturmodus (onepage, multipage, hybrid).
+     * @param array $data
+     * @return string
+     */
+    public static function getSiteArchitecture(array $data): string {
+        $arch = $data['settings']['site_architecture'] ?? self::ARCHITECTURE_ONEPAGE;
+        if (!in_array($arch, [self::ARCHITECTURE_ONEPAGE, self::ARCHITECTURE_MULTIPAGE, self::ARCHITECTURE_HYBRID], true)) {
+            $arch = self::ARCHITECTURE_ONEPAGE;
+        }
+        return $arch;
     }
 
     /**
@@ -143,6 +180,14 @@ class SectionManager {
             }
         }
 
+        // Standard-Platzierung sicherstellen falls noch nicht vorhanden
+        foreach ($data['sections'] as &$sec) {
+            if (!isset($sec['placement'])) {
+                $sec['placement'] = ($sec['id'] === 'hero') ? self::PLACEMENT_HOME : self::PLACEMENT_BOTH;
+            }
+        }
+        unset($sec);
+
         // Plugin-registrierte Sektionen einbinden (z. B. Webtrees Stammbaum, Online-Shop)
         if (class_exists('PluginManager')) {
             $pluginSections = PluginManager::applyFilters('registered_sections', [], $data);
@@ -154,6 +199,9 @@ class SectionManager {
                 foreach ($pluginSections as $pSec) {
                     $secId = $pSec['id'] ?? ($pSec['type'] ?? '');
                     if (!empty($secId) && !in_array($secId, $existing_ids, true)) {
+                        if (!isset($pSec['placement'])) {
+                            $pSec['placement'] = self::PLACEMENT_BOTH;
+                        }
                         $data['sections'][] = $pSec;
                     }
                 }
@@ -161,6 +209,40 @@ class SectionManager {
         }
 
         return $data['sections'];
+    }
+
+    /**
+     * Sucht eine Sektion anhand ihrer ID oder ihres Typs.
+     * @param string $id
+     * @param array $data
+     * @return array|null
+     */
+    public static function getSectionById(string $id, array $data): ?array {
+        $sections = self::ensureSections($data);
+        foreach ($sections as $s) {
+            if (($s['id'] ?? '') === $id || ($s['type'] ?? '') === $id) {
+                return $s;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Prüft, ob eine Sektion als Standalone-Einzelseite aufgerufen werden kann.
+     * @param string $secId
+     * @param array $data
+     * @return bool
+     */
+    public static function isSectionStandalonePage(string $secId, array $data): bool {
+        $sec = self::getSectionById($secId, $data);
+        if (!$sec || empty($sec['visible'])) {
+            return false;
+        }
+        // Hero ist reine Startseiten-Komponente
+        if ($sec['id'] === 'hero') {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -202,7 +284,49 @@ class SectionManager {
     }
 
     /**
+     * Liefert alle Sektionen, die auf der aktuellen Startseite dargestellt werden sollen.
+     * Berücksichtigt den globalen Website-Architekturmodus (One-Pager vs. Multi-Page vs. Hybrid).
+     * @param array $data
+     * @return array
+     */
+    public static function getSectionsForHomePage(array $data): array {
+        $visible = self::getVisibleSections($data);
+        $arch = self::getSiteArchitecture($data);
+
+        if ($arch === self::ARCHITECTURE_ONEPAGE) {
+            return $visible;
+        }
+
+        return array_values(array_filter($visible, function($sec) use ($arch) {
+            $secId = $sec['id'] ?? '';
+            $placement = $sec['placement'] ?? self::PLACEMENT_BOTH;
+
+            if ($arch === self::ARCHITECTURE_MULTIPAGE) {
+                // Bei Multi-Page ist Hero immer auf der Startseite.
+                if ($secId === 'hero') {
+                    return true;
+                }
+                // Falls explizit 'home' konfiguriert ist, erscheint die Sektion auf der Startseite.
+                if ($placement === self::PLACEMENT_HOME) {
+                    return true;
+                }
+                // 'about' (Über mich) verbleibt bei 'both' auch auf der Startseite als Willkommens-Intro
+                if ($secId === 'about' && $placement === self::PLACEMENT_BOTH) {
+                    return true;
+                }
+                // Alle anderen Hauptsektionen (Galerie, Kurse, Blog, Downloads, Stammbaum, Shop)
+                // laufen im Multi-Page-Modus als eigenständige Unterseiten.
+                return false;
+            }
+
+            // Bei Hybrid: Sektionen mit Placement 'home' oder 'both' werden auf der Startseite gezeigt
+            return ($placement === self::PLACEMENT_HOME || $placement === self::PLACEMENT_BOTH);
+        }));
+    }
+
+    /**
      * Liefert alle Menüeinträge der sichtbaren Sektionen sowie sichtbare Einzelseiten.
+     * Passt Links dynamisch an (Anker #id für One-Pager vs. ?page=id für Multi-Page).
      * @param array $data
      * @return array
      */
@@ -214,8 +338,33 @@ class SectionManager {
 
         $curLang = LanguageManager::detectLanguage($data);
         $primaryLang = LanguageManager::getPrimaryLanguage($data);
+        $arch = self::getSiteArchitecture($data);
 
-        // Auch sichtbare Einzelseiten (Custom Subpages) ins Menü aufnehmen
+        // Dynamische Link-Generierung nach Architektur-Modus
+        foreach ($items as &$item) {
+            $secId = $item['id'] ?? '';
+            $placement = $item['placement'] ?? self::PLACEMENT_BOTH;
+            $isSeparatePage = false;
+
+            if ($arch === self::ARCHITECTURE_MULTIPAGE) {
+                // In Multi-Page haben Sektionen außer Hero/reinen Home-Sektionen eigene URLs
+                if ($secId !== 'hero' && $placement !== self::PLACEMENT_HOME) {
+                    $isSeparatePage = true;
+                }
+            } elseif ($arch === self::ARCHITECTURE_HYBRID) {
+                if ($placement === self::PLACEMENT_PAGE) {
+                    $isSeparatePage = true;
+                }
+            }
+
+            if ($isSeparatePage) {
+                $item['url'] = '?page=' . urlencode($secId) . ($curLang !== $primaryLang ? '&lang=' . urlencode($curLang) : '');
+                $item['is_separate_page'] = true;
+            }
+        }
+        unset($item);
+
+        // Auch sichtbare Einzelseiten (Custom Subpages & Modulare Seiten) ins Menü aufnehmen
         if (!empty($data['pages']) && is_array($data['pages'])) {
             foreach ($data['pages'] as $page) {
                 if (!empty($page['in_nav']) && ($page['status'] ?? 'published') === 'published') {
@@ -230,7 +379,8 @@ class SectionManager {
                         'nav_label' => $pageNavLabel,
                         'url' => '?page=' . urlencode($page['slug'] ?? '') . ($curLang !== $primaryLang ? '&lang=' . urlencode($curLang) : ''),
                         'is_external_link' => true,
-                        'is_custom_page' => true
+                        'is_custom_page' => true,
+                        'page_type' => $page['page_type'] ?? 'content'
                     ];
                 }
             }
@@ -250,15 +400,16 @@ class SectionManager {
                 }
             }
         }
+        unset($item);
 
         return $items;
     }
 
     /**
-     * Aktualisiert Titel, Menü-Beschriftung, Menü-Sichtbarkeit und Übersetzungen einer Sektion.
+     * Aktualisiert Titel, Menü-Beschriftung, Menü-Sichtbarkeit, Platzierung und Übersetzungen einer Sektion.
      * @param array $data
      * @param string $id
-     * @param array $attributes ['title' => ..., 'nav_label' => ..., 'in_nav' => ..., 'translations' => ...]
+     * @param array $attributes ['title' => ..., 'nav_label' => ..., 'in_nav' => ..., 'placement' => ..., 'translations' => ...]
      * @return bool
      */
     public static function updateSection(array &$data, string $id, array $attributes): bool {
@@ -278,6 +429,12 @@ class SectionManager {
                 }
                 if (isset($attributes['in_nav'])) {
                     $sec['in_nav'] = !empty($attributes['in_nav']);
+                }
+                if (isset($attributes['placement'])) {
+                    $p = trim((string)$attributes['placement']);
+                    if (in_array($p, [self::PLACEMENT_BOTH, self::PLACEMENT_HOME, self::PLACEMENT_PAGE], true)) {
+                        $sec['placement'] = $p;
+                    }
                 }
                 if (isset($attributes['translations']) && is_array($attributes['translations'])) {
                     $sec['translations'] = $attributes['translations'];

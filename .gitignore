@@ -23,3 +23,7 @@ logs/
 # Uploads
 images/uploads/*
 !images/uploads/.gitkeep
+
+# Scratch test files
+scratch/
+
