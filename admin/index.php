@@ -33,6 +33,9 @@ $data = load_data($data_file, [
     'past_courses' => []
 ]);
 
+// Benutzer-Datenmodell initialisieren (Superadmin-Seeding bei Bedarf)
+UserManager::ensureInitialized($data);
+
 // 2. Abmeldung (Logout) verarbeiten
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     AuthManager::logout();
@@ -56,9 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         $mins = max(1, ceil($rem / 60));
         $login_error = "Zu viele Fehlversuche! Der Zugang ist für {$mins} Minute(n) gesperrt ({$rem}s verbleibend).";
     } else {
+        $username = trim($_POST['username'] ?? 'admin');
         $password = $_POST['password'] ?? '';
         $pin = $_POST['pin'] ?? '';
-        if (AuthManager::login($password, $pin, $data)) {
+        if (AuthManager::login($password, $pin, $data, $username)) {
+            save_data($data_file, $data);
             header('Location: ./');
             exit;
         } else {
@@ -151,27 +156,68 @@ $cur_robots = $cur_seo['robots'] ?? 'index, follow';
 $cur_canonical = $cur_seo['canonical_url'] ?? '';
 $cur_og_image = $cur_seo['og_image'] ?? '';
 
-// 14. Postfach-Zähler vorbereiten
+// 14. Postfach- & Dashboard-Daten vorbereiten
 $inbox_entries = ContactInbox::all();
 $inbox_new_count = ContactInbox::countNew();
+$inbox_total_count = count($inbox_entries);
 
-// 15. Modulare Admin-Views rendern
+$dashboard_stats = StatsManager::getDashboardSummary();
+$cur_user = UserManager::getCurrentUser($data);
+$all_users = UserManager::getUsers($data);
+$storage_details = StorageManager::getDriverDetails();
+
+$recent_security_logs = [];
+$logPath = dirname(__DIR__) . '/logs/security.log';
+if (file_exists($logPath)) {
+    $logLines = array_filter(array_map('trim', file($logPath)));
+    $lastLines = array_slice($logLines, -5);
+    foreach (array_reverse($lastLines) as $line) {
+        if (preg_match('~^\[(.*?)\] \[(.*?)\] \[IP: (.*?)\] \[(.*?)\] (.*?)(?: \| UA: .*)?$~', $line, $m)) {
+            $recent_security_logs[] = [
+                'time'    => date('H:i, d.m.', strtotime($m[1])),
+                'level'   => $m[2],
+                'ip'      => $m[3],
+                'type'    => $m[4],
+                'message' => $m[5]
+            ];
+        }
+    }
+}
+
+// 15. Modulare Admin-Views rendern (mit rollenbasierten Zugriffsgrenzen)
 require __DIR__ . '/views/header.php';
 require __DIR__ . '/views/nav.php';
-require __DIR__ . '/views/tab_texts.php';
-require __DIR__ . '/views/tab_pages.php';
-require __DIR__ . '/views/tab_blog.php';
-require __DIR__ . '/views/tab_faqs.php';
-require __DIR__ . '/views/tab_team.php';
-require __DIR__ . '/views/tab_downloads.php';
-require __DIR__ . '/views/tab_pricing.php';
-require __DIR__ . '/views/tab_impressum.php';
-require __DIR__ . '/views/tab_gallery.php';
-require __DIR__ . '/views/tab_past.php';
-require __DIR__ . '/views/tab_courses.php';
-require __DIR__ . '/views/tab_settings.php';
-require __DIR__ . '/views/tab_seo.php';
-require __DIR__ . '/views/tab_inbox.php';
-require __DIR__ . '/views/tab_security.php';
+
+// Dashboard ist die neue Default-Startseite (Phase 10)
+require __DIR__ . '/views/tab_dashboard.php';
+
+// Inhalts-Tabs (für alle angemeldeten Rollen)
+if (UserManager::canAccessTab('tab-content', $cur_user['role'])) {
+    require __DIR__ . '/views/tab_texts.php';
+    require __DIR__ . '/views/tab_pages.php';
+    require __DIR__ . '/views/tab_blog.php';
+    require __DIR__ . '/views/tab_faqs.php';
+    require __DIR__ . '/views/tab_team.php';
+    require __DIR__ . '/views/tab_downloads.php';
+    require __DIR__ . '/views/tab_pricing.php';
+    require __DIR__ . '/views/tab_impressum.php';
+    require __DIR__ . '/views/tab_gallery.php';
+    require __DIR__ . '/views/tab_past.php';
+    require __DIR__ . '/views/tab_courses.php';
+}
+
+// Postfach (für Moderator und Administrator)
+if (UserManager::canAccessTab('tab-inbox', $cur_user['role'])) {
+    require __DIR__ . '/views/tab_inbox.php';
+}
+
+// System, Benutzer, Design & SEO (nur für Administratoren)
+if ($cur_user['role'] === UserManager::ROLE_ADMIN) {
+    require __DIR__ . '/views/tab_users.php';
+    require __DIR__ . '/views/tab_settings.php';
+    require __DIR__ . '/views/tab_seo.php';
+    require __DIR__ . '/views/tab_security.php';
+}
+
 require __DIR__ . '/views/modals.php';
 require __DIR__ . '/views/footer.php';

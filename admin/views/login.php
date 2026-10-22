@@ -33,9 +33,16 @@
                 <input type="hidden" name="login" value="1">
                 <input type="hidden" name="csrf_token" value="<?php echo AuthManager::getCsrfToken(); ?>">
                 <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="username" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">Benutzername oder E-Mail</label>
+                    <div style="position:relative;">
+                        <input type="text" id="username" name="username" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px;" placeholder="admin" value="<?php echo htmlspecialchars($_POST['username'] ?? 'admin'); ?>" required autofocus>
+                        <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); font-size:18px;">person</span>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label for="password" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">Passwort</label>
                     <div style="position:relative;">
-                        <input type="password" id="password" name="password" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px;" placeholder="Passwort eingeben" required autofocus>
+                        <input type="password" id="password" name="password" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px;" placeholder="Passwort eingeben" required>
                         <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); cursor:pointer; font-size:18px;" onclick="toggleVisibility('password')">visibility</span>
                     </div>
                 </div>

@@ -229,6 +229,7 @@ class FrontendController {
      * @return void
      */
     public static function renderPage(array $data): void {
+        StatsManager::recordHit();
         $vm = self::prepareViewModel($data);
 
         // Prüfung auf Einzelartikel-Aufruf: ?blog=slug

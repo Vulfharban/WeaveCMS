@@ -7,7 +7,7 @@
  */
 ?>
         <!-- ──────────────── SECTION 1: HOMEPAGE & ABOUT TEXTS ──────────────── -->
-        <div id="tab-texts" class="admin-section active card" style="padding: 2.5rem;">
+        <div id="tab-texts" class="admin-section card" style="padding: 2.5rem;">
             <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Startseite &amp; Universelle Sektionstexte</h2>
             <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem;">
                 Hier kannst du alle Überschriften, Untertitel und Einleitungstexte für die Hauptbereiche deiner Website zentral verwalten.

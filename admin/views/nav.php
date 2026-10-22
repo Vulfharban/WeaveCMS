@@ -40,26 +40,40 @@
              BACKEND-MENÜ (.admin-nav TAB-NAVIGATION)
              Bündelung unter "Inhalte / Content" gemäß Nutzeranforderung
              ====================================================================== -->
+        <?php 
+            $nav_user = UserManager::getCurrentUser($data ?? null);
+            $nav_role = $nav_user['role'] ?? UserManager::ROLE_ADMIN;
+        ?>
         <div class="admin-nav">
-            <button class="admin-nav-link active" id="main-nav-content" onclick="switchTab('tab-content')">
+            <button class="admin-nav-link active" id="main-nav-dashboard" onclick="switchTab('tab-dashboard')">
+                <span class="material-icons" style="font-size:18px;">dashboard</span> Dashboard
+            </button>
+            <button class="admin-nav-link" id="main-nav-content" onclick="switchTab('tab-content')">
                 <span class="material-icons" style="font-size:18px;">folder_special</span> Inhalte &amp; Seiten
             </button>
-            <button class="admin-nav-link" onclick="switchTab('tab-inbox')">
-                <span class="material-icons" style="font-size:18px;">inbox</span> Kontaktanfragen<?php if ($inbox_new_count > 0): ?> <span style="background:#ef4444; color:#fff; border-radius:999px; padding:1px 8px; font-size:0.72rem; font-weight:700; margin-left:4px;"><?php echo (int)$inbox_new_count; ?></span><?php endif; ?>
-            </button>
-            <button class="admin-nav-link" onclick="switchTab('tab-settings')">
-                <span class="material-icons" style="font-size:18px;">palette</span> Darstellung &amp; Design
-            </button>
-            <button class="admin-nav-link" onclick="switchTab('tab-seo')">
-                <span class="material-icons" style="font-size:18px;">travel_explore</span> SEO &amp; Sharing
-            </button>
-            <button class="admin-nav-link" onclick="switchTab('tab-security')">
-                <span class="material-icons" style="font-size:18px;">security</span> Sicherheit &amp; System
-            </button>
+            <?php if (UserManager::canAccessTab('tab-inbox', $nav_role)): ?>
+                <button class="admin-nav-link" onclick="switchTab('tab-inbox')">
+                    <span class="material-icons" style="font-size:18px;">inbox</span> Kontaktanfragen<?php if ($inbox_new_count > 0): ?> <span style="background:#ef4444; color:#fff; border-radius:999px; padding:1px 8px; font-size:0.72rem; font-weight:700; margin-left:4px;"><?php echo (int)$inbox_new_count; ?></span><?php endif; ?>
+                </button>
+            <?php endif; ?>
+            <?php if ($nav_role === UserManager::ROLE_ADMIN): ?>
+                <button class="admin-nav-link" onclick="switchTab('tab-users')">
+                    <span class="material-icons" style="font-size:18px;">group</span> Benutzer
+                </button>
+                <button class="admin-nav-link" onclick="switchTab('tab-settings')">
+                    <span class="material-icons" style="font-size:18px;">palette</span> Darstellung &amp; Design
+                </button>
+                <button class="admin-nav-link" onclick="switchTab('tab-seo')">
+                    <span class="material-icons" style="font-size:18px;">travel_explore</span> SEO &amp; Sharing
+                </button>
+                <button class="admin-nav-link" onclick="switchTab('tab-security')">
+                    <span class="material-icons" style="font-size:18px;">security</span> Sicherheit &amp; System
+                </button>
+            <?php endif; ?>
         </div>
 
         <!-- Sub-Navigation für Inhalte & Seiten -->
-        <div class="admin-subnav" id="admin-content-subnav">
+        <div class="admin-subnav" id="admin-content-subnav" style="display:none;">
             <span class="admin-subnav-label"><span class="material-icons" style="font-size:16px;">tune</span> Bereich:</span>
             <button class="admin-subnav-link active" onclick="switchTab('tab-texts')">
                 <span class="material-icons" style="font-size:17px;">edit_note</span> Startseite &amp; Sektionen
