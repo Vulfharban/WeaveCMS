@@ -107,6 +107,30 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
 // -----------------------------------------------------------------------------
 // 4. Eigene Sektion für das Frontend registrieren (falls im Plugin aktiviert)
 // -----------------------------------------------------------------------------
+PluginManager::addFilter('visible_sections', function($sections, $data) {
+    $config = PluginManager::getPluginConfig('shop', $data);
+    if (!empty($config['section_enabled'])) {
+        $hasShop = false;
+        foreach ($sections as $s) {
+            if (($s['id'] ?? '') === 'shop') {
+                $hasShop = true;
+                break;
+            }
+        }
+        if (!$hasShop) {
+            $sections[] = [
+                'id'        => 'shop',
+                'type'      => 'shop',
+                'title'     => $config['section_title'] ?? 'Unser Webshop & Produkte',
+                'nav_label' => 'Shop',
+                'visible'   => true,
+                'in_nav'    => true
+            ];
+        }
+    }
+    return $sections;
+});
+
 PluginManager::addAction('frontend_render_custom_section', function($sectionKey, $data) {
     if ($sectionKey !== 'shop') {
         return;
@@ -130,24 +154,20 @@ PluginManager::addAction('frontend_render_custom_section', function($sectionKey,
 // -----------------------------------------------------------------------------
 PluginManager::addFilter('plugin_validate_config_shop', function($submitted, $data) {
     $existing = PluginManager::getPluginConfig('shop', $data);
-
     $cleaned = $existing;
+    $subtab = $submitted['active_subtab'] ?? '';
 
-    // Zahlungsarten
-    if (isset($submitted['payment_credit_card'])) {
+    // Zahlungsarten (Subtab: payments)
+    if ($subtab === 'payments' || isset($submitted['payment_credit_card']) || isset($submitted['payment_paypal']) || isset($submitted['payment_wero'])) {
         $cleaned['payment_credit_card'] = [
             'enabled' => !empty($submitted['payment_credit_card']['enabled']),
             'sandbox' => !empty($submitted['payment_credit_card']['sandbox'])
         ];
-    }
-    if (isset($submitted['payment_paypal'])) {
         $cleaned['payment_paypal'] = [
             'enabled'   => !empty($submitted['payment_paypal']['enabled']),
             'sandbox'   => !empty($submitted['payment_paypal']['sandbox']),
             'client_id' => trim($submitted['payment_paypal']['client_id'] ?? '')
         ];
-    }
-    if (isset($submitted['payment_wero'])) {
         $cleaned['payment_wero'] = [
             'enabled'       => !empty($submitted['payment_wero']['enabled']),
             'sandbox'       => !empty($submitted['payment_wero']['sandbox']),
@@ -157,28 +177,27 @@ PluginManager::addFilter('plugin_validate_config_shop', function($submitted, $da
         ];
     }
 
-    // Allgemeine Shop-Einstellungen
-    if (isset($submitted['currency'])) {
-        $cleaned['currency'] = in_array($submitted['currency'], ['EUR', 'CHF', 'USD'], true) ? $submitted['currency'] : 'EUR';
-    }
-    if (isset($submitted['shipping_cost'])) {
-        $cleaned['shipping_cost'] = max(0.0, round((float)str_replace(',', '.', (string)$submitted['shipping_cost']), 2));
-    }
-    if (isset($submitted['free_shipping_min'])) {
-        $cleaned['free_shipping_min'] = max(0.0, round((float)str_replace(',', '.', (string)$submitted['free_shipping_min']), 2));
-    }
-    if (isset($submitted['small_business'])) {
+    // Allgemeine Shop-Einstellungen & Startseiten-Integration (Subtab: settings)
+    if ($subtab === 'settings' || isset($submitted['currency']) || isset($submitted['section_title']) || isset($submitted['section_enabled'])) {
+        if (isset($submitted['currency'])) {
+            $cleaned['currency'] = in_array($submitted['currency'], ['EUR', 'CHF', 'USD'], true) ? $submitted['currency'] : 'EUR';
+        }
+        if (isset($submitted['shipping_cost'])) {
+            $cleaned['shipping_cost'] = max(0.0, round((float)str_replace(',', '.', (string)$submitted['shipping_cost']), 2));
+        }
+        if (isset($submitted['free_shipping_min'])) {
+            $cleaned['free_shipping_min'] = max(0.0, round((float)str_replace(',', '.', (string)$submitted['free_shipping_min']), 2));
+        }
+        // Checkboxen zuverlässig speichern (auch wenn unchecked)
         $cleaned['small_business'] = !empty($submitted['small_business']);
-    }
-
-    if (isset($submitted['section_enabled'])) {
         $cleaned['section_enabled'] = !empty($submitted['section_enabled']);
-    }
-    if (isset($submitted['section_title'])) {
-        $cleaned['section_title'] = trim($submitted['section_title']);
-    }
-    if (isset($submitted['section_subtitle'])) {
-        $cleaned['section_subtitle'] = trim($submitted['section_subtitle']);
+
+        if (isset($submitted['section_title'])) {
+            $cleaned['section_title'] = trim($submitted['section_title']);
+        }
+        if (isset($submitted['section_subtitle'])) {
+            $cleaned['section_subtitle'] = trim($submitted['section_subtitle']);
+        }
     }
 
     return $cleaned;
