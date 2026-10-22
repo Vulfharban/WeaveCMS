@@ -1,0 +1,58 @@
+[
+    {
+        "id": "prod_korb01",
+        "title": "Handgefertigter Weidenkorb „Klassik“",
+        "sku": "KORB-01",
+        "category": "Flechtkunst",
+        "description": "Traditionell aus naturbelassener Weide geflochten. Robuster Henkel, ideal für Marktbesuche, Picknicks oder als stilvolle Wohnraum-Deko.",
+        "price": 49.9,
+        "tax_rate": 19,
+        "stock": 6,
+        "unlimited": false,
+        "image": "images/basket_classic.jpg",
+        "active": true,
+        "created_at": "2026-10-22 07:51:58"
+    },
+    {
+        "id": "prod_diy02",
+        "title": "DIY Weidenflecht-Set für Einsteiger",
+        "sku": "DIY-SET-01",
+        "category": "Kreativsets",
+        "description": "Komplettes Bastel- und Flechtset inklusive 50 biegsamen Weidenruten, Flechtnadel, Formring und bebilderter Schritt-für-Schritt-Anleitung.",
+        "price": 29.9,
+        "tax_rate": 19,
+        "stock": 15,
+        "unlimited": false,
+        "image": "images/diy_kit.jpg",
+        "active": true,
+        "created_at": "2026-10-22 07:51:58"
+    },
+    {
+        "id": "prod_buch03",
+        "title": "Buch: Flechtkunst & Naturmaterialien (Hardcover)",
+        "sku": "BUCH-01",
+        "category": "Literatur",
+        "description": "144 Seiten geballtes Fachwissen: Von der Ernte und Wässerung der Weiden bis zu komplexen Flechtmustern und Gefäßen.",
+        "price": 24.5,
+        "tax_rate": 7,
+        "stock": 20,
+        "unlimited": false,
+        "image": "",
+        "active": true,
+        "created_at": "2026-10-22 07:51:58"
+    },
+    {
+        "id": "prod_gut04",
+        "title": "Gutschein: Weidenflecht-Workshop (Digital)",
+        "sku": "GUT-75",
+        "category": "Gutscheine",
+        "description": "Wertgutschein über 75,00 € für einen Präsenzkurs nach Wahl. Wird sofort nach Zahlung digital per E-Mail ausgestellt.",
+        "price": 75,
+        "tax_rate": 19,
+        "stock": 99,
+        "unlimited": true,
+        "image": "",
+        "active": true,
+        "created_at": "2026-10-22 07:51:58"
+    }
+]

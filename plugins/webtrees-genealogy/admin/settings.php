@@ -6,7 +6,7 @@
  * @var string $csrf_token CSRF-Token
  */
 $config = $config ?? [];
-$webtrees_url = $config['webtrees_url'] ?? '';
+$webtrees_path = $config['webtrees_path'] ?? $config['webtrees_url'] ?? '/webtrees';
 $tree_id = $config['tree_id'] ?? 'tree1';
 $embed_mode = $config['embed_mode'] ?? 'interactive_iframe';
 $default_person = $config['default_person'] ?? 'I1';
@@ -15,6 +15,11 @@ $section_enabled = !empty($config['section_enabled']);
 $section_title = $config['section_title'] ?? 'Familienstammbaum & Ahnenforschung';
 $section_subtitle = $config['section_subtitle'] ?? 'Entdecke unsere Familiengeschichte, Vorfahren und historische Dokumente interaktiv aus Webtrees.';
 $embed_token = $config['embed_token'] ?? '';
+
+// Lokale Server-Dateiprüfung
+$docRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+$testFsPath = $docRoot . '/' . ltrim($webtrees_path, '/');
+$localExists = (!empty($docRoot) && (is_dir($testFsPath) || file_exists($testFsPath)));
 ?>
 <div class="webtrees-settings-panel" style="padding: 1.5rem; background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 14px; margin-top: 1rem;">
     <div style="display:flex; align-items:center; gap: 12px; margin-bottom: 1.5rem;">
@@ -22,9 +27,9 @@ $embed_token = $config['embed_token'] ?? '';
             <span class="material-icons" style="font-size: 28px;">account_tree</span>
         </div>
         <div>
-            <h3 style="margin:0; font-size: 1.3rem;">🌳 Webtrees Stammbaum-Integration</h3>
+            <h3 style="margin:0; font-size: 1.3rem;">🌳 Webtrees Stammbaum-Integration (Same-Server)</h3>
             <p style="margin:2px 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">
-                Verbindet WeaveCMS direkt mit deiner Webtrees Genealogie-Plattform.
+                Bindet deine lokale Webtrees-Installation auf demselben Webserver sicher und datenschutzkonform ein. Externe Server-URLs sind nicht gestattet.
             </p>
         </div>
     </div>
@@ -36,9 +41,28 @@ $embed_token = $config['embed_token'] ?? '';
 
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
             <div class="form-group" style="margin-bottom:0;">
-                <label style="font-weight: 600; font-size: 0.9rem; display:block; margin-bottom: 6px;">Webtrees Server-URL <span style="color:#ef4444;">*</span></label>
-                <input type="url" id="webtrees_url_input" name="webtrees_url" class="form-control" placeholder="https://stammbaum.meine-domain.de" value="<?php echo htmlspecialchars($webtrees_url); ?>" required>
-                <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:4px;">Vollständige URL deiner Webtrees-Installation (inkl. https://).</div>
+                <label style="font-weight: 600; font-size: 0.9rem; display:block; margin-bottom: 6px;">
+                    Lokaler Server-Pfad zur Webtrees-Startseite <span style="color:#ef4444;">*</span>
+                </label>
+                <div style="position:relative;">
+                    <input type="text" id="webtrees_path_input" name="webtrees_path" class="form-control" 
+                           placeholder="/webtrees oder /webtrees/index.php" 
+                           value="<?php echo htmlspecialchars($webtrees_path); ?>" 
+                           oninput="if(this.value.match(/^https?:\/\//i)){ alert('Externe URLs sind nicht erlaubt. Die Webtrees-Installation muss auf demselben Server liegen.'); this.value = '/' + this.value.replace(/^https?:\/\/[^\/]+/i, '').replace(/^\/+/, ''); }" 
+                           required>
+                </div>
+                <div style="font-size:0.8rem; margin-top:6px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                    <span style="color:var(--text-secondary);">Pfad im Webroot dieses Servers (z. B. <code>/webtrees</code>). Keine externe Domain.</span>
+                    <?php if ($localExists): ?>
+                        <span style="color:#15803d; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                            <span class="material-icons" style="font-size:16px;">check_circle</span> Pfad auf Server gefunden
+                        </span>
+                    <?php else: ?>
+                        <span style="color:var(--text-secondary); font-size:0.78rem;">
+                            (Server-Prüfpfad: <?php echo htmlspecialchars($webtrees_path); ?>)
+                        </span>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <div class="form-group" style="margin-bottom:0;">
@@ -115,9 +139,9 @@ $embed_token = $config['embed_token'] ?? '';
                 <span class="material-icons">save</span> Webtrees-Einstellungen speichern
             </button>
 
-            <?php if (!empty($webtrees_url)): ?>
-                <a href="<?php echo htmlspecialchars(rtrim($webtrees_url, '/') . '/tree/' . urlencode($tree_id)); ?>" target="_blank" class="btn btn-outline" style="display:inline-flex; align-items:center; gap:6px; font-size:0.9rem;">
-                    <span class="material-icons" style="font-size:18px;">open_in_new</span> Webtrees im neuen Tab öffnen
+            <?php if (!empty($webtrees_path)): ?>
+                <a href="<?php echo htmlspecialchars(rtrim($webtrees_path, '/') . '/tree/' . urlencode($tree_id)); ?>" target="_blank" class="btn btn-outline" style="display:inline-flex; align-items:center; gap:6px; font-size:0.9rem;">
+                    <span class="material-icons" style="font-size:18px;">open_in_new</span> Webtrees auf Server aufrufen
                 </a>
             <?php endif; ?>
         </div>

@@ -62,13 +62,31 @@ PluginManager::addAction('frontend_render_custom_section', function($sectionKey,
     require __DIR__ . '/views/tree_embed.php';
 });
 
-// 4. Validierung der Konfigurationsdaten vor dem Speichern
+// 4. Validierung der Konfigurationsdaten vor dem Speichern (Strikte Beschränkung auf lokalen Server-Pfad)
 PluginManager::addFilter('plugin_validate_config_webtrees-genealogy', function($submitted, $data) {
-    $rawUrl = trim($submitted['webtrees_url'] ?? '');
-    if (!empty($rawUrl) && !preg_match('~^https?://~i', $rawUrl)) {
-        $rawUrl = 'https://' . $rawUrl;
+    $rawPath = trim($submitted['webtrees_path'] ?? $submitted['webtrees_url'] ?? '');
+
+    // Externe URLs strikt verbieten (kein http://, https://, // oder sonstige Schemata)
+    if (preg_match('~^(https?:)?//~i', $rawPath)) {
+        // Domain/Protokoll entfernen und nur den Pfadteil extrahieren
+        $parsed = parse_url($rawPath);
+        $rawPath = $parsed['path'] ?? '';
+        if (class_exists('SecurityManager')) {
+            SecurityManager::logEvent('WEBTREES_URL_REJECTED', "Externe Webtrees-URL abgefangen. Webtrees muss auf demselben Server liegen.", 'WARNING');
+        }
     }
-    $cleaned['webtrees_url'] = filter_var($rawUrl, FILTER_VALIDATE_URL) ? $rawUrl : '';
+
+    // Pfad bereinigen & normalisieren: muss mit / beginnen und darf keine unbefugten Zeichen enthalten
+    $cleanPath = '/' . ltrim(preg_replace('/[^a-zA-Z0-9_\-\.\/]/', '', $rawPath), '/');
+    if ($cleanPath === '/' && !empty($rawPath)) {
+        $cleanPath = '/webtrees';
+    }
+
+    $cleaned = [];
+    $cleaned['webtrees_path'] = $cleanPath;
+    // Kompatibilitätsfeld für ältere Aufrufe
+    $cleaned['webtrees_url'] = $cleanPath;
+
     $cleaned['tree_id'] = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', trim($submitted['tree_id'] ?? 'tree1'));
     $cleaned['embed_mode'] = in_array($submitted['embed_mode'] ?? '', ['interactive_iframe', 'family_preview']) ? $submitted['embed_mode'] : 'interactive_iframe';
     $cleaned['default_person'] = trim($submitted['default_person'] ?? '');
