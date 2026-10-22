@@ -117,7 +117,7 @@ $controllerResult = AdminController::handlePost($data_file, $data, $csrf_token);
 $success_msg = $controllerResult['success_msg'];
 $error_msg = $controllerResult['error_msg'];
 $active_tab = $controllerResult['active_tab'];
-if (!empty($_GET['tab'])) {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !empty($_GET['tab'])) {
     $active_tab = preg_replace('/[^a-zA-Z0-9_\-]/', '', (string)$_GET['tab']);
 }
 

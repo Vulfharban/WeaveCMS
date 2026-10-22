@@ -227,9 +227,6 @@ class AdminController {
         if (!empty($_POST['target_tab']) && is_string($_POST['target_tab'])) {
             return trim($_POST['target_tab']);
         }
-        if (!empty($_GET['tab']) && is_string($_GET['tab'])) {
-            return trim($_GET['tab']);
-        }
         if (strpos($action, 'shop') !== false || strpos($action, 'webtrees') !== false || strpos($action, 'inventory') !== false || strpos($action, 'inv_') !== false) {
             return 'tab-plugins';
         }
@@ -274,6 +271,10 @@ class AdminController {
             return 'tab-users';
         } elseif (strpos($action, 'texts') !== false || strpos($action, 'section') !== false) {
             return 'tab-texts';
+        }
+
+        if (!empty($_GET['tab']) && is_string($_GET['tab'])) {
+            return trim($_GET['tab']);
         }
         return 'tab-dashboard';
     }

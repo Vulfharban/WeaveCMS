@@ -94,6 +94,7 @@
                                 <form method="POST" action="" style="display:inline; margin:0;">
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                     <input type="hidden" name="action" value="toggle_section_visibility">
+                                    <input type="hidden" name="target_tab" value="tab-texts">
                                     <input type="hidden" name="section_id" value="<?php echo htmlspecialchars($sec['id']); ?>">
                                     <button type="submit" class="btn btn-outline" style="padding: 5px 12px; font-size: 0.8rem; display:inline-flex; align-items:center; gap:5px; <?php echo $is_vis ? 'color:#34d399; border-color:#34d399;' : 'color:var(--text-secondary);'; ?>" title="<?php echo $is_vis ? 'Sektion verbergen' : 'Sektion einblenden'; ?>">
                                         <span class="material-icons" style="font-size:16px;"><?php echo $is_vis ? 'visibility' : 'visibility_off'; ?></span>
@@ -105,6 +106,7 @@
                                 <form method="POST" action="" style="display:inline; margin:0;">
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                     <input type="hidden" name="action" value="move_section">
+                                    <input type="hidden" name="target_tab" value="tab-texts">
                                     <input type="hidden" name="section_id" value="<?php echo htmlspecialchars($sec['id']); ?>">
                                     <input type="hidden" name="direction" value="up">
                                     <button type="submit" class="btn btn-outline" style="padding: 5px 8px; font-size:0.8rem;" <?php if ($idx === 0) echo 'disabled style="opacity:0.3; cursor:not-allowed;"'; ?> title="Nach oben verschieben">
@@ -116,6 +118,7 @@
                                 <form method="POST" action="" style="display:inline; margin:0;">
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                     <input type="hidden" name="action" value="move_section">
+                                    <input type="hidden" name="target_tab" value="tab-texts">
                                     <input type="hidden" name="section_id" value="<?php echo htmlspecialchars($sec['id']); ?>">
                                     <input type="hidden" name="direction" value="down">
                                     <button type="submit" class="btn btn-outline" style="padding: 5px 8px; font-size:0.8rem;" <?php if ($idx === $sec_count - 1) echo 'disabled style="opacity:0.3; cursor:not-allowed;"'; ?> title="Nach unten verschieben">
@@ -231,6 +234,7 @@
             <form method="POST" action="">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="update_texts">
+                <input type="hidden" name="target_tab" value="tab-texts">
                 <input type="hidden" name="target_lang" value="<?php echo htmlspecialchars($edit_lang); ?>">
                 
                 <h3 style="font-size: 1.2rem; margin-top: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
