@@ -259,7 +259,10 @@
         "impressum_email_captcha": false,
         "accessibility_bar_enabled": false,
         "menu_style": "horizontal_minimal",
-        "sidebar_position": "left"
+        "sidebar_position": "left",
+        "logo_type": "motif",
+        "logo_max_height": 44,
+        "site_architecture": "hybrid"
     },
     "texts": {
         "hero_title": "Atelier Musterfrau",
