@@ -191,7 +191,7 @@ function selectLogoPosition(cardEl, posVal) {
 function updateLogoColor(colorVal) {
     const disp = document.getElementById('color_code_display');
     if (disp) disp.textContent = colorVal;
-    document.querySelectorAll('#tab-settings .logo-paw-wrapper, #tab-settings .hero-logo-wrapper').forEach(wrap => {
+    document.querySelectorAll('#tab-design .logo-paw-wrapper, #tab-design .hero-logo-wrapper, #tab-settings .logo-paw-wrapper, #tab-settings .hero-logo-wrapper').forEach(wrap => {
         wrap.style.color = colorVal;
     });
 }

@@ -220,7 +220,8 @@ if (UserManager::canAccessTab('tab-inbox', $cur_user['role'])) {
 // System, Benutzer, Design & SEO (nur für Administratoren)
 if ($cur_user['role'] === UserManager::ROLE_ADMIN) {
     require __DIR__ . '/views/tab_users.php';
-    require __DIR__ . '/views/tab_settings.php';
+    require __DIR__ . '/views/tab_display.php';
+    require __DIR__ . '/views/tab_design.php';
     require __DIR__ . '/views/tab_seo.php';
     require __DIR__ . '/views/tab_security.php';
     require __DIR__ . '/views/tab_plugins.php';

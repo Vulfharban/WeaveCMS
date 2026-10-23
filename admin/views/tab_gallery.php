@@ -42,7 +42,7 @@
                         💡 <b>Empfohlene Bildgröße:</b> <?php echo htmlspecialchars($layout_hints[$active_layout] ?? ''); ?>
                     </div>
                 </div>
-                <button type="button" class="btn btn-outline" onclick="switchTab('tab-settings')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
+                <button type="button" class="btn btn-outline" onclick="switchTab('tab-display')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
                     <span class="material-icons" style="font-size:16px;">tune</span> Layout &amp; Formate ändern
                 </button>
             </div>
