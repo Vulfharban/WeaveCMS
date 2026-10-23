@@ -94,8 +94,15 @@ class AdminController {
                 self::handlePluginAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
-            case 'update_settings':
+            case 'update_display':
+                self::handleDisplaySettings($dataFile, $data, $success_msg, $error_msg);
+                break;
+
             case 'update_design':
+                self::handleDesignSettings($dataFile, $data, $success_msg, $error_msg);
+                break;
+
+            case 'update_settings':
                 self::handleSettings($dataFile, $data, $success_msg, $error_msg);
                 break;
 
@@ -263,8 +270,12 @@ class AdminController {
             return 'tab-security';
         } elseif (strpos($action, 'plugin') !== false) {
             return 'tab-plugins';
-        } elseif (strpos($action, 'settings') !== false || strpos($action, 'design') !== false) {
-            return 'tab-settings';
+        } elseif (strpos($action, 'display') !== false) {
+            return 'tab-display';
+        } elseif (strpos($action, 'design') !== false) {
+            return 'tab-design';
+        } elseif (strpos($action, 'settings') !== false) {
+            return 'tab-display';
         } elseif (strpos($action, 'contact') !== false || strpos($action, 'impressum') !== false) {
             return 'tab-impressum';
         } elseif (strpos($action, 'user') !== false) {
@@ -362,6 +373,197 @@ class AdminController {
             } else {
                 $error_msg = $res['message'];
             }
+        }
+    }
+
+    /**
+     * Verarbeitet Darstellungseinstellungen (Galerie-Layout, Kacheln, Menü-Platzierung, Architektur, Menü-Stil, Barrierefreiheit, Sprachen).
+     */
+    protected static function handleDisplaySettings(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        $gallery_layout = $_POST['gallery_layout'] ?? ($data['settings']['gallery_layout'] ?? 'ambient_blur');
+        if (!in_array($gallery_layout, ['ambient_blur', 'masonry', 'editorial', 'classic'])) {
+            $gallery_layout = 'ambient_blur';
+        }
+        $data['settings']['gallery_layout'] = $gallery_layout;
+        $data['settings']['gallery_lightbox'] = !empty($_POST['gallery_lightbox']);
+
+        $card_radius = $_POST['card_radius'] ?? ($data['settings']['card_radius'] ?? '20px');
+        if (!in_array($card_radius, ['10px', '20px', '28px'])) {
+            $card_radius = '20px';
+        }
+        $data['settings']['card_radius'] = $card_radius;
+
+        $gallery_gap = $_POST['gallery_gap'] ?? ($data['settings']['gallery_gap'] ?? '2rem');
+        if (!in_array($gallery_gap, ['1.25rem', '2rem', '2.75rem'])) {
+            $gallery_gap = '2rem';
+        }
+        $data['settings']['gallery_gap'] = $gallery_gap;
+
+        // Platzierung von Kontakt und Impressum (Header / Footer / Beides)
+        $contact_placement = $_POST['contact_placement'] ?? ($data['settings']['contact_placement'] ?? 'both');
+        if (!in_array($contact_placement, ['header', 'footer', 'both'], true)) {
+            $contact_placement = 'both';
+        }
+        $data['settings']['contact_placement'] = $contact_placement;
+
+        $impressum_placement = $_POST['impressum_placement'] ?? ($data['settings']['impressum_placement'] ?? 'both');
+        if (!in_array($impressum_placement, ['header', 'footer', 'both'], true)) {
+            $impressum_placement = 'both';
+        }
+        $data['settings']['impressum_placement'] = $impressum_placement;
+
+        // Phase 18: Globaler Website-Architektur-Wahlschalter
+        $site_architecture = $_POST['site_architecture'] ?? ($data['settings']['site_architecture'] ?? SectionManager::ARCHITECTURE_ONEPAGE);
+        if (!in_array($site_architecture, [SectionManager::ARCHITECTURE_ONEPAGE, SectionManager::ARCHITECTURE_MULTIPAGE, SectionManager::ARCHITECTURE_HYBRID], true)) {
+            $site_architecture = SectionManager::ARCHITECTURE_ONEPAGE;
+        }
+        $data['settings']['site_architecture'] = $site_architecture;
+
+        // Phase 19: Menü-Stil & Sidebar-Position
+        $cur_menu_types = ThemeManager::getMenuTypes($data);
+        $menu_style = $_POST['menu_style'] ?? ($data['settings']['menu_style'] ?? ThemeManager::MENU_HORIZONTAL_MINIMAL);
+        if (!isset($cur_menu_types[$menu_style])) {
+            $menu_style = ThemeManager::MENU_HORIZONTAL_MINIMAL;
+        }
+        $data['settings']['menu_style'] = $menu_style;
+
+        $sidebar_position = $_POST['sidebar_position'] ?? ($data['settings']['sidebar_position'] ?? ThemeManager::SIDEBAR_LEFT);
+        if (!in_array($sidebar_position, [ThemeManager::SIDEBAR_LEFT, ThemeManager::SIDEBAR_RIGHT], true)) {
+            $sidebar_position = ThemeManager::SIDEBAR_LEFT;
+        }
+        $data['settings']['sidebar_position'] = $sidebar_position;
+
+        // Besucher-Barrierefreiheitsleiste (Phase 16)
+        $data['settings']['accessibility_bar_enabled'] = !empty($_POST['accessibility_bar_enabled']);
+
+        // Mehrsprachigkeit (Phase 8): Primärsprache & aktive Sprachen
+        $supported = LanguageManager::getSupportedLanguages();
+        $primary_lang = trim($_POST['primary_language'] ?? ($data['settings']['primary_language'] ?? 'de'));
+        if (!isset($supported[$primary_lang])) {
+            $primary_lang = 'de';
+        }
+        $data['settings']['primary_language'] = $primary_lang;
+
+        $posted_active = $_POST['active_languages'] ?? null;
+        $active_langs = [];
+        if (is_array($posted_active)) {
+            foreach ($posted_active as $code) {
+                if (isset($supported[$code]) && !in_array($code, $active_langs, true)) {
+                    $active_langs[] = $code;
+                }
+            }
+        }
+        if (!in_array($primary_lang, $active_langs, true)) {
+            array_unshift($active_langs, $primary_lang);
+        }
+        $data['settings']['active_languages'] = $active_langs;
+
+        if (save_data($dataFile, $data)) {
+            $success_msg = 'Darstellungseinstellungen erfolgreich gespeichert!';
+        } else {
+            $error_msg = 'Fehler beim Speichern der Darstellungseinstellungen.';
+        }
+    }
+
+    /**
+     * Verarbeitet Design-, Farbschema- und Branding-Aktualisierungen.
+     */
+    protected static function handleDesignSettings(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        // Phase 11: Logo- & Branding-Verwaltung
+        $logo_type = $_POST['logo_type'] ?? ($data['settings']['logo_type'] ?? 'text');
+        if (!in_array($logo_type, ['text', 'image', 'icon_text', 'motif'], true)) {
+            $logo_type = 'text';
+        }
+        $data['settings']['logo_type'] = $logo_type;
+
+        $logo_max_height = (int)($_POST['logo_max_height'] ?? ($data['settings']['logo_max_height'] ?? 44));
+        if ($logo_max_height < 24 || $logo_max_height > 120) {
+            $logo_max_height = 44;
+        }
+        $data['settings']['logo_max_height'] = $logo_max_height;
+
+        // Logo Upload
+        if (!empty($_FILES['logo_file']['name'])) {
+            $uploadedLogo = ImageUploader::uploadLogo('logo_file');
+            if ($uploadedLogo) {
+                $data['settings']['logo_image'] = $uploadedLogo;
+            } else {
+                $error_msg = 'Fehler beim Hochladen des Logos (nur SVG, PNG, WebP, JPG erlaubt).';
+            }
+        } elseif (!empty($_POST['delete_logo'])) {
+            $data['settings']['logo_image'] = '';
+        }
+
+        // Favicon Upload
+        if (!empty($_FILES['favicon_file']['name'])) {
+            $uploadedFav = ImageUploader::uploadFavicon('favicon_file');
+            if ($uploadedFav) {
+                $data['settings']['favicon'] = $uploadedFav;
+            } else {
+                $error_msg = 'Fehler beim Hochladen des Favicons (nur ICO, SVG, PNG erlaubt).';
+            }
+        } elseif (!empty($_POST['delete_favicon'])) {
+            $data['settings']['favicon'] = '';
+        }
+
+        $hero_logo_motif = $_POST['hero_logo_motif'] ?? ($data['settings']['hero_logo_motif'] ?? 'paw_simple');
+        if (!in_array($hero_logo_motif, ['paw_simple', 'paw_beach', 'paw_willow', 'none'])) {
+            $hero_logo_motif = 'paw_simple';
+        }
+        $data['settings']['hero_logo_motif'] = $hero_logo_motif;
+
+        $hero_logo_color = trim($_POST['hero_logo_color'] ?? ($data['settings']['hero_logo_color'] ?? '#b26c39'));
+        if (!preg_match('/^#[a-fA-F0-9]{3,6}$/', $hero_logo_color)) {
+            $hero_logo_color = '#b26c39';
+        }
+        $data['settings']['hero_logo_color'] = $hero_logo_color;
+
+        $logo_position = $_POST['logo_position'] ?? ($data['settings']['logo_position'] ?? 'header_before');
+        if (!in_array($logo_position, ['header_before', 'header_after', 'hero_before', 'hero_after'])) {
+            $logo_position = 'header_before';
+        }
+        $data['settings']['logo_position'] = $logo_position;
+
+        $design_theme = $_POST['design_theme'] ?? ($data['settings']['design_theme'] ?? 'nature_classic');
+        if (!in_array($design_theme, ['nature_classic', 'moor_amber', 'nordic_sage', 'terracotta_atelier', 'custom'])) {
+            $design_theme = 'nature_classic';
+        }
+        $data['settings']['design_theme'] = $design_theme;
+
+        $container_width = $_POST['container_width'] ?? ($data['settings']['container_width'] ?? '1200px');
+        if (!in_array($container_width, ['1050px', '1200px', '1400px'])) {
+            $container_width = '1200px';
+        }
+        $data['settings']['container_width'] = $container_width;
+
+        $primary_color = trim($_POST['primary_color'] ?? ($data['settings']['primary_color'] ?? '#2e6248'));
+        if (!preg_match('/^#[a-fA-F0-9]{3,6}$/', $primary_color)) {
+            $primary_color = '#2e6248';
+        }
+        $data['settings']['primary_color'] = $primary_color;
+
+        $accent_color = trim($_POST['accent_color'] ?? ($data['settings']['accent_color'] ?? '#b26c39'));
+        if (!preg_match('/^#[a-fA-F0-9]{3,6}$/', $accent_color)) {
+            $accent_color = '#b26c39';
+        }
+        $data['settings']['accent_color'] = $accent_color;
+
+        $bg_color = trim($_POST['bg_color'] ?? ($data['settings']['bg_color'] ?? '#fbf9f6'));
+        if (!preg_match('/^#[a-fA-F0-9]{3,6}$/', $bg_color)) {
+            $bg_color = '#fbf9f6';
+        }
+        $data['settings']['bg_color'] = $bg_color;
+
+        $font_scale = $_POST['font_scale'] ?? ($data['settings']['font_scale'] ?? '100%');
+        if (!in_array($font_scale, ['95%', '100%', '108%'])) {
+            $font_scale = '100%';
+        }
+        $data['settings']['font_scale'] = $font_scale;
+
+        if (save_data($dataFile, $data)) {
+            $success_msg = 'Design &amp; Farbschema erfolgreich gespeichert!';
+        } else {
+            $error_msg = 'Fehler beim Speichern des Designs.';
         }
     }
 

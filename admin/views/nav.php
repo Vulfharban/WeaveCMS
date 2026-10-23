@@ -51,17 +51,16 @@
             <button class="admin-nav-link" id="main-nav-content" onclick="switchTab('tab-content')">
                 <span class="material-icons" style="font-size:18px;">folder_special</span> Inhalte &amp; Seiten
             </button>
-            <?php if (UserManager::canAccessTab('tab-inbox', $nav_role)): ?>
-                <button class="admin-nav-link" onclick="switchTab('tab-inbox')">
-                    <span class="material-icons" style="font-size:18px;">inbox</span> Kontaktanfragen<?php if ($inbox_new_count > 0): ?> <span style="background:#ef4444; color:#fff; border-radius:999px; padding:1px 8px; font-size:0.72rem; font-weight:700; margin-left:4px;"><?php echo (int)$inbox_new_count; ?></span><?php endif; ?>
-                </button>
-            <?php endif; ?>
             <?php if ($nav_role === UserManager::ROLE_ADMIN): ?>
+                <button class="admin-nav-link" id="main-nav-display" onclick="switchTab('tab-display')">
+                    <span class="material-icons" style="font-size:18px;">visibility</span> Darstellung</button>
+                <button class="admin-nav-link" id="main-nav-design" onclick="switchTab('tab-design')">
+                    <span class="material-icons" style="font-size:18px;">brush</span> Design</button>
                 <button class="admin-nav-link" onclick="switchTab('tab-users')">
                     <span class="material-icons" style="font-size:18px;">group</span> Benutzer
                 </button>
-                <button class="admin-nav-link" onclick="switchTab('tab-settings')">
-                    <span class="material-icons" style="font-size:18px;">palette</span> Darstellung &amp; Design
+                <button class="admin-nav-link" onclick="switchTab('tab-plugins')">
+                    <span class="material-icons" style="font-size:18px;">extension</span> Plugins
                 </button>
                 <button class="admin-nav-link" onclick="switchTab('tab-seo')">
                     <span class="material-icons" style="font-size:18px;">travel_explore</span> SEO &amp; Sharing
@@ -69,8 +68,10 @@
                 <button class="admin-nav-link" onclick="switchTab('tab-security')">
                     <span class="material-icons" style="font-size:18px;">security</span> Sicherheit &amp; System
                 </button>
-                <button class="admin-nav-link" onclick="switchTab('tab-plugins')">
-                    <span class="material-icons" style="font-size:18px;">extension</span> Plugins
+            <?php endif; ?>
+            <?php if (UserManager::canAccessTab('tab-inbox', $nav_role)): ?>
+                <button class="admin-nav-link" onclick="switchTab('tab-inbox')">
+                    <span class="material-icons" style="font-size:18px;">inbox</span> Kontaktanfragen<?php if ($inbox_new_count > 0): ?> <span style="background:#ef4444; color:#fff; border-radius:999px; padding:1px 8px; font-size:0.72rem; font-weight:700; margin-left:4px;"><?php echo (int)$inbox_new_count; ?></span><?php endif; ?>
                 </button>
             <?php endif; ?>
         </div>
