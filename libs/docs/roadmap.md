@@ -606,3 +606,46 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Umschalten zwischen allen 3 Menüarten im Design-Tab.
   - Prüfen der Desktop- und Mobilansicht für horizontale und vertikale Sidebar-Navigation.
   - Test-Plugin zur Registrierung eines individuellen Menüstils über den neuen Plugin-Hook.
+
+---
+
+### Phase 20: Forum-Plugin & Forum-User-Plugin
+*Ziel: Zwei zusammengehörige Plugins, die WeaveCMS um ein vollwertiges Diskussionsforum mit eigener, vom CMS-Backend getrennter Benutzerverwaltung erweitern.*
+
+#### Plugin A: Forum (`weave-forum`)
+- [ ] **20.1 Bereiche & Struktur:**
+  - Konfigurierbare Foren-Bereiche (Kategorien) mit Titel, Beschreibung, Icon und Sortierung.
+  - Unterforen / Unterthemen pro Bereich (mehrstufig), je mit eigener Beschreibung und Sichtbarkeit (öffentlich, nur angemeldete Forum-User, nur Moderatoren/Admins).
+  - Themen (Threads) und Beiträge (Posts) mit Antworten, Zitierfunktion und Pagination.
+- [ ] **20.2 Administration & Einstellungen:**
+  - Eigener Plugin-Reiter im Adminbereich zur Verwaltung von Bereichen, Unterforen und Rechten.
+  - Globale Einstellungen: Forum-Titel, Beiträge pro Seite, Registrierungsmodus (offen / mit Freigabe / geschlossen), Editor-Optionen (Markdown/BBCode), Bild-/Datei-Anhänge, Signaturen, Spam-Schutz (Captcha/Honeypot, Rate-Limit).
+  - Eingebunden in das Frontend über Sektion/Seite und Menü (Anbindung an Phase-18-Routing).
+- [ ] **20.3 Moderierungsfunktionen:**
+  - Themen und Beiträge: verschieben, zusammenführen, teilen, schließen, anpinnen, löschen, bearbeiten.
+  - Meldefunktion für Beiträge durch User inkl. Moderations-Queue (offen / erledigt / abgelehnt).
+  - Freigabe-Warteschlange für neue User oder bestimmte Bereiche.
+  - Verwarnen, zeitlich begrenztes Sperren und Bannen von Usern; Wortfilter; Moderations-Log (Audit-Trail).
+- [ ] **20.4 Benachrichtigungen:**
+  - Optionale E-Mail-Benachrichtigung bei Antworten, Erwähnungen und Moderationsereignissen; Abonnieren von Themen/Foren.
+
+#### Plugin B: Forum-User (`weave-forum-users`)
+- [ ] **20.5 Eigene Benutzerkategorien (Rollen) nur für das Forum:**
+  - Strikte Trennung von den CMS-Backend-Rollen (Administrator, Moderator, Redakteur).
+  - Vordefinierte Forum-Rollen:
+    1. **Forum-Admin:** Volle Verwaltung des Forums (Bereiche, Einstellungen, Rollen, User).
+    2. **Forum-Moderator:** Moderierungsfunktionen, ggf. auf einzelne Bereiche beschränkt.
+    3. **Normaler Forum-User:** Lesen, Themen erstellen, antworten, eigene Beiträge bearbeiten.
+  - Erweiterbar um frei definierbare weitere Forum-Rollen mit granularer Rechtematrix (pro Bereich: lesen / schreiben / moderieren).
+- [ ] **20.6 Registrierung & Konto-Verwaltung (Frontend):**
+  - Registrierung, Login/Logout, E-Mail-Bestätigung, Passwort-Reset, Profilseite (Avatar, Signatur, Beitragsstatistik).
+  - Passwörter ausschließlich gehasht (`password_hash`), CSRF-Schutz, Brute-Force-Sperre.
+- [ ] **20.7 Benutzerverwaltung (Backend):**
+  - Liste, Suche und Filter aller Forum-User; Rollen zuweisen, aktivieren/sperren, löschen (DSGVO-konform inkl. Datenexport und Anonymisierung).
+- [ ] **20.8 Plugin-Schnittstelle & Abhängigkeit:**
+  - Das Forum-Plugin nutzt das Forum-User-Plugin als Abhängigkeit (Prüfung beim Aktivieren inkl. Hinweis im Plugin-Manager).
+  - Bereitstellung von Hooks für Authentifizierung und Rollenprüfung, damit das Forum nicht fest an eine Implementierung gebunden ist.
+- [ ] **20.9 Prüfung & Abnahme:**
+  - Bereiche und Unterforen anlegen, Rechte je Rolle testen.
+  - Registrierung, Login und Rollenwechsel testen; sicherstellen, dass Forum-User keinen Zugriff auf das CMS-Backend erhalten.
+  - Moderationsabläufe (Melden, Verschieben, Sperren) und Audit-Log prüfen.
