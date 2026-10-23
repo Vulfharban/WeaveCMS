@@ -9,6 +9,9 @@ logs/*.log
 .idea/
 .vscode/
 
+# JSON files
+.json
+
 # WeaveCMS Environment & Locks
 installed.lock
 config.local.php
