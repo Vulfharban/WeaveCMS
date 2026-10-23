@@ -498,7 +498,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom: 0.75rem;">
                     <div>
                         <h3 style="font-size: 1.25rem; margin-bottom: 0.25rem; display:flex; align-items:center; gap:8px; color:var(--primary);">
-                            <span class="material-icons" style="color:var(--primary);">storage</span> Speicher-Engine &amp; 1-Klick-Daten-Migration (Phase 7.3)
+                            <span class="material-icons" style="color:var(--primary);">storage</span> Speicher-Engine &amp; 1-Klick-Daten-Migration
                         </h3>
                         <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0;">
                             Wahlfreiheit zwischen Flat-File JSON und relationaler MySQL/MariaDB-Datenbank mit nahtloser 1-Klick-Datenübertragung.
