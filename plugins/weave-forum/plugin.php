@@ -11,9 +11,17 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 
 require_once __DIR__ . '/ForumManager.php';
 
-// -----------------------------------------------------------------------------
-// 1. Admin Aktionen (POST)
-// -----------------------------------------------------------------------------
+// Sitzung und CSRF-Schutz initialisieren
+if (session_status() === PHP_SESSION_NONE) {
+    @session_start();
+}
+if (empty($_SESSION['csrf_token'])) {
+    if (class_exists('AuthManager')) {
+        $_SESSION['csrf_token'] = AuthManager::getCsrfToken();
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+}
 if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
@@ -145,8 +153,21 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $title = trim($_POST['title'] ?? '');
             $content = trim($_POST['content'] ?? '');
 
+            // Rate Limit
+            global $data;
+            $cfg = PluginManager::getPluginConfig('weave-forum', $data ?? []);
+            $rateLimit = (int)($cfg['rate_limit_seconds'] ?? 0);
+            $lastPost = $_SESSION['forum_last_post_time'] ?? 0;
+            if ($rateLimit > 0 && (time() - $lastPost < $rateLimit) && !ForumUserManager::userCan('moderate', $currentUser)) {
+                $wait = $rateLimit - (time() - $lastPost);
+                $_SESSION['forum_error'] = "Bitte warte noch {$wait} Sekunden, bevor du einen weiteren Beitrag verfasst.";
+                header('Location: ?page=forum&view=new_topic&board=' . urlencode($boardId));
+                exit;
+            }
+
             $res = ForumManager::createTopic($boardId, $title, $content, $currentUser);
             if ($res['success']) {
+                $_SESSION['forum_last_post_time'] = time();
                 header('Location: ?page=forum&view=topic&id=' . urlencode($res['topic_id']));
                 exit;
             }
@@ -160,11 +181,25 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $topicId = trim($_POST['topic_id'] ?? '');
             $content = trim($_POST['content'] ?? '');
 
+            // Rate Limit
+            global $data;
+            $cfg = PluginManager::getPluginConfig('weave-forum', $data ?? []);
+            $rateLimit = (int)($cfg['rate_limit_seconds'] ?? 0);
+            $lastPost = $_SESSION['forum_last_post_time'] ?? 0;
+            if ($rateLimit > 0 && (time() - $lastPost < $rateLimit) && !ForumUserManager::userCan('moderate', $currentUser)) {
+                $wait = $rateLimit - (time() - $lastPost);
+                $_SESSION['forum_reply_error'] = "Bitte warte noch {$wait} Sekunden, bevor du einen weiteren Beitrag verfasst.";
+                header('Location: ?page=forum&view=topic&id=' . urlencode($topicId));
+                exit;
+            }
+
             $res = ForumManager::addPost($topicId, $content, $currentUser);
             if ($res['success']) {
+                $_SESSION['forum_last_post_time'] = time();
                 header('Location: ?page=forum&view=topic&id=' . urlencode($topicId) . '#post-' . urlencode($res['post_id']));
                 exit;
             }
+            $_SESSION['forum_reply_error'] = $res['message'] ?? 'Fehler beim Antworten.';
             header('Location: ?page=forum&view=topic&id=' . urlencode($topicId));
             exit;
         }

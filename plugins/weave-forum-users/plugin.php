@@ -11,9 +11,17 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 
 require_once __DIR__ . '/ForumUserManager.php';
 
-// -----------------------------------------------------------------------------
-// 1. Admin Aktionen (POST & GET)
-// -----------------------------------------------------------------------------
+// Sitzung und CSRF-Schutz initialisieren falls noch nicht erfolgt
+if (session_status() === PHP_SESSION_NONE) {
+    @session_start();
+}
+if (empty($_SESSION['csrf_token'])) {
+    if (class_exists('AuthManager')) {
+        $_SESSION['csrf_token'] = AuthManager::getCsrfToken();
+    } else {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+}
 if (!empty($_SESSION['admin_logged_in'])) {
     
     // POST-Aktionen
@@ -169,7 +177,19 @@ if (!empty($_GET['forum_auth'])) {
             if ($authAction === 'update_profile') {
                 $cur = ForumUserManager::getCurrentUser();
                 if ($cur) {
-                    $cur['email'] = trim(mb_strtolower($_POST['email'] ?? $cur['email']));
+                    $newEmail = trim(mb_strtolower($_POST['email'] ?? $cur['email']));
+                    if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+                        $_SESSION['forum_profile_msg'] = 'invalid_email';
+                        header('Location: ?page=forum&view=profile');
+                        exit;
+                    }
+                    $existing = ForumUserManager::findUser($newEmail);
+                    if ($existing && $existing['id'] !== $cur['id']) {
+                        $_SESSION['forum_profile_msg'] = 'email_taken';
+                        header('Location: ?page=forum&view=profile');
+                        exit;
+                    }
+                    $cur['email'] = $newEmail;
                     $cur['bio'] = trim($_POST['bio'] ?? '');
                     $cur['signature'] = trim($_POST['signature'] ?? '');
                     $cur['notification_email'] = !empty($_POST['notification_email']) ? 1 : 0;

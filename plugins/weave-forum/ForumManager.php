@@ -34,8 +34,8 @@ class ForumManager {
             $data = $GLOBALS['data'] ?? [];
             if (!empty($data)) {
                 $cfg = PluginManager::getPluginConfig('weave-forum', $data);
-                if (!empty($cfg['storage_driver'])) {
-                    return $cfg['storage_driver'] === 'sqlite' ? 'sqlite' : 'json';
+                if (!empty($cfg['storage_driver']) && $cfg['storage_driver'] === 'sqlite') {
+                    return self::isSqliteSupported() ? 'sqlite' : 'json';
                 }
             }
         }
@@ -302,10 +302,8 @@ class ForumManager {
 
         $raw = @file_get_contents($file);
         $data = json_decode((string)$raw, true);
-        if (!is_array($data) || empty($data['categories'])) {
-            $default = self::getDefaultData();
-            self::saveJsonData($default);
-            return $default;
+        if (!is_array($data)) {
+            return self::getDefaultData();
         }
 
         return $data;
@@ -1232,6 +1230,19 @@ class ForumManager {
 
     public static function filterBadWords(string $text): string {
         $badwords = ['spamlink', 'viagra', 'casino777', 'warez'];
+        if (class_exists('PluginManager')) {
+            $data = $GLOBALS['data'] ?? [];
+            $cfg = PluginManager::getPluginConfig('weave-forum', $data);
+            if (!empty($cfg['badwords'])) {
+                $customWords = preg_split('/[\r\n,]+/', (string)$cfg['badwords']);
+                foreach ($customWords as $cw) {
+                    $cw = trim($cw);
+                    if ($cw !== '' && !in_array($cw, $badwords, true)) {
+                        $badwords[] = $cw;
+                    }
+                }
+            }
+        }
         foreach ($badwords as $bw) {
             $text = preg_replace('/\b' . preg_quote($bw, '/') . '\b/iu', '***', $text);
         }

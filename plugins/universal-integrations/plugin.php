@@ -101,9 +101,10 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
             $rawAttrs = $matches[1] ?? '';
             $params = [];
             if (!empty($rawAttrs)) {
-                preg_match_all('/([a-zA-Z0-9_-]+)="([^"]*)"/', $rawAttrs, $attrMatches, PREG_SET_ORDER);
+                preg_match_all('/([a-zA-Z0-9_-]+)=(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))/', $rawAttrs, $attrMatches, PREG_SET_ORDER);
                 foreach ($attrMatches as $am) {
-                    $params[$am[1]] = $am[2];
+                    $val = $am[2] !== '' ? $am[2] : ($am[3] !== '' ? $am[3] : ($am[4] ?? ''));
+                    $params[$am[1]] = $val;
                 }
             }
 
@@ -127,9 +128,10 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
             $rawAttrs = $matches[1] ?? '';
             $params = [];
             if (!empty($rawAttrs)) {
-                preg_match_all('/([a-zA-Z0-9_-]+)="([^"]*)"/', $rawAttrs, $attrMatches, PREG_SET_ORDER);
+                preg_match_all('/([a-zA-Z0-9_-]+)=(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))/', $rawAttrs, $attrMatches, PREG_SET_ORDER);
                 foreach ($attrMatches as $am) {
-                    $params[$am[1]] = $am[2];
+                    $val = $am[2] !== '' ? $am[2] : ($am[3] !== '' ? $am[3] : ($am[4] ?? ''));
+                    $params[$am[1]] = $val;
                 }
             }
 
@@ -175,6 +177,22 @@ PluginManager::addFilter('registered_sections', function($sections, $data) {
                 'placement' => 'page',
                 'icon' => $item['icon'] ?? 'hub'
             ];
+            // Legacy-Alias für webtrees
+            if ($item['slug'] === 'webtrees') {
+                $sections[] = [
+                    'id' => 'webtrees',
+                    'type' => 'universal_integration',
+                    'title' => !empty($item['title']) ? $item['title'] : $item['name'],
+                    'nav_label' => $item['name'],
+                    'visible' => true,
+                    'in_nav' => false,
+                    'plugin' => 'universal-integrations',
+                    'integration_slug' => 'webtrees',
+                    'can_delete' => false,
+                    'placement' => 'page',
+                    'icon' => $item['icon'] ?? 'hub'
+                ];
+            }
         }
     }
     return $sections;
@@ -210,6 +228,31 @@ PluginManager::addFilter('visible_sections', function($sections, $data) {
                     'icon' => $item['icon'] ?? 'hub'
                 ];
             }
+
+            // Legacy-Alias
+            if ($item['slug'] === 'webtrees') {
+                $hasWebtrees = false;
+                foreach ($sections as $s) {
+                    if (($s['id'] ?? '') === 'webtrees') {
+                        $hasWebtrees = true;
+                        break;
+                    }
+                }
+                if (!$hasWebtrees) {
+                    $sections[] = [
+                        'id' => 'webtrees',
+                        'type' => 'universal_integration',
+                        'title' => !empty($item['title']) ? $item['title'] : $item['name'],
+                        'nav_label' => $item['name'],
+                        'visible' => true,
+                        'in_nav' => false,
+                        'plugin' => 'universal-integrations',
+                        'integration_slug' => 'webtrees',
+                        'placement' => 'page',
+                        'icon' => $item['icon'] ?? 'hub'
+                    ];
+                }
+            }
         }
     }
     return $sections;
@@ -220,6 +263,11 @@ PluginManager::addAction('frontend_render_custom_section', function($sectionId, 
     if (str_starts_with($sectionId, 'integration_')) {
         $slug = substr($sectionId, 12);
         $item = IntegrationManager::getIntegration($slug, $data);
+        if ($item && !empty($item['active'])) {
+            echo IntegrationManager::render($item, ['is_section' => true]);
+        }
+    } elseif ($sectionId === 'webtrees') {
+        $item = IntegrationManager::getIntegration('webtrees', $data);
         if ($item && !empty($item['active'])) {
             echo IntegrationManager::render($item, ['is_section' => true]);
         }

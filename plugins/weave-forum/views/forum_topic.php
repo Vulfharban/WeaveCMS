@@ -264,6 +264,16 @@ $allBoards = ForumManager::getBoards();
             <p>Dieses Thema ist geschlossen. Weitere Antworten sind nicht möglich.</p>
         </div>
     <?php elseif ($canReply): ?>
+        <?php 
+        $replyError = $_SESSION['forum_reply_error'] ?? '';
+        unset($_SESSION['forum_reply_error']);
+        ?>
+        <?php if (!empty($replyError)): ?>
+            <div class="alert alert-danger mb-4">
+                <span class="material-icons">error_outline</span>
+                <?= htmlspecialchars($replyError) ?>
+            </div>
+        <?php endif; ?>
         <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
             <span class="material-icons text-primary">reply</span> Antwort verfassen
         </h3>

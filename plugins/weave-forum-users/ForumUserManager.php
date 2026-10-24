@@ -43,8 +43,8 @@ class ForumUserManager {
             $data = $GLOBALS['data'] ?? [];
             if (!empty($data)) {
                 $cfg = PluginManager::getPluginConfig('weave-forum-users', $data);
-                if (!empty($cfg['storage_driver'])) {
-                    return $cfg['storage_driver'] === 'sqlite' ? 'sqlite' : 'json';
+                if (!empty($cfg['storage_driver']) && $cfg['storage_driver'] === 'sqlite') {
+                    return self::isSqliteSupported() ? 'sqlite' : 'json';
                 }
             }
         }
