@@ -15,12 +15,23 @@
     <link href="../libs/css/styles.css?v=<?php echo file_exists(dirname(__DIR__, 2) . '/libs/css/styles.css') ? filemtime(dirname(__DIR__, 2) . '/libs/css/styles.css') : time(); ?>" rel="stylesheet">
 </head>
 <body class="admin-login-body">
+    <?php 
+        // Phase 15: Flüchtiger Sandbox-Banner (Login)
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            SandboxManager::renderBanner('login');
+        }
+    ?>
     <div class="login-container">
         <div class="login-box">
             <div style="text-align: center; margin-bottom: 2rem;">
                 <span style="font-size: 3rem;">🌿</span>
                 <h1 style="font-size: 1.8rem; margin-top: 1rem; margin-bottom: 0.5rem;">Admin-Bereich</h1>
                 <p style="color: var(--text-secondary); font-size: 0.95rem;">Bitte Passwort und PIN-Code eingeben.</p>
+                <?php if (class_exists('SandboxManager') && SandboxManager::isDemoActive()): ?>
+                    <div style="margin-top: 0.75rem; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; color: #1e40af;">
+                        💡 Demo-Zugangsdaten: <strong>admin</strong> / <strong>admin123123</strong> (PIN: <strong>1977</strong>)
+                    </div>
+                <?php endif; ?>
             </div>
 
             <?php if (!empty($login_error)): ?>

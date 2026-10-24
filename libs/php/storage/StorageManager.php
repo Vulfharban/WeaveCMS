@@ -23,6 +23,24 @@ class StorageManager {
             return self::$instance;
         }
 
+        // Phase 15: Flüchtiger Sandbox-Treiber bei aktiver Demo-Sitzung
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            $sandboxDriver = SandboxManager::getDriver();
+            if ($sandboxDriver instanceof StorageDriverInterface) {
+                self::$instance = $sandboxDriver;
+                return self::$instance;
+            }
+        }
+
+        // Hook für alternative Storage-Treiber via PluginManager
+        if (class_exists('PluginManager')) {
+            $filteredDriver = PluginManager::applyFilters('storage_get_driver', null);
+            if ($filteredDriver instanceof StorageDriverInterface) {
+                self::$instance = $filteredDriver;
+                return self::$instance;
+            }
+        }
+
         $localConfig = dirname(__DIR__, 3) . '/config.local.php';
         if (file_exists($localConfig)) {
             require_once $localConfig;

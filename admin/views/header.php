@@ -19,6 +19,13 @@
 </head>
 <body class="admin-body">
 
+    <?php 
+        // Phase 15: Flüchtiger Sandbox-Banner (Backend)
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            SandboxManager::renderBanner('admin');
+        }
+    ?>
+
     <!-- Sticky Header -->
     <header class="header-nav">
         <div class="header-container">

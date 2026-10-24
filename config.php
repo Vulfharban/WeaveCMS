@@ -41,6 +41,14 @@ require_once __DIR__ . '/libs/php/LanguageManager.php';
 require_once __DIR__ . '/libs/php/ThemeManager.php';
 require_once __DIR__ . '/libs/php/FrontendController.php';
 
+// Phase 15 & Plugin-Frühinitialisierung: Sandbox-Plugin einbinden, falls vorhanden
+if (file_exists(__DIR__ . '/plugins/interactive-sandbox/SandboxManager.php')) {
+    require_once __DIR__ . '/plugins/interactive-sandbox/SandboxManager.php';
+    if (SandboxManager::isDemoActive()) {
+        require_once __DIR__ . '/plugins/interactive-sandbox/plugin.php';
+    }
+}
+
 /**
  * Automatische Weiterleitung auf install.php, wenn WeaveCMS noch nicht installiert ist (Phase 5).
  * @return void
