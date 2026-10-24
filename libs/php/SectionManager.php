@@ -187,7 +187,7 @@ class SectionManager {
      * @return string
      */
     public static function getSiteArchitecture(array $data): string {
-        $arch = $data['settings']['site_architecture'] ?? self::ARCHITECTURE_ONEPAGE;
+        $arch = $data['settings']['site_architecture'] ?? ($data['settings']['page_architecture'] ?? self::ARCHITECTURE_ONEPAGE);
         if (!in_array($arch, [self::ARCHITECTURE_ONEPAGE, self::ARCHITECTURE_MULTIPAGE, self::ARCHITECTURE_HYBRID], true)) {
             $arch = self::ARCHITECTURE_ONEPAGE;
         }

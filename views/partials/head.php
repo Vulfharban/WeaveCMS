@@ -102,5 +102,8 @@
     } else {
         $frontend_body_classes[] = 'has-header-top';
     }
+    if (!empty($data['settings']['accessibility_bar_enabled'])) {
+        $frontend_body_classes[] = 'has-a11y-bar';
+    }
 ?>
 <body class="<?php echo implode(' ', $frontend_body_classes); ?>">
