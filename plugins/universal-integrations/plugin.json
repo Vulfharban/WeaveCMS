@@ -8,5 +8,5 @@
     "icon": "hub",
     "entry_file": "plugin.php",
     "requires_core": ">=0.4.0",
-    "settings_tab": "universal_integrations"
+    "settings_tab": "universal-integrations"
 }

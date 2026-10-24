@@ -42,8 +42,10 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
         <div class="plugin-grid" style="display:grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem;">
             <?php foreach ($all_plugins as $slug => $plugin): 
                 $isActive = !empty($plugin['active']);
-                $hasSettings = !empty($plugin['settings_tab']) || PluginManager::hasAction("admin_render_plugin_settings_{$slug}");
-                $isConfigOpen = ($active_settings_slug === $slug);
+                $settingsKey = $plugin['settings_tab'] ?? '';
+                $hasSettings = PluginManager::hasAction("admin_render_plugin_settings_{$slug}")
+                            || (!empty($settingsKey) && PluginManager::hasAction("admin_render_plugin_settings_{$settingsKey}"));
+                $isConfigOpen = ($active_settings_slug === $slug || (!empty($settingsKey) && $active_settings_slug === $settingsKey));
             ?>
                 <div class="plugin-card" style="border: 1px solid <?php echo $isActive ? 'rgba(46,98,72,0.3)' : 'var(--border-color)'; ?>; border-radius: 16px; background: <?php echo $isActive ? 'rgba(46,98,72,0.02)' : 'var(--card-bg, #fff)'; ?>; padding: 1.75rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: all 0.2s;">
                     <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap: 1rem; margin-bottom: 1rem;">
@@ -114,7 +116,11 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
                     <?php if ($isActive && $hasSettings): ?>
                         <div id="plugin-settings-drawer-<?php echo htmlspecialchars($slug); ?>" style="display: <?php echo $isConfigOpen ? 'block' : 'none'; ?>; margin-top: 1.5rem; border-top: 1px dashed var(--border-color); padding-top: 1rem;">
                             <?php 
-                                PluginManager::doAction("admin_render_plugin_settings_{$slug}", $data, $csrf_token); 
+                                if (PluginManager::hasAction("admin_render_plugin_settings_{$slug}")) {
+                                    PluginManager::doAction("admin_render_plugin_settings_{$slug}", $data, $csrf_token);
+                                } elseif (!empty($settingsKey) && PluginManager::hasAction("admin_render_plugin_settings_{$settingsKey}")) {
+                                    PluginManager::doAction("admin_render_plugin_settings_{$settingsKey}", $data, $csrf_token);
+                                }
                             ?>
                         </div>
                     <?php endif; ?>

@@ -36,7 +36,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
                 'icon' => trim($_POST['icon'] ?? 'folder'),
                 'sort_order' => (int)($_POST['sort_order'] ?? 10)
             ]);
-            header('Location: ?tab=tab-plugins&plugin_settings=forum&forum_msg=cat_saved#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=cat_saved#tab-plugins');
             exit;
         }
 
@@ -44,7 +44,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
         if ($action === 'forum_delete_category') {
             $catId = trim($_POST['category_id'] ?? '');
             ForumManager::deleteCategory($catId);
-            header('Location: ?tab=tab-plugins&plugin_settings=forum&forum_msg=cat_deleted#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=cat_deleted#tab-plugins');
             exit;
         }
 
@@ -59,7 +59,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
                 'sort_order' => (int)($_POST['sort_order'] ?? 10),
                 'min_role_write' => trim($_POST['min_role_write'] ?? 'forum_user')
             ]);
-            header('Location: ?tab=tab-plugins&plugin_settings=forum&forum_msg=board_saved#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=board_saved#tab-plugins');
             exit;
         }
 
@@ -67,7 +67,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
         if ($action === 'forum_delete_board') {
             $boardId = trim($_POST['board_id'] ?? '');
             ForumManager::deleteBoard($boardId);
-            header('Location: ?tab=tab-plugins&plugin_settings=forum&forum_msg=board_deleted#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=board_deleted#tab-plugins');
             exit;
         }
 
@@ -86,7 +86,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
 
             PluginManager::savePluginConfig('weave-forum', $cfg, $data);
             save_data(dirname(__DIR__, 2) . '/data.json', $data);
-            header('Location: ?tab=tab-plugins&plugin_settings=forum&forum_msg=settings_saved#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=settings_saved#tab-plugins');
             exit;
         }
 
@@ -95,7 +95,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             $repId = trim($_POST['report_id'] ?? '');
             $res = trim($_POST['resolution'] ?? 'dismissed');
             ForumManager::resolveReport($repId, $res, ['username' => 'Administrator', 'id' => 'admin']);
-            header('Location: ?tab=tab-plugins&plugin_settings=forum&forum_msg=report_resolved#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=report_resolved#tab-plugins');
             exit;
         }
 
@@ -105,7 +105,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             $postId = trim($_POST['post_id'] ?? '');
             ForumManager::deletePost($postId, ['username' => 'Administrator', 'id' => 'admin']);
             ForumManager::resolveReport($repId, 'resolved_deleted', ['username' => 'Administrator', 'id' => 'admin']);
-            header('Location: ?tab=tab-plugins&plugin_settings=forum&forum_msg=report_resolved#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=report_resolved#tab-plugins');
             exit;
         }
 
@@ -121,7 +121,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
                     $config['storage_driver'] = 'sqlite';
                     PluginManager::savePluginConfig('weave-forum', $config, $data);
                     save_data(dirname(__DIR__, 2) . '/data.json', $data);
-                    header('Location: ?tab=tab-plugins&plugin_settings=forum&forum_msg=migrated_sqlite#tab-plugins');
+                    header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=migrated_sqlite#tab-plugins');
                     exit;
                 }
             } else {
@@ -130,7 +130,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
                     $config['storage_driver'] = 'json';
                     PluginManager::savePluginConfig('weave-forum', $config, $data);
                     save_data(dirname(__DIR__, 2) . '/data.json', $data);
-                    header('Location: ?tab=tab-plugins&plugin_settings=forum&forum_msg=migrated_json#tab-plugins');
+                    header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=migrated_json#tab-plugins');
                     exit;
                 }
             }
@@ -313,6 +313,9 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 // -----------------------------------------------------------------------------
 // 3. Admin Settings Ansicht
 // -----------------------------------------------------------------------------
+PluginManager::addAction('admin_render_plugin_settings_weave-forum', function($data, $csrf_token) {
+    require __DIR__ . '/admin/settings.php';
+});
 PluginManager::addAction('admin_render_plugin_settings_forum', function($data, $csrf_token) {
     require __DIR__ . '/admin/settings.php';
 });

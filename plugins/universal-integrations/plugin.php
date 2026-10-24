@@ -42,7 +42,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             ];
 
             IntegrationManager::saveIntegration($item, $data);
-            header('Location: ?tab=tab-plugins&plugin_settings=universal_integrations&integ_msg=saved#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=universal-integrations&integ_msg=saved#tab-plugins');
             exit;
         }
 
@@ -51,7 +51,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             global $data;
             $slug = trim($_POST['slug'] ?? '');
             IntegrationManager::deleteIntegration($slug, $data);
-            header('Location: ?tab=tab-plugins&plugin_settings=universal_integrations&integ_msg=deleted#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=universal-integrations&integ_msg=deleted#tab-plugins');
             exit;
         }
 
@@ -74,7 +74,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             }
 
             save_data(dirname(__DIR__, 2) . '/data.json', $data);
-            header('Location: ?tab=tab-plugins&plugin_settings=universal_integrations&integ_msg=migrated_webtrees#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=universal-integrations&integ_msg=migrated_webtrees#tab-plugins');
             exit;
         }
     }
@@ -83,6 +83,9 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
 // -----------------------------------------------------------------------------
 // 2. Admin Settings Ansicht
 // -----------------------------------------------------------------------------
+PluginManager::addAction('admin_render_plugin_settings_universal-integrations', function($data, $csrf_token) {
+    require __DIR__ . '/admin/settings.php';
+});
 PluginManager::addAction('admin_render_plugin_settings_universal_integrations', function($data, $csrf_token) {
     require __DIR__ . '/admin/settings.php';
 });
