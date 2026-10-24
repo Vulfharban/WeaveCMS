@@ -172,6 +172,11 @@ $cur_user = UserManager::getCurrentUser($data);
 $all_users = UserManager::getUsers($data);
 $storage_details = StorageManager::getDriverDetails();
 
+// Phase 12: Update-Prüfung für CMS-Kern und installierte Plugins
+$core_update_info = class_exists('UpdateManager') ? UpdateManager::checkCoreUpdate(!empty($_GET['check_updates'])) : ['update_available' => false];
+$all_installed_plugins = class_exists('PluginManager') ? PluginManager::getAllPlugins($data) : [];
+$plugin_updates = class_exists('UpdateManager') ? UpdateManager::checkPluginUpdates($all_installed_plugins, !empty($_GET['check_updates'])) : [];
+
 $recent_security_logs = [];
 $logPath = dirname(__DIR__) . '/logs/security.log';
 if (file_exists($logPath)) {

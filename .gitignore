@@ -24,6 +24,7 @@ data/rate_limits.json
 data/forum_*.json
 data/forum*.sqlite
 data/integrations.json
+data/sandbox/
 logs/
 
 # Uploads
@@ -33,6 +34,9 @@ images/uploads/*
 # Scratch test files
 scratch/
 
+# Build releases & Cache
+releases/
+cache/
+
 # Documentation kept local only
 /libs/docs/ownsite_migration_analysis.md
-

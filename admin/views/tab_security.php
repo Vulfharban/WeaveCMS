@@ -274,6 +274,32 @@
                     <small style="color:var(--text-secondary); display:block; margin-top:8px;">
                         💡 <em>Empfehlung:</em> Erstelle regelmäßig ein vollständiges ZIP-Archiv vor größeren inhaltlichen Änderungen oder Updates.
                     </small>
+
+                    <!-- Phase 12.3: Release-Packaging für Deployment & Übertragung -->
+                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <strong style="font-size:0.9rem; color:var(--text-primary); display:block;">📦 Distributions- &amp; Release-Paket generieren (Phase 12)</strong>
+                            <span style="font-size:0.8rem; color:var(--text-secondary);">Erstellt saubere ZIP-Pakete unter <code>releases/</code> (ohne Kundendaten, Logs und Git-Verzeichnisse) für Server-Übertragungen (z. B. <code>WeaveCMS_ownsite</code>).</span>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <form method="POST" action="" style="margin:0;">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                <input type="hidden" name="action" value="build_release_package">
+                                <input type="hidden" name="package_type" value="full">
+                                <button type="submit" class="btn btn-outline" style="padding:6px 12px; font-size:0.82rem; display:inline-flex; align-items:center; gap:5px;">
+                                    <span class="material-icons" style="font-size:15px;">archive</span> Voll-Paket (v<?php echo defined('WEAVE_VERSION') ? WEAVE_VERSION : '1.0.0'; ?>)
+                                </button>
+                            </form>
+                            <form method="POST" action="" style="margin:0;">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                <input type="hidden" name="action" value="build_release_package">
+                                <input type="hidden" name="package_type" value="update">
+                                <button type="submit" class="btn btn-outline" style="padding:6px 12px; font-size:0.82rem; display:inline-flex; align-items:center; gap:5px;">
+                                    <span class="material-icons" style="font-size:15px;">update</span> Update-Paket (v<?php echo defined('WEAVE_VERSION') ? WEAVE_VERSION : '1.0.0'; ?>)
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Vorhandene Sicherungen (Tabelle) -->

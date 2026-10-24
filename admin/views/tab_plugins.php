@@ -59,6 +59,11 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
                                     <span style="font-size:0.75rem; font-weight:700; background:rgba(0,0,0,0.06); color:var(--text-secondary); padding:2px 8px; border-radius:6px;">
                                         v<?php echo htmlspecialchars($plugin['version']); ?>
                                     </span>
+                                    <?php if (!empty($plugin_updates[$slug])): ?>
+                                        <a href="<?php echo htmlspecialchars($plugin_updates[$slug]['release_url']); ?>" target="_blank" style="font-size:0.75rem; font-weight:700; background:#fef3c7; color:#b45309; border:1px solid #f59e0b; padding:2px 8px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:3px;">
+                                            <span class="material-icons" style="font-size:12px;">update</span> Update v<?php echo htmlspecialchars($plugin_updates[$slug]['latest_version']); ?>
+                                        </a>
+                                    <?php endif; ?>
                                     <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; background:rgba(178,108,57,0.1); color:var(--accent); padding:2px 8px; border-radius:6px;">
                                         <?php echo htmlspecialchars($plugin['category']); ?>
                                     </span>

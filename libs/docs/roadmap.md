@@ -355,7 +355,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 12: Release-Packaging, Update-Prüfung & Versionskontrolle
 *Ziel: Automatisierte Erstellung von distributionsfertigen Release-Archiven (ZIP/7z) und ein Update-Prüfsystem im CMS, das neue Versionen des CMS-Kerns und installierter Plugins (via Git/GitHub) erkennt, Unterschiede anzeigt und auf dem Dashboard meldet.*
 
-- [ ] **12.1 CMS-Versionskontrolle & Remote Version-Check:**
+- [x] **12.1 CMS-Versionskontrolle & Remote Version-Check:**
   - Zentrale Versionskonstante im Core: `define('WEAVE_VERSION', '1.0.0');`
   - Konfigurierbare Update-Server-URL im Adminbereich (oder Vorgabe in `config.php`, z. B. `https://updates.weavecms.de/version.json` oder GitHub Releases API).
   - **Automatischer/manueller Version-Check:**
@@ -376,7 +376,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
       - *System ist aktuell (v1.0.0)* oder
       - *Update verfügbar: Version 1.1.0 [Changelog ansehen | Herunterladen]*
 
-- [ ] **12.2 Plugin-Versionskontrolle via Git / GitHub & Dashboard-Alerts:**
+- [x] **12.2 Plugin-Versionskontrolle via Git / GitHub & Dashboard-Alerts:**
   - **Git-Repository-Verknüpfung im Plugin-Manifest (`plugin.json`):**
     - Plugins deklarieren ihre Quelle via `repository`, `github_repo` (z. B. `"vendor/repo-name"`) oder `update_url`.
     - Angabe der lokal installierten Plugin-Version (z. B. `"version": "1.0.0"`).
@@ -390,7 +390,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - **Schutz vor API-Limits:**
     - Ratenbegrenzungsschutz mit lokalem Timeout und Fallback (keine Blockierung des Ladevorgangs im Dashboard).
 
-- [ ] **12.3 Release-Packaging-Generator (Build-Skript für ZIP / 7z):**
+- [x] **12.3 Release-Packaging-Generator (Build-Skript für ZIP / 7z):**
   - Bereitstellung eines internen CLI- oder Admin-Skripts (`tools/build_release.php`):
     - **Typ A: Voll-Paket (`weavecms-vX.Y.Z.zip`):**
       - Für Neuinstallationen auf Webspaces.
@@ -400,15 +400,15 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
       - Für bestehende Live-Websites.
       - Enthält **ausschließlich** die aktualisierten System- und Core-Dateien (`index.php`, `admin/`, `libs/`, `config.php`).
       - Schließt ausnahmslos alle Nutzerdaten, Einstellungen, Datenbanken und Upload-Ordner aus, damit niemals Daten überschrieben werden!
-- [ ] **12.4 Intelligente Update-Strategie nach Datenspeicher-Typ:**
+- [x] **12.4 Intelligente Update-Strategie nach Datenspeicher-Typ:**
   - **Bei Flat-File (JSON-Modus):**
     - Systemdateien werden aktualisiert.
     - Automatische Datenstruktur-Prüfung (`SchemaMigration`): Ein Upgrader prüft beim ersten Login nach dem Update, ob in `data.json` neue Konfigurations-Keys fehlen, und ergänzt diese rückwärtskompatibel mit Standardwerten.
   - **Bei relationaler Datenbank (SQL-Modus / SQLite / MySQL):**
     - Ausführung versionierter SQL-Migrationsskripte (z. B. `migrations/update_1.1.0.sql`), um Tabellen, Indizes oder neue Spalten gefahrlos zu erweitern.
-- [ ] **12.5 Vorab-Sicherungs-Pflicht vor jedem Update:**
+- [x] **12.5 Vorab-Sicherungs-Pflicht vor jedem Update:**
   - Vor dem Entpacken oder Anwenden von Updates legt das System automatisch einen vollständigen Snapshot in `backups/` an (Pre-Update-Backup).
-- [ ] **12.6 Prüfung & Abnahme:**
+- [x] **12.6 Prüfung & Abnahme:**
   - Build-Skript testen: Erstellen eines sauberen ZIP-Archivs und Entpacken auf einer Testinstanz.
   - Test-Versionsabfrage mit lokaler `version.json` durchführen und Update-Hinweis im Adminbereich verifizieren.
   - Test-Plugin mit Git-Verknüpfung hinterlegen, simulierte höhere Remote-Version prüfen und Dashboard-Updatemeldung verifizieren.
