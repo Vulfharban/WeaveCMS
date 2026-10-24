@@ -11,5 +11,5 @@
     "requires_plugins": [
         "weave-forum-users"
     ],
-    "settings_tab": "forum"
+    "settings_tab": "weave-forum"
 }
