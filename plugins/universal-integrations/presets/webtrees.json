@@ -1,0 +1,19 @@
+{
+    "id": "webtrees",
+    "name": "Webtrees Stammbaum",
+    "category": "genealogy",
+    "icon": "account_tree",
+    "description": "Familienstammbäume, Ahnentafeln und Genealogie-Diagramme aus Webtrees einbinden.",
+    "target_url": "/webtrees",
+    "url_pattern": "{base}/tree/{tree}/individual/{person}?token={token}",
+    "default_mode": "iframe",
+    "default_height": 850,
+    "default_title": "Familienstammbaum & Ahnenforschung",
+    "default_subtitle": "Entdecke unsere Familiengeschichte, Vorfahren und historische Dokumente interaktiv aus Webtrees.",
+    "params": {
+        "tree": "tree1",
+        "person": "X1",
+        "token": ""
+    },
+    "notes": "Webtrees muss Iframe-Einbettung erlauben (X-Frame-Options: SAMEORIGIN)."
+}

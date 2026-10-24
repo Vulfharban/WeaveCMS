@@ -1,0 +1,15 @@
+{
+    "name": "WeaveCMS Diskussionsforum",
+    "slug": "weave-forum",
+    "version": "1.0.0",
+    "author": "WeaveCMS Community Team",
+    "description": "Vollwertiges Diskussionsforum für WeaveCMS mit Kategorien, Unterforen, Threads, Beiträgen, Zitierfunktion, Markdown/BBCode, Moderations-Queue, Benachrichtigungen und dualer Speicher-Engine (JSON/SQLite).",
+    "category": "community",
+    "icon": "forum",
+    "entry_file": "plugin.php",
+    "requires_core": ">=0.4.0",
+    "requires_plugins": [
+        "weave-forum-users"
+    ],
+    "settings_tab": "forum"
+}

@@ -1,0 +1,17 @@
+{
+    "id": "tng",
+    "name": "TNG (The Next Generation of Genealogy)",
+    "category": "genealogy",
+    "icon": "lan",
+    "description": "Leistungsstarke Genealogie- und Stammbaum-Software TNG.",
+    "target_url": "/genealogy",
+    "url_pattern": "{base}/getperson.php?personID={person}&tree={tree}",
+    "default_mode": "iframe",
+    "default_height": 800,
+    "default_title": "Familienarchiv & Stammbaum",
+    "default_subtitle": "Historische Ahnentafeln und Personendatenbank.",
+    "params": {
+        "tree": "tree1",
+        "person": "I1"
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "name": "WeaveCMS Forum-Benutzerverwaltung",
+    "slug": "weave-forum-users",
+    "version": "1.0.0",
+    "author": "WeaveCMS Community Team",
+    "description": "Dedizierte Benutzerverwaltung für Foren-Mitglieder, strikt getrennt von CMS-Admins. Bietet Frontend-Registrierung, Login, Rollen (Forum-Admin, Moderator, User), Profile, DSGVO-Export und Moderations-Rechte.",
+    "category": "community",
+    "icon": "group",
+    "entry_file": "plugin.php",
+    "requires_core": ">=0.4.0",
+    "settings_tab": "forum_users"
+}

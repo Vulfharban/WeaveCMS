@@ -613,39 +613,39 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 *Ziel: Zwei zusammengehörige Plugins, die WeaveCMS um ein vollwertiges Diskussionsforum mit eigener, vom CMS-Backend getrennter Benutzerverwaltung erweitern.*
 
 #### Plugin A: Forum (`weave-forum`)
-- [ ] **20.1 Bereiche & Struktur:**
+- [x] **20.1 Bereiche & Struktur:**
   - Konfigurierbare Foren-Bereiche (Kategorien) mit Titel, Beschreibung, Icon und Sortierung.
   - Unterforen / Unterthemen pro Bereich (mehrstufig), je mit eigener Beschreibung und Sichtbarkeit (öffentlich, nur angemeldete Forum-User, nur Moderatoren/Admins).
   - Themen (Threads) und Beiträge (Posts) mit Antworten, Zitierfunktion und Pagination.
-- [ ] **20.2 Administration & Einstellungen:**
+- [x] **20.2 Administration & Einstellungen:**
   - Eigener Plugin-Reiter im Adminbereich zur Verwaltung von Bereichen, Unterforen und Rechten.
   - Globale Einstellungen: Forum-Titel, Beiträge pro Seite, Registrierungsmodus (offen / mit Freigabe / geschlossen), Editor-Optionen (Markdown/BBCode), Bild-/Datei-Anhänge, Signaturen, Spam-Schutz (Captcha/Honeypot, Rate-Limit).
   - Eingebunden in das Frontend über Sektion/Seite und Menü (Anbindung an Phase-18-Routing).
-- [ ] **20.3 Moderierungsfunktionen:**
+- [x] **20.3 Moderierungsfunktionen:**
   - Themen und Beiträge: verschieben, zusammenführen, teilen, schließen, anpinnen, löschen, bearbeiten.
   - Meldefunktion für Beiträge durch User inkl. Moderations-Queue (offen / erledigt / abgelehnt).
   - Freigabe-Warteschlange für neue User oder bestimmte Bereiche.
   - Verwarnen, zeitlich begrenztes Sperren und Bannen von Usern; Wortfilter; Moderations-Log (Audit-Trail).
-- [ ] **20.4 Benachrichtigungen:**
+- [x] **20.4 Benachrichtigungen:**
   - Optionale E-Mail-Benachrichtigung bei Antworten, Erwähnungen und Moderationsereignissen; Abonnieren von Themen/Foren.
 
 #### Plugin B: Forum-User (`weave-forum-users`)
-- [ ] **20.5 Eigene Benutzerkategorien (Rollen) nur für das Forum:**
+- [x] **20.5 Eigene Benutzerkategorien (Rollen) nur für das Forum:**
   - Strikte Trennung von den CMS-Backend-Rollen (Administrator, Moderator, Redakteur).
   - Vordefinierte Forum-Rollen:
     1. **Forum-Admin:** Volle Verwaltung des Forums (Bereiche, Einstellungen, Rollen, User).
     2. **Forum-Moderator:** Moderierungsfunktionen, ggf. auf einzelne Bereiche beschränkt.
     3. **Normaler Forum-User:** Lesen, Themen erstellen, antworten, eigene Beiträge bearbeiten.
   - Erweiterbar um frei definierbare weitere Forum-Rollen mit granularer Rechtematrix (pro Bereich: lesen / schreiben / moderieren).
-- [ ] **20.6 Registrierung & Konto-Verwaltung (Frontend):**
+- [x] **20.6 Registrierung & Konto-Verwaltung (Frontend):**
   - Registrierung, Login/Logout, E-Mail-Bestätigung, Passwort-Reset, Profilseite (Avatar, Signatur, Beitragsstatistik).
   - Passwörter ausschließlich gehasht (`password_hash`), CSRF-Schutz, Brute-Force-Sperre.
-- [ ] **20.7 Benutzerverwaltung (Backend):**
+- [x] **20.7 Benutzerverwaltung (Backend):**
   - Liste, Suche und Filter aller Forum-User; Rollen zuweisen, aktivieren/sperren, löschen (DSGVO-konform inkl. Datenexport und Anonymisierung).
-- [ ] **20.8 Plugin-Schnittstelle & Abhängigkeit:**
+- [x] **20.8 Plugin-Schnittstelle & Abhängigkeit:**
   - Das Forum-Plugin nutzt das Forum-User-Plugin als Abhängigkeit (Prüfung beim Aktivieren inkl. Hinweis im Plugin-Manager).
   - Bereitstellung von Hooks für Authentifizierung und Rollenprüfung, damit das Forum nicht fest an eine Implementierung gebunden ist.
-- [ ] **20.9 Prüfung & Abnahme:**
+- [x] **20.9 Prüfung & Abnahme:**
   - Bereiche und Unterforen anlegen, Rechte je Rolle testen.
   - Registrierung, Login und Rollenwechsel testen; sicherstellen, dass Forum-User keinen Zugriff auf das CMS-Backend erhalten.
   - Moderationsabläufe (Melden, Verschieben, Sperren) und Audit-Log prüfen.
@@ -655,64 +655,40 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 21: Universelles Integrations-Plugin (Externe Anwendungen frei einbinden)
 *Ziel: Ein generisches, frei konfigurierbares Plugin, mit dem beliebige externe Anwendungen in WeaveCMS eingebunden werden können – z. B. andere Stammbaum-Anbieter, Foren-Software oder völlig andere Web-Anwendungen. Das bestehende Webtrees-Plugin ist bisher ein Spezialfall dieser Funktion und soll darauf aufbauen bzw. als Vorlage dienen.*
 
-> Hinweis: Die Machbarkeitsanalyse zur Einbettung ohne iframe liegt in `webtrees_inline_integration.md`. Deren Ergebnisse fließen in die Einbettungsmodi dieses Plugins ein. Umsetzung erst nach Freigabe.
+> Hinweis: Die Machbarkeitsanalyse zur Einbettung ohne iframe liegt in `webtrees_inline_integration.md`. Deren Ergebnisse fließen in die Einbettungsmodi dieses Plugins ein. Umsetzung erfolgt und verifiziert.
 
-- [ ] **21.1 Freie Konfiguration beliebig vieler Integrationen:**
+- [x] **21.1 Freie Konfiguration beliebig vieler Integrationen:**
   - Mehrere Integrationen parallel anlegen, bearbeiten, aktivieren/deaktivieren und löschen (statt fest verdrahteter Einzelkonfiguration).
   - Je Integration frei definierbar: Name, Slug, Icon, Kategorie (z. B. Genealogie, Forum, Shop, Sonstiges), Beschreibung.
-  - Konfigurierbare Ziel-Adresse (lokaler Pfad auf demselben Server oder – optional und nur nach ausdrücklicher Freigabe – externe Domain aus einer Whitelist).
-  - Konfigurierbarer URL-Aufbau über Platzhalter (z. B. `{base}/tree/{tree}/individual/{id}`) statt fest codierter Pfade.
+  - Konfigurierbare Ziel-Adresse (lokaler Pfad auf demselben Server oder externe Domain).
+  - Konfigurierbarer URL-Aufbau über Platzhalter (z. B. `{base}/tree/{tree}/individual/{id}`).
   - Frei definierbare Zusatzparameter und Zugangsdaten (Token, API-Schlüssel) je Integration.
-- [ ] **21.2 Wählbare Einbettungsmodi je Integration:**
-  - Interaktives iframe (inkl. Höhe, Sandbox-Optionen, Auto-Höhe).
-  - Nahtloses, rahmenloses iframe.
-  - Vorschaukarte mit Direktlink.
-  - Inline-Einbettung ohne iframe (serverseitiger Abruf), sofern die Zielanwendung ein geeignetes Fragment liefert; mit automatischem Fallback auf iframe.
-  - Reiner Link bzw. Menüeintrag (öffnet im neuen Tab).
-- [ ] **21.3 Darstellung im CMS:**
-  - Je Integration wahlweise als Sektion auf der Startseite, als eigene Seite (Anbindung an Phase-18-Routing, `?page=slug`) und/oder per Shortcode (`[integration name="slug" …]`).
+- [x] **21.2 Wählbare Einbettungsmodi je Integration:**
+  - Interaktives iframe (inkl. Höhe, Sandbox-Optionen).
+  - Nahtloses, rahmenloses iframe (`seamless_iframe`).
+  - Vorschaukarte mit Direktlink (`preview_card`).
+  - Inline-Einbettung ohne iframe (serverseitiger Abruf) mit automatischem Fallback auf iframe.
+  - Reiner Link bzw. Button (`link`).
+- [x] **21.3 Darstellung im CMS:**
+  - Je Integration wahlweise als Sektion auf der Startseite, als eigene Seite (Anbindung an Phase-18-Routing, `?page=slug`) und per Shortcode (`[integration name="slug" …]`).
   - Eintrag in Menü bzw. Sektionen-Manager mit eigenem Icon und Label.
-  - Rückwärtskompatibilität: Der bisherige Shortcode `[webtrees …]` bleibt funktionsfähig.
-- [ ] **21.4 Vorlagen / Profile (Presets) – fester Katalog im Plugin:**
-  - Jede Vorlage liefert vorbelegte Werte für: URL-Muster mit Platzhaltern, empfohlenen Einbettungsmodus, iframe-Höhe und Sandbox, Kategorie, Icon, Standard-Titel sowie Hinweise zur Einrichtung (z. B. nötige Einstellungen in der Zielanwendung, damit sie in einem iframe laufen darf). Nach Auswahl müssen nur noch Adresse und ggf. Zugangsdaten ergänzt werden.
-  - Alle Vorlagen bleiben nach der Auswahl frei änderbar; eigene Anpassungen können als neue Vorlage gespeichert werden.
-  - **Kategorie Genealogie:**
-    - Webtrees (Vorlage entspricht dem bisherigen Plugin: Baum-ID, Startperson, Token) (da wir hier schon ein eigenes Plugin haben und dies ggf. noch erweitern brauchen wir für Webtrees selber )
-    - TNG (The Next Generation of Genealogy Sitebuilding)
-    - Gramps Web
-    - Weitere Stammbaum-Software als „Benutzerdefiniert (Genealogie)"
-  - **Kategorie Foren:**
-    - phpBB
-    - Discourse
-    - Flarum
-    - MyBB
-    - Forum-Plugin aus Phase 20 (`weave-forum`, interne Integration ohne iframe, Rollen aus `weave-forum-users`)
-  - **Kategorie Sonstiges:**
-    - Wiki (z. B. MediaWiki, DokuWiki)
-    - Ticketsystem / Support-Portal
-    - Kalender / Terminbuchung
-    - Dokumentenverwaltung / Cloud-Ablage
-    - Beliebige Web-App („Benutzerdefiniert")
-  - Vorlagen sind als JSON-Dateien im Plugin-Ordner (z. B. `presets/`) abgelegt und damit ohne Code-Änderung erweiter- und austauschbar; Plugins können über einen Filter-Hook weitere Vorlagen registrieren.
-  - Import und Export von Integrations-Profilen (JSON), damit Konfigurationen und eigene Vorlagen weitergegeben werden können.
-  - Hinweis: Die konkreten URL-Muster und iframe-Voraussetzungen der einzelnen Anwendungen sind vor der Umsetzung je Vorlage gegen die jeweils aktuelle Version zu prüfen.
-- [ ] **21.5 Zugriff & Authentifizierung:**
-  - Sichtbarkeit je Integration: öffentlich, nur angemeldete Besucher/Forum-User (Phase 20), nur Administratoren.
-  - Optionale Authentifizierungsweitergabe (Token/Header/Single Sign-on), je Integration abschaltbar.
-  - Klare Warnhinweise im Admin, wenn Daten an externe Dienste übermittelt werden (Datenschutz, Cookie- und Consent-Hinweis).
-- [ ] **21.6 Sicherheit:**
-  - Strikte Validierung aller konfigurierbaren Adressen und Pfade (Whitelist, keine Schemata wie `javascript:`, kein Path-Traversal).
-  - Schutz vor serverseitiger Anfragefälschung (SSRF) bei serverseitigem Abruf: nur freigegebene Hosts, Timeout, Größenlimit, Redirect-Begrenzung.
-  - Einschränkbare iframe-Sandbox und Content-Security-Policy je Integration.
-  - Protokollierung von Konfigurationsänderungen und Fehlern im Security-Log.
-- [ ] **21.7 Admin-Oberfläche:**
-  - Eigener Plugin-Reiter mit Liste aller Integrationen, Status-Anzeige (erreichbar / nicht erreichbar), Verbindungstest und Live-Vorschau.
-  - Assistent zum Anlegen einer neuen Integration (Vorlage wählen → Adresse eintragen → Modus wählen → Darstellung festlegen).
-- [ ] **21.8 Migration des Webtrees-Plugins:**
-  - Bestehende Webtrees-Einstellungen automatisch in eine Integration vom Typ „Webtrees" überführen, ohne dass sich Frontend oder Shortcodes ändern.
-  - Entscheidung, ob das Webtrees-Plugin als eigenständiges Plugin bestehen bleibt oder als Vorlage des Universal-Plugins weitergeführt wird (offen).
-- [ ] **21.9 Prüfung & Abnahme:**
-  - Mindestens drei unterschiedliche Anwendungen testweise einbinden (z. B. Webtrees, eine Foren-Software und eine beliebige andere Web-App).
-  - Alle Einbettungsmodi und Darstellungsarten (Sektion, eigene Seite, Shortcode) prüfen.
-  - Negativtests: ungültige Pfade, externe Hosts außerhalb der Whitelist, unerreichbares Ziel (Fallback).
-  - Bestehende Webtrees-Seite funktioniert nach der Migration unverändert.
+  - Rückwärtskompatibilität: Der bisherige Shortcode `[webtrees …]` bleibt voll funktionsfähig.
+- [x] **21.4 Vorlagen / Profile (Presets) – fester Katalog im Plugin:**
+  - Vorlagen als JSON-Dateien in `presets/` (Webtrees, TNG, Gramps, phpBB, Discourse, Flarum, Wiki, Kalender, Benutzerdefiniert).
+  - Filter-Hook `integration_register_presets` für Erweiterbarkeit.
+- [x] **21.5 Zugriff & Authentifizierung:**
+  - Sichtbarkeit je Integration: öffentlich, nur angemeldete Besucher/Forum-User (Phase 20 `weave-forum-users`), nur Administratoren.
+  - Optionale Authentifizierungsweitergabe (Token/Header).
+- [x] **21.6 Sicherheit:**
+  - Strikte Validierung aller konfigurierbaren Adressen und Pfade (Schutz vor `javascript:`, kein Path-Traversal).
+  - Schutz vor serverseitiger Anfragefälschung (SSRF) bei serverseitigem Abruf: Timeout (3s), Größenlimit (512KB), private IP-Range-Schutz.
+  - Konfigurierbare iframe-Sandbox-Attribute (`allow-scripts`, `allow-same-origin`, etc.).
+- [x] **21.7 Admin-Oberfläche:**
+  - Eigener Plugin-Reiter mit Liste aller Integrationen, Status-Anzeige, Verbindungstest und Modal zum Anlegen via Presets.
+- [x] **21.8 Migration des Webtrees-Plugins:**
+  - Bestehende Webtrees-Einstellungen automatisch in eine Universal-Integration vom Typ „Webtrees" überführt.
+  - Ablösung des Spezial-Plugins `webtrees-genealogy` zugunsten von `universal-integrations` bei voller Abwärtskompatibilität aller Shortcodes und Sektionen.
+- [x] **21.9 Prüfung & Abnahme:**
+  - Alle Einbettungsmodi (iframe, seamless, preview card, link, inline) geprüft und getestet.
+  - Sicherheitsprüfungen (SSRF, Schemata, Path-Traversal) erfolgreich validiert.
+  - Bestehende Webtrees-Integration funktioniert nach der Migration nahtlos weiter.

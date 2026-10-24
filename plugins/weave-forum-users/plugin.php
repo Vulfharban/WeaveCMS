@@ -1,0 +1,238 @@
+<?php
+/**
+ * ============================================================================
+ * WeaveCMS Forum-Benutzerverwaltung – Plugin Einstiegspunkt
+ * ============================================================================
+ */
+
+if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_exists('PluginManager')) {
+    exit;
+}
+
+require_once __DIR__ . '/ForumUserManager.php';
+
+// -----------------------------------------------------------------------------
+// 1. Admin Aktionen (POST & GET)
+// -----------------------------------------------------------------------------
+if (!empty($_SESSION['admin_logged_in'])) {
+    
+    // POST-Aktionen
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $action = $_POST['action'] ?? '';
+
+        if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+            
+            // Benutzer bearbeiten (Rolle / Status)
+            if ($action === 'forum_user_edit') {
+                $uid = trim($_POST['user_id'] ?? '');
+                $user = ForumUserManager::getUserById($uid);
+                if ($user) {
+                    $user['role'] = trim($_POST['role'] ?? $user['role']);
+                    $user['status'] = trim($_POST['status'] ?? $user['status']);
+                    $user['ban_reason'] = trim($_POST['ban_reason'] ?? '');
+                    ForumUserManager::saveUser($user);
+                }
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=user_updated#tab-plugins');
+                exit;
+            }
+
+            // Benutzer löschen / anonymisieren
+            if ($action === 'forum_user_delete') {
+                $uid = trim($_POST['user_id'] ?? '');
+                ForumUserManager::anonymizeUser($uid);
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=user_anonymized#tab-plugins');
+                exit;
+            }
+
+            // Speicher-Migration (JSON ➔ SQLite / SQLite ➔ JSON)
+            if ($action === 'forum_migrate_storage') {
+                $target = trim($_POST['target_driver'] ?? 'json');
+                global $data;
+                $config = PluginManager::getPluginConfig('weave-forum-users', $data);
+
+                if ($target === 'sqlite') {
+                    $res = ForumUserManager::migrateToJsonToSqlite();
+                    if ($res['success']) {
+                        $config['storage_driver'] = 'sqlite';
+                        PluginManager::savePluginConfig('weave-forum-users', $config, $data);
+                        save_data(dirname(__DIR__, 2) . '/data.json', $data);
+                        header('Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=migrated_sqlite#tab-plugins');
+                        exit;
+                    }
+                } else {
+                    $res = ForumUserManager::migrateSqliteToJson();
+                    if ($res['success']) {
+                        $config['storage_driver'] = 'json';
+                        PluginManager::savePluginConfig('weave-forum-users', $config, $data);
+                        save_data(dirname(__DIR__, 2) . '/data.json', $data);
+                        header('Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=migrated_json#tab-plugins');
+                        exit;
+                    }
+                }
+            }
+
+            // Konfiguration speichern
+            if ($action === 'forum_users_save_config') {
+                global $data;
+                $config = PluginManager::getPluginConfig('weave-forum-users', $data);
+                $config['registration_mode'] = trim($_POST['registration_mode'] ?? 'open');
+                $config['min_password_len'] = max(6, (int)($_POST['min_password_len'] ?? 8));
+                $config['allow_avatars'] = !empty($_POST['allow_avatars']) ? 1 : 0;
+                
+                PluginManager::savePluginConfig('weave-forum-users', $config, $data);
+                save_data(dirname(__DIR__, 2) . '/data.json', $data);
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=user_updated#tab-plugins');
+                exit;
+            }
+        }
+    }
+
+    // GET-Aktion: Admin DSGVO-Export
+    if (isset($_GET['fuser_action']) && $_GET['fuser_action'] === 'export' && !empty($_GET['id'])) {
+        $exportData = ForumUserManager::exportUserData(trim($_GET['id']));
+        if ($exportData) {
+            header('Content-Type: application/json; charset=utf-8');
+            header('Content-Disposition: attachment; filename="forum_user_' . urlencode($exportData['username']) . '_dsgvo.json"');
+            echo json_encode($exportData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 2. Frontend Authentifizierungs-Handler
+// -----------------------------------------------------------------------------
+if (!empty($_GET['forum_auth'])) {
+    if (session_status() === PHP_SESSION_NONE) {
+        @session_start();
+    }
+    $authAction = $_GET['forum_auth'];
+
+    // Logout
+    if ($authAction === 'logout') {
+        ForumUserManager::logout();
+        $redirect = !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '?page=forum';
+        header('Location: ' . $redirect);
+        exit;
+    }
+
+    // DSGVO User Self-Export
+    if ($authAction === 'export_data') {
+        $cur = ForumUserManager::getCurrentUser();
+        if ($cur) {
+            $export = ForumUserManager::exportUserData($cur['id']);
+            header('Content-Type: application/json; charset=utf-8');
+            header('Content-Disposition: attachment; filename="forum_profil_' . urlencode($cur['username']) . '_dsgvo.json"');
+            echo json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
+
+    // POST Requests: Login, Register, Profile Update
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+            
+            // LOGIN
+            if ($authAction === 'login') {
+                $res = ForumUserManager::login(trim($_POST['login'] ?? ''), (string)($_POST['password'] ?? ''));
+                if ($res['success']) {
+                    header('Location: ?page=forum');
+                    exit;
+                }
+                $_SESSION['forum_auth_error'] = $res['message'];
+                header('Location: ?page=forum&view=login');
+                exit;
+            }
+
+            // REGISTER
+            if ($authAction === 'register') {
+                global $data;
+                $cfg = PluginManager::getPluginConfig('weave-forum-users', $data ?? []);
+                $mode = $cfg['registration_mode'] ?? 'open';
+
+                $res = ForumUserManager::register($_POST, $mode);
+                if ($res['success']) {
+                    if (($res['status'] ?? '') === 'pending') {
+                        $_SESSION['forum_auth_error'] = $res['message'];
+                        header('Location: ?page=forum&view=login');
+                        exit;
+                    }
+                    header('Location: ?page=forum');
+                    exit;
+                }
+                $_SESSION['forum_auth_error'] = $res['message'];
+                header('Location: ?page=forum&view=register');
+                exit;
+            }
+
+            // PROFILE UPDATE
+            if ($authAction === 'update_profile') {
+                $cur = ForumUserManager::getCurrentUser();
+                if ($cur) {
+                    $cur['email'] = trim(mb_strtolower($_POST['email'] ?? $cur['email']));
+                    $cur['bio'] = trim($_POST['bio'] ?? '');
+                    $cur['signature'] = trim($_POST['signature'] ?? '');
+                    $cur['notification_email'] = !empty($_POST['notification_email']) ? 1 : 0;
+                    ForumUserManager::saveUser($cur);
+                    $_SESSION['forum_profile_msg'] = 'saved';
+                }
+                header('Location: ?page=forum&view=profile');
+                exit;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 3. Einstellungsansicht für WeaveCMS Admin registrieren
+// -----------------------------------------------------------------------------
+PluginManager::addAction('admin_render_plugin_settings_weave-forum-users', function($data, $csrf_token) {
+    require __DIR__ . '/admin/settings.php';
+});
+
+// -----------------------------------------------------------------------------
+// 4. Filter-Hooks für andere Plugins bereitstellen
+// -----------------------------------------------------------------------------
+PluginManager::addFilter('forum_get_current_user', function($user) {
+    return ForumUserManager::getCurrentUser();
+});
+
+PluginManager::addFilter('forum_user_can', function($can, $action, $user = null, $context = null) {
+    return ForumUserManager::userCan($action, $user, $context);
+});
+
+// -----------------------------------------------------------------------------
+// 5. Shortcodes für Authentifizierung & Profil
+// -----------------------------------------------------------------------------
+PluginManager::addFilter('content_shortcodes', function($content, $data) {
+    if (empty($content) || !is_string($content)) {
+        return $content;
+    }
+
+    if (strpos($content, '[forum_') === false) {
+        return $content;
+    }
+
+    if (strpos($content, '[forum_login]') !== false) {
+        ob_start();
+        require __DIR__ . '/views/login.php';
+        $loginHtml = ob_get_clean();
+        $content = str_replace('[forum_login]', $loginHtml, $content);
+    }
+
+    if (strpos($content, '[forum_register]') !== false) {
+        ob_start();
+        require __DIR__ . '/views/register.php';
+        $regHtml = ob_get_clean();
+        $content = str_replace('[forum_register]', $regHtml, $content);
+    }
+
+    if (strpos($content, '[forum_profile]') !== false) {
+        ob_start();
+        require __DIR__ . '/views/profile.php';
+        $profHtml = ob_get_clean();
+        $content = str_replace('[forum_profile]', $profHtml, $content);
+    }
+
+    return $content;
+});

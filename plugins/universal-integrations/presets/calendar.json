@@ -1,0 +1,14 @@
+{
+    "id": "calendar",
+    "name": "Kalender & Terminbuchung",
+    "category": "other",
+    "icon": "event",
+    "description": "Buchungstool, Kurskalender oder Veranstaltungsübersicht.",
+    "target_url": "/booking",
+    "url_pattern": "{base}/calendar",
+    "default_mode": "iframe",
+    "default_height": 750,
+    "default_title": "Termine & Buchungen",
+    "default_subtitle": "Plane deinen nächsten Workshop oder Beratungstermin direkt online.",
+    "params": {}
+}

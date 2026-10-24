@@ -1,0 +1,14 @@
+{
+    "id": "phpbb",
+    "name": "phpBB Diskussionsforum",
+    "category": "forum",
+    "icon": "forum",
+    "description": "Klassisches Diskussionsforum phpBB nahtlos per iFrame oder Direktlink einbinden.",
+    "target_url": "/forum",
+    "url_pattern": "{base}/index.php",
+    "default_mode": "iframe",
+    "default_height": 900,
+    "default_title": "Community-Forum",
+    "default_subtitle": "Tritt unserer Diskussionsrunde bei und tausche dich mit anderen Mitgliedern aus.",
+    "params": {}
+}
