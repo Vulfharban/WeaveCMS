@@ -470,28 +470,28 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 15: Interaktiver Sandbox- & Demo-Modus (Live-Tryout ohne Persistenz)
 *Ziel: Ein sicherer, temporärer Demo-Zugang für Interessenten und Tester, in dem das gesamte WeaveCMS interaktiv ausprobiert werden kann (Seiten erstellen, Texte anpassen, Designs testen, Sektionen verschieben), ohne dass Änderungen dauerhaft gespeichert werden – mit automatischem Reset.*
 
-- [ ] **15.1 Machbarkeits- & Architekturkonzept (Sandbox-Engine):**
+- [x] **15.1 Machbarkeits- & Architekturkonzept (Sandbox-Engine):**
   - **Architektur:** Die modulare Speicherabstraktion (`StorageManager` / `JsonStorageDriver`) wird um einen flüchtigen Sandbox-Treiber (`EphemeralSessionDriver`) erweitert.
   - **Funktionsweise:**
     - Ein Demo-Nutzer startet über einen Demo-Link (z. B. `admin/?demo=start`).
     - Das System initialisiert eine isolierte Session mit dem Inhalt aus `data.sample.json`.
     - Alle Schreibzugriffe (Seiten anlegen, Menü anpassen, Blog-Artikel verfassen, Farbschemata ändern) werden ausschließlich im flüchtigen Session-Speicher des Nutzers (`$_SESSION['weave_demo_data']` bzw. einer temporären Datei `data/sandbox/<session_token>.json`) abgelegt.
     - Das Frontend zeigt für diesen Nutzer live das modifizierte Ergebnis an (`?demo=1`), während reguläre Besucher weiterhin die unveränderte Website sehen.
-- [ ] **15.2 Sicherheits- & Schreibschutz-Schranken im Demo-Modus:**
+- [x] **15.2 Sicherheits- & Schreibschutz-Schranken im Demo-Modus:**
   - Schutz vor Missbrauch: Kritische Aktionen sind im Demo-Modus strikt gesperrt:
     - Ändern des Administrator-Passworts und der PIN blockiert.
     - E-Mail-Versand (SMTP-Test / Kontaktformular) deaktiviert oder als lokaler Toast simuliert.
     - Upload-Möglichkeiten auf temporäre Dateien begrenzt (max. 5 Bilder je Sitzung).
     - Datenbank-Migrationen und `.htaccess`-Modifikationen deaktiviert.
-- [ ] **15.3 Visueller Sandbox-Banner & Steuerung:**
+- [x] **15.3 Visueller Sandbox-Banner & Steuerung:**
   - Fixes, elegantes Status-Banner am oberen Bildschirmrand (im Admin und Frontend):
     - *„🌿 WeaveCMS Live-Demo: Du kannst alle Funktionen ausprobieren. Änderungen werden nicht dauerhaft gespeichert.“*
     - Button: *„Demo zurücksetzen“* (wirft alle Änderungen sofort weg und stellt die Standard-Demo wieder her).
     - Button: *„Demo beenden“* (beendet die Sandbox-Sitzung und leert den Cache).
-- [ ] **15.4 Automatischer Bereinigungs-Zyklus (Garbage Collection):**
+- [x] **15.4 Automatischer Bereinigungs-Zyklus (Garbage Collection):**
   - Temporäre Sandbox-Dateien werden nach 30 Minuten Inaktivität automatisch gelöscht.
   - Die Stammdateien `data.json`, `config.php` und das Hauptdateisystem bleiben zu 100 % read-only und unberührt.
-- [ ] **15.5 Prüfung & Abnahme:**
+- [x] **15.5 Prüfung & Abnahme:**
   - Demo-Sitzung starten: Neue Unterseite anlegen, Menütitel ändern, Farbschema wechseln.
   - Gegenprobe im Inkognito-Fenster: Echte Website bleibt unverändert.
   - Klick auf *„Demo zurücksetzen“*: Sitzung kehrt fehlerfrei zum Ursprungszustand zurück.

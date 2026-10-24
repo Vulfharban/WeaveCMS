@@ -166,6 +166,14 @@ class ImageUploader {
             return null;
         }
 
+        // Phase 15: Sandbox-Upload-Beschränkung & Abfang-Hook
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            if (!SandboxManager::canUploadFile()) {
+                SecurityManager::logEvent('SANDBOX_UPLOAD_LIMIT', "Sandbox-Upload-Limit erreicht (max. 5 Bilder je Sitzung).", 'WARNING');
+                return null;
+            }
+        }
+
         $file = $_FILES[$fileInputName];
         $origName = $file['name'] ?? 'unknown';
         $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
@@ -213,7 +221,11 @@ class ImageUploader {
             }
 
             SecurityManager::logEvent('UPLOAD_IMAGE_OK', "Bild erfolgreich hochgeladen: {$newFilename} (Original: {$origName})", 'INFO');
-            return rtrim($webPrefix, '/') . '/' . $newFilename;
+            $uploadedRel = rtrim($webPrefix, '/') . '/' . $newFilename;
+            if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+                SandboxManager::recordUploadedFile($dest, $uploadedRel);
+            }
+            return $uploadedRel;
         }
 
         return null;

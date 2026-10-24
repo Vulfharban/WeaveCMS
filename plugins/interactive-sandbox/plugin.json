@@ -1,0 +1,13 @@
+{
+  "name": "Interaktive Sandbox & Live-Demo",
+  "slug": "interactive-sandbox",
+  "version": "1.0.0",
+  "author": "WeaveCMS Team",
+  "description": "Sicherer, temporärer Demo-Zugang (Tryout ohne Persistenz) mit flüchtigem Session-Speicher, automatischem Bereinigungs-Zyklus und Schutz-Schranken.",
+  "category": "tools",
+  "icon": "science",
+  "entry_file": "plugin.php",
+  "settings_tab": "interactive-sandbox",
+  "requires_core": ">=0.4.0",
+  "requires_plugins": []
+}

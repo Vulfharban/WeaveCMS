@@ -177,6 +177,13 @@ class PluginManager {
     }
 
     /**
+     * Alias für applyFilters (Singular-Kompatibilität).
+     */
+    public static function applyFilter(string $hook, mixed $value, ...$args): mixed {
+        return self::applyFilters($hook, $value, ...$args);
+    }
+
+    /**
      * Prüft, ob für einen Filter-Hook mindestens ein Callback registriert ist.
      * @param string $hook
      * @return bool

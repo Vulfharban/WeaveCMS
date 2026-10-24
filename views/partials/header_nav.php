@@ -50,6 +50,11 @@ if (class_exists('PluginManager') && PluginManager::hasAction('frontend_render_n
          FRONTEND-MENÜ (HEADER NAVIGATION & MENÜ-TRIGGER)
          ====================================================================== -->
     <?php 
+        // Phase 15: Flüchtiger Sandbox-Banner (Frontend)
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            SandboxManager::renderBanner('frontend');
+        }
+
         // 0. Optionale Besucher-Barrierefreiheitsleiste (Phase 16)
         if (!empty($data['settings']['accessibility_bar_enabled'])) {
             include __DIR__ . '/accessibility_bar.php';
