@@ -8,7 +8,7 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
 
 $currentUser = ForumUserManager::getCurrentUser();
 if ($currentUser) {
-    echo '<div class="alert alert-info max-w-lg mx-auto my-8">Du bist bereits als <strong>' . htmlspecialchars($currentUser['username']) . '</strong> angemeldet. <a href="?forum_action=logout" class="btn btn-sm btn-outline ml-4">Abmelden</a></div>';
+    echo '<div class="alert alert-info max-w-lg mx-auto my-8">Du bist bereits als <strong>' . htmlspecialchars($currentUser['username']) . '</strong> angemeldet. <a href="?forum_auth=logout" class="btn btn-sm btn-outline ml-4">Abmelden</a></div>';
     return;
 }
 
