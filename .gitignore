@@ -9,8 +9,8 @@ logs/*.log
 .idea/
 .vscode/
 
-# JSON files
-.json
+# Live data (keep data.sample.json)
+/data.json
 
 # WeaveCMS Environment & Locks
 installed.lock
