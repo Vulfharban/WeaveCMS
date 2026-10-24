@@ -156,9 +156,9 @@ $hasLegacyWebtrees = PluginManager::isPluginActive('webtrees-genealogy', $data);
         </table>
     </div>
 
-    <!-- Modal: Add Integration Wizard -->
-    <dialog id="modal_add_integration" class="modal-dialog">
-        <form method="post" class="p-6 max-w-xl">
+    <!-- Modal: Add Integration Wizard (Schwebendes zentriertes Fenster) -->
+    <dialog id="modal_add_integration" class="modal-dialog" style="border: none; border-radius: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.35); max-width: 620px; width: 92vw; padding: 0; background: var(--bg-card, #ffffff); overflow: hidden;">
+        <form method="post" style="padding: 2rem 2.25rem; max-height: 85vh; overflow-y: auto;">
             <input type="hidden" name="action" value="integrations_save">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             
