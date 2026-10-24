@@ -20,7 +20,7 @@ if (empty($data['settings']['accessibility_bar_enabled'])) {
         <!-- Linke Seite: Label / Info -->
         <div style="display:flex; align-items:center; gap:8px; color:var(--text-secondary); font-size:0.8rem; font-weight:600;">
             <span class="material-icons" style="font-size:16px; color:var(--primary);">accessibility_new</span>
-            <span>Ansicht &amp; Barrierefreiheit</span>
+            <span class="a11y-label-text">Ansicht &amp; Barrierefreiheit</span>
         </div>
 
         <!-- Rechte Seite: Steuerung (Theme, Schriftgröße, Sprache) -->
