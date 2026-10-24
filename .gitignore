@@ -30,3 +30,6 @@ images/uploads/*
 # Scratch test files
 scratch/
 
+# Documentation kept local only
+/libs/docs/ownsite_migration_analysis.md
+
