@@ -378,6 +378,33 @@ $msg = $_GET['forum_msg'] ?? '';
                 <span class="text-xs text-muted">Schützt vor automatisiertem Spam und Doppel-Posts.</span>
             </div>
 
+            <!-- Global Announcement Banner Configuration -->
+            <div class="card p-4 my-4 bg-gray-50 dark:bg-gray-800 border">
+                <h4 class="font-bold text-sm mb-3 flex items-center gap-2">
+                    <span class="material-icons text-primary text-base">campaign</span>
+                    Globaler Foren-Ankündigungsbanner (Notice Box)
+                </h4>
+                <div class="form-group mb-3">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="announcement_enabled" value="1" <?= !empty($cfg['announcement_enabled']) ? 'checked' : '' ?>>
+                        <span class="font-semibold text-sm">Ankündigungsbanner im Forum oben einblenden</span>
+                    </label>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="font-semibold block mb-1 text-xs">Banner-Typ / Farbe:</label>
+                    <select name="announcement_type" class="input-field text-xs w-full max-w-xs">
+                        <option value="info" <?= ($cfg['announcement_type'] ?? '') === 'info' ? 'selected' : '' ?>>Information (Blau)</option>
+                        <option value="warning" <?= ($cfg['announcement_type'] ?? '') === 'warning' ? 'selected' : '' ?>>Wichtig / Warnung (Gelb)</option>
+                        <option value="success" <?= ($cfg['announcement_type'] ?? '') === 'success' ? 'selected' : '' ?>>Erfolg / Neuigkeit (Grün)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="font-semibold block mb-1 text-xs">Hinweistext:</label>
+                    <textarea name="announcement_text" rows="2" class="input-field w-full text-xs"
+                              placeholder="z. B. Herzlich willkommen! Am Wochenende finden Wartungsarbeiten statt..."><?= htmlspecialchars($cfg['announcement_text'] ?? '') ?></textarea>
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-primary">
                 Einstellungen speichern
             </button>

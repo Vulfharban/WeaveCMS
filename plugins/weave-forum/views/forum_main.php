@@ -18,6 +18,34 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Forum';
 ?>
 
 <div class="weave-forum-container my-8 max-w-6xl mx-auto px-4">
+    <!-- Global Announcement Banner -->
+    <?php if (!empty($cfg['announcement_enabled']) && !empty($cfg['announcement_text'])): ?>
+        <?php
+        $annType = $cfg['announcement_type'] ?? 'info';
+        $annBg = ($annType === 'warning') ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 text-amber-800 dark:text-amber-300' :
+                 (($annType === 'success') ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 text-emerald-800 dark:text-emerald-300' :
+                 'bg-blue-50 dark:bg-blue-950/40 border-blue-300 text-blue-800 dark:text-blue-300');
+        $annIcon = ($annType === 'warning') ? 'campaign' : (($annType === 'success') ? 'verified' : 'info');
+        ?>
+        <div id="forum_announcement_bar" class="p-4 mb-4 border rounded-xl flex items-center justify-between gap-4 <?= $annBg ?> shadow-sm text-sm">
+            <div class="flex items-center gap-3">
+                <span class="material-icons text-xl"><?= $annIcon ?></span>
+                <div>
+                    <strong>Foren-Hinweis:</strong> <?= nl2br(htmlspecialchars($cfg['announcement_text'])) ?>
+                </div>
+            </div>
+            <button type="button" class="opacity-70 hover:opacity-100 transition" onclick="document.getElementById('forum_announcement_bar').style.display='none'; sessionStorage.setItem('forum_announcement_dismissed', '1')">
+                <span class="material-icons text-base">close</span>
+            </button>
+        </div>
+        <script>
+            if (sessionStorage.getItem('forum_announcement_dismissed') === '1') {
+                const ab = document.getElementById('forum_announcement_bar');
+                if (ab) ab.style.display = 'none';
+            }
+        </script>
+    <?php endif; ?>
+
     <!-- Forum Top Bar -->
     <div class="forum-topbar flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 mb-6 bg-white dark:bg-gray-900 border rounded-xl shadow-sm">
         <div class="flex items-center gap-3">
@@ -48,6 +76,9 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Forum';
             <?php elseif ($view === 'new_topic'): ?>
                 <span>›</span>
                 <span class="font-semibold text-foreground">Neues Thema</span>
+            <?php elseif ($view === 'search'): ?>
+                <span>›</span>
+                <span class="font-semibold text-foreground">Suche</span>
             <?php elseif ($view === 'login'): ?>
                 <span>›</span>
                 <span class="font-semibold text-foreground">Anmeldung</span>
@@ -60,8 +91,18 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Forum';
             <?php endif; ?>
         </div>
 
-        <!-- User Widget -->
+        <!-- Search Bar & User Widget -->
         <div class="flex items-center gap-3">
+            <!-- Compact Quick Search -->
+            <form method="get" action="" class="relative hidden sm:block">
+                <input type="hidden" name="page" value="forum">
+                <input type="hidden" name="view" value="search">
+                <span class="material-icons absolute left-2.5 top-2 text-muted text-xs">search</span>
+                <input type="text" name="q" value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" 
+                       placeholder="Forum durchsuchen..." 
+                       class="input-field text-xs py-1.5 pl-7 pr-2 rounded-lg w-36 md:w-48 bg-gray-50 dark:bg-gray-800">
+            </form>
+
             <?php if ($currentUser): ?>
                 <a href="?page=forum&view=profile" class="flex items-center gap-2 hover:opacity-80 transition text-sm">
                     <div class="avatar-circle">
@@ -86,6 +127,8 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Forum';
             require __DIR__ . '/forum_topic.php';
         } elseif ($view === 'new_topic') {
             require __DIR__ . '/forum_new_topic.php';
+        } elseif ($view === 'search') {
+            require __DIR__ . '/forum_search.php';
         } elseif ($view === 'login') {
             $userView = dirname(__DIR__, 2) . '/weave-forum-users/views/login.php';
             if (file_exists($userView)) require $userView;

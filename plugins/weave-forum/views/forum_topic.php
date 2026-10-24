@@ -40,6 +40,11 @@ $allBoards = ForumManager::getBoards();
                     <span class="material-icons text-xs">push_pin</span> Angepinnt
                 </span>
             <?php endif; ?>
+            <?php if (!empty($topic['is_solved'])): ?>
+                <span class="badge badge-success text-xs flex items-center gap-1 font-bold">
+                    <span class="material-icons text-xs">check_circle</span> Gelöst
+                </span>
+            <?php endif; ?>
             <?php if (!empty($topic['is_locked'])): ?>
                 <span class="badge badge-secondary text-xs flex items-center gap-1">
                     <span class="material-icons text-xs">lock</span> Geschlossen
@@ -52,10 +57,26 @@ $allBoards = ForumManager::getBoards();
         <h2 class="text-2xl font-bold"><?= htmlspecialchars($topic['title']) ?></h2>
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 flex-wrap">
+        <?php 
+        $canToggleSolved = $currentUser && (($currentUser['id'] === $topic['author_id']) || $isMod);
+        ?>
+        <?php if ($canToggleSolved): ?>
+            <!-- Gelöst Toggle Button -->
+            <form method="post" action="?forum_action=toggle_solved" class="inline">
+                <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                <button type="submit" class="btn btn-sm <?= !empty($topic['is_solved']) ? 'btn-success' : 'btn-outline' ?> flex items-center gap-1"
+                        title="Themenstatus umschalten">
+                    <span class="material-icons text-xs"><?= !empty($topic['is_solved']) ? 'check_circle' : 'task_alt' ?></span>
+                    <?= !empty($topic['is_solved']) ? 'Gelöst ✓' : 'Als gelöst markieren' ?>
+                </button>
+            </form>
+        <?php endif; ?>
+
         <?php if ($currentUser): ?>
             <!-- Abonnement Toggle -->
-            <form method="post" action="?forum_action=toggle_subscription">
+            <form method="post" action="?forum_action=toggle_subscription" class="inline">
                 <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                 <button type="submit" class="btn btn-sm <?= $isSubscribed ? 'btn-primary' : 'btn-outline' ?> flex items-center gap-1">
@@ -204,40 +225,69 @@ $allBoards = ForumManager::getBoards();
                 </div>
 
                 <!-- Post Actions Bar -->
-                <div class="flex items-center justify-end gap-2 pt-4 border-t text-xs">
-                    <!-- Zitat-Button -->
-                    <button type="button" class="btn btn-outline btn-xs flex items-center gap-1"
-                            onclick="insertQuote('<?= htmlspecialchars(addslashes($post['author_name'])) ?>', <?= htmlspecialchars(json_encode($post['content'])) ?>)">
-                        <span class="material-icons text-xs">format_quote</span> Zitieren
-                    </button>
+                <div class="flex items-center justify-between gap-2 pt-4 border-t text-xs">
+                    <!-- Kudos / Danke Button -->
+                    <?php
+                    $likes = ForumManager::getPostLikes($post['id']);
+                    $likeCount = count($likes);
+                    $hasLiked = $currentUser ? in_array($currentUser['id'], $likes, true) : false;
+                    ?>
+                    <div>
+                        <?php if ($currentUser): ?>
+                            <form method="post" action="?forum_action=toggle_like" class="inline">
+                                <input type="hidden" name="post_id" value="<?= htmlspecialchars($post['id']) ?>">
+                                <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                <button type="submit" class="btn btn-xs <?= $hasLiked ? 'btn-primary' : 'btn-outline' ?> flex items-center gap-1" title="Diesen Beitrag als hilfreich markieren">
+                                    <span class="material-icons text-xs"><?= $hasLiked ? 'favorite' : 'favorite_border' ?></span>
+                                    <span><?= $hasLiked ? 'Hilfreich' : 'Danke' ?></span>
+                                    <?php if ($likeCount > 0): ?>
+                                        <span class="font-bold ml-0.5">(<?= $likeCount ?>)</span>
+                                    <?php endif; ?>
+                                </button>
+                            </form>
+                        <?php elseif ($likeCount > 0): ?>
+                            <span class="badge badge-secondary text-xs flex items-center gap-1 text-muted">
+                                <span class="material-icons text-xs text-rose-500">favorite</span> <?= $likeCount ?> <?= $likeCount === 1 ? 'Danke' : 'Dankes' ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
 
-                    <!-- Edit Button -->
-                    <?php if ($canEdit): ?>
+                    <div class="flex items-center gap-2">
+                        <!-- Zitat-Button -->
                         <button type="button" class="btn btn-outline btn-xs flex items-center gap-1"
-                                onclick="openEditPostModal('<?= htmlspecialchars($post['id']) ?>', <?= htmlspecialchars(json_encode($post['content'])) ?>)">
-                            <span class="material-icons text-xs">edit</span> Bearbeiten
+                                onclick="insertQuote('<?= htmlspecialchars(addslashes($post['author_name'])) ?>', <?= htmlspecialchars(json_encode($post['content'])) ?>)">
+                            <span class="material-icons text-xs">format_quote</span> Zitieren
                         </button>
-                    <?php endif; ?>
 
-                    <!-- Delete Button (Mod) -->
-                    <?php if ($isMod): ?>
-                        <form method="post" action="?forum_action=mod_delete_post" class="inline" onsubmit="return confirm('Diesen Beitrag wirklich löschen?')">
-                            <input type="hidden" name="post_id" value="<?= htmlspecialchars($post['id']) ?>">
-                            <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
-                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                            <button type="submit" class="btn btn-outline btn-xs text-danger" title="Beitrag löschen">
-                                <span class="material-icons text-xs">delete</span>
+                        <!-- Edit Button -->
+                        <?php if ($canEdit): ?>
+                            <button type="button" class="btn btn-outline btn-xs flex items-center gap-1"
+                                    onclick="openEditPostModal('<?= htmlspecialchars($post['id']) ?>', <?= htmlspecialchars(json_encode($post['content'])) ?>)">
+                                <span class="material-icons text-xs">edit</span> Bearbeiten
                             </button>
-                        </form>
-                    <?php endif; ?>
+                        <?php endif; ?>
 
-                    <!-- Melden Button -->
-                    <?php if ($currentUser && !$isAuthor): ?>
-                        <button type="button" class="btn btn-outline btn-xs text-muted" title="Beitrag melden"
-                                onclick="openReportModal('<?= htmlspecialchars($post['id']) ?>')">
-                            <span class="material-icons text-xs">flag</span>
-                        </button>
-                    <?php endif; ?>
+                        <!-- Delete Button (Mod) -->
+                        <?php if ($isMod): ?>
+                            <form method="post" action="?forum_action=mod_delete_post" class="inline" onsubmit="return confirm('Diesen Beitrag wirklich löschen?')">
+                                <input type="hidden" name="post_id" value="<?= htmlspecialchars($post['id']) ?>">
+                                <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                <button type="submit" class="btn btn-outline btn-xs text-danger" title="Beitrag löschen">
+                                    <span class="material-icons text-xs">delete</span>
+                                </button>
+                            </form>
+                        <?php endif; ?>
+
+                        <!-- Melden Button -->
+                        <?php if ($currentUser && !$isAuthor): ?>
+                            <button type="button" class="btn btn-outline btn-xs text-muted" title="Beitrag melden"
+                                    onclick="openReportModal('<?= htmlspecialchars($post['id']) ?>')">
+                                <span class="material-icons text-xs">flag</span>
+                            </button>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -274,16 +324,29 @@ $allBoards = ForumManager::getBoards();
                 <?= htmlspecialchars($replyError) ?>
             </div>
         <?php endif; ?>
-        <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
-            <span class="material-icons text-primary">reply</span> Antwort verfassen
-        </h3>
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-lg flex items-center gap-2">
+                <span class="material-icons text-primary">reply</span> Antwort verfassen
+            </h3>
+            <div class="flex items-center gap-1 text-xs">
+                <button type="button" id="tab_reply_write" class="btn btn-xs btn-primary font-semibold"
+                        onclick="switchEditorTab('write', 'reply_textarea', 'reply_preview_box', 'tab_reply_write', 'tab_reply_preview')">
+                    Schreiben
+                </button>
+                <button type="button" id="tab_reply_preview" class="btn btn-xs btn-outline font-semibold"
+                        onclick="switchEditorTab('preview', 'reply_textarea', 'reply_preview_box', 'tab_reply_write', 'tab_reply_preview')">
+                    Vorschau
+                </button>
+            </div>
+        </div>
         <form method="post" action="?forum_action=add_post">
             <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
             <div class="form-group mb-4">
-                <textarea id="reply_textarea" name="content" rows="5" required 
+                <textarea id="reply_textarea" name="content" rows="6" required 
                           class="input-field w-full" placeholder="Schreibe deine Antwort... (Markdown und Zitate unterstützt)"></textarea>
+                <div id="reply_preview_box" class="input-field w-full min-h-[140px] p-4 bg-gray-50 dark:bg-gray-900 border rounded-lg hidden"></div>
             </div>
 
             <div class="flex justify-between items-center">
@@ -349,6 +412,49 @@ function insertQuote(author, text) {
     area.value += `[quote="${author}"]${cleanText}[/quote]\n\n`;
     area.focus();
     area.scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderMarkdownPreview(raw, targetEl) {
+    if (!raw.trim()) {
+        targetEl.innerHTML = '<span class="text-muted italic">Keine Vorschau verfügbar (noch nichts geschrieben)...</span>';
+        return;
+    }
+    let s = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    s = s.replace(/\[quote(?:="([^"]*)")?\]([\s\S]*?)\[\/quote\]/gi, function(_, author, body) {
+        author = author ? author : 'Zitat';
+        return '<blockquote class="forum-quote"><div class="quote-author"><span class="material-icons text-xs">format_quote</span> <strong>' + author + '</strong> schrieb:</div><div class="quote-body">' + body.replace(/\n/g, '<br>') + '</div></blockquote>';
+    });
+    s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    s = s.replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-xs">$1</code>');
+    s = s.replace(/\n/g, '<br>');
+    targetEl.innerHTML = s;
+}
+
+function switchEditorTab(mode, editorId, previewId, btnWriteId, btnPreviewId) {
+    const editor = document.getElementById(editorId);
+    const preview = document.getElementById(previewId);
+    const btnWrite = document.getElementById(btnWriteId);
+    const btnPreview = document.getElementById(btnPreviewId);
+    if (!editor || !preview) return;
+
+    if (mode === 'preview') {
+        renderMarkdownPreview(editor.value, preview);
+        editor.classList.add('hidden');
+        preview.classList.remove('hidden');
+        btnWrite.classList.remove('btn-primary');
+        btnWrite.classList.add('btn-outline');
+        btnPreview.classList.remove('btn-outline');
+        btnPreview.classList.add('btn-primary');
+    } else {
+        editor.classList.remove('hidden');
+        preview.classList.add('hidden');
+        btnPreview.classList.remove('btn-primary');
+        btnPreview.classList.add('btn-outline');
+        btnWrite.classList.remove('btn-outline');
+        btnWrite.classList.add('btn-primary');
+        editor.focus();
+    }
 }
 
 function openEditPostModal(postId, content) {

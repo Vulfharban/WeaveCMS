@@ -505,7 +505,7 @@ class ForumUserManager {
             return false;
         }
 
-        if ($user['status'] !== self::STATUS_ACTIVE) {
+        if (($user['status'] ?? self::STATUS_ACTIVE) !== self::STATUS_ACTIVE) {
             return false; // Gesperrte oder wartende Benutzer dürfen nichts
         }
 

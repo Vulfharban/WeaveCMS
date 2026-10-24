@@ -82,6 +82,11 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
                                 <a href="?page=forum&view=topic&id=<?= urlencode($t['id']) ?>" class="hover:text-primary hover:underline">
                                     <?= htmlspecialchars($t['title']) ?>
                                 </a>
+                                <?php if (!empty($t['is_solved'])): ?>
+                                    <span class="badge badge-success text-[10px] ml-1 inline-flex items-center gap-0.5 font-bold">
+                                        <span class="material-icons text-[11px]">check_circle</span> Gelöst
+                                    </span>
+                                <?php endif; ?>
                                 <?php if (!empty($t['is_pinned'])): ?>
                                     <span class="badge badge-warning text-[10px] ml-1">Angepinnt</span>
                                 <?php endif; ?>

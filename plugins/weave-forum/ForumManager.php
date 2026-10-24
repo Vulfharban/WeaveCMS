@@ -106,6 +106,7 @@ class ForumManager {
                 views INTEGER DEFAULT 0,
                 is_pinned INTEGER DEFAULT 0,
                 is_locked INTEGER DEFAULT 0,
+                is_solved INTEGER DEFAULT 0,
                 status TEXT DEFAULT 'published',
                 last_post_at TEXT NOT NULL,
                 last_post_user TEXT NOT NULL
@@ -121,6 +122,12 @@ class ForumManager {
                 updated_at TEXT DEFAULT '',
                 edited_by TEXT DEFAULT '',
                 status TEXT DEFAULT 'published'
+            );
+
+            CREATE TABLE IF NOT EXISTS weave_forum_likes (
+                post_id TEXT NOT NULL,
+                user_id TEXT NOT NULL,
+                PRIMARY KEY (post_id, user_id)
             );
 
             CREATE TABLE IF NOT EXISTS weave_forum_reports (
@@ -153,7 +160,12 @@ class ForumManager {
             CREATE INDEX IF NOT EXISTS idx_fboards_cat ON weave_forum_boards(category_id);
             CREATE INDEX IF NOT EXISTS idx_ftopics_board ON weave_forum_topics(board_id);
             CREATE INDEX IF NOT EXISTS idx_fposts_topic ON weave_forum_posts(topic_id);
+            CREATE INDEX IF NOT EXISTS idx_flikes_post ON weave_forum_likes(post_id);
         ");
+
+        try {
+            $pdo->exec("ALTER TABLE weave_forum_topics ADD COLUMN is_solved INTEGER DEFAULT 0");
+        } catch (Exception $e) {}
 
         self::$sqlitePdo = $pdo;
         return $pdo;
@@ -265,6 +277,7 @@ class ForumManager {
                     'views' => 12,
                     'is_pinned' => 1,
                     'is_locked' => 0,
+                    'is_solved' => 0,
                     'status' => 'published',
                     'last_post_at' => date('Y-m-d H:i:s'),
                     'last_post_user' => 'Community Team'
@@ -280,6 +293,7 @@ class ForumManager {
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => '',
                     'edited_by' => '',
+                    'likes' => [],
                     'status' => 'published'
                 ]
             ],
@@ -687,6 +701,7 @@ class ForumManager {
             'views' => 0,
             'is_pinned' => 0,
             'is_locked' => 0,
+            'is_solved' => 0,
             'status' => 'published',
             'last_post_at' => $now,
             'last_post_user' => $user['username']
@@ -701,6 +716,7 @@ class ForumManager {
             'created_at' => $now,
             'updated_at' => '',
             'edited_by' => '',
+            'likes' => [],
             'status' => 'published'
         ];
 
@@ -710,8 +726,8 @@ class ForumManager {
                 $pdo->beginTransaction();
 
                 $stmtT = $pdo->prepare("
-                    INSERT INTO weave_forum_topics (id, board_id, title, author_id, author_name, created_at, updated_at, views, is_pinned, is_locked, status, last_post_at, last_post_user)
-                    VALUES (:id, :board_id, :title, :author_id, :author_name, :created_at, :updated_at, 0, 0, 0, 'published', :last_post_at, :last_post_user)
+                    INSERT INTO weave_forum_topics (id, board_id, title, author_id, author_name, created_at, updated_at, views, is_pinned, is_locked, is_solved, status, last_post_at, last_post_user)
+                    VALUES (:id, :board_id, :title, :author_id, :author_name, :created_at, :updated_at, 0, 0, 0, 0, 'published', :last_post_at, :last_post_user)
                 ");
                 $stmtT->execute([
                     ':id' => $topicId,
@@ -998,6 +1014,218 @@ class ForumManager {
 
         self::logModeration('delete_topic', $moderator, 'topic', $topicId, 'Thema samt allen Beiträgen gelöscht');
         return true;
+    }
+
+    // =========================================================================
+    // STATUS [GELÖST] (SOLVED TOPICS)
+    // =========================================================================
+
+    public static function toggleSolved(string $topicId, array $user): array {
+        $topic = self::getTopic($topicId);
+        if (!$topic) {
+            return ['success' => false, 'message' => 'Thema nicht gefunden.'];
+        }
+
+        $isAuthor = (($topic['author_id'] ?? '') === ($user['id'] ?? ''));
+        $isMod = class_exists('ForumUserManager') && ForumUserManager::userCan('moderate', $user);
+
+        if (!$isAuthor && !$isMod) {
+            return ['success' => false, 'message' => 'Keine Berechtigung, den Status dieses Themas zu ändern.'];
+        }
+
+        $newVal = empty($topic['is_solved']) ? 1 : 0;
+
+        if (self::getStorageDriver() === 'sqlite') {
+            try {
+                $stmt = self::getSqlitePdo()->prepare("UPDATE weave_forum_topics SET is_solved = ? WHERE id = ?");
+                $stmt->execute([$newVal, $topicId]);
+            } catch (Exception $e) {
+                return ['success' => false, 'message' => 'Datenbankfehler: ' . $e->getMessage()];
+            }
+        } else {
+            $data = self::loadJsonData();
+            foreach ($data['topics'] as &$t) {
+                if ($t['id'] === $topicId) {
+                    $t['is_solved'] = $newVal;
+                    break;
+                }
+            }
+            self::saveJsonData($data);
+        }
+
+        self::logModeration(
+            $newVal ? 'mark_solved' : 'mark_unsolved',
+            $user,
+            'topic',
+            $topicId,
+            $newVal ? 'Thema als gelöst markiert' : 'Thema als ungelöst markiert'
+        );
+
+        return ['success' => true, 'is_solved' => (bool)$newVal];
+    }
+
+    // =========================================================================
+    // KUDOS & BEITRAGS-LIKES ("DANKE / HILFREICH")
+    // =========================================================================
+
+    public static function getPostLikes(string $postId): array {
+        if (self::getStorageDriver() === 'sqlite') {
+            try {
+                $stmt = self::getSqlitePdo()->prepare("SELECT user_id FROM weave_forum_likes WHERE post_id = ?");
+                $stmt->execute([$postId]);
+                return $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+            } catch (Exception $e) {
+                return [];
+            }
+        }
+
+        $data = self::loadJsonData();
+        foreach ($data['posts'] ?? [] as $p) {
+            if ($p['id'] === $postId) {
+                return is_array($p['likes'] ?? null) ? $p['likes'] : [];
+            }
+        }
+        return [];
+    }
+
+    public static function toggleLike(string $postId, string $userId): array {
+        if (empty($postId) || empty($userId)) {
+            return ['success' => false, 'message' => 'Ungültige Anfrage.'];
+        }
+
+        $likes = self::getPostLikes($postId);
+        $hasLiked = in_array($userId, $likes, true);
+
+        if (self::getStorageDriver() === 'sqlite') {
+            try {
+                $pdo = self::getSqlitePdo();
+                if ($hasLiked) {
+                    $stmt = $pdo->prepare("DELETE FROM weave_forum_likes WHERE post_id = ? AND user_id = ?");
+                    $stmt->execute([$postId, $userId]);
+                    $liked = false;
+                } else {
+                    $stmt = $pdo->prepare("INSERT INTO weave_forum_likes (post_id, user_id) VALUES (?, ?)");
+                    $stmt->execute([$postId, $userId]);
+                    $liked = true;
+                }
+                $newLikes = self::getPostLikes($postId);
+                return ['success' => true, 'liked' => $liked, 'count' => count($newLikes)];
+            } catch (Exception $e) {
+                return ['success' => false, 'message' => 'Datenbankfehler: ' . $e->getMessage()];
+            }
+        }
+
+        $data = self::loadJsonData();
+        $liked = false;
+        foreach ($data['posts'] as &$p) {
+            if ($p['id'] === $postId) {
+                if (!isset($p['likes']) || !is_array($p['likes'])) {
+                    $p['likes'] = [];
+                }
+                if ($hasLiked) {
+                    $p['likes'] = array_values(array_diff($p['likes'], [$userId]));
+                    $liked = false;
+                } else {
+                    $p['likes'][] = $userId;
+                    $liked = true;
+                }
+                $count = count($p['likes']);
+                self::saveJsonData($data);
+                return ['success' => true, 'liked' => $liked, 'count' => $count];
+            }
+        }
+
+        return ['success' => false, 'message' => 'Beitrag nicht gefunden.'];
+    }
+
+    // =========================================================================
+    // VOLLTEXT- & SCHNELLSUCHE
+    // =========================================================================
+
+    public static function search(string $query, int $limit = 30): array {
+        $q = trim($query);
+        if (mb_strlen($q) < 2) {
+            return ['topics' => [], 'query' => $q, 'count' => 0];
+        }
+
+        $driver = self::getStorageDriver();
+        $matchedTopicIds = [];
+        $snippets = [];
+
+        if ($driver === 'sqlite') {
+            try {
+                $pdo = self::getSqlitePdo();
+                // 1. Suche in Thementiteln
+                $stmtT = $pdo->prepare("SELECT id FROM weave_forum_topics WHERE title LIKE :q AND status = 'published'");
+                $stmtT->execute([':q' => '%' . $q . '%']);
+                foreach ($stmtT->fetchAll(PDO::FETCH_COLUMN) as $tid) {
+                    $matchedTopicIds[$tid] = true;
+                }
+
+                // 2. Suche in Beiträgen
+                $stmtP = $pdo->prepare("SELECT topic_id, content FROM weave_forum_posts WHERE content LIKE :q AND status = 'published' LIMIT 100");
+                $stmtP->execute([':q' => '%' . $q . '%']);
+                foreach ($stmtP->fetchAll() as $row) {
+                    $tid = $row['topic_id'];
+                    $matchedTopicIds[$tid] = true;
+                    if (!isset($snippets[$tid])) {
+                        $snippets[$tid] = self::extractSnippet($row['content'], $q);
+                    }
+                }
+            } catch (Exception $e) {
+                return ['topics' => [], 'query' => $q, 'count' => 0];
+            }
+        } else {
+            $data = self::loadJsonData();
+            foreach ($data['topics'] ?? [] as $t) {
+                if (($t['status'] ?? 'published') === 'published' && mb_stripos($t['title'] ?? '', $q) !== false) {
+                    $matchedTopicIds[$t['id']] = true;
+                }
+            }
+
+            foreach ($data['posts'] ?? [] as $p) {
+                if (($p['status'] ?? 'published') === 'published' && mb_stripos($p['content'] ?? '', $q) !== false) {
+                    $tid = $p['topic_id'];
+                    $matchedTopicIds[$tid] = true;
+                    if (!isset($snippets[$tid])) {
+                        $snippets[$tid] = self::extractSnippet($p['content'], $q);
+                    }
+                }
+            }
+        }
+
+        $results = [];
+        foreach (array_keys($matchedTopicIds) as $tid) {
+            $topic = self::getTopic($tid);
+            if ($topic && ($topic['status'] ?? 'published') === 'published') {
+                $board = self::getBoard($topic['board_id']);
+                $topic['board_title'] = $board['title'] ?? 'Forum';
+                $topic['reply_count'] = max(0, self::countPosts($tid) - 1);
+                $topic['snippet'] = $snippets[$tid] ?? '';
+                $results[] = $topic;
+            }
+        }
+
+        usort($results, fn($a, $b) => strcmp($b['last_post_at'] ?? '', $a['last_post_at'] ?? ''));
+
+        return [
+            'topics' => array_slice($results, 0, $limit),
+            'query' => $q,
+            'count' => count($results)
+        ];
+    }
+
+    protected static function extractSnippet(string $content, string $query, int $radius = 80): string {
+        $pos = mb_stripos($content, $query);
+        if ($pos === false) {
+            return mb_substr($content, 0, 160) . '...';
+        }
+        $start = max(0, $pos - $radius);
+        $len = mb_strlen($query) + ($radius * 2);
+        $snip = mb_substr($content, $start, $len);
+        $snip = htmlspecialchars($snip);
+        $snip = preg_replace('/(' . preg_quote(htmlspecialchars($query), '/') . ')/iu', '<mark class="bg-amber-200 dark:bg-amber-900/60 font-bold px-0.5 rounded">$1</mark>', $snip);
+        return ($start > 0 ? '...' : '') . $snip . '...';
     }
 
     // =========================================================================
@@ -1309,7 +1537,7 @@ class ForumManager {
             }
 
             // 3. Topics
-            $stmtT = $pdo->prepare("INSERT OR REPLACE INTO weave_forum_topics (id, board_id, title, author_id, author_name, created_at, updated_at, views, is_pinned, is_locked, status, last_post_at, last_post_user) VALUES (:id, :board_id, :title, :author_id, :author_name, :created_at, :updated_at, :views, :is_pinned, :is_locked, :status, :last_post_at, :last_post_user)");
+            $stmtT = $pdo->prepare("INSERT OR REPLACE INTO weave_forum_topics (id, board_id, title, author_id, author_name, created_at, updated_at, views, is_pinned, is_locked, is_solved, status, last_post_at, last_post_user) VALUES (:id, :board_id, :title, :author_id, :author_name, :created_at, :updated_at, :views, :is_pinned, :is_locked, :is_solved, :status, :last_post_at, :last_post_user)");
             foreach ($data['topics'] ?? [] as $t) {
                 $stmtT->execute([
                     ':id' => $t['id'],
@@ -1322,14 +1550,16 @@ class ForumManager {
                     ':views' => (int)($t['views'] ?? 0),
                     ':is_pinned' => !empty($t['is_pinned']) ? 1 : 0,
                     ':is_locked' => !empty($t['is_locked']) ? 1 : 0,
+                    ':is_solved' => !empty($t['is_solved']) ? 1 : 0,
                     ':status' => $t['status'] ?? 'published',
                     ':last_post_at' => $t['last_post_at'] ?? date('Y-m-d H:i:s'),
                     ':last_post_user' => $t['last_post_user'] ?? ''
                 ]);
             }
 
-            // 4. Posts
+            // 4. Posts & Likes
             $stmtP = $pdo->prepare("INSERT OR REPLACE INTO weave_forum_posts (id, topic_id, author_id, author_name, content, created_at, updated_at, edited_by, status) VALUES (:id, :topic_id, :author_id, :author_name, :content, :created_at, :updated_at, :edited_by, :status)");
+            $stmtL = $pdo->prepare("INSERT OR IGNORE INTO weave_forum_likes (post_id, user_id) VALUES (:post_id, :user_id)");
             foreach ($data['posts'] ?? [] as $p) {
                 $stmtP->execute([
                     ':id' => $p['id'],
@@ -1342,10 +1572,16 @@ class ForumManager {
                     ':edited_by' => $p['edited_by'] ?? '',
                     ':status' => $p['status'] ?? 'published'
                 ]);
+
+                if (!empty($p['likes']) && is_array($p['likes'])) {
+                    foreach ($p['likes'] as $uid) {
+                        $stmtL->execute([':post_id' => $p['id'], ':user_id' => $uid]);
+                    }
+                }
             }
 
             $pdo->commit();
-            return ['success' => true, 'message' => 'Foreninhalte (Kategorien, Boards, Themen, Beiträge) erfolgreich nach SQLite migriert!'];
+            return ['success' => true, 'message' => 'Foreninhalte (Kategorien, Boards, Themen, Beiträge, Likes) erfolgreich nach SQLite migriert!'];
         } catch (Exception $e) {
             if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
             return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
@@ -1355,11 +1591,24 @@ class ForumManager {
     public static function migrateSqliteToJson(): array {
         try {
             $pdo = self::getSqlitePdo();
+            $posts = $pdo->query("SELECT * FROM weave_forum_posts ORDER BY created_at ASC")->fetchAll();
+            $likesMap = [];
+            try {
+                $likes = $pdo->query("SELECT post_id, user_id FROM weave_forum_likes")->fetchAll();
+                foreach ($likes as $l) {
+                    $likesMap[$l['post_id']][] = $l['user_id'];
+                }
+            } catch (Exception $e) {}
+
+            foreach ($posts as &$p) {
+                $p['likes'] = $likesMap[$p['id']] ?? [];
+            }
+
             $data = [
                 'categories' => $pdo->query("SELECT * FROM weave_forum_categories ORDER BY sort_order ASC")->fetchAll(),
                 'boards' => $pdo->query("SELECT * FROM weave_forum_boards ORDER BY sort_order ASC")->fetchAll(),
                 'topics' => $pdo->query("SELECT * FROM weave_forum_topics ORDER BY last_post_at DESC")->fetchAll(),
-                'posts' => $pdo->query("SELECT * FROM weave_forum_posts ORDER BY created_at ASC")->fetchAll(),
+                'posts' => $posts,
                 'reports' => $pdo->query("SELECT * FROM weave_forum_reports ORDER BY created_at DESC")->fetchAll(),
                 'subscriptions' => $pdo->query("SELECT * FROM weave_forum_subscriptions")->fetchAll(),
                 'audit_log' => $pdo->query("SELECT * FROM weave_forum_audit_log ORDER BY timestamp DESC LIMIT 200")->fetchAll()
