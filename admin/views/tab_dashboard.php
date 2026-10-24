@@ -36,8 +36,59 @@
                             <span class="material-icons" style="font-size:14px;">http</span> Lokaler Dev-Modus
                         </span>
                     <?php endif; ?>
+                    <a href="?tab=tab-dashboard&check_updates=1" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:4px;" title="Updates jetzt online prüfen">
+                        <span class="material-icons" style="font-size:14px;">sync</span> Updates prüfen
+                    </a>
                 </div>
             </div>
+
+            <!-- Phase 12: Prominente Update-Meldungen (Core & Plugins) -->
+            <?php if (!empty($core_update_info['update_available'])): ?>
+                <div style="background: linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(37,99,235,0.06) 100%); border: 1px solid #3b82f6; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: #3b82f6; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <span class="material-icons" style="font-size: 26px;">system_update</span>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 0.25rem 0; font-size: 1.05rem; color: #1e40af;">
+                                Neues WeaveCMS-Update verfügbar: <strong>v<?php echo htmlspecialchars($core_update_info['latest_version']); ?></strong>
+                            </h4>
+                            <p style="margin: 0; font-size: 0.88rem; color: var(--text-secondary);">
+                                Installiert: <code>v<?php echo htmlspecialchars($core_update_info['current_version']); ?></code> &bull; 
+                                <?php echo htmlspecialchars($core_update_info['changelog'] ?? 'Release-Notizen online ansehen'); ?>
+                            </p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="<?php echo htmlspecialchars($core_update_info['release_url']); ?>" target="_blank" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                            <span class="material-icons" style="font-size: 16px;">open_in_new</span> Release &amp; Download ansehen
+                        </a>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($plugin_updates)): ?>
+                <div style="background: rgba(245,158,11,0.08); border: 1px solid #f59e0b; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 2rem;">
+                    <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #b45309; display: flex; align-items: center; gap: 8px;">
+                        <span class="material-icons" style="font-size: 20px;">extension</span> Plugin-Updates auf GitHub verfügbar
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <?php foreach ($plugin_updates as $pUp): ?>
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: rgba(255,255,255,0.7); padding: 8px 12px; border-radius: 10px;">
+                                <div>
+                                    <strong><?php echo htmlspecialchars($pUp['name']); ?></strong>:
+                                    <span style="font-size: 0.85rem; color: var(--text-secondary); margin-left: 6px;">
+                                        Installiert: <code>v<?php echo htmlspecialchars($pUp['installed_version']); ?></code> ➔ Neu auf Git: <strong style="color: #b45309;">v<?php echo htmlspecialchars($pUp['latest_version']); ?></strong>
+                                    </span>
+                                </div>
+                                <a href="<?php echo htmlspecialchars($pUp['release_url']); ?>" target="_blank" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px;">
+                                    <span class="material-icons" style="font-size: 14px;">open_in_new</span> Details / Git-Repo
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
 
             <!-- 1. KPI-STATISTIKKARTEN -->
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.25rem;">
@@ -220,7 +271,7 @@
                     <strong>Speicher-Engine:</strong> 
                     <span style="color:var(--text-primary); font-weight:600;"><?php echo htmlspecialchars($storage_details['name'] ?? 'Flat-File JSON'); ?></span>
                     <span style="margin: 0 6px;">&bull;</span>
-                    <strong>Version:</strong> <span style="color:var(--text-primary); font-weight:600;">WeaveCMS v0.9.0</span>
+                    <strong>Version:</strong> <span style="color:var(--text-primary); font-weight:600;">WeaveCMS v<?php echo defined('WEAVE_VERSION') ? WEAVE_VERSION : '1.0.0'; ?></span>
                     <span style="margin: 0 6px;">&bull;</span>
                     <strong>PHP:</strong> <span style="color:var(--text-primary); font-weight:600;"><?php echo PHP_VERSION; ?></span>
                 </div>

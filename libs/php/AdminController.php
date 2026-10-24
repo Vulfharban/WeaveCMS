@@ -145,6 +145,7 @@ class AdminController {
             case 'restore_backup':
             case 'upload_restore':
             case 'delete_backup':
+            case 'build_release_package':
                 self::handleBackupAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
@@ -1127,6 +1128,18 @@ class AdminController {
                 $success_msg = 'Sicherungsdatei "' . htmlspecialchars($file) . '" wurde erfolgreich gelöscht.';
             } else {
                 $error_msg = 'Fehler beim Löschen der Sicherungsdatei.';
+            }
+        } elseif ($action === 'build_release_package') {
+            $pkgType = ($_POST['package_type'] ?? 'full') === 'update' ? 'update' : 'full';
+            $script = dirname(__DIR__, 2) . '/tools/build_release.php';
+            if (file_exists($script)) {
+                ob_start();
+                $_GET['type'] = $pkgType;
+                include $script;
+                $out = ob_get_clean();
+                $success_msg = '✓ Distributions-Paket (' . strtoupper($pkgType) . ') erfolgreich generiert! Siehe Ordner releases/.';
+            } else {
+                $error_msg = 'Build-Skript nicht gefunden.';
             }
         }
     }
