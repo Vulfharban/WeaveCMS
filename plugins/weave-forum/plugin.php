@@ -80,6 +80,9 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             $cfg['posts_per_page'] = max(5, (int)($_POST['posts_per_page'] ?? 15));
             $cfg['badwords'] = trim($_POST['badwords'] ?? '');
             $cfg['rate_limit_seconds'] = max(0, (int)($_POST['rate_limit_seconds'] ?? 15));
+            $cfg['announcement_enabled'] = !empty($_POST['announcement_enabled']);
+            $cfg['announcement_type'] = trim($_POST['announcement_type'] ?? 'info');
+            $cfg['announcement_text'] = trim($_POST['announcement_text'] ?? '');
 
             PluginManager::savePluginConfig('weave-forum', $cfg, $data);
             save_data(dirname(__DIR__, 2) . '/data.json', $data);
@@ -279,6 +282,29 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $topicId = trim($_POST['topic_id'] ?? '');
             ForumManager::deletePost($postId, $currentUser);
             header('Location: ?page=forum&view=topic&id=' . urlencode($topicId));
+            exit;
+        }
+
+        // Thema als gelöst / ungelöst umschalten (Autor oder Moderation)
+        if ($action === 'toggle_solved' && $currentUser) {
+            $topicId = trim($_POST['topic_id'] ?? '');
+            ForumManager::toggleSolved($topicId, $currentUser);
+            header('Location: ?page=forum&view=topic&id=' . urlencode($topicId));
+            exit;
+        }
+
+        // Beitrag mit "Danke / Hilfreich" (Kudos / Like) markieren
+        if ($action === 'toggle_like' && $currentUser) {
+            $postId = trim($_POST['post_id'] ?? '');
+            $topicId = trim($_POST['topic_id'] ?? '');
+            $res = ForumManager::toggleLike($postId, $currentUser['id']);
+
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                header('Content-Type: application/json');
+                echo json_encode($res);
+                exit;
+            }
+            header('Location: ?page=forum&view=topic&id=' . urlencode($topicId) . '#post-' . urlencode($postId));
             exit;
         }
     }
