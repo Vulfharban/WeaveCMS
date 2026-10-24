@@ -1,9 +1,9 @@
 {
     "categories": [
+        "Design & Unikate",
+        "Naturmaterialien",
         "Wohnaccessoires",
-        "Gartendeko",
-        "Auftragsarbeiten",
-        "Kurse"
+        "Atelier & Werkstatt"
     ],
     "courses": [
         {
@@ -36,80 +36,98 @@
     "gallery": [
         {
             "id": 1,
-            "title": "Design-Korb 'Terra'",
-            "description": "Handgeflochtenes Schalenunikat für Obst, Brot und stilvolle Tischdekoration.",
-            "image": "/images/korb_klassik.png",
-            "category": "Wohnaccessoires",
-            "sort_order": 1
+            "title": "Skulptur Unikat",
+            "description": "Elegante freistehende Holzskulptur mit sanften, organischen Linien.",
+            "image": "/images/demo/demo_sculpture_tall.webp",
+            "category": "Design & Unikate",
+            "sort_order": 1,
+            "aspect_ratio": "3:4",
+            "alt": "Hochformatige Holzskulptur als Unikat für moderne Innenräume"
         },
         {
             "id": 2,
-            "title": "Lenkerkorb 'Vintage'",
-            "description": "Feines Naturgeflecht mit hochwertigen Lederriemen. Praktisch und zeitlos elegant.",
-            "image": "/images/korb_fahrrad.png",
-            "category": "Wohnaccessoires",
-            "sort_order": 2
+            "title": "Vase Natura",
+            "description": "Handgedrechselte Bodenvase aus massivem Eichenholz mit feiner Naturmaserung.",
+            "image": "/images/demo/demo_wood_vase.webp",
+            "category": "Naturmaterialien",
+            "sort_order": 2,
+            "aspect_ratio": "2:3",
+            "alt": "Schlanke hohe Holzbodenvase aus natürlichem Eichenholz"
         },
         {
             "id": 3,
-            "title": "Kaminholzkorb 'Robusto'",
-            "description": "Ein großer, extra stabiler Tragekorb aus dunklen Naturruten für Kaminholz oder Gartenarbeiten.",
-            "image": "/images/korb_kaminholz.png",
-            "category": "Wohnaccessoires",
-            "sort_order": 3
+            "title": "Atelier Werkbank",
+            "description": "Einblick in die Entstehung: Traditionelle Handwerkswerkzeuge und handverlesene Rohmaterialien.",
+            "image": "/images/demo/demo_atelier_panorama.webp",
+            "category": "Atelier & Werkstatt",
+            "sort_order": 3,
+            "aspect_ratio": "16:9",
+            "alt": "Panorama-Aufnahme einer handwerklichen Werkbank mit Holzwerkzeugen"
         },
         {
             "id": 4,
-            "title": "Dekokugeln 'Trio'",
-            "description": "Drei handgearbeitete Hohlkugeln in verschiedenen Größen zur Dekoration im Wohn- und Gartenbereich.",
-            "image": "/images/deko_kugeln.png",
-            "category": "Gartendeko",
-            "sort_order": 4
+            "title": "Tischobjekt Terra",
+            "description": "Geometrisches Keramik- und Holz-Ensemble für moderne Sideboards und Esstische.",
+            "image": "/images/demo/demo_ceramic_table.webp",
+            "category": "Wohnaccessoires",
+            "sort_order": 4,
+            "aspect_ratio": "3:2",
+            "alt": "Ausgewogenes Tischobjekt in warmen Terrakotta- und Naturtönen"
         },
         {
             "id": 5,
-            "title": "Windlicht 'Spirale'",
-            "description": "Kunstvoll geschwungenes Windlicht mit Glaseinsatz für stimmungsvolle Sommerabende.",
-            "image": "/images/deko_windlicht.png",
-            "category": "Gartendeko",
-            "sort_order": 5
+            "title": "Schale Minimal",
+            "description": "Zeitlose, flache Dekoschale mit samtiger Haptik für Obst oder feine Kleinigkeiten.",
+            "image": "/images/demo/demo_minimal_bowl.webp",
+            "category": "Design & Unikate",
+            "sort_order": 5,
+            "aspect_ratio": "1:1",
+            "alt": "Quadratische Ansicht einer minimalistischen Handwerksschale"
         },
         {
             "id": 6,
-            "title": "Rankobelisk 'Natura'",
-            "description": "Hohe, freistehende Rankhilfe für Rosen, Clematis und Kletterpflanzen im Garten.",
-            "image": "/images/deko_rankhilfe.png",
-            "category": "Gartendeko",
-            "sort_order": 6
+            "title": "Leinenkissen Organisch",
+            "description": "Handgewebte Kissenhülle aus reinem Naturleinen mit unregelmäßiger Struktur.",
+            "image": "/images/demo/demo_linen_cushion.webp",
+            "category": "Wohnaccessoires",
+            "sort_order": 6,
+            "aspect_ratio": "1:1",
+            "alt": "Quadratisches handgefertigtes Kissen aus natürlichem Leinenstoff"
         },
         {
             "id": 7,
-            "title": "Sichtschutzwand 'Rustikal'",
-            "description": "Ein traditioneller, blickdichter Naturzaun, maßgefertigt für Terrassen und Gartenanlagen.",
-            "image": "/images/sichtschutz_flechtzaun.png",
-            "category": "Auftragsarbeiten",
-            "sort_order": 7
+            "title": "Windlicht Aura",
+            "description": "Harmonische Verbindung aus mundgeblasenem Glas und gebogenem Naturholzrahmen.",
+            "image": "/images/demo/demo_lantern_light.webp",
+            "category": "Naturmaterialien",
+            "sort_order": 7,
+            "aspect_ratio": "4:3",
+            "alt": "Klassisches Windlicht mit Holzfasson und warmem Kerzenlicht"
         },
         {
             "id": 8,
-            "title": "Design-Paneel 'Modern'",
-            "description": "Hochwertiges Lamellenelement aus Naturmaterialien, eingefasst in einem massiven Holzrahmen.",
-            "image": "/images/sichtschutz_modern.png",
-            "category": "Auftragsarbeiten",
-            "sort_order": 8
+            "title": "Traditionswerkzeuge",
+            "description": "Sorgsam gepflegte Werkzeuge der Formgebung, Schnitz- und Biegekunst im Atelier.",
+            "image": "/images/demo/demo_toolset_craft.webp",
+            "category": "Atelier & Werkstatt",
+            "sort_order": 8,
+            "aspect_ratio": "4:3",
+            "alt": "Historische und moderne Handwerkzeuge geordnet auf Werkstatttisch"
         },
         {
             "id": 9,
-            "title": "Gartenbogen 'Lebendbau'",
-            "description": "Ein lebendes Naturgeflecht, das im Frühjahr austreibt und ein grünes Blätterdach bildet.",
-            "image": "/images/sichtschutz_lebendzaun.png",
-            "category": "Auftragsarbeiten",
-            "sort_order": 9
+            "title": "Wandelement Akustik",
+            "description": "Strukturierte Wandpaneele aus nachhaltigen Naturleisten zur Raumklang-Optimierung.",
+            "image": "/images/demo/demo_acoustic_panel.webp",
+            "category": "Design & Unikate",
+            "sort_order": 9,
+            "aspect_ratio": "3:4",
+            "alt": "Vertikales Akustik-Wandpaneel aus Naturholzleisten"
         }
     ],
     "past_courses": [
-        "/images/default_wicker1.png",
-        "/images/default_wicker2.png"
+        "/images/demo/demo_atelier_panorama.webp",
+        "/images/demo/demo_ceramic_table.webp"
     ],
     "sections": [
         {
@@ -250,16 +268,16 @@
         "accessibility_bar_enabled": false
     },
     "texts": {
-        "hero_title": "Atelier Musterfrau",
-        "hero_subtitle": "Handgefertigte Unikate & Kreativ-Workshops",
-        "about_title": "Über mein Atelier & Handwerk",
-        "about_text": "Handwerkskunst ist für mich eine lebendige Verbindung aus Natur, Tradition und zeitgenössischem Design. Jedes Werkstück entsteht in sorgfältiger Handarbeit und erzählt seine eigene Geschichte. Ich verwende ausschließlich nachhaltige, ausgewählte Naturmaterialien.\r\n\r\nNeben individuellen Wohnaccessoires und Auftragsarbeiten für Haus und Garten gebe ich regelmäßige Workshops für alle, die das Gestalten mit natürlichen Werkstoffen selbst erlernen möchten. Meine Werkstatt befindet sich in Musterstadt, wo ich mich voll und ganz dieser Leidenschaft widme.",
-        "gallery_title": "Galerie & Werkstücke",
-        "gallery_subtitle": "Ein Auszug aus meinen handgefertigten Designobjekten, Accessoires und maßgeschneiderten Auftragsarbeiten.",
-        "courses_title": "Kurse & Workshops",
-        "courses_subtitle": "Lerne die Grundlagen der handwerklichen Gestaltung in persönlicher, inspirierender Werkstatt-Atmosphäre selbst kennen.",
-        "past_courses_title": "Impressionen vergangener Workshops",
-        "past_courses_subtitle": "Ein Rückblick auf gemeinsame kreative Stunden und entstandene Meisterstücke.",
+        "hero_title": "Atelier für Handwerk, Natur & Design",
+        "hero_subtitle": "Maßgeschneiderte Designunikate, nachhaltige Naturmaterialien und inspirierende Werkstatt-Kurse.",
+        "about_title": "Über unser Atelier & die Werkstatt",
+        "about_text": "In unserem Atelier verschmelzen traditionelle Handwerkstechniken, edle Naturmaterialien und zeitgenössische Formensprache zu langlebigen Unikaten.",
+        "gallery_title": "Galerie & Portfolio",
+        "gallery_subtitle": "Ausgewählte Designobjekte, Wohnaccessoires und architektonische Raumteiler im Überblick.",
+        "courses_title": "Praxiskurse & Workshops",
+        "courses_subtitle": "Entdecke die Grundlagen handwerklicher Formgebung in persönlicher Werkstatt-Atmosphäre.",
+        "past_courses_title": "Impressionen aus vergangenen Kursen",
+        "past_courses_subtitle": "Gemeinsames Schaffen, kreative Momente und stolze Teilnehmer mit ihren Werkstücken.",
         "blog_title": "Aktuelles &amp; Geschichten",
         "blog_subtitle": "Einblicke, Neuigkeiten und Inspirationen direkt aus unserem Atelier.",
         "pricing_title": "Leistungen &amp; Preise",
@@ -290,7 +308,7 @@
             "slug": "tradition-und-moderne-ein-blick-in-unsere-werkstatt",
             "date": "2026-10-20",
             "author": "Maxima Musterfrau",
-            "image": "/images/korb_klassik.png",
+            "image": "/images/demo/demo_atelier_panorama.webp",
             "teaser": "Wie aus ausgewählten Naturmaterialien moderne Wohnunikate entstehen und was unser Atelier antreibt.",
             "content": "## Wo Ideen Gestalt annehmen\n\nIn unserer Werkstatt verbinden wir traditionelle Handwerkstechniken mit modernen Formkonzepten. Jedes Werkstück beginnt mit der sorgfältigen Auswahl der Naturmaterialien...\n\n### Nachhaltigkeit im Mittelpunkt\n\n- Verwendung regionaler, nachwachsender Rohstoffe\n- Reine Handarbeit ohne künstliche Versiegelungen\n- Langlebigkeit durch traditionelle Knotentechniken\n\nWir freuen uns, diese Faszination mit euch zu teilen!",
             "status": "published",
@@ -307,7 +325,7 @@
             "slug": "tipps-zur-pflege-handgefertigter-unikate",
             "date": "2026-10-21",
             "author": "Maxima Musterfrau",
-            "image": "/images/korb_kaminholz.png",
+            "image": "/images/demo/demo_ceramic_table.webp",
             "teaser": "Mit wenigen einfachen Handgriffen bleiben Naturgeflechte und Deko-Objekte über viele Jahre wunderschön.",
             "content": "## Die richtige Pflege für Naturmaterialien\n\nNaturgeflechte sind robust und langlebig, wenn man ein paar einfache Grundregeln beachtet...\n\n### 3 goldene Regeln für die Langlebigkeit\n\n- Regelmäßiges Entstauben mit einem weichen Pinsel oder Tuch\n- Leichtes Besprühen mit Wasser bei sehr trockener Heizungsluft im Winter\n- Direkte Dauerfeuchtigkeit im Außenbereich vermeiden\n\nSo hast du viele Jahre Freude an deinem Einzelstück!",
             "status": "published",

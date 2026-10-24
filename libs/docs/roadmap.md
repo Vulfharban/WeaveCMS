@@ -446,23 +446,23 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 14: Bilddaten-Bereinigung & Demo-Asset-Paket (Galerie-Erlebnis)
 *Ziel: Vollständiges Bereinigen themenspezifischer Altlasten (frühere Flecht- und Korbwarenbilder) und Ersetzen durch ein kuratiertes, neutrales Demo-Bildset verschiedener Formate und Auflösungen, um alle vier Galerie-Layouts (Ambient-Blur, Masonry, Editorial, Classic 4:3) im Live-Betrieb demonstrieren und testen zu können.*
 
-- [ ] **14.1 Bereinigung der Altlasten:**
+- [x] **14.1 Bereinigung der Altlasten:**
   - Identifikation und Bereinigung aller projektspezifischen Altbilder aus dem früheren Flechtbereich in `images/uploads/` und `images/`.
   - Aktualisierung der Bildreferenzen in `data.json` und `data.sample.json` auf neutrale, universelle Bildnamen.
-- [ ] **14.2 Kuratiertes Demo-Bildset mit Multi-Ratio-Formaten:**
+- [x] **14.2 Kuratiertes Demo-Bildset mit Multi-Ratio-Formaten:**
   - Erstellung/Bereitstellung hochwertiger, royalty-freier Demo-Bilder für Handwerks-, Atelier- und Design-Betriebe:
     - **Hochformate (3:4, 2:3):** Zur perfekten Demonstration des dynamischen **Masonry-Grids** (Pinterest-Effekt).
     - **Querformate & Breitbilder (16:9, 3:2):** Zur Demonstration des **Smart Ambient-Blur** Modus (weicher Farbverlauf an den Rändern ohne Beschnitt).
     - **Quadratische Formate (1:1):** Für ausgewogene Karten und Magazin-Layouts im **Editorial-Grid**.
     - **Klassische Formate (4:3):** Zur Verifizierung des **Classic-Grids** mit gleichmäßigem Zuschnitt.
-- [ ] **14.3 Neutrale Themensetzung & Kategorien:**
+- [x] **14.3 Neutrale Themensetzung & Kategorien:**
   - Überarbeitung der Galerie-Kategorien auf universelle Gewerke:
     - z. B. *Design & Unikate*, *Naturmaterialien*, *Wohnaccessoires*, *Atelier & Werkstatt*.
   - Aussagekräftige Werkstück-Titel und barrierefreie Alternativtexte (`alt`-Tags) für alle Demo-Bilder.
-- [ ] **14.4 Performance- & Format-Optimierung:**
+- [x] **14.4 Performance- & Format-Optimierung:**
   - Bereitstellung in optimiertem WebP-Format mit sanfter Kompression (< 120 KB pro Bild) für maximale PageSpeed-Werte.
   - Generierung passender Vorschaubilder (Thumbnails) für schnelle Ladezeiten.
-- [ ] **14.5 Prüfung & Abnahme:**
+- [x] **14.5 Prüfung & Abnahme:**
   - Umschalten zwischen allen 4 Galerie-Modi unter *„Darstellung & Design“* und visuelle Prüfung der korrekten Ausrichtung auf Desktop-, Tablet- und Smartphone-Breakpoints.
 
 ---
