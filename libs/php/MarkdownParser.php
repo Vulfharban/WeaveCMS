@@ -19,30 +19,70 @@ class MarkdownParser {
             return '';
         }
 
-        // 1. HTML-Entities maskieren gegen XSS
+        // 1. Sichere HTML-Tags extrahieren und durch Platzhalter schützen
+        $htmlTokens = [];
+        $tokenIndex = 0;
+        
+        $allowedTags = 'div|span|a|button|p|br|hr|h[1-6]|table|thead|tbody|tfoot|tr|th|td|img|strong|b|em|i|u|s|small|ul|ol|li|blockquote|svg|path|symbol|use|code|pre';
+        
+        $text = preg_replace_callback('/<(\/?(?:' . $allowedTags . ')\b[^>]*)>/is', function($matches) use (&$htmlTokens, &$tokenIndex) {
+            $tag = $matches[0];
+            // XSS-Schutz: Keine Script-Events oder javascript:-URIs
+            if (preg_match('/\bon\w+\s*=/i', $tag) || preg_match('/(?:href|src)\s*=\s*["\']?\s*javascript:/i', $tag)) {
+                return htmlspecialchars($tag, ENT_QUOTES, 'UTF-8');
+            }
+            $placeholder = "%%%WEAVE_SAFE_HTML_{$tokenIndex}%%%";
+            $htmlTokens[$placeholder] = $tag;
+            $tokenIndex++;
+            return $placeholder;
+        }, $text);
+
+        // 2. Verbleibenden Text gegen XSS maskieren (alle anderen unzulässigen Tags wie <script>)
         $safe = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-        // 2. Überschriften
+        // 3. Tabellen verarbeiten (bevor Zeilen umgebrochen werden)
+        $safe = self::parseMarkdownTables($safe);
+
+        // 4. Überschriften
         $safe = preg_replace('/^### (.*?)$/m', '<h4 style="color:var(--text-primary); margin-top:1.4rem; margin-bottom:0.4rem; font-size:1.08rem; font-weight:700;">$1</h4>', $safe);
         $safe = preg_replace('/^## (.*?)$/m', '<h3 style="color:var(--primary); margin-top:1.6rem; margin-bottom:0.6rem; font-size:1.22rem; font-weight:700;">$1</h3>', $safe);
         $safe = preg_replace('/^# (.*?)$/m', '<h2 style="color:var(--primary); margin-top:1.8rem; margin-bottom:0.8rem; font-size:1.35rem; font-weight:800;">$1</h2>', $safe);
 
-        // 3. Trennlinie
-        $safe = preg_replace('/^---$/m', '<hr style="border:none; border-top:1px solid var(--border-color); margin:1.25rem 0; opacity:0.6;">', $safe);
+        // 5. Trennlinie
+        $safe = preg_replace('/^---$/m', '<hr style="border:none; border-top:1px solid var(--border-color); margin:1.5rem 0; opacity:0.6;">', $safe);
 
-        // 4. Formatierungen: Fett & Kursiv
+        // 6. Markdown-Bilder: ![Alt](url)
+        $safe = preg_replace_callback('/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]+)")?\)/', function($m) {
+            $alt = $m[1];
+            $url = $m[2];
+            $title = !empty($m[3]) ? ' title="' . htmlspecialchars($m[3], ENT_QUOTES, 'UTF-8') . '"' : '';
+            return '<img src="' . $url . '" alt="' . $alt . '" class="img-fluid" style="max-width:100%; border-radius:12px; margin:1rem 0;"' . $title . '>';
+        }, $safe);
+
+        // 7. Markdown-Links: [Text](url)
+        $safe = preg_replace_callback('/\[([^\]]+)\]\(([^)\s]+)(?:\s+"([^"]+)")?\)/', function($m) {
+            $label = $m[1];
+            $url = $m[2];
+            $title = !empty($m[3]) ? ' title="' . htmlspecialchars($m[3], ENT_QUOTES, 'UTF-8') . '"' : '';
+            $isExternal = (bool)preg_match('~^https?://~i', $url);
+            $target = $isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+            return '<a href="' . $url . '"' . $target . $title . ' style="color:var(--primary); font-weight:600; text-decoration:underline;">' . $label . '</a>';
+        }, $safe);
+
+        // 8. Formatierungen: Fett, Kursiv & Code
         $safe = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $safe);
         $safe = preg_replace('/\*([^\*]+)\*/s', '<em>$1</em>', $safe);
+        $safe = preg_replace('/`([^`]+)`/', '<code style="background:rgba(0,0,0,0.06); padding:2px 6px; border-radius:4px; font-size:0.9em;">$1</code>', $safe);
 
-        // 5. Listen verarbeiten
+        // 9. Listen verarbeiten
         $lines = explode("\n", $safe);
         $inList = false;
         $out = [];
         foreach ($lines as $line) {
             $trimmed = trim($line);
-            if (strpos($trimmed, '- ') === 0) {
+            if (strpos($trimmed, '- ') === 0 || strpos($trimmed, '* ') === 0) {
                 if (!$inList) {
-                    $out[] = '<ul style="margin: 0.5rem 0 1rem 1.25rem; padding-left: 0.5rem; line-height: 1.6;">';
+                    $out[] = '<ul style="margin: 0.5rem 0 1.25rem 1.25rem; padding-left: 0.5rem; line-height: 1.7;">';
                     $inList = true;
                 }
                 $out[] = '<li>' . substr($trimmed, 2) . '</li>';
@@ -59,20 +99,118 @@ class MarkdownParser {
         }
         $safe = implode("\n", $out);
 
-        // 6. Absätze erzeugen
+        // 10. Absätze erzeugen (HTML-Tags und Tabellen nicht fälschlich in <p> packen)
         $paragraphs = preg_split('/\n\s*\n/', $safe);
         $rendered = [];
         foreach ($paragraphs as $p) {
             $p = trim($p);
             if (empty($p)) continue;
-            if (preg_match('/^<(h[1-6]|hr|ul|div)/', $p)) {
+            if (preg_match('/^(<(h[1-6]|hr|ul|ol|table|div|blockquote|pre)|%%%WEAVE_SAFE_HTML)/', $p)) {
                 $rendered[] = $p;
             } else {
-                $rendered[] = '<p style="margin-bottom: 0.85rem; line-height: 1.6;">' . nl2br($p) . '</p>';
+                $rendered[] = '<p style="margin-bottom: 1rem; line-height: 1.7;">' . nl2br($p) . '</p>';
+            }
+        }
+        $safe = implode("\n", $rendered);
+
+        // 11. Geschützte HTML-Tags wiederherstellen
+        if (!empty($htmlTokens)) {
+            $safe = str_replace(array_keys($htmlTokens), array_values($htmlTokens), $safe);
+        }
+
+        return $safe;
+    }
+
+    /**
+     * Erkennt und konvertiert Markdown-Tabellen in valides, responsives HTML.
+     * @param string $text
+     * @return string
+     */
+    private static function parseMarkdownTables(string $text): string {
+        $lines = explode("\n", $text);
+        $inTable = false;
+        $tableLines = [];
+        $result = [];
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed !== '' && str_contains($trimmed, '|') && preg_match('/^\|?.*\|.*\|?$/', $trimmed)) {
+                $tableLines[] = $trimmed;
+                $inTable = true;
+            } else {
+                if ($inTable) {
+                    $result[] = self::renderTableHtml($tableLines);
+                    $tableLines = [];
+                    $inTable = false;
+                }
+                $result[] = $line;
+            }
+        }
+        if ($inTable) {
+            $result[] = self::renderTableHtml($tableLines);
+        }
+
+        return implode("\n", $result);
+    }
+
+    /**
+     * Erzeugt das HTML-Markup für eine Markdown-Tabelle.
+     * @param array $lines
+     * @return string
+     */
+    private static function renderTableHtml(array $lines): string {
+        if (count($lines) < 2) {
+            return implode("\n", $lines);
+        }
+
+        $headerLine = array_shift($lines);
+        $separatorLine = array_shift($lines);
+
+        if (!preg_match('/^\|?(\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?$/', $separatorLine)) {
+            array_unshift($lines, $separatorLine);
+            array_unshift($lines, $headerLine);
+            return implode("\n", $lines);
+        }
+
+        $alignments = [];
+        $sepCols = explode('|', trim($separatorLine, '|'));
+        foreach ($sepCols as $col) {
+            $col = trim($col);
+            $left = str_starts_with($col, ':');
+            $right = str_ends_with($col, ':');
+            if ($left && $right) {
+                $alignments[] = 'center';
+            } elseif ($right) {
+                $alignments[] = 'right';
+            } else {
+                $alignments[] = 'left';
             }
         }
 
-        return implode("\n", $rendered);
+        $headerCols = explode('|', trim($headerLine, '|'));
+        $html = '<div class="table-responsive mb-4">';
+        $html .= '<table class="table table-hover">';
+        $html .= '<thead><tr>';
+        foreach ($headerCols as $idx => $h) {
+            $align = $alignments[$idx] ?? 'left';
+            $html .= '<th style="text-align:' . $align . ';">' . trim($h) . '</th>';
+        }
+        $html .= '</tr></thead>';
+
+        $html .= '<tbody>';
+        foreach ($lines as $rowLine) {
+            $rowCols = explode('|', trim($rowLine, '|'));
+            $html .= '<tr>';
+            foreach ($rowCols as $idx => $cell) {
+                $align = $alignments[$idx] ?? 'left';
+                $html .= '<td style="text-align:' . $align . ';">' . trim($cell) . '</td>';
+            }
+            $html .= '</tr>';
+        }
+        $html .= '</tbody>';
+        $html .= '</table></div>';
+
+        return $html;
     }
 
     /**
