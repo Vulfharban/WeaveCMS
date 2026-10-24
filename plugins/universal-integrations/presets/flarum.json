@@ -1,0 +1,14 @@
+{
+    "id": "flarum",
+    "name": "Flarum Forum",
+    "category": "forum",
+    "icon": "question_answer",
+    "description": "Schlankes, schnelles und modernes Diskussionsforum.",
+    "target_url": "/flarum",
+    "url_pattern": "{base}/",
+    "default_mode": "iframe",
+    "default_height": 850,
+    "default_title": "Flarum Forum",
+    "default_subtitle": "Schlanke und schnelle Diskussionen.",
+    "params": {}
+}

@@ -1,0 +1,14 @@
+{
+    "id": "custom",
+    "name": "Benutzerdefinierte Web-Anwendung",
+    "category": "other",
+    "icon": "apps",
+    "description": "Beliebige interne oder externe Web-Anwendung frei integrieren.",
+    "target_url": "",
+    "url_pattern": "{base}",
+    "default_mode": "iframe",
+    "default_height": 800,
+    "default_title": "Externe Anwendung",
+    "default_subtitle": "Direkt in deine Website eingebunden.",
+    "params": {}
+}

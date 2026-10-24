@@ -1,0 +1,680 @@
+<?php
+/**
+ * ============================================================================
+ * WeaveCMS Forum-Benutzerverwaltung – ForumUserManager
+ * ============================================================================
+ * Verwaltet Foren-Benutzer, Authentifizierung, Rollen, Berechtigungen und DSGVO.
+ * Unterstützt wahlweise Flat-File JSON (data/forum_users.json) oder SQLite (data/forum.sqlite)
+ * mit 1-Klick-Migration in beide Richtungen.
+ * ============================================================================
+ */
+
+class ForumUserManager {
+
+    const ROLE_ADMIN     = 'forum_admin';
+    const ROLE_MODERATOR = 'forum_moderator';
+    const ROLE_USER      = 'forum_user';
+
+    const STATUS_ACTIVE  = 'active';
+    const STATUS_PENDING = 'pending_approval';
+    const STATUS_BANNED  = 'banned';
+
+    protected static ?PDO $sqlitePdo = null;
+
+    /**
+     * Ermittelt den Speicherpfad zur JSON-Datei.
+     */
+    public static function getJsonFilePath(): string {
+        return dirname(__DIR__, 2) . '/data/forum_users.json';
+    }
+
+    /**
+     * Ermittelt den Speicherpfad zur SQLite-Datei.
+     */
+    public static function getSqliteFilePath(): string {
+        return dirname(__DIR__, 2) . '/data/forum.sqlite';
+    }
+
+    /**
+     * Ermittelt den konfigurierten Speichertreiber ('json' oder 'sqlite').
+     */
+    public static function getStorageDriver(): string {
+        if (class_exists('PluginManager')) {
+            $data = $GLOBALS['data'] ?? [];
+            if (!empty($data)) {
+                $cfg = PluginManager::getPluginConfig('weave-forum-users', $data);
+                if (!empty($cfg['storage_driver'])) {
+                    return $cfg['storage_driver'] === 'sqlite' ? 'sqlite' : 'json';
+                }
+            }
+        }
+        return 'json';
+    }
+
+    /**
+     * Prüft, ob die SQLite-Erweiterung in PHP geladen ist.
+     */
+    public static function isSqliteSupported(): bool {
+        return extension_loaded('pdo_sqlite');
+    }
+
+    /**
+     * Stellt eine SQLite-Verbindung her und initialisiert die Tabelle.
+     */
+    protected static function getSqlitePdo(): PDO {
+        if (self::$sqlitePdo !== null) {
+            return self::$sqlitePdo;
+        }
+
+        if (!self::isSqliteSupported()) {
+            throw new RuntimeException('Die PHP-Erweiterung pdo_sqlite ist auf diesem Server nicht aktiviert. Bitte in php.ini aktivieren (extension=pdo_sqlite).');
+        }
+
+        $dbFile = self::getSqliteFilePath();
+        $dir = dirname($dbFile);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+
+        $pdo = new PDO('sqlite:' . $dbFile, null, null, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ]);
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS weave_forum_users (
+                id TEXT PRIMARY KEY,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                role TEXT NOT NULL DEFAULT 'forum_user',
+                status TEXT NOT NULL DEFAULT 'active',
+                avatar TEXT DEFAULT '',
+                signature TEXT DEFAULT '',
+                bio TEXT DEFAULT '',
+                created_at TEXT NOT NULL,
+                last_login TEXT DEFAULT '',
+                post_count INTEGER DEFAULT 0,
+                topic_count INTEGER DEFAULT 0,
+                banned_until TEXT DEFAULT NULL,
+                ban_reason TEXT DEFAULT '',
+                notification_email INTEGER DEFAULT 1
+            );
+            CREATE INDEX IF NOT EXISTS idx_fusers_username ON weave_forum_users(username);
+            CREATE INDEX IF NOT EXISTS idx_fusers_email ON weave_forum_users(email);
+        ");
+
+        self::$sqlitePdo = $pdo;
+        return $pdo;
+    }
+
+    // =========================================================================
+    // CRUD & SPEICHER-METHODEN
+    // =========================================================================
+
+    /**
+     * Liefert alle Forum-Benutzer als assoziatives Array.
+     */
+    public static function getAllUsers(): array {
+        if (self::getStorageDriver() === 'sqlite') {
+            try {
+                $stmt = self::getSqlitePdo()->query("SELECT * FROM weave_forum_users ORDER BY created_at DESC");
+                $users = $stmt->fetchAll();
+                foreach ($users as &$u) {
+                    $u['post_count'] = (int)($u['post_count'] ?? 0);
+                    $u['topic_count'] = (int)($u['topic_count'] ?? 0);
+                    $u['notification_email'] = (bool)($u['notification_email'] ?? 1);
+                }
+                return $users;
+            } catch (Exception $e) {
+                error_log('ForumUserManager SQLite getAllUsers error: ' . $e->getMessage());
+                return [];
+            }
+        }
+
+        $file = self::getJsonFilePath();
+        if (!file_exists($file)) {
+            return [];
+        }
+        $raw = @file_get_contents($file);
+        $data = json_decode((string)$raw, true);
+        return is_array($data) ? $data : [];
+    }
+
+    /**
+     * Speichert die Benutzerliste im JSON-Speicher atomar.
+     */
+    public static function saveAllUsersJson(array $users): bool {
+        $file = self::getJsonFilePath();
+        $dir = dirname($file);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+
+        $json = json_encode(array_values($users), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $tmp = $file . '.tmp.' . bin2hex(random_bytes(6));
+        if (file_put_contents($tmp, $json) === false) {
+            return false;
+        }
+        return rename($tmp, $file);
+    }
+
+    /**
+     * Findet einen Benutzer anhand seiner ID.
+     */
+    public static function getUserById(string $id): ?array {
+        if (empty($id)) return null;
+
+        if (self::getStorageDriver() === 'sqlite') {
+            try {
+                $stmt = self::getSqlitePdo()->prepare("SELECT * FROM weave_forum_users WHERE id = ? LIMIT 1");
+                $stmt->execute([$id]);
+                $u = $stmt->fetch();
+                if ($u) {
+                    $u['post_count'] = (int)($u['post_count'] ?? 0);
+                    $u['topic_count'] = (int)($u['topic_count'] ?? 0);
+                    $u['notification_email'] = (bool)($u['notification_email'] ?? 1);
+                    return $u;
+                }
+                return null;
+            } catch (Exception $e) {
+                return null;
+            }
+        }
+
+        $users = self::getAllUsers();
+        foreach ($users as $u) {
+            if (($u['id'] ?? '') === $id) {
+                return $u;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Findet einen Benutzer anhand von Benutzername oder E-Mail.
+     */
+    public static function findUser(string $login): ?array {
+        $loginLower = mb_strtolower(trim($login));
+        if (empty($loginLower)) return null;
+
+        if (self::getStorageDriver() === 'sqlite') {
+            try {
+                $stmt = self::getSqlitePdo()->prepare("
+                    SELECT * FROM weave_forum_users 
+                    WHERE LOWER(username) = ? OR LOWER(email) = ? 
+                    LIMIT 1
+                ");
+                $stmt->execute([$loginLower, $loginLower]);
+                $u = $stmt->fetch();
+                if ($u) {
+                    $u['post_count'] = (int)($u['post_count'] ?? 0);
+                    $u['topic_count'] = (int)($u['topic_count'] ?? 0);
+                    $u['notification_email'] = (bool)($u['notification_email'] ?? 1);
+                    return $u;
+                }
+                return null;
+            } catch (Exception $e) {
+                return null;
+            }
+        }
+
+        $users = self::getAllUsers();
+        foreach ($users as $u) {
+            if (mb_strtolower($u['username'] ?? '') === $loginLower || mb_strtolower($u['email'] ?? '') === $loginLower) {
+                return $u;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Speichert oder aktualisiert einen Benutzer.
+     */
+    public static function saveUser(array $user): bool {
+        if (empty($user['id'])) return false;
+
+        if (self::getStorageDriver() === 'sqlite') {
+            try {
+                $pdo = self::getSqlitePdo();
+                $stmt = $pdo->prepare("
+                    INSERT INTO weave_forum_users (
+                        id, username, email, password_hash, role, status, avatar, signature,
+                        bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email
+                    ) VALUES (
+                        :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
+                        :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email
+                    )
+                    ON CONFLICT(id) DO UPDATE SET
+                        username = excluded.username,
+                        email = excluded.email,
+                        password_hash = excluded.password_hash,
+                        role = excluded.role,
+                        status = excluded.status,
+                        avatar = excluded.avatar,
+                        signature = excluded.signature,
+                        bio = excluded.bio,
+                        last_login = excluded.last_login,
+                        post_count = excluded.post_count,
+                        topic_count = excluded.topic_count,
+                        banned_until = excluded.banned_until,
+                        ban_reason = excluded.ban_reason,
+                        notification_email = excluded.notification_email
+                ");
+                return $stmt->execute([
+                    ':id' => $user['id'],
+                    ':username' => $user['username'],
+                    ':email' => mb_strtolower($user['email']),
+                    ':password_hash' => $user['password_hash'],
+                    ':role' => $user['role'] ?? self::ROLE_USER,
+                    ':status' => $user['status'] ?? self::STATUS_ACTIVE,
+                    ':avatar' => $user['avatar'] ?? '',
+                    ':signature' => $user['signature'] ?? '',
+                    ':bio' => $user['bio'] ?? '',
+                    ':created_at' => $user['created_at'] ?? date('Y-m-d H:i:s'),
+                    ':last_login' => $user['last_login'] ?? '',
+                    ':post_count' => (int)($user['post_count'] ?? 0),
+                    ':topic_count' => (int)($user['topic_count'] ?? 0),
+                    ':banned_until' => $user['banned_until'] ?? null,
+                    ':ban_reason' => $user['ban_reason'] ?? '',
+                    ':notification_email' => !empty($user['notification_email']) ? 1 : 0
+                ]);
+            } catch (Exception $e) {
+                error_log('ForumUserManager SQLite saveUser error: ' . $e->getMessage());
+                return false;
+            }
+        }
+
+        $users = self::getAllUsers();
+        $found = false;
+        foreach ($users as &$u) {
+            if ($u['id'] === $user['id']) {
+                $u = array_merge($u, $user);
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            $users[] = $user;
+        }
+        return self::saveAllUsersJson($users);
+    }
+
+    /**
+     * Löscht einen Benutzer.
+     */
+    public static function deleteUser(string $id): bool {
+        if (self::getStorageDriver() === 'sqlite') {
+            try {
+                $stmt = self::getSqlitePdo()->prepare("DELETE FROM weave_forum_users WHERE id = ?");
+                return $stmt->execute([$id]);
+            } catch (Exception $e) {
+                return false;
+            }
+        }
+
+        $users = self::getAllUsers();
+        $filtered = array_filter($users, fn($u) => ($u['id'] ?? '') !== $id);
+        return self::saveAllUsersJson($filtered);
+    }
+
+    // =========================================================================
+    // AUTHENTIFIZIERUNG & SESSION
+    // =========================================================================
+
+    /**
+     * Registriert einen neuen Forum-Benutzer.
+     */
+    public static function register(array $data, string $registrationMode = 'open'): array {
+        $username = trim($data['username'] ?? '');
+        $email = trim(mb_strtolower($data['email'] ?? ''));
+        $password = (string)($data['password'] ?? '');
+        $passwordConfirm = (string)($data['password_confirm'] ?? '');
+
+        if (strlen($username) < 3 || strlen($username) > 30) {
+            return ['success' => false, 'message' => 'Der Benutzername muss zwischen 3 und 30 Zeichen lang sein.'];
+        }
+        if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/u', $username)) {
+            return ['success' => false, 'message' => 'Der Benutzername darf nur Buchstaben, Zahlen, Punkte, Binde- und Unterstriche enthalten.'];
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'message' => 'Bitte gib eine gültige E-Mail-Adresse ein.'];
+        }
+        if (strlen($password) < 8) {
+            return ['success' => false, 'message' => 'Das Passwort muss mindestens 8 Zeichen lang sein.'];
+        }
+        if ($password !== $passwordConfirm) {
+            return ['success' => false, 'message' => 'Die beiden Passwörter stimmen nicht überein.'];
+        }
+
+        // Prüfung auf Duplikate
+        if (self::findUser($username)) {
+            return ['success' => false, 'message' => 'Dieser Benutzername ist bereits vergeben.'];
+        }
+        if (self::findUser($email)) {
+            return ['success' => false, 'message' => 'Diese E-Mail-Adresse ist bereits registriert.'];
+        }
+
+        if ($registrationMode === 'closed') {
+            return ['success' => false, 'message' => 'Die Registrierung für neue Benutzer ist derzeit deaktiviert.'];
+        }
+
+        $status = ($registrationMode === 'approval') ? self::STATUS_PENDING : self::STATUS_ACTIVE;
+
+        // Wenn noch überhaupt kein Forum-User existiert, erhält der Erste die Admin-Rolle
+        $existing = self::getAllUsers();
+        $role = empty($existing) ? self::ROLE_ADMIN : self::ROLE_USER;
+
+        $newUser = [
+            'id' => 'fusr_' . bin2hex(random_bytes(6)),
+            'username' => $username,
+            'email' => $email,
+            'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+            'role' => $role,
+            'status' => $status,
+            'avatar' => '',
+            'signature' => '',
+            'bio' => '',
+            'created_at' => date('Y-m-d H:i:s'),
+            'last_login' => '',
+            'post_count' => 0,
+            'topic_count' => 0,
+            'banned_until' => null,
+            'ban_reason' => '',
+            'notification_email' => 1
+        ];
+
+        if (!self::saveUser($newUser)) {
+            return ['success' => false, 'message' => 'Fehler beim Speichern des Benutzerkontos.'];
+        }
+
+        if (class_exists('SecurityManager')) {
+            SecurityManager::logEvent('FORUM_USER_REGISTERED', "Neuer Foren-Benutzer registriert: {$username} ({$email})", 'INFO');
+        }
+
+        if ($status === self::STATUS_PENDING) {
+            return [
+                'success' => true,
+                'status' => 'pending',
+                'message' => 'Dein Benutzerkonto wurde erstellt und wartet auf Freischaltung durch einen Administrator.'
+            ];
+        }
+
+        // Automatisch einloggen
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+        $_SESSION['weave_forum_user_id'] = $newUser['id'];
+
+        return [
+            'success' => true,
+            'status' => 'active',
+            'user' => $newUser,
+            'message' => 'Willkommen im Forum! Dein Benutzerkonto wurde erfolgreich aktiviert.'
+        ];
+    }
+
+    /**
+     * Authentifiziert einen Forum-Benutzer und setzt die Session.
+     */
+    public static function login(string $login, string $password): array {
+        $user = self::findUser($login);
+        if (!$user) {
+            return ['success' => false, 'message' => 'Benutzername oder Passwort ist nicht korrekt.'];
+        }
+
+        if (!password_verify($password, $user['password_hash'])) {
+            return ['success' => false, 'message' => 'Benutzername oder Passwort ist nicht korrekt.'];
+        }
+
+        if ($user['status'] === self::STATUS_BANNED) {
+            $reason = !empty($user['ban_reason']) ? ' Grund: ' . htmlspecialchars($user['ban_reason']) : '';
+            $until = !empty($user['banned_until']) ? ' (Gesperrt bis ' . htmlspecialchars($user['banned_until']) . ')' : ' (Dauerhaft gesperrt)';
+            return ['success' => false, 'message' => "Dieses Forum-Konto wurde gesperrt.{$until}{$reason}"];
+        }
+
+        if ($user['status'] === self::STATUS_PENDING) {
+            return ['success' => false, 'message' => 'Dein Konto wurde noch nicht von der Moderation freigeschaltet.'];
+        }
+
+        // Login erfolgreich
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+        $_SESSION['weave_forum_user_id'] = $user['id'];
+
+        // Last Login aktualisieren
+        $user['last_login'] = date('Y-m-d H:i:s');
+        self::saveUser($user);
+
+        return ['success' => true, 'user' => $user, 'message' => 'Erfolgreich angemeldet.'];
+    }
+
+    /**
+     * Meldet den aktuellen Forum-Benutzer ab.
+     */
+    public static function logout(): void {
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+        unset($_SESSION['weave_forum_user_id']);
+    }
+
+    /**
+     * Liefert das Benutzer-Array des aktuell angemeldeten Forum-Nutzers oder null.
+     */
+    public static function getCurrentUser(): ?array {
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+        $id = $_SESSION['weave_forum_user_id'] ?? null;
+        if (empty($id)) {
+            return null;
+        }
+        return self::getUserById((string)$id);
+    }
+
+    /**
+     * Prüft, ob aktuell ein Forum-Benutzer angemeldet ist.
+     */
+    public static function isLoggedIn(): bool {
+        return self::getCurrentUser() !== null;
+    }
+
+    // =========================================================================
+    // RECHTE- & ROLLENPRÜFUNG
+    // =========================================================================
+
+    /**
+     * Prüft die Berechtigung für eine Aktion.
+     * @param string $action z. B. 'create_topic', 'reply', 'moderate', 'admin'
+     * @param array|null $user
+     * @param array|null $context Board- oder Topic-Array
+     * @return bool
+     */
+    public static function userCan(string $action, ?array $user = null, ?array $context = null): bool {
+        if ($user === null) {
+            $user = self::getCurrentUser();
+        }
+
+        // Nicht eingeloggte Gäste
+        if (!$user) {
+            if ($action === 'view_public') {
+                return true;
+            }
+            return false;
+        }
+
+        if ($user['status'] !== self::STATUS_ACTIVE) {
+            return false; // Gesperrte oder wartende Benutzer dürfen nichts
+        }
+
+        $role = $user['role'] ?? self::ROLE_USER;
+
+        // Forum-Admins dürfen ausnahmslos alles
+        if ($role === self::ROLE_ADMIN) {
+            return true;
+        }
+
+        // Forum-Moderatoren
+        if ($role === self::ROLE_MODERATOR) {
+            if (in_array($action, ['moderate', 'lock_topic', 'pin_topic', 'move_topic', 'delete_post', 'view_reports', 'create_topic', 'reply', 'edit_own_post', 'delete_own_post', 'view_public'], true)) {
+                return true;
+            }
+            // Moderatoren dürfen keine Systemeinstellungen ändern
+            if ($action === 'admin' || $action === 'manage_settings' || $action === 'manage_roles') {
+                return false;
+            }
+        }
+
+        // Reguläre Foren-Benutzer
+        if ($action === 'create_topic' || $action === 'reply' || $action === 'view_public') {
+            if ($context && !empty($context['min_role_write'])) {
+                if ($context['min_role_write'] === self::ROLE_ADMIN && $role !== self::ROLE_ADMIN) return false;
+                if ($context['min_role_write'] === self::ROLE_MODERATOR && !in_array($role, [self::ROLE_ADMIN, self::ROLE_MODERATOR], true)) return false;
+            }
+            return true;
+        }
+
+        if ($action === 'edit_own_post') {
+            return true; // Eigene Posts bearbeiten
+        }
+
+        return false;
+    }
+
+    // =========================================================================
+    // DSGVO & DATENSCHUTZ
+    // =========================================================================
+
+    /**
+     * DSGVO-Datenexport aller gespeicherten Informationen eines Nutzers.
+     */
+    public static function exportUserData(string $userId): ?array {
+        $user = self::getUserById($userId);
+        if (!$user) return null;
+
+        $export = $user;
+        unset($export['password_hash']);
+        return $export;
+    }
+
+    /**
+     * Anonymisiert ein Benutzerkonto (DSGVO Recht auf Vergessenwerden).
+     */
+    public static function anonymizeUser(string $userId): bool {
+        $user = self::getUserById($userId);
+        if (!$user) return false;
+
+        $user['username'] = 'Gelöschter_Benutzer_' . substr($userId, -4);
+        $user['email'] = 'deleted_' . $userId . '@anonymized.local';
+        $user['password_hash'] = '';
+        $user['status'] = self::STATUS_BANNED;
+        $user['avatar'] = '';
+        $user['signature'] = '';
+        $user['bio'] = '';
+        $user['ban_reason'] = 'Konto auf Wunsch des Benutzers gelöscht/anonymisiert.';
+        $user['notification_email'] = 0;
+
+        return self::saveUser($user);
+    }
+
+    // =========================================================================
+    // SPEICHER-MIGRATION (JSON ➔ SQLite und SQLite ➔ JSON)
+    // =========================================================================
+
+    /**
+     * Migriert alle Foren-Benutzer von JSON nach SQLite.
+     */
+    public static function migrateToJsonToSqlite(): array {
+        $jsonFile = self::getJsonFilePath();
+        if (!file_exists($jsonFile)) {
+            return ['success' => false, 'message' => 'Keine Datei data/forum_users.json gefunden.'];
+        }
+
+        $raw = @file_get_contents($jsonFile);
+        $users = json_decode((string)$raw, true);
+        if (!is_array($users)) {
+            return ['success' => false, 'message' => 'Die Datei forum_users.json enthält kein gültiges JSON-Array.'];
+        }
+
+        try {
+            $pdo = self::getSqlitePdo();
+            $pdo->beginTransaction();
+            $stmt = $pdo->prepare("
+                INSERT OR REPLACE INTO weave_forum_users (
+                    id, username, email, password_hash, role, status, avatar, signature,
+                    bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email
+                ) VALUES (
+                    :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
+                    :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email
+                )
+            ");
+
+            $count = 0;
+            foreach ($users as $u) {
+                if (empty($u['id'])) continue;
+                $stmt->execute([
+                    ':id' => $u['id'],
+                    ':username' => $u['username'],
+                    ':email' => mb_strtolower($u['email']),
+                    ':password_hash' => $u['password_hash'] ?? '',
+                    ':role' => $u['role'] ?? self::ROLE_USER,
+                    ':status' => $u['status'] ?? self::STATUS_ACTIVE,
+                    ':avatar' => $u['avatar'] ?? '',
+                    ':signature' => $u['signature'] ?? '',
+                    ':bio' => $u['bio'] ?? '',
+                    ':created_at' => $u['created_at'] ?? date('Y-m-d H:i:s'),
+                    ':last_login' => $u['last_login'] ?? '',
+                    ':post_count' => (int)($u['post_count'] ?? 0),
+                    ':topic_count' => (int)($u['topic_count'] ?? 0),
+                    ':banned_until' => $u['banned_until'] ?? null,
+                    ':ban_reason' => $u['ban_reason'] ?? '',
+                    ':notification_email' => !empty($u['notification_email']) ? 1 : 0
+                ]);
+                $count++;
+            }
+            $pdo->commit();
+
+            return [
+                'success' => true,
+                'count' => $count,
+                'message' => "Erfolgreich {$count} Benutzer von JSON in die SQLite-Datenbank übertragen!"
+            ];
+        } catch (Exception $e) {
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Migriert alle Foren-Benutzer von SQLite nach JSON.
+     */
+    public static function migrateSqliteToJson(): array {
+        try {
+            $pdo = self::getSqlitePdo();
+            $stmt = $pdo->query("SELECT * FROM weave_forum_users ORDER BY created_at DESC");
+            $users = $stmt->fetchAll();
+
+            foreach ($users as &$u) {
+                $u['post_count'] = (int)($u['post_count'] ?? 0);
+                $u['topic_count'] = (int)($u['topic_count'] ?? 0);
+                $u['notification_email'] = (bool)($u['notification_email'] ?? 1);
+            }
+
+            if (!self::saveAllUsersJson($users)) {
+                return ['success' => false, 'message' => 'Fehler beim Schreiben der JSON-Datei.'];
+            }
+
+            return [
+                'success' => true,
+                'count' => count($users),
+                'message' => "Erfolgreich " . count($users) . " Benutzer von SQLite nach data/forum_users.json migriert!"
+            ];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
+        }
+    }
+}

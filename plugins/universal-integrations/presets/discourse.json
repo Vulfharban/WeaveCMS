@@ -1,0 +1,14 @@
+{
+    "id": "discourse",
+    "name": "Discourse Community",
+    "category": "forum",
+    "icon": "chat",
+    "description": "Moderne Diskussionsplattform Discourse per Vorschaukarte oder nahtlosem Link.",
+    "target_url": "https://forum.example.com",
+    "url_pattern": "{base}/",
+    "default_mode": "preview_card",
+    "default_height": 850,
+    "default_title": "Discourse Community",
+    "default_subtitle": "Entdecke aktuelle Diskussionen, Themen und Ankündigungen.",
+    "params": {}
+}

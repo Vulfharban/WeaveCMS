@@ -1,0 +1,12 @@
+{
+    "name": "WeaveCMS Universelle Integrationen",
+    "slug": "universal-integrations",
+    "version": "1.0.0",
+    "author": "WeaveCMS Core Team",
+    "description": "Universelles Integrations-Plugin zum freien Einbinden beliebiger externer oder lokaler Web-Anwendungen (Webtrees, TNG, Foren wie phpBB/Discourse/Flarum, Wikis, Kalender). Unterstützt iFrame, nahtloses iFrame, Vorschaukarten, SSRF-sicheres Inline-Rendering, Presets und löst Spezial-Plugins nahtlos ab.",
+    "category": "integration",
+    "icon": "hub",
+    "entry_file": "plugin.php",
+    "requires_core": ">=0.4.0",
+    "settings_tab": "universal_integrations"
+}

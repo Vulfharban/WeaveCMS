@@ -1,0 +1,16 @@
+{
+    "id": "wiki",
+    "name": "Wiki (DokuWiki / MediaWiki)",
+    "category": "other",
+    "icon": "menu_book",
+    "description": "Wissensdatenbank, Dokumentation oder Lexikon.",
+    "target_url": "/wiki",
+    "url_pattern": "{base}/doku.php?id={page}",
+    "default_mode": "iframe",
+    "default_height": 850,
+    "default_title": "Wissensdatenbank & Dokumentation",
+    "default_subtitle": "Nachschlagewerk, Handbücher und historische Berichte.",
+    "params": {
+        "page": "start"
+    }
+}

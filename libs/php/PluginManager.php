@@ -245,6 +245,7 @@ class PluginManager {
             $manifest['entry_file'] = $manifest['entry_file'] ?? 'plugin.php';
             $manifest['settings_tab'] = $manifest['settings_tab'] ?? null;
             $manifest['requires_core'] = $manifest['requires_core'] ?? '>=0.4.0';
+            $manifest['requires_plugins'] = is_array($manifest['requires_plugins'] ?? null) ? $manifest['requires_plugins'] : [];
             $manifest['plugin_dir'] = $pluginDir;
             $manifest['entry_path'] = $pluginDir . '/' . $manifest['entry_file'];
             $manifest['is_valid'] = file_exists($manifest['entry_path']);
@@ -372,6 +373,20 @@ class PluginManager {
             $data['plugins']['active'] = [];
         }
 
+        // Abhängigkeitsprüfung (requires_plugins)
+        if (!empty($plugin['requires_plugins'])) {
+            foreach ($plugin['requires_plugins'] as $reqSlug) {
+                if (!in_array($reqSlug, $data['plugins']['active'], true)) {
+                    $reqPlugin = self::getPlugin($reqSlug);
+                    $reqName = $reqPlugin ? $reqPlugin['name'] : $reqSlug;
+                    return [
+                        'success' => false,
+                        'message' => "Das Plugin '{$plugin['name']}' setzt voraus, dass das Plugin '{$reqName}' ({$reqSlug}) zuvor aktiviert wird."
+                    ];
+                }
+            }
+        }
+
         if (!in_array($slug, $data['plugins']['active'], true)) {
             $data['plugins']['active'][] = $slug;
         }
@@ -408,6 +423,18 @@ class PluginManager {
 
         $plugin = self::getPlugin($slug);
         $name = $plugin ? $plugin['name'] : $slug;
+
+        // Prüfen, ob andere aktive Plugins von diesem abhängen
+        foreach ($data['plugins']['active'] as $actSlug) {
+            if ($actSlug === $slug) continue;
+            $other = self::getPlugin($actSlug);
+            if ($other && !empty($other['requires_plugins']) && in_array($slug, $other['requires_plugins'], true)) {
+                return [
+                    'success' => false,
+                    'message' => "Plugin '{$name}' kann nicht deaktiviert werden, da das aktive Plugin '{$other['name']}' davon abhängt. Bitte zuerst '{$other['name']}' deaktivieren."
+                ];
+            }
+        }
 
         self::doAction("plugin_deactivated_{$slug}", $data);
         self::doAction('plugin_deactivated', $slug);
