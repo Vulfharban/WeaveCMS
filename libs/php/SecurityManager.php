@@ -58,6 +58,18 @@ class SecurityManager {
     }
 
     /**
+     * Ermittelt die Basis-URL der WeaveCMS-Installation.
+     * @return string
+     */
+    public static function getBaseUrl(): string {
+        $proto = self::isHttps() ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $scriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
+        $basePath = rtrim(str_replace(['/api', '\\api', '/admin', '\\admin'], '', $scriptDir), '/\\');
+        return $proto . '://' . $host . $basePath;
+    }
+
+    /**
      * Cache für geladene Produktions-Sicherheits-Einstellungen.
      */
     protected static ?array $productionSettingsCache = null;

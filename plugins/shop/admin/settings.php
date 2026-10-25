@@ -84,23 +84,28 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
     </div>
 
     <!-- Sub-Navigation -->
-    <div style="display: flex; gap: 8px; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem;">
-        <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=products#tab-plugins" 
-           style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === 'products' ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === 'products' ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
-            <span class="material-icons" style="font-size: 18px;">inventory_2</span> Produkte (<?php echo count($products); ?>)
-        </a>
-        <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=orders#tab-plugins" 
-           style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === 'orders' ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === 'orders' ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
-            <span class="material-icons" style="font-size: 18px;">receipt_long</span> Bestellungen (<?php echo count($orders); ?>)
-        </a>
-        <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=payments#tab-plugins" 
-           style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === 'payments' ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === 'payments' ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
-            <span class="material-icons" style="font-size: 18px;">payments</span> Zahlungsarten (Vorkasse, CC, PayPal, WERO)
-        </a>
-        <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=settings#tab-plugins" 
-           style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === 'settings' ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === 'settings' ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
-            <span class="material-icons" style="font-size: 18px;">tune</span> Shop-Einstellungen
-        </a>
+    <?php
+    $shopSubTabs = [
+        'products' => ['title' => 'Produkte (' . count($products) . ')', 'icon' => 'inventory_2'],
+        'orders'   => ['title' => 'Bestellungen (' . count($orders) . ')', 'icon' => 'receipt_long'],
+        'payments' => ['title' => 'Zahlungsarten (Vorkasse, CC, PayPal, WERO)', 'icon' => 'payments'],
+        'settings' => ['title' => 'Shop-Einstellungen', 'icon' => 'tune'],
+    ];
+
+    if (class_exists('PluginManager')) {
+        $shopSubTabs = PluginManager::applyFilters('shop_admin_subtabs', $shopSubTabs, $config);
+    }
+    ?>
+    <div style="display: flex; gap: 8px; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <?php foreach ($shopSubTabs as $tabKey => $tabInfo): ?>
+            <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=<?php echo urlencode($tabKey); ?>#tab-plugins" 
+               style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === $tabKey ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === $tabKey ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
+                <?php if (!empty($tabInfo['icon'])): ?>
+                    <span class="material-icons" style="font-size: 18px;"><?php echo htmlspecialchars($tabInfo['icon']); ?></span>
+                <?php endif; ?>
+                <?php echo htmlspecialchars($tabInfo['title']); ?>
+            </a>
+        <?php endforeach; ?>
     </div>
 
     <!-- ===================================================================== -->
@@ -501,6 +506,13 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                 <span class="material-icons">save</span> Shop-Einstellungen speichern
             </button>
         </form>
+    <?php else: ?>
+        <?php
+        // Action-Hook für Dritt-Plugins, um eigene Subtab-Inhalte im Shop-Admin zu rendern
+        if (class_exists('PluginManager')) {
+            PluginManager::doAction('shop_render_admin_subtab_' . $activeSubTab, $config, $csrf_token, $products, $orders);
+        }
+        ?>
     <?php endif; ?>
 
 </div>
@@ -568,6 +580,13 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                 <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:4px;">Beschreibung</label>
                 <textarea name="description" id="shop-prod-desc" class="form-control" rows="3" placeholder="Details zum Produkt..."></textarea>
             </div>
+
+            <?php
+            // Action-Hook für Zusatzfelder im Produktmodal (z. B. Download-Datei-URL, Varianten)
+            if (class_exists('PluginManager')) {
+                PluginManager::doAction('shop_admin_product_modal_fields', $config);
+            }
+            ?>
 
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">
