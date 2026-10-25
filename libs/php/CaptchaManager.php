@@ -137,6 +137,15 @@ class CaptchaManager {
     }
 
     /**
+     * Prüft, ob die E-Mail-Adresse im Kontaktbereich mit aktiver Captcha-Prüfung geschützt werden soll.
+     * @param array|null $data
+     * @return bool
+     */
+    public static function isContactEmailProtected(?array $data = null): bool {
+        return !empty($data['settings']['contact_email_captcha']);
+    }
+
+    /**
      * Generiert eine dynamische Mathe-Aufgabe (z. B. 4 + 3) und speichert das Ergebnis in der Session.
      * @return array ['question' => string, 'hash' => string]
      */

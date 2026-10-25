@@ -10,9 +10,10 @@ header('Content-Type: application/json; charset=UTF-8');
 require_once dirname(__DIR__) . '/config.php';
 
 $action = trim($_REQUEST['action'] ?? 'verify');
+$context = in_array(trim($_REQUEST['context'] ?? ''), ['impressum', 'contact'], true) ? trim($_REQUEST['context']) : 'impressum';
 
 if ($action === 'get_challenge') {
-    $challenge = CaptchaManager::generateCanvasChallenge('impressum');
+    $challenge = CaptchaManager::generateCanvasChallenge($context);
     echo json_encode([
         'success' => true,
         'code' => $challenge['code']
@@ -27,7 +28,7 @@ if ($action === 'verify') {
         exit;
     }
 
-    if (CaptchaManager::verifyCanvasChallenge($submittedCode, 'impressum')) {
+    if (CaptchaManager::verifyCanvasChallenge($submittedCode, $context)) {
         $dataFile = dirname(__DIR__) . '/data.json';
         $data = load_data($dataFile);
         $email = $data['texts']['contact_email'] ?? 'kontakt@maxima-musterfrau.de';

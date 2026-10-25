@@ -530,7 +530,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
     2. **Mathe- / Rechen-Captcha:** Dynamisch generierte, zufällige Rechenaufgabe (z. B. *„Wie viel ist 4 + 3?“*).
     3. **HTML5 Canvas-Zahlen-Captcha:** Clientseitig/serverseitig generierter 4- bis 6-stelliger Zahlencode direkt auf einem Bild-Canvas (wie in `ownsite` erprobt) gegen automatisierte Text-Scraper.
     4. **Unsichtbarer Honeypot + Time-Trap:** Völlig barrierefreie Formulare ohne Nutzerinteraktion für Standard-Websites mit stillem Bot-Schutz.
-  - **Zusatzfunktion:** Option *„E-Mail-Adresse im Impressum mit aktiver Captcha-Prüfung schützen“* (Anti-Scraping E-Mail-Freischaltung wie in `ownsite`).
+  - **Zusatzfunktion:** Optionale Anti-Scraping E-Mail-Freischaltung für das Impressum sowie den Kontaktbereich (*„E-Mail-Adresse im Impressum/Kontaktbereich mit aktiver Captcha-Prüfung schützen“*).
 - [x] **16.4 Optionale Besucher-Barrierefreiheitsleiste (Darstellung & Themes):**
   - Neuer Schalter in den Design-/Theme-Einstellungen des Adminbereichs:
     - *„[ ] Besucher-Barrierefreiheitsleiste im Frontend anzeigen“*
