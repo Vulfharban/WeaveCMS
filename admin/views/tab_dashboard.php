@@ -110,18 +110,20 @@
                 </div>
 
                 <!-- KPI 2: Sicherheitsstatus -->
-                <div style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 16px; padding: 1.25rem;">
+                <?php $dash_audit = SecurityManager::auditPermissions(); ?>
+                <div style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 16px; padding: 1.25rem; cursor:pointer;" onclick="switchTab('tab-security')">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
                             <span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">Sicherheit</span>
-                            <div style="font-size:1.35rem; font-weight:800; color:#10b981; margin:0.45rem 0 0.25rem 0; line-height:1.2; display:flex; align-items:center; gap:6px;">
-                                <span class="material-icons" style="font-size:20px;">shield</span> Aktiv &amp; Geschützt
+                            <div style="font-size:1.35rem; font-weight:800; color:<?php echo ($dash_audit['overall_status'] === 'ok') ? '#10b981' : '#d97706'; ?>; margin:0.45rem 0 0.25rem 0; line-height:1.2; display:flex; align-items:center; gap:6px;">
+                                <span class="material-icons" style="font-size:20px;"><?php echo ($dash_audit['overall_status'] === 'ok') ? 'shield' : 'warning'; ?></span> 
+                                <?php echo ($dash_audit['overall_status'] === 'ok') ? 'Aktiv &amp; Geschützt' : 'Audit prüfen'; ?>
                             </div>
                             <span style="font-size:0.78rem; color:var(--text-secondary);">
-                                Header, Session &amp; Rate-Limit aktiv
+                                Header, CSP, HSTS &amp; Anti-Spoofing
                             </span>
                         </div>
-                        <span class="material-icons" style="font-size:32px; color:#10b981; opacity:0.7;">lock</span>
+                        <span class="material-icons" style="font-size:32px; color:<?php echo ($dash_audit['overall_status'] === 'ok') ? '#10b981' : '#d97706'; ?>; opacity:0.7;">lock</span>
                     </div>
                 </div>
 

@@ -125,6 +125,12 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 | **Role-Based Access Control (RBAC)** | User roles: Administrator, Moderator, and Editor (Content User) with granular capability checks. | ✅ Integrated (Phase 10) |
 | **Brute-Force Shield & Rate Limiting** | Progressive delay and temporary IP banning following repeated failed login attempts. | ✅ Integrated (Phase 9) |
 | **Audit & Security Logging** | Tamper-evident logging of security-critical administrative actions in `data/security.log`. | ✅ Integrated (Phase 9) |
+| **Strict HSTS Policy & SSL Preloading** | Enforces encrypted HTTPS connections with optional preloading header for modern browsers. | ✅ Integrated (Phase 17.1) |
+| **Production CSP & Subresource Integrity** | Hardened Content Security Policy against XSS and SRI hash verification helper (`renderSriTag`). | ✅ Integrated (Phase 17.2) |
+| **Filesystem Permission Audit (POSIX/Linux)** | Automatic validation of critical file & folder permissions (`0640/0750`) in security tab and dashboard. | ✅ Integrated (Phase 17.3) |
+| **Reverse-Proxy Anti-Spoofing Filter** | Strict IP validation for upstream proxies & Cloudflare to prevent spoofing of client addresses. | ✅ Integrated (Phase 17.4) |
+| **Automated Admin Security Alerting** | Email alerts on brute-force lockouts with rate-limiting cooldown protection against email flooding. | ✅ Integrated (Phase 17.5) |
+| **Live Deployment Checklist & Tooling** | Live readiness matrix and one-click audit links to SecurityHeaders.com and Qualys SSL Labs. | ✅ Integrated (Phase 17.6) |
 
 ---
 
@@ -159,6 +165,19 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ## 📈 Release History & Milestones
+
+### v1.1.0 (Live Server Deployment, Production Hardening & Multi-Language Tabs / Phase 17)
+* **Live Server Deployment, SSL/HSTS Hardening & Production Security (Phase 17):**
+  * **Strict HSTS Policy & SSL Preloading (17.1):** Configurable activation of `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` strictly on confirmed live domains with active SSL certificates.
+  * **Hardened Production CSP & Subresource Integrity (17.2):** Tightened HTTP Content Security Policy (`script-src`, `style-src`, `object-src 'none'`, `form-action 'self'`) and SRI tag helper `SecurityManager::renderSriTag`.
+  * **Filesystem Permissions & POSIX Audit (17.3):** Live audit verification in the security tab and dashboard for sensitive files (`config.php`, `config.local.php`, `data/data.json`) and directories (`data/`, `backups/`, `logs/`, `images/uploads/`) including `.htaccess` shield verification.
+  * **Reverse-Proxy & Trusted-Proxy IP Filter (17.4):** Robust anti-IP-spoofing mechanism; headers such as `CF-Connecting-IP` and `X-Forwarded-For` are only accepted from explicitly authorized upstream proxies or CIDR subnets.
+  * **Automated Admin Security Alerts (17.5):** Automatic email alerts on brute-force lockouts with built-in cooldown protection (preventing email flooding).
+  * **Live Deployment Checklist (17.6):** 4-point checklist and direct verification links to SecurityHeaders.com and Qualys SSL Labs directly in the backend. 27/27 tests in `tests/test_phase17_production_security.php` passing.
+* **Streamlined Multi-Language Management with Language Tabs (Option A & B):**
+  * **Language Tabs per Section & Module:** Instant switching (`[🇩🇪 Primary] [🇬🇧 English] ...`) in all section bars and module drawers (FAQ, Team, Downloads, Pricing, Courses, Gallery) without long vertical scrolling.
+  * **Language Badges:** Visual indicators in all admin content module list views showing which translations are actively maintained.
+  * **Automatic Frontend Fallback Cascade:** Dynamic text resolution seamlessly falling back to primary language defaults when a translation is missing.
 
 ### v1.0.0 (Official Release 1.0.0 / Phase 20)
 * **In-Navbar Accessibility & UX Optimization:**

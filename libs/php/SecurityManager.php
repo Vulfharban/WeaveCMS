@@ -58,12 +58,185 @@ class SecurityManager {
     }
 
     /**
-     * Liefert die IP-Adresse des anfragenden Clients.
+     * Cache für geladene Produktions-Sicherheits-Einstellungen.
+     */
+    protected static ?array $productionSettingsCache = null;
+
+    /**
+     * Lädt die Produktions-Sicherheits-Einstellungen (Phase 17).
+     * @return array
+     */
+    public static function getProductionSettings(): array {
+        if (self::$productionSettingsCache !== null) {
+            return self::$productionSettingsCache;
+        }
+
+        $default = [
+            'hsts_preload' => false,
+            'production_csp' => false,
+            'trusted_proxies' => '127.0.0.1, ::1',
+            'alert_email' => '',
+            'alert_on_bruteforce' => false,
+            'alert_cooldown_minutes' => 15
+        ];
+
+        $candidates = [
+            self::rootPath() . '/data/data.json',
+            self::rootPath() . '/data.json'
+        ];
+
+        foreach ($candidates as $f) {
+            if (file_exists($f)) {
+                $content = @file_get_contents($f);
+                if ($content) {
+                    $json = json_decode($content, true);
+                    if (is_array($json) && isset($json['settings']['prod_security']) && is_array($json['settings']['prod_security'])) {
+                        self::$productionSettingsCache = array_merge($default, $json['settings']['prod_security']);
+                        return self::$productionSettingsCache;
+                    }
+                }
+                break;
+            }
+        }
+
+        self::$productionSettingsCache = $default;
+        return self::$productionSettingsCache;
+    }
+
+    /**
+     * Setzt den internen Settings-Cache zurück oder aktualisiert ihn.
+     * @param array|null $settings
+     * @return void
+     */
+    public static function setProductionSettings(?array $settings): void {
+        self::$productionSettingsCache = $settings;
+    }
+
+    /**
+     * Prüft, ob eine IP in einem CIDR-Netzbereich liegt (Phase 17.4).
+     * @param string $ip
+     * @param string $cidr
+     * @return bool
+     */
+    public static function ipMatchesCidr(string $ip, string $cidr): bool {
+        $cidr = trim($cidr);
+        if (empty($cidr)) {
+            return false;
+        }
+
+        if (strpos($cidr, '/') === false) {
+            return ($ip === $cidr);
+        }
+
+        [$subnet, $mask] = explode('/', $cidr, 2);
+        $mask = (int)$mask;
+
+        // IPv4 Check
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && filter_var($subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            if ($mask < 0 || $mask > 32) return false;
+            $ipLong = ip2long($ip);
+            $subnetLong = ip2long($subnet);
+            if ($ipLong === false || $subnetLong === false) return false;
+            $bitMask = $mask === 0 ? 0 : (~0 << (32 - $mask));
+            return (($ipLong & $bitMask) === ($subnetLong & $bitMask));
+        }
+
+        // IPv6 Check
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) && filter_var($subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            if ($mask < 0 || $mask > 128) return false;
+            $ipBin = @inet_pton($ip);
+            $subnetBin = @inet_pton($subnet);
+            if ($ipBin === false || $subnetBin === false) return false;
+
+            $bytes = (int)($mask / 8);
+            $bits = $mask % 8;
+
+            if ($bytes > 0 && substr($ipBin, 0, $bytes) !== substr($subnetBin, 0, $bytes)) {
+                return false;
+            }
+
+            if ($bits > 0) {
+                $ipChar = ord($ipBin[$bytes]);
+                $subnetChar = ord($subnetBin[$bytes]);
+                $bitMask = (0xFF << (8 - $bits)) & 0xFF;
+                if (($ipChar & $bitMask) !== ($subnetChar & $bitMask)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Prüft, ob eine Upstream-IP als vertrauenswürdiger Reverse-Proxy konfiguriert ist (Phase 17.4).
+     * @param string $ip
+     * @param array|string|null $customTrusted
+     * @return bool
+     */
+    public static function isTrustedProxy(string $ip, $customTrusted = null): bool {
+        if ($ip === '127.0.0.1' || $ip === '::1' || $ip === 'localhost') {
+            return true;
+        }
+
+        if ($customTrusted === null) {
+            $prod = self::getProductionSettings();
+            $customTrusted = $prod['trusted_proxies'] ?? '';
+        }
+
+        $list = is_array($customTrusted) ? $customTrusted : preg_split('/[\r\n,]+/', (string)$customTrusted);
+        foreach ($list as $entry) {
+            $entry = trim($entry);
+            if ($entry === '') continue;
+            if (self::ipMatchesCidr($ip, $entry)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Liefert die IP-Adresse des anfragenden Clients mit Anti-Spoofing-Schutz (Phase 17.4).
+     * Forwarded-Header werden AUSSCHLIESSLICH akzeptiert, wenn die direkte Remote-IP ein vertrauenswürdiger Proxy ist.
      * @return string
      */
     public static function getClientIp(): string {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '127.0.0.1';
+        $remote = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        if (!filter_var($remote, FILTER_VALIDATE_IP)) {
+            $remote = '127.0.0.1';
+        }
+
+        // Anti-Spoofing: Nur wenn REMOTE_ADDR ein bestätigter Proxy ist, werten wir Header aus
+        if (self::isTrustedProxy($remote)) {
+            if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+                $cfIp = trim($_SERVER['HTTP_CF_CONNECTING_IP']);
+                if (filter_var($cfIp, FILTER_VALIDATE_IP)) {
+                    return $cfIp;
+                }
+            }
+
+            if (!empty($_SERVER['HTTP_X_REAL_IP'])) {
+                $realIp = trim($_SERVER['HTTP_X_REAL_IP']);
+                if (filter_var($realIp, FILTER_VALIDATE_IP)) {
+                    return $realIp;
+                }
+            }
+
+            if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $parts = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+                foreach ($parts as $part) {
+                    $candidate = trim($part);
+                    if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                        return $candidate;
+                    }
+                }
+            }
+        }
+
+        return $remote;
     }
 
     /**
@@ -77,13 +250,16 @@ class SecurityManager {
     }
 
     /**
-     * Sendet empfohlene HTTP-Sicherheits-Header aus (Phase 9.1).
+     * Sendet empfohlene HTTP-Sicherheits-Header aus (Phase 9.1 & Phase 17.1/17.2).
+     * @param array|null $customSettings Optionale Einstellungen zur Laufzeit
      * @return void
      */
-    public static function applySecurityHeaders(): void {
+    public static function applySecurityHeaders(?array $customSettings = null): void {
         if (headers_sent() || php_sapi_name() === 'cli') {
             return;
         }
+
+        $prod = $customSettings ?? self::getProductionSettings();
 
         // 1. Clickjacking-Schutz
         header('X-Frame-Options: SAMEORIGIN');
@@ -100,9 +276,29 @@ class SecurityManager {
         // 5. XSS-Auditor für ältere Browser
         header('X-XSS-Protection: 1; mode=block');
 
-        // 6. HSTS (nur wenn Verbindung tatsächlich über HTTPS erfolgt, niemals auf unverschlüsseltem localhost!)
+        // 6. HSTS & SSL-Preloading (Phase 17.1)
         if (self::isHttps()) {
-            header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+            if (!empty($prod['hsts_preload'])) {
+                header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+            } else {
+                header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+            }
+        }
+
+        // 7. Production Content Security Policy (CSP - Phase 17.2)
+        if (!empty($prod['production_csp'])) {
+            $csp = "default-src 'self'; "
+                 . "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+                 . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                 . "font-src 'self' https://fonts.gstatic.com data:; "
+                 . "img-src 'self' data: https: blob:; "
+                 . "connect-src 'self'; "
+                 . "frame-src 'self' https:; "
+                 . "media-src 'self'; "
+                 . "object-src 'none'; "
+                 . "base-uri 'self'; "
+                 . "form-action 'self';";
+            header("Content-Security-Policy: {$csp}");
         }
     }
 
@@ -312,8 +508,15 @@ class SecurityManager {
             ];
         }
 
+        $currentAttempts = $limits[$key]['attempts'];
         self::saveRateLimits($limits);
-        return $limits[$key]['attempts'];
+
+        // Phase 17.5: Automatisierte Admin-E-Mail-Alarmierung bei Lockout
+        if ($currentAttempts === self::DEFAULT_MAX_ATTEMPTS) {
+            self::checkAndTriggerSecurityAlert($action, $identifier ?? self::getClientIp(), $currentAttempts);
+        }
+
+        return $currentAttempts;
     }
 
     /**
@@ -388,5 +591,238 @@ class SecurityManager {
      */
     public static function escape(?string $input): string {
         return htmlspecialchars($input ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+
+    /**
+     * Prüft und versendet einen Sicherheitsalarm per E-Mail an den Administrator (Phase 17.5).
+     * @param string $action
+     * @param string $ip
+     * @param int $attempts
+     * @return bool
+     */
+    public static function checkAndTriggerSecurityAlert(string $action, string $ip, int $attempts): bool {
+        $prod = self::getProductionSettings();
+        if (empty($prod['alert_on_bruteforce'])) {
+            return false;
+        }
+
+        $recipient = trim($prod['alert_email'] ?? '');
+        if (empty($recipient) || !filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        // Cooldown-Prüfung via data/security_alerts.json
+        $cooldownMinutes = max(5, (int)($prod['alert_cooldown_minutes'] ?? 15));
+        $alertFile = self::rootPath() . '/data/security_alerts.json';
+        $alerts = [];
+        if (file_exists($alertFile)) {
+            $alerts = (array)json_decode((string)@file_get_contents($alertFile), true);
+        }
+
+        $now = time();
+        $cooldownKey = md5($action . ':' . $ip);
+        if (isset($alerts[$cooldownKey]) && ($now - (int)$alerts[$cooldownKey]) < ($cooldownMinutes * 60)) {
+            // Noch in Cooldown-Phase, keine E-Mail-Flut erzeugen
+            return false;
+        }
+
+        $alerts[$cooldownKey] = $now;
+        // Bereinigung alter Einträge
+        foreach ($alerts as $k => $ts) {
+            if ($now - $ts > 86400) {
+                unset($alerts[$k]);
+            }
+        }
+        @file_put_contents($alertFile, json_encode($alerts, JSON_PRETTY_PRINT), LOCK_EX);
+
+        // SMTP-Konfiguration laden falls vorhanden
+        $smtpConfig = null;
+        $dataFile = self::rootPath() . '/data/data.json';
+        if (!file_exists($dataFile)) {
+            $dataFile = self::rootPath() . '/data.json';
+        }
+        if (file_exists($dataFile)) {
+            $d = json_decode((string)@file_get_contents($dataFile), true);
+            if (!empty($d['settings']['smtp'])) {
+                $smtpConfig = $d['settings']['smtp'];
+            }
+        }
+
+        $timeStr = date('d.m.Y H:i:s');
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'Unbekannt';
+        $subject = "🚨 [WeaveCMS Alarm] Brute-Force Sperre für IP {$ip} ({$action})";
+
+        $htmlBody = '<div style="font-family:sans-serif; max-width:600px; margin:0 auto; padding:20px; background:#fff; border:1px solid #e5e7eb; border-radius:12px;">'
+                  . '<div style="background:#dc2626; color:#fff; padding:12px 18px; border-radius:8px; margin-bottom:16px;">'
+                  . '<h2 style="margin:0; font-size:1.2rem;">🚨 Sicherheitswarnung: Angriffsversuch abgewehrt</h2>'
+                  . '</div>'
+                  . '<p style="color:#374151; font-size:0.95rem; line-height:1.5;">'
+                  . 'Das WeaveCMS-Schutzsystem hat eine IP-Adresse wegen wiederholter Fehlversuche temporär gesperrt:'
+                  . '</p>'
+                  . '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">'
+                  . '<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px; font-weight:bold; color:#4b5563;">Blockierte IP:</td><td style="padding:8px; font-family:monospace; color:#dc2626;">' . htmlspecialchars($ip) . '</td></tr>'
+                  . '<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px; font-weight:bold; color:#4b5563;">Ziel-Aktion:</td><td style="padding:8px; font-family:monospace;">' . htmlspecialchars($action) . '</td></tr>'
+                  . '<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px; font-weight:bold; color:#4b5563;">Fehlversuche:</td><td style="padding:8px;">' . (int)$attempts . ' Fehlversuche</td></tr>'
+                  . '<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px; font-weight:bold; color:#4b5563;">Sperrdauer:</td><td style="padding:8px;">15 Minuten</td></tr>'
+                  . '<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px; font-weight:bold; color:#4b5563;">Zeitpunkt:</td><td style="padding:8px;">' . htmlspecialchars($timeStr) . '</td></tr>'
+                  . '<tr><td style="padding:8px; font-weight:bold; color:#4b5563;">User-Agent:</td><td style="padding:8px; font-size:0.8rem; color:#6b7280;">' . htmlspecialchars($ua) . '</td></tr>'
+                  . '</table>'
+                  . '<p style="color:#6b7280; font-size:0.85rem;">'
+                  . 'Diese Benachrichtigung wurde automatisch generiert. Du kannst den Vorfall im Admin-Dashboard unter <i>Sicherheits-Live-Monitor</i> einsehen.'
+                  . '</p>'
+                  . '</div>';
+
+        $textBody = "WeaveCMS Sicherheitswarnung:\n\n"
+                  . "IP: {$ip}\n"
+                  . "Aktion: {$action}\n"
+                  . "Fehlversuche: {$attempts}\n"
+                  . "Zeitpunkt: {$timeStr}\n"
+                  . "User-Agent: {$ua}\n"
+                  . "Sperrdauer: 15 Minuten\n";
+
+        if (class_exists('SimpleMailer')) {
+            $res = SimpleMailer::send($recipient, $subject, $htmlBody, $textBody, '', '', $smtpConfig);
+            if ($res['success']) {
+                self::logEvent('SECURITY_ALERT_SENT', "Sicherheits-Alarm an {$recipient} versendet für IP {$ip}", 'INFO');
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Erzeugt ein HTML-Tag mit Subresource Integrity (SRI) Hash (Phase 17.2).
+     * @param string $type 'script' oder 'css'
+     * @param string $url
+     * @param string $hash SRI-Hash (z. B. 'sha384-...')
+     * @param array $attrs Zusätzliche HTML-Attribute
+     * @return string
+     */
+    public static function renderSriTag(string $type, string $url, string $hash, array $attrs = []): string {
+        $attrsStr = '';
+        foreach ($attrs as $k => $v) {
+            $attrsStr .= ' ' . htmlspecialchars($k) . '="' . htmlspecialchars($v) . '"';
+        }
+
+        if ($type === 'script') {
+            return '<script src="' . htmlspecialchars($url) . '" integrity="' . htmlspecialchars($hash) . '" crossorigin="anonymous"' . $attrsStr . '></script>';
+        }
+
+        return '<link rel="stylesheet" href="' . htmlspecialchars($url) . '" integrity="' . htmlspecialchars($hash) . '" crossorigin="anonymous"' . $attrsStr . '>';
+    }
+
+    /**
+     * Führt ein POSIX- / Linux-Dateisystem-Berechtigungs-Audit durch (Phase 17.3).
+     * Prüft sensible Konfigurationsdateien, Ordner und .htaccess-Abschirmungen.
+     * @return array
+     */
+    public static function auditPermissions(): array {
+        $root = self::rootPath();
+        $isLinux = (DIRECTORY_SEPARATOR === '/' || PHP_OS_FAMILY === 'Linux');
+
+        $targets = [
+            ['path' => 'config.php', 'type' => 'file', 'required' => true, 'rec_file' => '0640', 'rec_text' => '0640 oder 0644'],
+            ['path' => 'config.local.php', 'type' => 'file', 'required' => false, 'rec_file' => '0640', 'rec_text' => '0640'],
+            ['path' => 'installed.lock', 'type' => 'file', 'required' => false, 'rec_file' => '0640', 'rec_text' => '0640'],
+            ['path' => 'data/data.json', 'type' => 'file', 'required' => false, 'rec_file' => '0640', 'rec_text' => '0640 oder 0644'],
+            ['path' => 'data', 'type' => 'dir', 'required' => true, 'rec_file' => '0750', 'rec_text' => '0750 oder 0755'],
+            ['path' => 'backups', 'type' => 'dir', 'required' => true, 'rec_file' => '0750', 'rec_text' => '0750 oder 0755'],
+            ['path' => 'logs', 'type' => 'dir', 'required' => true, 'rec_file' => '0750', 'rec_text' => '0750 oder 0755'],
+            ['path' => 'images/uploads', 'type' => 'dir', 'required' => true, 'rec_file' => '0755', 'rec_text' => '0755']
+        ];
+
+        $results = [];
+        $hasIssues = false;
+        $hasCritical = false;
+
+        foreach ($targets as $t) {
+            $abs = $root . '/' . $t['path'];
+            $exists = file_exists($abs);
+
+            if (!$exists) {
+                if ($t['required']) {
+                    $results[] = [
+                        'path' => $t['path'],
+                        'type' => $t['type'],
+                        'exists' => false,
+                        'status' => 'warning',
+                        'perms' => '---',
+                        'recommended' => $t['rec_text'],
+                        'message' => 'Pfad existiert noch nicht',
+                        'fix_cmd' => ($t['type'] === 'dir' ? "mkdir -p {$t['path']}" : "touch {$t['path']}")
+                    ];
+                }
+                continue;
+            }
+
+            $perms = fileperms($abs);
+            $octal = substr(sprintf('%o', $perms), -4);
+            $isWorldWritable = (bool)($perms & 0002);
+
+            $status = 'ok';
+            $msg = 'Sicher konfiguriert';
+
+            if ($isLinux) {
+                if ($isWorldWritable) {
+                    $status = 'danger';
+                    $msg = 'Kritisch: Datei/Ordner ist für alle Benutzer beschreibbar (World-Writable)!';
+                    $hasCritical = true;
+                    $hasIssues = true;
+                } elseif ($t['type'] === 'file' && (int)$octal > 0644) {
+                    $status = 'warning';
+                    $msg = 'Zu freizügige Dateirechte auf Produktivserver.';
+                    $hasIssues = true;
+                }
+            } else {
+                $status = 'ok';
+                $msg = 'Windows-Umgebung: Rechteverwaltung über Windows-ACLs aktiv.';
+            }
+
+            $recOctal = ($t['type'] === 'dir') ? '0750' : '0640';
+            $fixCmd = "chmod {$recOctal} " . escapeshellarg($t['path']);
+
+            $results[] = [
+                'path' => $t['path'],
+                'type' => $t['type'],
+                'exists' => true,
+                'status' => $status,
+                'perms' => $octal,
+                'recommended' => $t['rec_text'],
+                'is_world_writable' => $isWorldWritable,
+                'message' => $msg,
+                'fix_cmd' => $fixCmd
+            ];
+        }
+
+        // Prüfung der .htaccess Abschirmungen
+        $htaccessShields = ['data/.htaccess', 'backups/.htaccess', 'logs/.htaccess'];
+        foreach ($htaccessShields as $hPath) {
+            $hAbs = $root . '/' . $hPath;
+            $hExists = file_exists($hAbs);
+            $results[] = [
+                'path' => $hPath,
+                'type' => 'shield',
+                'exists' => $hExists,
+                'status' => $hExists ? 'ok' : 'danger',
+                'perms' => $hExists ? substr(sprintf('%o', fileperms($hAbs)), -4) : '---',
+                'recommended' => 'Require all denied',
+                'is_world_writable' => false,
+                'message' => $hExists ? 'Verzeichnisschutz aktiv (.htaccess)' : 'Schutz fehlt: Verzeichnis ist ungeschützt!',
+                'fix_cmd' => $hExists ? '' : "echo 'Require all denied' > {$hPath}"
+            ];
+            if (!$hExists) {
+                $hasCritical = true;
+                $hasIssues = true;
+            }
+        }
+
+        return [
+            'is_linux' => $isLinux,
+            'os' => PHP_OS_FAMILY,
+            'overall_status' => $hasCritical ? 'danger' : ($hasIssues ? 'warning' : 'ok'),
+            'has_issues' => $hasIssues,
+            'items' => $results
+        ];
     }
 }

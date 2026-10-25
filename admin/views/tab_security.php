@@ -19,6 +19,9 @@
                 <?php
                     $cur_captcha_mode = CaptchaManager::getMode($data);
                     $impressum_email_protected = CaptchaManager::isImpressumEmailProtected($data);
+                    $prod_sec = SecurityManager::getProductionSettings();
+                    $is_https = SecurityManager::isHttps();
+                    $perms_audit = SecurityManager::auditPermissions();
                 ?>
                 <h3 style="font-size: 1.2rem; margin-top: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
                     <span style="display:flex; align-items:center; gap:8px;">
@@ -212,8 +215,93 @@
                     </small>
                 </div>
 
+                <!-- 4. LIVE-SERVER-DEPLOYMENT, SSL/HSTS-HÄRTUNG & PRODUKTIONS-SICHERHEIT (PHASE 17) -->
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                    <span style="display:flex; align-items:center; gap:8px;">
+                        <span class="material-icons" style="color:var(--primary);">shield</span> Live-Server-Deployment &amp; Produktions-Härtung (Phase 17)
+                    </span>
+                    <?php if ($is_https): ?>
+                        <span style="font-size:0.8rem; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.25); border-radius:20px; padding:3px 10px; font-weight:700; display:inline-flex; align-items:center; gap:4px;">
+                            <span class="material-icons" style="font-size:14px;">https</span> SSL Aktiv (HTTPS)
+                        </span>
+                    <?php else: ?>
+                        <span style="font-size:0.8rem; background:rgba(217,119,6,0.12); color:#d97706; border:1px solid rgba(217,119,6,0.25); border-radius:20px; padding:3px 10px; font-weight:700; display:inline-flex; align-items:center; gap:4px;">
+                            <span class="material-icons" style="font-size:14px;">http</span> Lokaler Dev-Modus (HTTP)
+                        </span>
+                    <?php endif; ?>
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+                    Erweiterte Sicherheits-Optionen für den Live-Betrieb im Internet (Apache / Nginx mit SSL-Zertifikat und Reverse-Proxies).
+                </p>
+
+                <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
+                    <!-- 17.1 HSTS Preload -->
+                    <label style="display:inline-flex; align-items:flex-start; gap:10px; cursor:pointer;">
+                        <input type="checkbox" name="prod_hsts_preload" value="1" <?php echo !empty($prod_sec['hsts_preload']) ? 'checked' : ''; ?> style="width:18px; height:18px; margin-top:2px; accent-color:var(--primary);">
+                        <div>
+                            <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem; display:block;">
+                                🔒 Strikte HSTS-Policy &amp; SSL-Preloading aktivieren (Phase 17.1)
+                            </span>
+                            <span style="font-size:0.84rem; color:var(--text-secondary); line-height:1.4; display:block; margin-top:2px;">
+                                Sendet den Header <code>Strict-Transport-Security: max-age=31536000; includeSubDomains; preload</code> (nur aktiv bei bestehender HTTPS-Verbindung). Erzwingt moderne Browser auf 100 % verschlüsselte Verbindungen.
+                            </span>
+                        </div>
+                    </label>
+
+                    <!-- 17.2 Production CSP -->
+                    <label style="display:inline-flex; align-items:flex-start; gap:10px; cursor:pointer;">
+                        <input type="checkbox" name="prod_production_csp" value="1" <?php echo !empty($prod_sec['production_csp']) ? 'checked' : ''; ?> style="width:18px; height:18px; margin-top:2px; accent-color:var(--primary);">
+                        <div>
+                            <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem; display:block;">
+                                🛡️ Gehärtete Production-CSP (Content Security Policy) aktivieren (Phase 17.2)
+                            </span>
+                            <span style="font-size:0.84rem; color:var(--text-secondary); line-height:1.4; display:block; margin-top:2px;">
+                                Schützt deine Website vor Cross-Site-Scripting (XSS) und unbefugtem Nachladen externer Ressourcen durch strikte Restriktion auf sichere eigene Domains und kuratierte Google-Fonts.
+                            </span>
+                        </div>
+                    </label>
+
+                    <!-- 17.4 Trusted Proxies -->
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label style="font-weight:700; color:var(--text-primary); font-size:0.95rem; display:block; margin-bottom:4px;">
+                            🌐 Vertrauenswürdige Reverse-Proxies &amp; Cloudflare IPs (Anti-Spoofing - Phase 17.4)
+                        </label>
+                        <input type="text" name="prod_trusted_proxies" class="form-control" value="<?php echo htmlspecialchars($prod_sec['trusted_proxies'] ?? '127.0.0.1, ::1'); ?>" placeholder="127.0.0.1, ::1, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16">
+                        <small style="color:var(--text-secondary); display:block; margin-top:4px;">
+                            Kommagetrennte Liste von Upstream-Proxy-IPs oder CIDR-Bereichen. <code>X-Forwarded-For</code> und <code>CF-Connecting-IP</code> werden <em>nur</em> von diesen IP-Adressen akzeptiert, um IP-Spoofing beim Rate-Limiting und Audit-Log zu verhindern.
+                        </small>
+                    </div>
+
+                    <!-- 17.5 Automatisierte Admin-Alarmierung -->
+                    <div style="border-top:1px solid var(--border-color); padding-top:1.25rem;">
+                        <label style="display:inline-flex; align-items:flex-start; gap:10px; cursor:pointer; margin-bottom:0.75rem;">
+                            <input type="checkbox" name="prod_alert_on_bruteforce" value="1" <?php echo !empty($prod_sec['alert_on_bruteforce']) ? 'checked' : ''; ?> style="width:18px; height:18px; margin-top:2px; accent-color:var(--primary);">
+                            <div>
+                                <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem; display:block;">
+                                    🚨 Sofortige E-Mail-Alarmierung bei Brute-Force-Sperren (Phase 17.5)
+                                </span>
+                                <span style="font-size:0.84rem; color:var(--text-secondary); line-height:1.4; display:block; margin-top:2px;">
+                                    Sendet automatisch eine Alarm-E-Mail an den Administrator, sobald eine IP-Adresse wegen wiederholter Fehlversuche gesperrt wird.
+                                </span>
+                            </div>
+                        </label>
+
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="font-size:0.85rem;">Alarm-Empfänger-E-Mail</label>
+                                <input type="email" name="prod_alert_email" class="form-control" value="<?php echo htmlspecialchars($prod_sec['alert_email'] ?? ($data['texts']['contact_email'] ?? '')); ?>" placeholder="admin@domain.de">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="font-size:0.85rem;">E-Mail-Cooldown (Minuten)</label>
+                                <input type="number" name="prod_alert_cooldown_minutes" class="form-control" value="<?php echo (int)($prod_sec['alert_cooldown_minutes'] ?? 15); ?>" min="5" max="1440">
+                                <small style="color:var(--text-secondary); display:block; margin-top:3px;">Verhindert E-Mail-Spam bei anhaltenden Angriffen.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px;">
-                    <span class="material-icons" style="font-size:18px;">save</span> Spamschutz-, SMTP- &amp; Upload-Einstellungen speichern
+                    <span class="material-icons" style="font-size:18px;">save</span> Einstellungen speichern
                 </button>
             </form>
 
@@ -238,7 +326,98 @@
                 </form>
             </div>
 
-            <!-- 4. INTEGRIERTES BACKUP- & WIEDERHERSTELLUNGSSYSTEM (PHASE 2) -->
+            <!-- 5. DATEISYSTEM-BERECHTIGUNGS-AUDIT (POSIX/LINUX) & DEPLOYMENT-CHECKLISTE (PHASE 17.3 & 17.6) -->
+            <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-top: 2rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:1rem;">
+                    <h4 style="margin:0; font-size:1.1rem; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+                        <span class="material-icons" style="font-size:20px; color:var(--primary);">verified</span> Dateisystem-Berechtigungen &amp; POSIX-Audit (Phase 17.3)
+                    </h4>
+                    <span style="font-size:0.82rem; padding:4px 12px; border-radius:12px; font-weight:700; background:<?php echo ($perms_audit['overall_status'] === 'ok') ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'; ?>; color:<?php echo ($perms_audit['overall_status'] === 'ok') ? '#10b981' : '#dc2626'; ?>;">
+                        Betriebssystem: <?php echo htmlspecialchars($perms_audit['os']); ?> (<?php echo $perms_audit['is_linux'] ? 'Linux/POSIX' : 'Windows-Server'; ?>)
+                    </span>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem;">
+                    Überprüft die Dateizugriffsrechte für sensible Konfigurationsdateien, Datenspeicher und Ordner gegen unbefugtes Lesen oder Schreiben.
+                </p>
+
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:left;">
+                        <thead>
+                            <tr style="border-bottom:1px solid var(--border-color); background:rgba(0,0,0,0.02);">
+                                <th style="padding:8px 10px;">Pfad / Komponente</th>
+                                <th style="padding:8px 10px;">Typ</th>
+                                <th style="padding:8px 10px;">Status</th>
+                                <th style="padding:8px 10px;">Ist-Rechte</th>
+                                <th style="padding:8px 10px;">Empfohlen</th>
+                                <th style="padding:8px 10px;">Befund / Empfohlene Maßnahme</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($perms_audit['items'] as $item): ?>
+                                <tr style="border-bottom:1px solid var(--border-color);">
+                                    <td style="padding:8px 10px; font-family:monospace; font-weight:600;"><?php echo htmlspecialchars($item['path']); ?></td>
+                                    <td style="padding:8px 10px; color:var(--text-secondary);"><?php echo htmlspecialchars($item['type']); ?></td>
+                                    <td style="padding:8px 10px;">
+                                        <?php if ($item['status'] === 'ok'): ?>
+                                            <span style="color:#10b981; font-weight:700;">✓ Sicher</span>
+                                        <?php elseif ($item['status'] === 'warning'): ?>
+                                            <span style="color:#d97706; font-weight:700;">⚠ Prüfen</span>
+                                        <?php else: ?>
+                                            <span style="color:#dc2626; font-weight:700;">✕ Kritisch</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="padding:8px 10px; font-family:monospace;"><?php echo htmlspecialchars($item['perms']); ?></td>
+                                    <td style="padding:8px 10px; color:var(--text-secondary);"><?php echo htmlspecialchars($item['recommended']); ?></td>
+                                    <td style="padding:8px 10px;">
+                                        <span><?php echo htmlspecialchars($item['message']); ?></span>
+                                        <?php if (!empty($item['fix_cmd']) && $item['status'] !== 'ok'): ?>
+                                            <code style="display:block; margin-top:2px; font-size:0.75rem; background:rgba(0,0,0,0.05); padding:2px 6px; border-radius:4px;"><?php echo htmlspecialchars($item['fix_cmd']); ?></code>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 17.6 Live-Deployment Checkliste -->
+                <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px dashed var(--border-color);">
+                    <h5 style="margin:0 0 0.75rem 0; font-size:0.95rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size:18px; color:var(--primary);">checklist</span> Live-Deployment Checkliste &amp; Audit-Tools (Phase 17.6)
+                    </h5>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px; margin-bottom:1rem;">
+                        <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem;">
+                            <span class="material-icons" style="color:<?php echo $is_https ? '#10b981' : '#d97706'; ?>; font-size:18px;"><?php echo $is_https ? 'check_circle' : 'help'; ?></span>
+                            <span>1. Gültiges SSL-Zertifikat (HTTPS)</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem;">
+                            <span class="material-icons" style="color:<?php echo !empty($prod_sec['hsts_preload']) ? '#10b981' : '#9ca3af'; ?>; font-size:18px;"><?php echo !empty($prod_sec['hsts_preload']) ? 'check_circle' : 'radio_button_unchecked'; ?></span>
+                            <span>2. Strikte HSTS-Policy mit Preload</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem;">
+                            <span class="material-icons" style="color:<?php echo !empty($prod_sec['production_csp']) ? '#10b981' : '#9ca3af'; ?>; font-size:18px;"><?php echo !empty($prod_sec['production_csp']) ? 'check_circle' : 'radio_button_unchecked'; ?></span>
+                            <span>3. Gehärtete Content Security Policy</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem;">
+                            <span class="material-icons" style="color:<?php echo ($perms_audit['overall_status'] === 'ok') ? '#10b981' : '#d97706'; ?>; font-size:18px;"><?php echo ($perms_audit['overall_status'] === 'ok') ? 'check_circle' : 'warning'; ?></span>
+                            <span>4. Dateirechte &amp; .htaccess-Abschirmung</span>
+                        </div>
+                    </div>
+                    <?php 
+                        $curHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                    ?>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <a href="https://securityheaders.com/?q=<?php echo urlencode($curHost); ?>&followRedirects=on" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="padding:6px 12px; font-size:0.82rem; display:inline-flex; align-items:center; gap:4px;">
+                            <span class="material-icons" style="font-size:15px;">open_in_new</span> SecurityHeaders.com Testen
+                        </a>
+                        <a href="https://www.ssllabs.com/ssltest/analyze.html?d=<?php echo urlencode($curHost); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="padding:6px 12px; font-size:0.82rem; display:inline-flex; align-items:center; gap:4px;">
+                            <span class="material-icons" style="font-size:15px;">open_in_new</span> Qualys SSL Labs Analyse
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. INTEGRIERTES BACKUP- & WIEDERHERSTELLUNGSSYSTEM (PHASE 2) -->
             <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px dashed var(--border-color);">
                 <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; display:flex; align-items:center; gap:8px; color:var(--primary);">
                     <span class="material-icons" style="color:var(--primary);">save</span> Datensicherung &amp; Wiederherstellung (Backup / Restore)
