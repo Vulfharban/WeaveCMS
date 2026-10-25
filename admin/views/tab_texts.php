@@ -299,7 +299,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
 
             <?php 
                 $primary_texts = $data['texts'] ?? [];
