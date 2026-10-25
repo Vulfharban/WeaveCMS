@@ -524,6 +524,226 @@ function previewLogoFile(input) {
     reader.readAsDataURL(file);
 }
 
+/* ============================================================================
+ * Modul-Pool & Seiten-Aufbau Board (Phase 20)
+ * ============================================================================ */
+
+function switchPoolMobileTab(tab) {
+    const grid = document.getElementById('sec-pool-grid');
+    const btnActive = document.getElementById('btn-show-active');
+    const btnPool = document.getElementById('btn-show-pool');
+    if (!grid) return;
+
+    if (tab === 'active') {
+        grid.classList.remove('view-pool');
+        grid.classList.add('view-active');
+        if (btnActive) { btnActive.className = 'btn btn-primary sec-view-tab-btn active'; }
+        if (btnPool) { btnPool.className = 'btn btn-outline sec-view-tab-btn'; }
+    } else {
+        grid.classList.remove('view-active');
+        grid.classList.add('view-pool');
+        if (btnActive) { btnActive.className = 'btn btn-outline sec-view-tab-btn'; }
+        if (btnPool) { btnPool.className = 'btn btn-primary sec-view-tab-btn active'; }
+    }
+}
+
+let draggedSecCard = null;
+
+function handleSecDragStart(e) {
+    const card = e.target.closest('.sec-card');
+    if (!card) return;
+    draggedSecCard = card;
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', card.getAttribute('data-sec-id'));
+}
+
+function handleSecDragEnd(e) {
+    if (draggedSecCard) {
+        draggedSecCard.classList.remove('dragging');
+    }
+    draggedSecCard = null;
+    document.querySelectorAll('.sec-dropzone').forEach(dz => dz.classList.remove('drag-over'));
+}
+
+function handleSecDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const dropzone = e.target.closest('.sec-dropzone');
+    if (!dropzone) return;
+    dropzone.classList.add('drag-over');
+
+    // Wenn im aktiven Bereich: Dynamisch vor das nächste Element sortieren
+    if (dropzone.id === 'dropzone-active' && draggedSecCard) {
+        const afterElement = getDragAfterElement(dropzone, e.clientY);
+        if (afterElement == null) {
+            dropzone.appendChild(draggedSecCard);
+        } else {
+            dropzone.insertBefore(draggedSecCard, afterElement);
+        }
+    }
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.sec-card:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function handleSecDragLeave(e) {
+    const dropzone = e.target.closest('.sec-dropzone');
+    if (dropzone && !dropzone.contains(e.relatedTarget)) {
+        dropzone.classList.remove('drag-over');
+    }
+}
+
+function handleSecDrop(e, targetZone) {
+    e.preventDefault();
+    document.querySelectorAll('.sec-dropzone').forEach(dz => dz.classList.remove('drag-over'));
+    const dropzone = document.getElementById(targetZone === 'active' ? 'dropzone-active' : 'dropzone-pool');
+    if (!dropzone || !draggedSecCard) return;
+
+    if (targetZone === 'pool') {
+        dropzone.appendChild(draggedSecCard);
+    }
+    transformSecCardState(draggedSecCard, targetZone === 'active');
+    syncAndSavePool();
+}
+
+function activateSectionFromPool(secId) {
+    const card = document.querySelector(`.sec-card[data-sec-id="${secId}"]`);
+    const activeZone = document.getElementById('dropzone-active');
+    if (!card || !activeZone) return;
+
+    activeZone.appendChild(card);
+    transformSecCardState(card, true);
+    syncAndSavePool();
+}
+
+function deactivateSectionToPool(secId) {
+    const card = document.querySelector(`.sec-card[data-sec-id="${secId}"]`);
+    const poolZone = document.getElementById('dropzone-pool');
+    if (!card || !poolZone) return;
+
+    poolZone.appendChild(card);
+    transformSecCardState(card, false);
+    syncAndSavePool();
+}
+
+function moveActiveSectionCard(secId, direction) {
+    const card = document.querySelector(`.sec-card[data-sec-id="${secId}"]`);
+    if (!card) return;
+    const parent = card.parentElement;
+
+    if (direction === 'up') {
+        const prev = card.previousElementSibling;
+        if (prev && prev.classList.contains('sec-card')) {
+            parent.insertBefore(card, prev);
+            syncAndSavePool();
+        }
+    } else if (direction === 'down') {
+        const next = card.nextElementSibling;
+        if (next && next.classList.contains('sec-card')) {
+            parent.insertBefore(next, card);
+            syncAndSavePool();
+        }
+    }
+}
+
+function transformSecCardState(card, isActive) {
+    card.setAttribute('data-is-active', isActive ? '1' : '0');
+    const badge = card.querySelector('.sec-badge-pos');
+    const btnActivate = card.querySelector('.btn-activate-card');
+    const activeControls = card.querySelector('.sec-active-controls');
+
+    if (badge) badge.style.display = isActive ? 'inline-block' : 'none';
+    if (btnActivate) btnActivate.style.display = isActive ? 'none' : 'inline-flex';
+    if (activeControls) activeControls.style.display = isActive ? 'inline-flex' : 'none';
+}
+
+function updateAdminSubnav(activeTypes) {
+    document.querySelectorAll('.admin-subnav-link[data-sec-type]').forEach(btn => {
+        const type = btn.getAttribute('data-sec-type');
+        if (activeTypes.includes(type)) {
+            btn.style.display = 'inline-flex';
+        } else {
+            btn.style.display = 'none';
+            // Falls Redakteur gerade auf dem deaktivierten Tab stand, sicher zu tab-texts wechseln
+            if (btn.classList.contains('active')) {
+                switchTab('tab-texts');
+            }
+        }
+    });
+}
+
+function syncAndSavePool() {
+    const activeCards = Array.from(document.querySelectorAll('#dropzone-active .sec-card'));
+    const poolCards = Array.from(document.querySelectorAll('#dropzone-pool .sec-card'));
+
+    const activeIds = activeCards.map(c => c.getAttribute('data-sec-id'));
+    const inactiveIds = poolCards.map(c => c.getAttribute('data-sec-id'));
+
+    // Position-Badges aktualisieren (#1, #2, ...)
+    activeCards.forEach((c, idx) => {
+        const posEl = c.querySelector('.sec-badge-pos');
+        if (posEl) posEl.textContent = '#' + (idx + 1);
+    });
+
+    // Counts aktualisieren
+    const activeCount = activeCards.length;
+    const poolCount = poolCards.length;
+
+    const elActiveBadge = document.getElementById('active-sec-badge-count');
+    const elPoolBadge = document.getElementById('pool-sec-badge-count');
+    const elActiveLabel = document.getElementById('active-count-label');
+    const elPoolLabel = document.getElementById('pool-count-label');
+
+    if (elActiveBadge) elActiveBadge.textContent = activeCount;
+    if (elPoolBadge) elPoolBadge.textContent = poolCount;
+    if (elActiveLabel) elActiveLabel.textContent = activeCount + ' aktiv';
+    if (elPoolLabel) elPoolLabel.textContent = poolCount + ' im Pool';
+
+    // Empty states ein-/ausblenden
+    const poolEmpty = document.getElementById('pool-empty-state');
+    const activeEmpty = document.getElementById('active-empty-state');
+    if (poolEmpty) poolEmpty.style.display = (poolCount === 0) ? 'flex' : 'none';
+    if (activeEmpty) activeEmpty.style.display = (activeCount === 0) ? 'flex' : 'none';
+
+    // AJAX Speichern
+    const csrfToken = window.WEAVE_CSRF_TOKEN || (document.querySelector('input[name="csrf_token"]') ? document.querySelector('input[name="csrf_token"]').value : '');
+    const formData = new FormData();
+    formData.append('csrf_token', csrfToken);
+    formData.append('action', 'sync_sections_pool');
+    formData.append('is_ajax', '1');
+
+    activeIds.forEach(id => formData.append('active_ids[]', id));
+    inactiveIds.forEach(id => formData.append('inactive_ids[]', id));
+
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success && data.active_types) {
+            updateAdminSubnav(data.active_types);
+            if (typeof showToast === 'function') {
+                showToast(data.message || 'Seiten-Aufbau erfolgreich gespeichert!');
+            }
+        }
+    })
+    .catch(err => {
+        console.warn('Fehler beim AJAX-Speichern des Pools:', err);
+    });
+}
+
 /**
  * Initialisiert den Admin-Bereich beim Laden (liest Hash aus der URL).
  */

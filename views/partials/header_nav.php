@@ -55,11 +55,6 @@ if (class_exists('PluginManager') && PluginManager::hasAction('frontend_render_n
             SandboxManager::renderBanner('frontend');
         }
 
-        // 0. Optionale Besucher-Barrierefreiheitsleiste (Phase 16)
-        if (!empty($data['settings']['accessibility_bar_enabled'])) {
-            include __DIR__ . '/accessibility_bar.php';
-        }
-
         $contact_place = $data['settings']['contact_placement'] ?? 'both';
         $impressum_place = $data['settings']['impressum_placement'] ?? 'both';
     ?>
@@ -99,6 +94,19 @@ if (class_exists('PluginManager') && PluginManager::hasAction('frontend_render_n
                             <span class="material-icons nav-icon">policy</span>
                             <span class="nav-text"><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></span>
                         </label>
+                    <?php endif; ?>
+
+                    <?php if (!empty($data['settings']['accessibility_bar_enabled'])): ?>
+                        <div class="sidebar-a11y-controls">
+                            <button type="button" class="a11y-nav-btn a11y-theme-btn" onclick="toggleWeaveTheme()" title="Dunkelmodus" aria-label="Farbschema wechseln">
+                                <span class="a11y-theme-icon">🌙</span>
+                            </button>
+                            <div class="a11y-nav-zoom-group">
+                                <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="adjustWeaveFontSize(-5)" title="Schrift verkleinern (A-)">A-</button>
+                                <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="resetWeaveFontSize()" title="Standard-Schriftgröße (100%)">A</button>
+                                <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="adjustWeaveFontSize(5)" title="Schrift vergrößern (A+)">A+</button>
+                            </div>
+                        </div>
                     <?php endif; ?>
 
                     <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>
@@ -164,6 +172,19 @@ if (class_exists('PluginManager') && PluginManager::hasAction('frontend_render_n
                             <?php endif; ?>
                             <span><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></span>
                         </label>
+                    <?php endif; ?>
+
+                    <?php if (!empty($data['settings']['accessibility_bar_enabled'])): ?>
+                        <div class="header-a11y-controls">
+                            <button type="button" class="a11y-nav-btn a11y-theme-btn" onclick="toggleWeaveTheme()" title="Dunkelmodus" aria-label="Farbschema wechseln">
+                                <span class="a11y-theme-icon">🌙</span>
+                            </button>
+                            <div class="a11y-nav-zoom-group">
+                                <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="adjustWeaveFontSize(-5)" title="Schrift verkleinern (A-)">A-</button>
+                                <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="resetWeaveFontSize()" title="Standard-Schriftgröße (100%)">A</button>
+                                <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="adjustWeaveFontSize(5)" title="Schrift vergrößern (A+)">A+</button>
+                            </div>
+                        </div>
                     <?php endif; ?>
 
                     <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>

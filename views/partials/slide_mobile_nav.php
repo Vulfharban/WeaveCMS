@@ -51,8 +51,23 @@
                 </label>
             <?php endif; ?>
         </nav>
+        <?php if (!empty($data['settings']['accessibility_bar_enabled'])): ?>
+            <div class="mobile-a11y-controls" style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <span style="font-size:0.85rem; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:1px;"><?php echo htmlspecialchars(__('nav.appearance', 'Ansicht')); ?></span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="a11y-nav-btn a11y-theme-btn" onclick="toggleWeaveTheme()" title="Dunkelmodus" aria-label="Farbschema wechseln">
+                        <span class="a11y-theme-icon">🌙</span>
+                    </button>
+                    <div class="a11y-nav-zoom-group">
+                        <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="adjustWeaveFontSize(-5)" title="Schrift verkleinern (A-)">A-</button>
+                        <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="resetWeaveFontSize()" title="Standard-Schriftgröße (100%)">A</button>
+                        <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="adjustWeaveFontSize(5)" title="Schrift vergrößern (A+)">A+</button>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
         <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>
-            <div class="mobile-lang-switch" style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-color);">
+            <div class="mobile-lang-switch" style="<?php echo empty($data['settings']['accessibility_bar_enabled']) ? 'margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-color);' : 'margin-top:1.25rem; padding-top:1.25rem; border-top:1px dashed var(--border-color);'; ?>">
                 <span style="display:block; font-size:0.85rem; color:var(--text-secondary); margin-bottom:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:1px;"><?php echo htmlspecialchars(__('nav.language', 'Sprache')); ?></span>
                 <div style="display:flex; flex-direction:column; gap:8px;">
                     <?php foreach ($lang_switch_items as $l): ?>

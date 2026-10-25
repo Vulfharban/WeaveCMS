@@ -38,124 +38,171 @@
                 $active_langs = LanguageManager::getActiveLanguages($data);
                 $primary_lang = LanguageManager::getPrimaryLanguage($data);
                 $supported = LanguageManager::getSupportedLanguages();
+
+                $active_sections = [];
+                $pool_sections = [];
+                foreach ($all_sections as $sec) {
+                    if (!empty($sec['visible'])) {
+                        $active_sections[] = $sec;
+                    } else {
+                        $pool_sections[] = $sec;
+                    }
+                }
+
+                $render_sec_card = function($sec, $is_active, $idx) use ($type_icons, $active_langs, $primary_lang) {
+                    $sec_id = htmlspecialchars($sec['id']);
+                    $sec_type = htmlspecialchars($sec['type']);
+                    $icon = !empty($sec['icon']) ? $sec['icon'] : ($type_icons[$sec['type']] ?? 'dashboard');
+                    $title = htmlspecialchars($sec['title']);
+                    $nav_label = htmlspecialchars($sec['nav_label'] ?? $sec['title']);
+                    $desc = htmlspecialchars(SectionManager::getSectionTypeDescription($sec['type']));
+                    $target_tab = SectionManager::getTargetTab($sec['type']);
+                    $is_plugin = !empty($sec['plugin']) || in_array($sec['type'], ['webtrees', 'shop'], true);
+                    $sec_place = $sec['placement'] ?? 'both';
+                    $place_badge = [
+                        'both' => ['label' => 'Start & Unterseite', 'bg' => 'rgba(16,185,129,0.1)', 'color' => '#10b981'],
+                        'home' => ['label' => 'Nur Startseite', 'bg' => 'rgba(245,158,11,0.1)', 'color' => '#d97706'],
+                        'page' => ['label' => 'Nur Unterseite', 'bg' => 'rgba(99,102,241,0.1)', 'color' => '#6366f1']
+                    ][$sec_place] ?? ['label' => 'Standard', 'bg' => 'rgba(0,0,0,0.05)', 'color' => 'var(--text-secondary)'];
+                    $sec_json = htmlspecialchars(json_encode($sec), ENT_QUOTES, 'UTF-8');
             ?>
-            <div style="background: rgba(255, 255, 255, 0.6); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; margin-bottom: 2.5rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; flex-wrap:wrap; gap:10px;">
-                    <div>
-                        <h3 style="font-size: 1.15rem; color: var(--primary); margin:0; display:flex; align-items:center; gap:8px;">
-                            <span class="material-icons">view_stream</span> Sektionen-Manager &amp; Seiten-Aufbau
-                        </h3>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px;">
-                            Passe die Anordnung, Sichtbarkeit und den <strong>Titel fürs Menü</strong> jeder Contentart an.
-                        </p>
-                    </div>
-                </div>
-
-                <div style="display:flex; flex-direction:column; gap: 10px;">
-                    <?php foreach ($all_sections as $idx => $sec): ?>
-                        <?php 
-                            $is_vis = !empty($sec['visible']);
-                            $icon = $type_icons[$sec['type']] ?? 'dashboard';
-                            $is_plugin_sec = !empty($sec['plugin']) || in_array($sec['type'], ['webtrees', 'shop'], true);
-                        ?>
-                        <div style="display:flex; align-items:center; justify-content:space-between; background: #ffffff; border: 1px solid <?php echo $is_vis ? 'var(--border-color)' : 'rgba(239,68,68,0.2)'; ?>; border-radius: 12px; padding: 10px 16px; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.02); <?php if (!$is_vis) echo 'opacity: 0.65;'; ?>">
-                            <div style="display:flex; align-items:center; gap: 14px;">
-                                <span style="font-weight:700; color:var(--text-secondary); font-size:0.85rem; width:20px; text-align:center;">#<?php echo ($idx + 1); ?></span>
-                                <span class="material-icons" style="color:var(--primary); font-size:20px;"><?php echo $icon; ?></span>
-                                <div>
-                                    <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                        <?php 
-                                            $disp_icon = !empty($sec['icon']) ? $sec['icon'] : SectionManager::getDefaultIcon($sec['type'] ?? $sec['id']);
-                                        ?>
-                                        <span class="material-icons" style="font-size:18px; color:var(--primary); vertical-align:middle;" title="Icon: <?php echo htmlspecialchars($disp_icon); ?>"><?php echo htmlspecialchars($disp_icon); ?></span>
-                                        <span><?php echo htmlspecialchars($sec['title']); ?></span>
-                                        <?php if ($is_plugin_sec): ?>
-                                            <span style="font-size:0.7rem; font-weight:700; color:#059669; background:rgba(5,150,105,0.1); padding:2px 8px; border-radius:999px;">
-                                                Plugin
-                                            </span>
-                                        <?php endif; ?>
-                                        <?php if (!empty($sec['in_nav'])): ?>
-                                            <span style="font-size:0.7rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:2px 8px; border-radius:999px;">
-                                                Menü: <strong><?php echo htmlspecialchars($sec['nav_label']); ?></strong>
-                                            </span>
-                                        <?php else: ?>
-                                            <span style="font-size:0.7rem; color:var(--text-secondary); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:999px;">
-                                                Kein Menü-Link
-                                            </span>
-                                        <?php endif; ?>
-                                        <?php 
-                                            $sec_place = $sec['placement'] ?? 'both';
-                                            $place_badge = [
-                                                'both' => ['label' => 'Startseite & Einzelseite', 'bg' => 'rgba(16,185,129,0.1)', 'color' => '#10b981'],
-                                                'home' => ['label' => 'Nur Startseite', 'bg' => 'rgba(245,158,11,0.1)', 'color' => '#d97706'],
-                                                'page' => ['label' => 'Nur Unterseite', 'bg' => 'rgba(99,102,241,0.1)', 'color' => '#6366f1']
-                                            ][$sec_place] ?? ['label' => 'Standard', 'bg' => 'rgba(0,0,0,0.05)', 'color' => 'var(--text-secondary)'];
-                                        ?>
-                                        <span style="font-size:0.7rem; font-weight:600; color:<?php echo $place_badge['color']; ?>; background:<?php echo $place_badge['bg']; ?>; padding:2px 8px; border-radius:999px;">
-                                            <?php echo htmlspecialchars($place_badge['label']); ?>
+                <div class="sec-card" 
+                     id="sec-card-<?php echo $sec_id; ?>" 
+                     data-sec-id="<?php echo $sec_id; ?>" 
+                     data-sec-type="<?php echo $sec_type; ?>" 
+                     data-is-active="<?php echo $is_active ? '1' : '0'; ?>"
+                     draggable="true" 
+                     ondragstart="handleSecDragStart(event)" 
+                     ondragend="handleSecDragEnd(event)">
+                    <div class="sec-card-header">
+                        <div class="sec-card-left">
+                            <span class="material-icons sec-drag-handle" title="Gedrückt halten &amp; ziehen">drag_indicator</span>
+                            <span class="sec-badge-pos" style="font-weight:700; color:var(--text-secondary); font-size:0.82rem; min-width:20px; <?php if (!$is_active) echo 'display:none;'; ?>">#<?php echo ($idx + 1); ?></span>
+                            <span class="material-icons" style="color:var(--primary); font-size:22px; flex-shrink:0;"><?php echo htmlspecialchars($icon); ?></span>
+                            <div style="min-width:0; flex:1;">
+                                <div class="sec-card-title">
+                                    <span><?php echo $title; ?></span>
+                                    <?php if ($is_plugin): ?>
+                                        <span style="font-size:0.68rem; font-weight:700; color:#059669; background:rgba(5,150,105,0.1); padding:1px 6px; border-radius:999px;">Plugin</span>
+                                    <?php endif; ?>
+                                    <?php if (!empty($sec['in_nav'])): ?>
+                                        <span style="font-size:0.68rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:1px 6px; border-radius:999px;">
+                                            Menü: <?php echo $nav_label; ?>
                                         </span>
-                                    </div>
-                                    <div style="font-size:0.8rem; color:var(--text-secondary);">
-                                        Typ: <code style="font-family:monospace;"><?php echo htmlspecialchars($sec['type']); ?></code>
-                                        <?php if (count($active_langs) > 1): ?>
-                                            &bull; Übersetzungen:
-                                            <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
-                                                <?php $has_t = !empty($sec['translations'][$al]['nav_label']); ?>
-                                                <span style="font-size:0.72rem; color:<?php echo $has_t ? '#10b981' : 'var(--text-secondary)'; ?>; margin-left:4px;">
-                                                    <?php echo strtoupper($al) . ($has_t ? ' (✓)' : ''); ?>
-                                                </span>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </div>
+                                    <?php endif; ?>
+                                    <span style="font-size:0.68rem; font-weight:600; color:<?php echo $place_badge['color']; ?>; background:<?php echo $place_badge['bg']; ?>; padding:1px 6px; border-radius:999px;">
+                                        <?php echo htmlspecialchars($place_badge['label']); ?>
+                                    </span>
                                 </div>
-                            </div>
-
-                            <div style="display:flex; align-items:center; gap: 8px;">
-                                <!-- Bearbeiten Button -->
-                                <button type="button" class="btn btn-outline" onclick="openSectionEditor(<?php echo htmlspecialchars(json_encode($sec), ENT_QUOTES, 'UTF-8'); ?>)" style="padding: 5px 10px; font-size: 0.8rem; display:inline-flex; align-items:center; gap:4px;" title="Titel &amp; Menü-Beschriftung bearbeiten">
-                                    <span class="material-icons" style="font-size:16px;">edit</span>
-                                    <span>Bearbeiten</span>
-                                </button>
-
-                                <!-- Sichtbarkeit Toggle Form -->
-                                <form method="POST" action="" style="display:inline; margin:0;">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                                    <input type="hidden" name="action" value="toggle_section_visibility">
-                                    <input type="hidden" name="target_tab" value="tab-texts">
-                                    <input type="hidden" name="section_id" value="<?php echo htmlspecialchars($sec['id']); ?>">
-                                    <button type="submit" class="btn btn-outline" style="padding: 5px 12px; font-size: 0.8rem; display:inline-flex; align-items:center; gap:5px; <?php echo $is_vis ? 'color:#34d399; border-color:#34d399;' : 'color:var(--text-secondary);'; ?>" title="<?php echo $is_vis ? 'Sektion verbergen' : 'Sektion einblenden'; ?>">
-                                        <span class="material-icons" style="font-size:16px;"><?php echo $is_vis ? 'visibility' : 'visibility_off'; ?></span>
-                                        <?php echo $is_vis ? 'Sichtbar' : 'Ausgeblendet'; ?>
-                                    </button>
-                                </form>
-
-                                <!-- Nach oben -->
-                                <form method="POST" action="" style="display:inline; margin:0;">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                                    <input type="hidden" name="action" value="move_section">
-                                    <input type="hidden" name="target_tab" value="tab-texts">
-                                    <input type="hidden" name="section_id" value="<?php echo htmlspecialchars($sec['id']); ?>">
-                                    <input type="hidden" name="direction" value="up">
-                                    <button type="submit" class="btn btn-outline" style="padding: 5px 8px; font-size:0.8rem;" <?php if ($idx === 0) echo 'disabled style="opacity:0.3; cursor:not-allowed;"'; ?> title="Nach oben verschieben">
-                                        <span class="material-icons" style="font-size:16px;">arrow_upward</span>
-                                    </button>
-                                </form>
-
-                                <!-- Nach unten -->
-                                <form method="POST" action="" style="display:inline; margin:0;">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                                    <input type="hidden" name="action" value="move_section">
-                                    <input type="hidden" name="target_tab" value="tab-texts">
-                                    <input type="hidden" name="section_id" value="<?php echo htmlspecialchars($sec['id']); ?>">
-                                    <input type="hidden" name="direction" value="down">
-                                    <button type="submit" class="btn btn-outline" style="padding: 5px 8px; font-size:0.8rem;" <?php if ($idx === $sec_count - 1) echo 'disabled style="opacity:0.3; cursor:not-allowed;"'; ?> title="Nach unten verschieben">
-                                        <span class="material-icons" style="font-size:16px;">arrow_downward</span>
-                                    </button>
-                                </form>
+                                <div class="sec-card-desc"><?php echo $desc; ?></div>
                             </div>
                         </div>
-                    <?php endforeach; ?>
+
+                        <div class="sec-card-actions">
+                            <!-- Schnell-Button für Inaktiv (Pool) -->
+                            <button type="button" class="sec-card-btn btn-activate btn-activate-card" onclick="activateSectionFromPool('<?php echo $sec_id; ?>')" title="Aktivieren &amp; auf Website einbinden" style="<?php if ($is_active) echo 'display:none;'; ?>">
+                                <span class="material-icons" style="font-size:15px;">add_circle_outline</span>
+                                <span>Aktivieren</span>
+                            </button>
+
+                            <!-- Steuerung für Aktive Sektionen -->
+                            <div class="sec-active-controls" style="display:<?php echo $is_active ? 'inline-flex' : 'none'; ?>; align-items:center; gap:4px;">
+                                <!-- Pfeil hoch -->
+                                <button type="button" class="sec-card-btn" onclick="moveActiveSectionCard('<?php echo $sec_id; ?>', 'up')" title="Nach oben verschieben">
+                                    <span class="material-icons" style="font-size:15px;">arrow_upward</span>
+                                </button>
+                                <!-- Pfeil runter -->
+                                <button type="button" class="sec-card-btn" onclick="moveActiveSectionCard('<?php echo $sec_id; ?>', 'down')" title="Nach unten verschieben">
+                                    <span class="material-icons" style="font-size:15px;">arrow_downward</span>
+                                </button>
+                                <!-- Einstellungen -->
+                                <button type="button" class="sec-card-btn" onclick="openSectionEditor(<?php echo $sec_json; ?>)" title="Titel &amp; Einstellungen anpassen">
+                                    <span class="material-icons" style="font-size:15px;">settings</span>
+                                </button>
+                                <!-- Direktsprung zu Inhalten falls Subtab existiert -->
+                                <?php if ($target_tab && $target_tab !== 'tab-texts'): ?>
+                                    <button type="button" class="sec-card-btn" onclick="switchTab('<?php echo $target_tab; ?>')" title="Inhalte verwalten">
+                                        <span class="material-icons" style="font-size:15px;">edit_note</span>
+                                    </button>
+                                <?php endif; ?>
+                                <!-- Deaktivieren / In Pool ablegen -->
+                                <button type="button" class="sec-card-btn btn-deactivate" onclick="deactivateSectionToPool('<?php echo $sec_id; ?>')" title="Deaktivieren &amp; in Pool ablegen">
+                                    <span class="material-icons" style="font-size:15px;">remove_circle_outline</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            <?php }; ?>
+
+            <div class="sec-pool-container">
+                <script>
+                    window.WEAVE_CSRF_TOKEN = <?php echo json_encode($csrf_token); ?>;
+                </script>
+
+                <!-- Responsive Switcher für Tablets & Smartphones (<= 900px) -->
+                <div class="sec-pool-mobile-switch">
+                    <button type="button" class="btn btn-primary sec-view-tab-btn active" id="btn-show-active" onclick="switchPoolMobileTab('active')">
+                        <span class="material-icons" style="font-size:16px;">view_stream</span> Aktive Sektionen (<span id="active-sec-badge-count"><?php echo count($active_sections); ?></span>)
+                    </button>
+                    <button type="button" class="btn btn-outline sec-view-tab-btn" id="btn-show-pool" onclick="switchPoolMobileTab('pool')">
+                        <span class="material-icons" style="font-size:16px;">widgets</span> Modul-Pool (<span id="pool-sec-badge-count"><?php echo count($pool_sections); ?></span>)
+                    </button>
+                </div>
+
+                <!-- 2-Spalten Modul-Board (Desktop: nebeneinander, Mobil/Tablet: umschaltbar) -->
+                <div class="sec-pool-grid view-active" id="sec-pool-grid">
+                    <!-- 1. SPALTE: VERFÜGBARER MODUL-POOL (INAKTIV) -->
+                    <div class="sec-pool-col sec-col-pool" id="sec-col-pool">
+                        <div class="sec-col-header">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span class="material-icons" style="color:var(--primary); font-size:20px;">widgets</span>
+                                <h3 style="margin:0; font-size:1.05rem; color:var(--text-primary);">Modul-Pool (Inaktiv)</h3>
+                            </div>
+                            <span class="sec-count-badge" id="pool-count-label"><?php echo count($pool_sections); ?> im Pool</span>
+                        </div>
+                        <p class="sec-col-desc">
+                            Nicht genutzte Seitenkategorien. Ziehe sie nach rechts oder tippe auf <strong>+ Aktivieren</strong>.
+                        </p>
+                        
+                        <div class="sec-dropzone" id="dropzone-pool" ondragover="handleSecDragOver(event)" ondragleave="handleSecDragLeave(event)" ondrop="handleSecDrop(event, 'pool')">
+                            <?php foreach ($pool_sections as $idx => $sec): ?>
+                                <?php $render_sec_card($sec, false, $idx); ?>
+                            <?php endforeach; ?>
+
+                            <div class="sec-empty-state" id="pool-empty-state" style="<?php echo empty($pool_sections) ? 'display:flex;' : 'display:none;'; ?>">
+                                <span class="material-icons" style="font-size:28px; opacity:0.4;">inventory_2</span>
+                                <span>Alle Module sind aktuell aktiv auf deiner Website eingebunden.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. SPALTE: AKTIVE WEBSITE-INHALTE (LIVE) -->
+                    <div class="sec-pool-col sec-col-active" id="sec-col-active">
+                        <div class="sec-col-header">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span class="material-icons" style="color:#10b981; font-size:20px;">check_circle</span>
+                                <h3 style="margin:0; font-size:1.05rem; color:var(--text-primary);">Aktive Seiten &amp; Sektionen (Live)</h3>
+                            </div>
+                            <span class="sec-count-badge active" id="active-count-label"><?php echo count($active_sections); ?> aktiv</span>
+                        </div>
+                        <p class="sec-col-desc">
+                            Reihenfolge auf Startseite &amp; Menü. Ziehe Module nach oben/unten oder zurück in den Pool.
+                        </p>
+
+                        <div class="sec-dropzone" id="dropzone-active" ondragover="handleSecDragOver(event)" ondragleave="handleSecDragLeave(event)" ondrop="handleSecDrop(event, 'active')">
+                            <?php foreach ($active_sections as $idx => $sec): ?>
+                                <?php $render_sec_card($sec, true, $idx); ?>
+                            <?php endforeach; ?>
+
+                            <div class="sec-empty-state" id="active-empty-state" style="<?php echo empty($active_sections) ? 'display:flex;' : 'display:none;'; ?>">
+                                <span class="material-icons" style="font-size:28px; opacity:0.4;">playlist_add</span>
+                                <span>Keine aktiven Module. Ziehe Kategorien aus dem Pool hierher.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
                 <!-- ──────────────── SEKTIONS- & MENÜTITEL-EDITOR ──────────────── -->
                 <div id="section-editor-box" style="display:none; scroll-margin-top: 150px; background:#ffffff; border:2px solid var(--primary); border-radius:16px; padding:2rem; margin-top:1.5rem; box-shadow:0 12px 36px rgba(0,0,0,0.08); animation:fadeInTab 0.25s ease;">

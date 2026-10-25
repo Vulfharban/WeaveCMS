@@ -43,6 +43,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **3 Menüstile & Position-Selector (Phase 19)** | Wählbar unter *Darstellung & Design*: `Waagerecht Minimal` (Standard), `Waagerecht mit Icons` und `Senkrecht / Sidebar` (wahlweise links oder rechts fixiert mit responsiver Mobilansicht <= 992px). | ✅ Integriert (v0.9.7) |
 | **Icon- & Symbol-Zuweisung für Menüpunkte (Phase 19)** | Automatisches Fallback auf Standard-Material-Icons (`photo_library`, `event`, `newspaper`, etc.) sowie individuelles Icon-Feld im Sektionen- und Seiteneditor. | ✅ Integriert (v0.9.7) |
 | **Plugin-Theme- & Navigations-Hooks (Phase 19)** | Filter-Hooks `theme_register_menu_types` und `theme_register_layouts` sowie Action-Hook `frontend_render_navigation` zum Überschreiben der Navigation durch Erweiterungen. | ✅ Integriert (v0.9.7) |
+| **In-Navbar Barrierefreiheit (Phase 20)** | Nahtlose Integration von Dark/Light-Icon (🌙/☀️ mit Tooltip) und Schriftgrößen-Zoom (A-/A/A+) direkt in die Hauptnavigation & den Mobil-Drawer ohne doppelte Sprachauswahl oder störende Top-Bar. | ✅ Integriert (v1.0.0) |
 
 ---
 
@@ -70,6 +71,9 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Intelligente Routing- & Menü-Engine** | Vollautomatische Navigation: Anker-Links (`#sektion`) für Sektionen der aktuellen Seite, direkte Seitenlinks (`?page=slug`) für ausgelagerte Einzelseiten, sprachbewusster Logo-Home-Link. | ✅ Integriert (Phase 18) |
 | **Webtrees Stammbaum-Sektion im Sektionen-Manager** | Nahtlose Steuerung der Stammbaum-Sektion über den zentralen Sektionen-Manager (Verschieben, Ein-/Ausblenden und automatische Menü-Synchronisation). | ✅ Integriert (v0.9.5) |
 | **Inhalte-Hub im Backend** | Übersichtliche Sub-Navigation (`.admin-subnav`) unter „Inhalte & Seiten“ für alle Content-Bereiche. | ✅ Integriert (v0.8.0) |
+| **Modul-Pool & Seiten-Aufbau Board (Phase 20)** | Interaktives 2-Zonen Drag & Drop Board (Modul-Pool für inaktive Kategorien vs. Aktive Sektionen) zur intuitiven Strukturierung der Website-Architektur. | ✅ Integriert (v1.0.0) |
+| **Dynamische Inhalts-Subnavigation (Phase 20)** | Backend-Subreiter unter „Inhalte & Seiten“ werden dynamisch gefiltert und erscheinen nur bei aktiven Kategorien. | ✅ Integriert (v1.0.0) |
+| **Responsive Touch-Switcher für Board (Phase 20)** | Optimierte Mobile- & Tablet-Bedienung (<= 900px) mit Schnell-Umschaltung (`view-active` / `view-pool`) und 1-Tap-Aktionen (+ Aktivieren, Verschieben, Settings). | ✅ Integriert (v1.0.0) |
 
 ---
 
@@ -157,7 +161,19 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ## 📈 Release-Historie & Meilensteine
 
-### v0.9.7 (Aktueller Entwicklungsstand)
+### v1.0.0 (Offizielles Release 1.0.0 / Phase 20)
+* **In-Navbar Barrierefreiheit & UX-Bereinigung:**
+  * **Direkte Menü-Integration:** Dunkel-/Hell-Modus-Umschalter (🌙/☀️ mit dynamischem Tooltip) und 3-stufiger Basisschriftarten-Zoom (A- / A / A+) nahtlos in die Kopfzeilennavigation (`header_nav.php`) und den mobilen Slide-in-Drawer (`slide_mobile_nav.php`) integriert.
+  * **Beseitigung von Redundanzen:** Wegfall der separaten 38px-Top-Bar (`accessibility_bar.php`) und Beseitigung doppelter Sprachwechsler bei aktivierter Barrierefreiheit.
+  * **Optimaler Seitenfluss:** Kein störender vertikaler Layout-Shift oder Header-Versatz im Frontend.
+* **Modul-Pool, Drag & Drop Seiten-Aufbau & Dynamische Subnavigation:**
+  * **Interaktiver Modul-Pool & 2-Zonen Board:** Trennung in inaktive Kategorien („Modul-Pool“) und aktive Sektionen („Aktive Sektionen / Seiten-Aufbau“) mit visueller Indikation von Typ, Icon und Beschreibung im Administrationsbereich (`tab_texts.php`).
+  * **Drag & Drop Sortierung:** Intuitives Hineinziehen inaktiver Module in die aktive Seitenstruktur sowie freie Umsortierung per Drag & Drop mit HTML5 Drag-API und visueller Drop-Zone.
+  * **Dynamische Admin-Subnavigation:** Die Sub-Reiter unter *„Inhalte & Seiten“* (`.admin-subnav` für Galerie, Blog, Kurse, FAQs, Team, Preise, Downloads, Stammbaum) passen sich automatisch in Echtzeit an – inaktive Module werden aus der Navigationsleiste ausgeblendet.
+  * **Mobile & Tablet Optimierung (<= 900px):** Responsive 2-Phasen-Umschaltung (*Aktive Sektionen* vs. *Modul-Pool*) für Touchscreens mit 1-Tap-Aktivierung (`+ Aktivieren`), Positionsverschiebung (`▲` / `▼`), Quick-Settings (`⚙️`), Content-Sprung (`📝`) und Zurücklegen in den Pool (`✕`).
+  * **Asynchrone AJAX-Synchronisation:** Blitzschnelles Speichern von Reihenfolge und Modul-Sichtbarkeit ohne Seiten-Reload (`AdminController::sync_sections_pool`) inklusive animiertem Toast-Feedback.
+
+### v0.9.7
 * **Menü-Aufbau, Position-Selector im Design-Bereich & Plugin-Theme-Erweiterbarkeit (Phase 19):**
   * **Menü-Position & Typ-Selector im Design-Tab (19.1):**
     * Konfigurationsfeld im Adminbereich unter *„Darstellung & Design“* (`tab_settings.php`) mit interaktiven Kacheln:

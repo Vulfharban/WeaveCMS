@@ -518,6 +518,107 @@ class SectionManager {
     }
 
     /**
+     * Synchronisiert den Sektions-Pool (Aktiv vs. Inaktiv) und die Reihenfolge.
+     * @param array $data
+     * @param array $activeIds
+     * @param array $inactiveIds
+     * @return bool
+     */
+    public static function syncPoolAndOrder(array &$data, array $activeIds, array $inactiveIds = []): bool {
+        self::ensureSections($data);
+        $indexed = [];
+        foreach ($data['sections'] as $sec) {
+            $indexed[$sec['id']] = $sec;
+        }
+
+        $newSections = [];
+        // 1. Zuerst alle aktiven Sektionen in der übergebenen Reihenfolge
+        foreach ($activeIds as $id) {
+            if (isset($indexed[$id])) {
+                $indexed[$id]['visible'] = true;
+                if (!empty($indexed[$id]['plugin']) && isset($data['plugins']['configs'][$indexed[$id]['plugin']])) {
+                    $data['plugins']['configs'][$indexed[$id]['plugin']]['section_enabled'] = true;
+                } elseif ($id === 'webtrees' && isset($data['plugins']['configs']['webtrees-genealogy'])) {
+                    $data['plugins']['configs']['webtrees-genealogy']['section_enabled'] = true;
+                } elseif ($id === 'shop' && isset($data['plugins']['configs']['shop'])) {
+                    $data['plugins']['configs']['shop']['section_enabled'] = true;
+                }
+                $newSections[] = $indexed[$id];
+                unset($indexed[$id]);
+            }
+        }
+
+        // 2. Dann die inaktiven Sektionen im Pool
+        foreach ($inactiveIds as $id) {
+            if (isset($indexed[$id])) {
+                $indexed[$id]['visible'] = false;
+                if (!empty($indexed[$id]['plugin']) && isset($data['plugins']['configs'][$indexed[$id]['plugin']])) {
+                    $data['plugins']['configs'][$indexed[$id]['plugin']]['section_enabled'] = false;
+                } elseif ($id === 'webtrees' && isset($data['plugins']['configs']['webtrees-genealogy'])) {
+                    $data['plugins']['configs']['webtrees-genealogy']['section_enabled'] = false;
+                } elseif ($id === 'shop' && isset($data['plugins']['configs']['shop'])) {
+                    $data['plugins']['configs']['shop']['section_enabled'] = false;
+                }
+                $newSections[] = $indexed[$id];
+                unset($indexed[$id]);
+            }
+        }
+
+        // 3. Etwaige übrige Sektionen hinten anfügen
+        foreach ($indexed as $sec) {
+            $newSections[] = $sec;
+        }
+
+        $data['sections'] = $newSections;
+        return true;
+    }
+
+    /**
+     * Liefert eine kurze Beschreibung für eine Sektion bzw. Kategorie im Modul-Pool.
+     * @param string $typeOrId
+     * @return string
+     */
+    public static function getSectionTypeDescription(string $typeOrId): string {
+        $desc = [
+            'hero' => 'Startseiten-Header mit großer Überschrift, Untertitel und Buttons.',
+            'gallery' => 'Foto-Galerie & Portfolio mit Kategoriefilter und Lightbox-Zoom.',
+            'courses' => 'Workshops & Termine mit Buchungsanfrage und Kursdetails.',
+            'past_courses' => 'Foto-Rückblicke & Impressionen vergangener Kurse.',
+            'blog' => 'Aktuelles & Blog mit Artikeln, Suchfunktion und Kategorien.',
+            'pricing' => 'Leistungen, Paketpreise und übersichtliche Tarif-Karten.',
+            'faq' => 'Häufig gestellte Fragen in interaktiven Akkordeon-Boxen.',
+            'team' => 'Vorstellung von Team-Mitgliedern mit Fotos und Kontaktdaten.',
+            'downloads' => 'Dokumente, Broschüren und PDF-Downloads mit Dateigröße.',
+            'about' => 'Über-mich-Bereich mit Atelier-Vorstellung und Biografie.',
+            'custom_text' => 'Freier Textabschnitt mit formatiertem Markdown-Inhalt.',
+            'webtrees' => 'Genealogie & Ahnenforschung (Webtrees Stammbaum-Integration).',
+            'shop' => 'Produktkatalog und Bestellsystem für Handwerk & Waren.'
+        ];
+        return $desc[$typeOrId] ?? 'Modulares Inhalts-Element für deine Website.';
+    }
+
+    /**
+     * Liefert die ID des zuständigen Admin-Tabs für Inhalte dieser Sektion.
+     * @param string $typeOrId
+     * @return string|null
+     */
+    public static function getTargetTab(string $typeOrId): ?string {
+        $map = [
+            'hero' => 'tab-texts',
+            'about' => 'tab-texts',
+            'gallery' => 'tab-gallery',
+            'courses' => 'tab-courses',
+            'past_courses' => 'tab-past',
+            'blog' => 'tab-blog',
+            'pricing' => 'tab-pricing',
+            'faq' => 'tab-faqs',
+            'team' => 'tab-team',
+            'downloads' => 'tab-downloads'
+        ];
+        return $map[$typeOrId] ?? null;
+    }
+
+    /**
      * Toggelt die Sichtbarkeit einer Sektion.
      * @param array $data
      * @param string $id

@@ -76,37 +76,46 @@
             <?php endif; ?>
         </div>
 
-        <!-- Sub-Navigation für Inhalte & Seiten -->
+        <?php
+            $nav_sections = SectionManager::ensureSections($data);
+            $active_sec_types = [];
+            foreach ($nav_sections as $ns) {
+                if (!empty($ns['visible'])) {
+                    $active_sec_types[] = $ns['type'] ?? $ns['id'];
+                }
+            }
+        ?>
+        <!-- Sub-Navigation für Inhalte & Seiten (dynamisch gefiltert nach aktiven Modulen) -->
         <div class="admin-subnav" id="admin-content-subnav" style="display:none;">
             <span class="admin-subnav-label"><span class="material-icons" style="font-size:16px;">tune</span> Bereich:</span>
             <button class="admin-subnav-link active" onclick="switchTab('tab-texts')">
-                <span class="material-icons" style="font-size:17px;">edit_note</span> Startseite &amp; Sektionen
+                <span class="material-icons" style="font-size:17px;">dashboard_customize</span> Startseite &amp; Modul-Pool
             </button>
             <button class="admin-subnav-link" onclick="switchTab('tab-pages')">
                 <span class="material-icons" style="font-size:17px;">article</span> Einzelseiten
             </button>
-            <button class="admin-subnav-link" onclick="switchTab('tab-blog')">
+            <button class="admin-subnav-link" data-sec-type="blog" onclick="switchTab('tab-blog')" style="<?php echo in_array('blog', $active_sec_types, true) ? '' : 'display:none;'; ?>">
                 <span class="material-icons" style="font-size:17px;">newspaper</span> Blog &amp; Aktuelles
             </button>
-            <button class="admin-subnav-link" onclick="switchTab('tab-faqs')">
+            <button class="admin-subnav-link" data-sec-type="faq" onclick="switchTab('tab-faqs')" style="<?php echo in_array('faq', $active_sec_types, true) ? '' : 'display:none;'; ?>">
                 <span class="material-icons" style="font-size:17px;">quiz</span> FAQs
             </button>
-            <button class="admin-subnav-link" onclick="switchTab('tab-team')">
+            <button class="admin-subnav-link" data-sec-type="team" onclick="switchTab('tab-team')" style="<?php echo in_array('team', $active_sec_types, true) ? '' : 'display:none;'; ?>">
                 <span class="material-icons" style="font-size:17px;">badge</span> Team
             </button>
-            <button class="admin-subnav-link" onclick="switchTab('tab-pricing')">
+            <button class="admin-subnav-link" data-sec-type="pricing" onclick="switchTab('tab-pricing')" style="<?php echo in_array('pricing', $active_sec_types, true) ? '' : 'display:none;'; ?>">
                 <span class="material-icons" style="font-size:17px;">sell</span> Preise &amp; Pakete
             </button>
-            <button class="admin-subnav-link" onclick="switchTab('tab-downloads')">
+            <button class="admin-subnav-link" data-sec-type="downloads" onclick="switchTab('tab-downloads')" style="<?php echo in_array('downloads', $active_sec_types, true) ? '' : 'display:none;'; ?>">
                 <span class="material-icons" style="font-size:17px;">folder_zip</span> Downloads
             </button>
-            <button class="admin-subnav-link" onclick="switchTab('tab-gallery')">
+            <button class="admin-subnav-link" data-sec-type="gallery" onclick="switchTab('tab-gallery')" style="<?php echo in_array('gallery', $active_sec_types, true) ? '' : 'display:none;'; ?>">
                 <span class="material-icons" style="font-size:17px;">photo_library</span> Galerie &amp; Werkstücke
             </button>
-            <button class="admin-subnav-link" onclick="switchTab('tab-courses')">
+            <button class="admin-subnav-link" data-sec-type="courses" onclick="switchTab('tab-courses')" style="<?php echo in_array('courses', $active_sec_types, true) ? '' : 'display:none;'; ?>">
                 <span class="material-icons" style="font-size:17px;">event</span> Workshops &amp; Kurse
             </button>
-            <button class="admin-subnav-link" onclick="switchTab('tab-past')">
+            <button class="admin-subnav-link" data-sec-type="past_courses" onclick="switchTab('tab-past')" style="<?php echo in_array('past_courses', $active_sec_types, true) ? '' : 'display:none;'; ?>">
                 <span class="material-icons" style="font-size:17px;">photo_camera</span> Kursimpressionen
             </button>
             <button class="admin-subnav-link" onclick="switchTab('tab-impressum')">

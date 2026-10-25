@@ -751,6 +751,9 @@ function initFrontendListeners() {
             }, 300);
         }
     }
+
+    // Live-Theme Buttons initialisieren
+    updateA11yThemeButtons();
 }
 
 /**
@@ -887,6 +890,54 @@ function verifyImpressumCaptcha() {
                 feedback.style.display = 'block';
             }
         });
+}
+
+/**
+ * ============================================================================
+ * Live-Theme & Barrierefreiheits-Steuerung (Frontend)
+ * ============================================================================
+ */
+function toggleWeaveTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const target = isDark ? 'light' : 'dark';
+    if (target === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('weave_user_theme', 'dark');
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('weave_user_theme', 'light');
+    }
+    updateA11yThemeButtons();
+}
+
+function updateA11yThemeButtons() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const iconChar = isDark ? '☀️' : '🌙';
+    const labelTitle = isDark ? 'Hellmodus' : 'Dunkelmodus';
+
+    document.querySelectorAll('.a11y-theme-icon').forEach(function(el) {
+        el.textContent = iconChar;
+    });
+    document.querySelectorAll('.a11y-theme-btn').forEach(function(btn) {
+        btn.setAttribute('title', labelTitle);
+        btn.setAttribute('aria-label', labelTitle);
+    });
+}
+
+let currentZoomPercent = parseInt(localStorage.getItem('weave_user_zoom') || '100', 10);
+
+function applyWeaveFontSize(percent) {
+    currentZoomPercent = Math.max(85, Math.min(125, percent));
+    document.documentElement.style.fontSize = currentZoomPercent + '%';
+    localStorage.setItem('weave_user_zoom', currentZoomPercent.toString());
+}
+
+function adjustWeaveFontSize(delta) {
+    applyWeaveFontSize(currentZoomPercent + delta);
+}
+
+function resetWeaveFontSize() {
+    applyWeaveFontSize(100);
 }
 
 // Event-Listener beim Laden des DOMs ausführen
