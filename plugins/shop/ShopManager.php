@@ -240,6 +240,9 @@ class ShopManager {
             PluginManager::doAction('shop_order_created', $newOrder);
         }
 
+        // Automatische Bestellbestätigungs-E-Mails an Kunde & Shop-Betreiber senden
+        self::sendOrderConfirmationEmails($newOrder);
+
         return $newOrder;
     }
 
@@ -376,6 +379,8 @@ class ShopManager {
                 return self::processPayPal($total, $details, $shopConfig);
             case 'wero':
                 return self::processWero($total, $details, $shopConfig);
+            case 'bank_transfer':
+                return self::processBankTransfer($total, $details, $shopConfig);
             default:
                 return [
                     'success' => false,
@@ -533,6 +538,255 @@ class ShopManager {
 
         return implode("\n", $lines);
     }
+
+    /**
+     * 4. Vorkasse / Banküberweisung
+     */
+    public static function processBankTransfer(float $total, array $details, array $config): array {
+        $btConfig = $config['payment_bank_transfer'] ?? [];
+        if (empty($btConfig['enabled'])) {
+            return ['success' => false, 'message' => 'Zahlung per Vorkasse / Banküberweisung ist derzeit nicht aktiviert.'];
+        }
+
+        $bankName = trim($btConfig['bank_name'] ?? '');
+        $holder   = trim($btConfig['account_holder'] ?? ($config['payment_wero']['merchant_name'] ?? 'WeaveCMS Shop'));
+        $iban     = trim($btConfig['iban'] ?? ($config['payment_wero']['iban'] ?? ''));
+        $bic      = trim($btConfig['bic'] ?? ($config['payment_wero']['bic'] ?? ''));
+        $note     = trim($btConfig['instruction'] ?? 'Bitte überweise den Gesamtbetrag unter Angabe deiner Bestellnummer auf unser Bankkonto.');
+        $ref      = 'VORKASSE-' . strtoupper(bin2hex(random_bytes(5)));
+
+        return [
+            'success'        => true,
+            'payment_method' => 'bank_transfer',
+            'payment_ref'    => $ref,
+            'amount'         => $total,
+            'status'         => 'pending',
+            'bank_details'   => [
+                'account_holder' => $holder,
+                'bank_name'      => $bankName,
+                'iban'           => $iban,
+                'bic'            => $bic,
+                'instruction'    => $note
+            ],
+            'message'        => 'Bestellung erfolgreich aufgegeben! Bitte überweise den Rechnungsbetrag auf unser Bankkonto.'
+        ];
+    }
+
+    /**
+     * Versendet Bestellbestätigungs-E-Mails an den Kunden und den Shop-Betreiber.
+     * @param array $order
+     * @return array ['customer' => bool, 'admin' => bool]
+     */
+    public static function sendOrderConfirmationEmails(array $order): array {
+        $result = ['customer' => false, 'admin' => false];
+
+        $mailerFile = dirname(__DIR__, 2) . '/libs/php/Mailer.php';
+        if (!file_exists($mailerFile)) {
+            return $result;
+        }
+        require_once $mailerFile;
+
+        // Globale CMS-Daten für SMTP & Kontaktdaten laden
+        $dataFile = dirname(__DIR__, 2) . '/data.json';
+        $data = file_exists($dataFile) ? (json_decode((string)@file_get_contents($dataFile), true) ?: []) : [];
+
+        $smtpConfig = $data['settings']['smtp'] ?? null;
+        $shopOwnerEmail = trim($data['texts']['contact_email'] ?? '');
+        $shopOwnerName = trim($data['texts']['contact_name'] ?? 'WeaveCMS Webshop');
+        $shopTitle = trim($data['texts']['hero_title'] ?? $shopOwnerName);
+        $customerEmail = trim($order['customer']['email'] ?? '');
+        $customerName = trim($order['customer']['name'] ?? 'Kunde');
+        $orderId = $order['order_id'] ?? 'ORD';
+        $orderDate = $order['created_at'] ?? date('d.m.Y H:i');
+        $currency = $order['currency'] ?? 'EUR';
+        $currencySymbol = ($currency === 'EUR') ? '€' : $currency;
+
+        $itemsHtml = '';
+        $itemsText = '';
+        foreach ($order['items'] ?? [] as $item) {
+            $qty = (int)($item['qty'] ?? 1);
+            $title = htmlspecialchars($item['title'] ?? 'Artikel');
+            $price = number_format((float)($item['price'] ?? 0), 2, ',', '.') . ' ' . $currencySymbol;
+            $lineTotal = number_format((float)($item['total'] ?? 0), 2, ',', '.') . ' ' . $currencySymbol;
+
+            $itemsHtml .= '<tr>'
+                        . '<td style="padding:8px; border-bottom:1px solid #eee;">' . $qty . 'x ' . $title . '</td>'
+                        . '<td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">' . $price . '</td>'
+                        . '<td style="padding:8px; border-bottom:1px solid #eee; text-align:right; font-weight:600;">' . $lineTotal . '</td>'
+                        . '</tr>';
+
+            $itemsText .= "• {$qty}x {$item['title']} - Einzelpreis: {$price} | Gesamt: {$lineTotal}\n";
+        }
+
+        $subtotalFmt = number_format((float)($order['subtotal'] ?? 0), 2, ',', '.') . ' ' . $currencySymbol;
+        $shippingFmt = number_format((float)($order['shipping'] ?? 0), 2, ',', '.') . ' ' . $currencySymbol;
+        $totalFmt = number_format((float)($order['total'] ?? 0), 2, ',', '.') . ' ' . $currencySymbol;
+
+        // Zahlungsart Text
+        $payMethodName = match($order['payment_method'] ?? '') {
+            'credit_card'   => 'Kreditkarte (autorisiert)',
+            'paypal'        => 'PayPal',
+            'wero'          => 'WERO (European Instant Payment)',
+            'bank_transfer' => 'Vorkasse / Banküberweisung',
+            default         => strtoupper($order['payment_method'] ?? 'Online-Zahlung')
+        };
+
+        // Banküberweisungs-Zusatztext für E-Mails
+        $bankDetailsBlockHtml = '';
+        $bankDetailsBlockText = '';
+        if (($order['payment_method'] ?? '') === 'bank_transfer') {
+            $shopPluginConf = PluginManager::getPluginConfig('shop', $data);
+            $bt = $shopPluginConf['payment_bank_transfer'] ?? [];
+            $holder = htmlspecialchars($bt['account_holder'] ?? ($shopPluginConf['payment_wero']['merchant_name'] ?? $shopOwnerName));
+            $bank = htmlspecialchars($bt['bank_name'] ?? '');
+            $iban = htmlspecialchars($bt['iban'] ?? ($shopPluginConf['payment_wero']['iban'] ?? ''));
+            $bic  = htmlspecialchars($bt['bic'] ?? ($shopPluginConf['payment_wero']['bic'] ?? ''));
+
+            $bankDetailsBlockHtml = '
+            <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:16px; margin:20px 0;">
+                <h4 style="margin:0 0 8px; color:#1e3a8a;">Bankverbindung für deine Überweisung:</h4>
+                <div>Kontoinhaber: <strong>' . $holder . '</strong></div>
+                ' . (!empty($bank) ? '<div>Bank: <strong>' . $bank . '</strong></div>' : '') . '
+                <div>IBAN: <strong>' . $iban . '</strong></div>
+                <div>BIC: <strong>' . $bic . '</strong></div>
+                <div style="margin-top:6px; font-weight:600; color:#1e3a8a;">Verwendungszweck: ' . htmlspecialchars($orderId) . '</div>
+            </div>';
+
+            $bankDetailsBlockText = "\nBankverbindung für deine Überweisung:\n"
+                                  . "Kontoinhaber: " . ($bt['account_holder'] ?? $shopOwnerName) . "\n"
+                                  . (!empty($bt['bank_name']) ? "Bank: {$bt['bank_name']}\n" : '')
+                                  . "IBAN: " . ($bt['iban'] ?? '') . "\n"
+                                  . "BIC: " . ($bt['bic'] ?? '') . "\n"
+                                  . "Verwendungszweck: {$orderId}\n";
+        }
+
+        // 1. E-Mail an den KUNDEN
+        if (!empty($customerEmail) && filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+            $subjectCustomer = "Bestellbestätigung: {$orderId} | {$shopTitle}";
+
+            $htmlCustomer = '
+            <div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif; max-width:600px; margin:0 auto; padding:24px; color:#2c3e50; line-height:1.5;">
+                <div style="text-align:center; margin-bottom:24px; border-bottom:2px solid #2e6248; padding-bottom:16px;">
+                    <h2 style="color:#2e6248; margin:0 0 6px;">Vielen Dank für deine Bestellung!</h2>
+                    <div style="font-size:0.9rem; color:#666;">Bestellnummer: <strong>' . htmlspecialchars($orderId) . '</strong> am ' . htmlspecialchars($orderDate) . '</div>
+                </div>
+
+                <p>Hallo ' . htmlspecialchars($customerName) . ',</p>
+                <p>wir haben deine Bestellung erhalten und bereiten sie schnellstmöglich für dich vor.</p>
+
+                <div style="background:#f9f9f9; border-radius:8px; padding:16px; margin:20px 0;">
+                    <h4 style="margin:0 0 10px; color:#2e6248; border-bottom:1px solid #ddd; padding-bottom:6px;">Lieferanschrift</h4>
+                    <div>' . htmlspecialchars($order['customer']['name'] ?? '') . '</div>
+                    <div>' . htmlspecialchars($order['customer']['street'] ?? '') . '</div>
+                    <div>' . htmlspecialchars(($order['customer']['zip'] ?? '') . ' ' . ($order['customer']['city'] ?? '')) . '</div>
+                    <div>' . htmlspecialchars($order['customer']['country'] ?? 'Deutschland') . '</div>
+                </div>
+
+                <table style="width:100%; border-collapse:collapse; margin:20px 0;">
+                    <thead>
+                        <tr style="background:#f1f5f9; text-align:left;">
+                            <th style="padding:8px;">Artikel</th>
+                            <th style="padding:8px; text-align:right;">Einzelpreis</th>
+                            <th style="padding:8px; text-align:right;">Gesamt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ' . $itemsHtml . '
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" style="padding:8px; text-align:right;">Zwischensumme:</td>
+                            <td style="padding:8px; text-align:right;">' . $subtotalFmt . '</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding:8px; text-align:right;">Versandkosten:</td>
+                            <td style="padding:8px; text-align:right;">' . $shippingFmt . '</td>
+                        </tr>
+                        <tr style="font-size:1.15rem; font-weight:700; color:#2e6248;">
+                            <td colspan="2" style="padding:10px; text-align:right; border-top:2px solid #2e6248;">Gesamtsumme:</td>
+                            <td style="padding:10px; text-align:right; border-top:2px solid #2e6248;">' . $totalFmt . '</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div style="background:#f0fdf4; border-left:4px solid #2e6248; padding:12px; margin:20px 0; font-size:0.9rem;">
+                    <strong>Zahlung:</strong> ' . htmlspecialchars($payMethodName) . '<br>
+                    <strong>Referenz:</strong> ' . htmlspecialchars($order['payment_ref'] ?? '-') . '
+                </div>
+
+                ' . $bankDetailsBlockHtml . '
+
+                <p style="margin-top:24px; font-size:0.85rem; color:#666;">
+                    Bei Fragen zu deiner Bestellung antworte einfach direkt auf diese E-Mail.<br><br>
+                    Herzliche Grüße,<br>
+                    <strong>' . htmlspecialchars($shopOwnerName) . '</strong>
+                </p>
+            </div>';
+
+            $textCustomer = "Vielen Dank für deine Bestellung!\n\n"
+                          . "Bestellnummer: {$orderId} am {$orderDate}\n"
+                          . "Kunde: {$customerName}\n\n"
+                          . "Bestellte Artikel:\n" . $itemsText . "\n"
+                          . "Zwischensumme: {$subtotalFmt}\n"
+                          . "Versandkosten: {$shippingFmt}\n"
+                          . "Gesamtsumme: {$totalFmt}\n\n"
+                          . "Zahlungsart: {$payMethodName} (Ref: " . ($order['payment_ref'] ?? '-') . ")\n"
+                          . $bankDetailsBlockText . "\n"
+                          . "Lieferanschrift:\n"
+                          . ($order['customer']['name'] ?? '') . "\n"
+                          . ($order['customer']['street'] ?? '') . "\n"
+                          . ($order['customer']['zip'] ?? '') . " " . ($order['customer']['city'] ?? '') . "\n"
+                          . ($order['customer']['country'] ?? '') . "\n\n"
+                          . "Herzliche Grüße,\n{$shopOwnerName}";
+
+            $replyToEmail = !empty($shopOwnerEmail) ? $shopOwnerEmail : '';
+            $replyToName = !empty($shopOwnerName) ? $shopOwnerName : '';
+
+            $resCustomer = SimpleMailer::send($customerEmail, $subjectCustomer, $htmlCustomer, $textCustomer, $replyToEmail, $replyToName, $smtpConfig);
+            $result['customer'] = !empty($resCustomer['success']);
+        }
+
+        // 2. Benachrichtigungs-E-Mail an den SHOP-BETREIBER (Admin)
+        if (!empty($shopOwnerEmail) && filter_var($shopOwnerEmail, FILTER_VALIDATE_EMAIL)) {
+            $subjectAdmin = "🔔 Neue Shop-Bestellung: {$orderId} ({$totalFmt}) von {$customerName}";
+
+            $htmlAdmin = '
+            <div style="font-family:sans-serif; max-width:600px; padding:20px; color:#333;">
+                <h3 style="color:#2e6248; margin-top:0;">🔔 Neue Bestellung im Webshop eingegangen!</h3>
+                <p>Es wurde soeben eine neue Bestellung im Shop aufgegeben:</p>
+                <ul>
+                    <li><strong>Bestellnummer:</strong> ' . htmlspecialchars($orderId) . '</li>
+                    <li><strong>Kunde:</strong> ' . htmlspecialchars($customerName) . ' (' . htmlspecialchars($customerEmail) . ')</li>
+                    <li><strong>Gesamtbetrag:</strong> ' . $totalFmt . '</li>
+                    <li><strong>Zahlungsart:</strong> ' . htmlspecialchars($payMethodName) . ' (' . htmlspecialchars($order['payment_ref'] ?? '-') . ')</li>
+                </ul>
+                <div style="margin-top:16px;">
+                    <strong>Bestellte Positionen:</strong>
+                    <table style="width:100%; border-collapse:collapse; margin-top:8px;">
+                        ' . $itemsHtml . '
+                    </table>
+                </div>
+                <div style="margin-top:16px;">
+                    <a href="' . htmlspecialchars(SecurityManager::getBaseUrl() . '/admin/?tab=tab-plugins&plugin_settings=shop&shop_subtab=orders#tab-plugins') . '" style="display:inline-block; padding:8px 16px; background:#2e6248; color:#fff; text-decoration:none; border-radius:6px; font-weight:600;">
+                        Bestellung im Adminbereich aufrufen &rarr;
+                    </a>
+                </div>
+            </div>';
+
+            $textAdmin = "Neue Shop-Bestellung eingegangen!\n\n"
+                       . "Bestellnummer: {$orderId}\n"
+                       . "Kunde: {$customerName} ({$customerEmail})\n"
+                       . "Gesamtbetrag: {$totalFmt}\n"
+                       . "Zahlungsart: {$payMethodName}\n\n"
+                       . "Artikel:\n" . $itemsText;
+
+            $resAdmin = SimpleMailer::send($shopOwnerEmail, $subjectAdmin, $htmlAdmin, $textAdmin, $customerEmail, $customerName, $smtpConfig);
+            $result['admin'] = !empty($resAdmin['success']);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Luhn-Algorithmus zur mathematischen Validierung von Kreditkartennummern.

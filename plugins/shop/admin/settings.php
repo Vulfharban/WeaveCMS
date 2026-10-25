@@ -38,6 +38,13 @@ $wero_name = $config['payment_wero']['merchant_name'] ?? 'WeaveCMS Shop';
 $wero_iban = $config['payment_wero']['iban'] ?? 'DE89370400440532013000';
 $wero_bic  = $config['payment_wero']['bic'] ?? 'BYLADEM1001';
 
+$bt_enabled = !empty($config['payment_bank_transfer']['enabled']);
+$bt_bank = $config['payment_bank_transfer']['bank_name'] ?? '';
+$bt_holder = $config['payment_bank_transfer']['account_holder'] ?? '';
+$bt_iban = $config['payment_bank_transfer']['iban'] ?? '';
+$bt_bic = $config['payment_bank_transfer']['bic'] ?? '';
+$bt_instruction = $config['payment_bank_transfer']['instruction'] ?? 'Bitte überweise den Gesamtbetrag unter Angabe deiner Bestellnummer als Verwendungszweck.';
+
 $section_enabled = !empty($config['section_enabled']);
 $section_title = $config['section_title'] ?? 'Unser Webshop & Produkte';
 $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, kreative DIY-Sets und Zubehör direkt online bestellen.';
@@ -88,7 +95,7 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
         </a>
         <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=payments#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === 'payments' ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === 'payments' ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
-            <span class="material-icons" style="font-size: 18px;">payments</span> Zahlungsarten (CC, PayPal, WERO)
+            <span class="material-icons" style="font-size: 18px;">payments</span> Zahlungsarten (Vorkasse, CC, PayPal, WERO)
         </a>
         <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=settings#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === 'settings' ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === 'settings' ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
@@ -367,6 +374,50 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                         </div>
                     </div>
                 </div>
+
+                <!-- 4. Vorkasse / Banküberweisung -->
+                <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem;">
+                    <div style="display:flex; align-items:center; gap: 10px; margin-bottom: 1rem;">
+                        <span style="font-size: 28px;">🏦</span>
+                        <div>
+                            <h4 style="margin:0; font-size: 1.1rem; font-weight: 700;">Vorkasse / Banküberweisung</h4>
+                            <div style="font-size: 0.78rem; color: var(--text-secondary);">Klassische SEPA-Überweisung auf dein Geschäftskonto</div>
+                        </div>
+                    </div>
+
+                    <label style="display:flex; align-items:center; gap: 8px; font-weight: 600; cursor:pointer; margin-bottom: 10px;">
+                        <input type="hidden" name="payment_bank_transfer[enabled]" value="0">
+                        <input type="checkbox" name="payment_bank_transfer[enabled]" value="1" <?php echo $bt_enabled ? 'checked' : ''; ?>>
+                        <span>Vorkasse als Bezahlmethode aktivieren</span>
+                    </label>
+
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:4px;">Kontoinhaber</label>
+                            <input type="text" name="payment_bank_transfer[account_holder]" class="form-control" value="<?php echo htmlspecialchars($bt_holder); ?>" placeholder="z. B. WeaveCMS Inhaber">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:4px;">Bank / Institut</label>
+                            <input type="text" name="payment_bank_transfer[bank_name]" class="form-control" value="<?php echo htmlspecialchars($bt_bank); ?>" placeholder="z. B. Sparkasse">
+                        </div>
+                    </div>
+
+                    <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:4px;">IBAN</label>
+                            <input type="text" name="payment_bank_transfer[iban]" class="form-control" value="<?php echo htmlspecialchars($bt_iban); ?>" placeholder="DE00 0000 0000 0000 0000 00">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:4px;">BIC</label>
+                            <input type="text" name="payment_bank_transfer[bic]" class="form-control" value="<?php echo htmlspecialchars($bt_bic); ?>" placeholder="BANKDEFFXXX">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:4px;">Hinweistext für den Kunden</label>
+                        <textarea name="payment_bank_transfer[instruction]" class="form-control" rows="2"><?php echo htmlspecialchars($bt_instruction); ?></textarea>
+                    </div>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; font-weight: 700;">
@@ -582,7 +633,10 @@ function closeShopProductModal() {
     document.getElementById('shop-product-modal').style.display = 'none';
 }
 
+let currentOrderToPrint = null;
+
 function viewShopOrder(o) {
+    currentOrderToPrint = o;
     const titleEl = document.getElementById('order-modal-title');
     const bodyEl = document.getElementById('order-modal-body');
     if (!titleEl || !bodyEl) return;
@@ -598,10 +652,10 @@ function viewShopOrder(o) {
     bodyEl.innerHTML = `
         <div style="margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border-color);">
             <div style="font-size:0.8rem; color:var(--text-secondary);">Empfänger:</div>
-            <strong>${o.customer.name}</strong><br>
-            ${o.customer.street}<br>
-            ${o.customer.zip} ${o.customer.city}<br>
-            <span style="color:var(--text-secondary); font-size:0.85rem;">E-Mail: ${o.customer.email}</span>
+            <strong>${o.customer?.name || ''}</strong><br>
+            ${o.customer?.street || ''}<br>
+            ${o.customer?.zip || ''} ${o.customer?.city || ''}<br>
+            <span style="color:var(--text-secondary); font-size:0.85rem;">E-Mail: ${o.customer?.email || ''}</span>
         </div>
         <div style="margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border-color);">
             <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:6px;">Artikel:</div>
@@ -612,10 +666,146 @@ function viewShopOrder(o) {
             <span>${parseFloat(o.total).toFixed(2).replace('.', ',')} €</span>
         </div>
         <div style="margin-top:8px; font-size:0.8rem; color:var(--text-secondary);">
-            Zahlungsart: <strong>${(o.payment_method || '').toUpperCase()}</strong> (Ref: ${o.payment_ref || '-'})
+            Zahlungsart: <strong>${(o.payment_method || '').toUpperCase()}</strong> (Ref: ${o.payment_ref || '-'}) &bull; Status: <strong>${o.status || 'pending'}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color);">
+            <button type="button" class="btn btn-outline" onclick="printShopInvoice()" style="display:inline-flex; align-items:center; gap:6px; padding:6px 14px; font-size:0.88rem;">
+                <span class="material-icons" style="font-size:18px;">print</span> Rechnung / Beleg drucken
+            </button>
+            <button type="button" class="btn btn-primary" onclick="closeShopOrderModal()" style="padding:6px 16px; font-size:0.88rem;">Schließen</button>
         </div>
     `;
     document.getElementById('shop-order-modal').style.display = 'flex';
+}
+
+function printShopInvoice() {
+    if (!currentOrderToPrint) return;
+    const o = currentOrderToPrint;
+    const printWindow = window.open('', '_blank', 'width=800,height=900');
+    if (!printWindow) {
+        alert('Popup-Fenster wurde blockiert. Bitte erlaube Popups für den Rechnungsdruck.');
+        return;
+    }
+
+    const itemsRows = (o.items || []).map((it, idx) => `
+        <tr>
+            <td style="padding:8px 12px; border-bottom:1px solid #e5e7eb; text-align:center;">${idx + 1}</td>
+            <td style="padding:8px 12px; border-bottom:1px solid #e5e7eb;">
+                <strong>${it.title || 'Artikel'}</strong>
+                ${it.sku ? '<div style="font-size:11px; color:#6b7280;">Art-Nr: ' + it.sku + '</div>' : ''}
+            </td>
+            <td style="padding:8px 12px; border-bottom:1px solid #e5e7eb; text-align:center;">${it.qty}</td>
+            <td style="padding:8px 12px; border-bottom:1px solid #e5e7eb; text-align:right;">${parseFloat(it.price).toFixed(2).replace('.', ',')} €</td>
+            <td style="padding:8px 12px; border-bottom:1px solid #e5e7eb; text-align:right; font-weight:600;">${parseFloat(it.total || (it.price * it.qty)).toFixed(2).replace('.', ',')} €</td>
+        </tr>
+    `).join('');
+
+    const statusBadge = (o.status === 'paid' || o.status === 'completed') ? 'Bezahlt' : (o.status === 'pending' ? 'Zahlung ausstehend' : (o.status || 'Offen'));
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="de">
+        <head>
+            <meta charset="UTF-8">
+            <title>Rechnung_${o.order_id}</title>
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #111827; padding: 40px; margin: 0; font-size: 14px; line-height: 1.5; }
+                .invoice-header { display: flex; justify-content: space-between; border-bottom: 2px solid #2e6248; padding-bottom: 20px; margin-bottom: 30px; }
+                .shop-name { font-size: 24px; font-weight: 800; color: #2e6248; }
+                .inv-title { font-size: 20px; font-weight: 700; text-align: right; }
+                .details-grid { display: flex; justify-content: space-between; margin-bottom: 30px; }
+                .addr-box { width: 48%; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+                th { background: #f3f4f6; color: #374151; padding: 10px 12px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; }
+                .totals-box { margin-left: auto; width: 300px; margin-bottom: 30px; }
+                .totals-row { display: flex; justify-content: space-between; padding: 5px 0; }
+                .totals-total { border-top: 2px solid #111827; margin-top: 5px; padding-top: 8px; font-weight: 800; font-size: 16px; color: #2e6248; }
+                .footer { border-top: 1px solid #e5e7eb; padding-top: 15px; font-size: 11px; color: #6b7280; text-align: center; margin-top: 40px; }
+                @media print {
+                    body { padding: 0; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="no-print" style="margin-bottom:20px; text-align:right;">
+                <button onclick="window.print()" style="padding:8px 16px; background:#2e6248; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:700;">Drucken / PDF speichern</button>
+            </div>
+            <div class="invoice-header">
+                <div>
+                    <div class="shop-name">WeaveCMS Shop</div>
+                    <div style="color:#6b7280; font-size:12px;">Bestell- & Rechnungsbeleg</div>
+                </div>
+                <div class="inv-title">
+                    <div>RECHNUNG</div>
+                    <div style="font-size:14px; font-weight:normal; color:#4b5563; margin-top:4px;">Nr. ${o.order_id}</div>
+                    <div style="font-size:13px; font-weight:normal; color:#6b7280;">Datum: ${o.created_at || new Date().toLocaleDateString('de-DE')}</div>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="addr-box">
+                    <div style="font-size:11px; text-transform:uppercase; color:#6b7280; font-weight:700; margin-bottom:4px;">Rechnungsempfänger:</div>
+                    <strong>${o.customer?.name || ''}</strong><br>
+                    ${o.customer?.street || ''}<br>
+                    ${o.customer?.zip || ''} ${o.customer?.city || ''}<br>
+                    <span style="color:#4b5563;">E-Mail: ${o.customer?.email || ''}</span>
+                </div>
+                <div class="addr-box" style="text-align:right;">
+                    <div style="font-size:11px; text-transform:uppercase; color:#6b7280; font-weight:700; margin-bottom:4px;">Bestelldetails:</div>
+                    Zahlungsart: <strong>${(o.payment_method || '').toUpperCase()}</strong><br>
+                    Referenz: ${o.payment_ref || '-'}<br>
+                    Status: <strong>${statusBadge}</strong>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:40px; text-align:center;">Pos</th>
+                        <th>Artikel</th>
+                        <th style="width:60px; text-align:center;">Menge</th>
+                        <th style="width:100px; text-align:right;">Einzelpreis</th>
+                        <th style="width:100px; text-align:right;">Gesamt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsRows}
+                </tbody>
+            </table>
+
+            <div class="totals-box">
+                <div class="totals-row">
+                    <span>Zwischensumme:</span>
+                    <span>${parseFloat(o.subtotal || 0).toFixed(2).replace('.', ',')} €</span>
+                </div>
+                <div class="totals-row">
+                    <span>Versandkosten:</span>
+                    <span>${parseFloat(o.shipping || 0) > 0 ? (parseFloat(o.shipping).toFixed(2).replace('.', ',') + ' €') : 'Kostenlos'}</span>
+                </div>
+                ${parseFloat(o.tax || 0) > 0 ? `
+                <div class="totals-row">
+                    <span>Inkl. MwSt.:</span>
+                    <span>${parseFloat(o.tax).toFixed(2).replace('.', ',')} €</span>
+                </div>
+                ` : ''}
+                <div class="totals-row totals-total">
+                    <span>Gesamtbetrag:</span>
+                    <span>${parseFloat(o.total || 0).toFixed(2).replace('.', ',')} €</span>
+                </div>
+            </div>
+
+            <div class="footer">
+                Vielen Dank für Ihren Auftrag! Bei Fragen wenden Sie sich bitte an unseren Support.
+            </div>
+
+            <script>
+                window.onload = function() { window.print(); };
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
 }
 
 function closeShopOrderModal() {

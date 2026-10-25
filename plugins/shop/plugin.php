@@ -211,7 +211,7 @@ PluginManager::addFilter('plugin_validate_config_shop', function($submitted, $da
     $subtab = $submitted['active_subtab'] ?? '';
 
     // Zahlungsarten (Subtab: payments)
-    if ($subtab === 'payments' || isset($submitted['payment_credit_card']) || isset($submitted['payment_paypal']) || isset($submitted['payment_wero'])) {
+    if ($subtab === 'payments' || isset($submitted['payment_credit_card']) || isset($submitted['payment_paypal']) || isset($submitted['payment_wero']) || isset($submitted['payment_bank_transfer'])) {
         $cleaned['payment_credit_card'] = [
             'enabled' => !empty($submitted['payment_credit_card']['enabled']),
             'sandbox' => !empty($submitted['payment_credit_card']['sandbox'])
@@ -227,6 +227,14 @@ PluginManager::addFilter('plugin_validate_config_shop', function($submitted, $da
             'merchant_name' => trim($submitted['payment_wero']['merchant_name'] ?? 'WeaveCMS Shop'),
             'iban'          => preg_replace('/\s+/', '', strtoupper($submitted['payment_wero']['iban'] ?? '')),
             'bic'           => preg_replace('/\s+/', '', strtoupper($submitted['payment_wero']['bic'] ?? ''))
+        ];
+        $cleaned['payment_bank_transfer'] = [
+            'enabled'        => !empty($submitted['payment_bank_transfer']['enabled']),
+            'bank_name'      => trim($submitted['payment_bank_transfer']['bank_name'] ?? ''),
+            'account_holder' => trim($submitted['payment_bank_transfer']['account_holder'] ?? ''),
+            'iban'           => preg_replace('/\s+/', '', strtoupper($submitted['payment_bank_transfer']['iban'] ?? '')),
+            'bic'            => preg_replace('/\s+/', '', strtoupper($submitted['payment_bank_transfer']['bic'] ?? '')),
+            'instruction'    => trim($submitted['payment_bank_transfer']['instruction'] ?? 'Bitte überweise den Gesamtbetrag unter Angabe deiner Bestellnummer als Verwendungszweck.')
         ];
     }
 

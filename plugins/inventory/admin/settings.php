@@ -19,6 +19,8 @@ $logs = InventoryManager::getLog(100);
 $defaultMinStock = $config['default_min_stock'] ?? 3;
 $defaultLocation = $config['default_location'] ?? 'Hauptlager A';
 $locations = $config['locations'] ?? ['Hauptlager A', 'Regal B-01', 'Regal B-02', 'Werkstatt', 'Schaufenster / Laden'];
+$notifyLowStock = !isset($config['notify_low_stock']) || !empty($config['notify_low_stock']);
+$notifyEmail = $config['notify_email'] ?? '';
 ?>
 
 <div class="inventory-admin-wrapper" style="margin-top: 1rem;">
@@ -462,9 +464,22 @@ $locations = $config['locations'] ?? ['Hauptlager A', 'Regal B-01', 'Regal B-02'
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 1.5rem;">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 4px;">Verfügbare Lagerorte (kommagetrennt)</label>
                     <input type="text" name="locations_list" class="form-control" value="<?php echo htmlspecialchars(implode(', ', $locations)); ?>">
+                </div>
+
+                <div style="background: rgba(30,58,138,0.04); border: 1px solid rgba(30,58,138,0.15); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <h5 style="margin: 0 0 0.75rem; font-size: 0.95rem; font-weight: 700; color: #1e3a8a;">⚠️ Automatischer Mindestbestand-Alarm (E-Mail)</h5>
+                    <label style="display:flex; align-items:center; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor:pointer; margin-bottom: 10px;">
+                        <input type="hidden" name="notify_low_stock" value="0">
+                        <input type="checkbox" name="notify_low_stock" value="1" <?php echo $notifyLowStock ? 'checked' : ''; ?>>
+                        <span>E-Mail-Warnung senden, sobald ein Artikel den Mindestbestand erreicht oder unterschreitet</span>
+                    </label>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Benachrichtigungs-Empfänger (E-Mail, optional)</label>
+                        <input type="email" name="notify_email" class="form-control" placeholder="leer lassen für Standard-Admin-E-Mail" value="<?php echo htmlspecialchars($notifyEmail); ?>">
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; font-weight: 700; background: #1e3a8a; border-color: #1e3a8a;">
