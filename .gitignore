@@ -35,7 +35,8 @@ images/uploads/*
 scratch/
 
 # Build releases & Cache
-releases/
+releases/*
+!releases/*.zip
 cache/
 
 # Documentation kept local only
