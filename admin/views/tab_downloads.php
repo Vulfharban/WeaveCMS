@@ -70,6 +70,11 @@ foreach ($downloads as $d) {
                 include __DIR__ . '/partials/section_nav_bar.php';
             ?>
 
+<?php
+$active_langs = LanguageManager::getActiveLanguages($data);
+$primary_lang = LanguageManager::getPrimaryLanguage($data);
+$all_languages = LanguageManager::getSupportedLanguages();
+?>
             <!-- ──────────────── FORMULAR / EDITOR DRAWER ──────────────── -->
             <div id="download-editor-box" style="display:none; background:rgba(255,255,255,0.02); border:1px solid var(--primary); border-radius:16px; padding:2rem; margin-bottom:2.5rem; animation: fadeInTab 0.25s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
@@ -86,22 +91,99 @@ foreach ($downloads as $d) {
                     <input type="hidden" name="action" id="download_form_action" value="add_download">
                     <input type="hidden" name="id" id="download_id" value="">
 
-                    <!-- 1. Basisfelder -->
-                    <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
-                        <div class="form-group">
-                            <label for="download_title" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Titel / Software-Name *</label>
+                    <!-- Gemeinsame Kategorie -->
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label for="download_category" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Kategorie</label>
+                        <input type="text" id="download_category" name="category" class="form-control" placeholder="z. B. Software, Dokumentation, Tools, Kursflyer" value="Software">
+                    </div>
+
+                    <?php if (count($active_langs) > 1): ?>
+                        <!-- Sprach-Tabs im Editor -->
+                        <div style="margin-bottom: 1.25rem;">
+                            <label style="font-weight:700; color:var(--text-primary); font-size:0.9rem; margin-bottom:0.5rem; display:block;">Inhaltssprachen:</label>
+                            <div style="display:flex; gap:6px; border-bottom:1px solid var(--border-color); padding-bottom:4px;" id="dl-lang-tab-bar">
+                                <?php foreach ($active_langs as $idx => $al): 
+                                    $is_prim = ($al === $primary_lang);
+                                    $lang_info = $all_languages[$al] ?? ['name' => strtoupper($al), 'flag' => '🌐'];
+                                ?>
+                                    <button type="button" 
+                                            class="dl-lang-tab-btn btn <?php echo $is_prim ? 'btn-primary' : 'btn-secondary'; ?>" 
+                                            id="dl-btn-tab-<?php echo $al; ?>"
+                                            onclick="switchDlLangTab('<?php echo $al; ?>')"
+                                            style="padding: 5px 12px; font-size: 0.85rem; display:flex; align-items:center; gap:6px;">
+                                        <span><?php echo $lang_info['flag']; ?></span>
+                                        <span><?php echo htmlspecialchars($lang_info['name']); ?><?php echo $is_prim ? ' (Hauptsprache)' : ''; ?></span>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Tab-Inhalt: Hauptsprache -->
+                    <div id="dl-lang-content-<?php echo $primary_lang; ?>" class="dl-lang-content">
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="download_title" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                Titel / Software-Name * <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span>
+                            </label>
                             <input type="text" id="download_title" name="title" class="form-control" placeholder="z. B. WeaveTool Studio" required>
                         </div>
-                        <div class="form-group">
-                            <label for="download_category" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Kategorie</label>
-                            <input type="text" id="download_category" name="category" class="form-control" placeholder="z. B. Software, Dokumentation, Tools, Kursflyer" value="Software">
+
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="download_desc" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                Kurzbeschreibung <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span>
+                            </label>
+                            <textarea id="download_desc" name="description" class="form-control" rows="2" placeholder="Kurze, ansprechende Erklärung der Software oder des Dokuments..."></textarea>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="download_features" style="font-weight:600; font-size:0.88rem; display:block; margin-bottom:0.3rem;">
+                                Feature-Bulletpoints <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(Eine Eigenschaft je Zeile)</span>
+                            </label>
+                            <textarea id="download_features" name="features" class="form-control" rows="3" placeholder="100% Offline-fähig&#10;Integrierter SQLite- &amp; JSON-Speicher&#10;DSGVO-konform ohne Cloud-Zwang"></textarea>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="download_changelog" style="font-weight:600; font-size:0.88rem; display:block; margin-bottom:0.3rem;">
+                                Versionshistorie / Changelog <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(Markdown unterstützt)</span>
+                            </label>
+                            <textarea id="download_changelog" name="changelog" class="form-control" rows="4" placeholder="### v1.2.0 (2026-10-22)&#10;- Neu: Modulare Captcha-Engine&#10;- Optimiert: Download-Klickcounter&#10;- Fix: Barrierefreie Themes"></textarea>
                         </div>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1.25rem;">
-                        <label for="download_desc" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Kurzbeschreibung</label>
-                        <textarea id="download_desc" name="description" class="form-control" rows="2" placeholder="Kurze, ansprechende Erklärung der Software oder des Dokuments..."></textarea>
-                    </div>
+                    <?php foreach ($active_langs as $al): ?>
+                        <?php if ($al === $primary_lang) continue; 
+                            $lang_info = $all_languages[$al] ?? ['name' => strtoupper($al), 'flag' => '🌐'];
+                        ?>
+                        <div id="dl-lang-content-<?php echo $al; ?>" class="dl-lang-content" style="display:none;">
+                            <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 0.6rem 0.9rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                                ℹ️ Übersetze Titel, Beschreibung, Features und Changelog für Besucher mit Sprache <strong><?php echo $lang_info['flag'] . ' ' . htmlspecialchars($lang_info['name']); ?></strong>. Falls leer, wird die Hauptsprache verwendet.
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="download_trans_<?php echo $al; ?>_title" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                    Titel / Software-Name (<?php echo htmlspecialchars($lang_info['name']); ?>)
+                                </label>
+                                <input type="text" id="download_trans_<?php echo $al; ?>_title" name="trans_<?php echo $al; ?>_title" class="form-control" placeholder="z. B. WeaveTool Studio (EN)">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="download_trans_<?php echo $al; ?>_desc" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                    Kurzbeschreibung (<?php echo htmlspecialchars($lang_info['name']); ?>)
+                                </label>
+                                <textarea id="download_trans_<?php echo $al; ?>_desc" name="trans_<?php echo $al; ?>_description" class="form-control" rows="2" placeholder="Description in <?php echo htmlspecialchars($lang_info['name']); ?>..."></textarea>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="download_trans_<?php echo $al; ?>_features" style="font-weight:600; font-size:0.88rem; display:block; margin-bottom:0.3rem;">
+                                    Feature-Bulletpoints (<?php echo htmlspecialchars($lang_info['name']); ?>)
+                                </label>
+                                <textarea id="download_trans_<?php echo $al; ?>_features" name="trans_<?php echo $al; ?>_features" class="form-control" rows="3" placeholder="100% offline capable&#10;Integrated storage..."></textarea>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="download_trans_<?php echo $al; ?>_changelog" style="font-weight:600; font-size:0.88rem; display:block; margin-bottom:0.3rem;">
+                                    Versionshistorie / Changelog (<?php echo htmlspecialchars($lang_info['name']); ?>)
+                                </label>
+                                <textarea id="download_trans_<?php echo $al; ?>_changelog" name="trans_<?php echo $al; ?>_changelog" class="form-control" rows="4" placeholder="Changelog in <?php echo htmlspecialchars($lang_info['name']); ?>..."></textarea>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
 
                     <!-- 2. Quelle: Datei-Upload vs. Externer Release-Link -->
                     <div style="background:rgba(0,0,0,0.02); border:1px solid var(--border-color); border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
@@ -136,10 +218,10 @@ foreach ($downloads as $d) {
                         </div>
                     </div>
 
-                    <!-- 3. Optionale Profi-Felder (Version, Plattform, Lizenz, Features, Screenshots, Changelog) -->
+                    <!-- 3. Optionale Profi-Felder (Version, Plattform, Lizenz, Screenshots) -->
                     <div style="background:rgba(255,255,255,0.015); border:1px solid var(--border-color); border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
                         <h4 style="color:var(--primary); margin:0 0 1rem 0; font-size:1.05rem; display:flex; align-items:center; gap:6px;">
-                            <span class="material-icons" style="font-size:20px;">tune</span> Erweiterte Metadaten &amp; Software-Features (Optional)
+                            <span class="material-icons" style="font-size:20px;">tune</span> Erweiterte Metadaten (Optional)
                         </h4>
 
                         <div class="grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
@@ -158,24 +240,10 @@ foreach ($downloads as $d) {
                         </div>
 
                         <div class="form-group" style="margin-bottom: 1.25rem;">
-                            <label for="download_features" style="font-weight:600; font-size:0.88rem; display:block; margin-bottom:0.3rem;">
-                                Feature-Bulletpoints (Eine Eigenschaft je Zeile)
-                            </label>
-                            <textarea id="download_features" name="features" class="form-control" rows="3" placeholder="100% Offline-fähig&#10;Integrierter SQLite- &amp; JSON-Speicher&#10;DSGVO-konform ohne Cloud-Zwang"></textarea>
-                        </div>
-
-                        <div class="form-group" style="margin-bottom: 1.25rem;">
                             <label for="download_screenshots" style="font-weight:600; font-size:0.88rem; display:block; margin-bottom:0.3rem;">
                                 Screenshot-Galerie (Bild-URLs oder Upload-Pfade, eine Zeile oder Kommagetrennt)
                             </label>
                             <input type="text" id="download_screenshots" name="screenshots" class="form-control" placeholder="/images/screenshot1.png, /images/screenshot2.png">
-                        </div>
-
-                        <div class="form-group" style="margin-bottom: 1.25rem;">
-                            <label for="download_changelog" style="font-weight:600; font-size:0.88rem; display:block; margin-bottom:0.3rem;">
-                                Versionshistorie / Changelog (Markdown unterstützt)
-                            </label>
-                            <textarea id="download_changelog" name="changelog" class="form-control" rows="4" placeholder="### v1.2.0 (2026-10-22)&#10;- Neu: Modulare Captcha-Engine&#10;- Optimiert: Download-Klickcounter&#10;- Fix: Barrierefreie Themes"></textarea>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 0;">
@@ -248,6 +316,18 @@ foreach ($downloads as $d) {
                                             <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary); background:rgba(0,0,0,0.04); padding:2px 8px; border-radius:6px;">
                                                 <?php echo $d_platform; ?>
                                             </span>
+                                        <?php endif; ?>
+                                        <?php if (count($active_langs) > 1): ?>
+                                            <?php foreach ($active_langs as $al): ?>
+                                                <?php if ($al === $primary_lang) continue; ?>
+                                                <?php if (!empty($d['translations'][$al]['title']) || !empty($d['translations'][$al]['description'])): 
+                                                    $li = $all_languages[$al] ?? ['flag' => '🌐'];
+                                                ?>
+                                                    <span title="Übersetzung für <?php echo strtoupper($al); ?> gepflegt" style="font-size:0.75rem; background:rgba(16,185,129,0.12); color:var(--primary); border:1px solid rgba(16,185,129,0.25); padding:1px 6px; border-radius:4px; display:inline-flex; align-items:center; gap:2px;">
+                                                        <?php echo $li['flag']; ?> <?php echo strtoupper($al); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
                                         <?php endif; ?>
                                     </div>
 
@@ -322,6 +402,25 @@ foreach ($downloads as $d) {
             }
         }
 
+        const activeDlLangs = <?php echo json_encode($active_langs); ?>;
+        const primaryDlLang = <?php echo json_encode($primary_lang); ?>;
+
+        function switchDlLangTab(lang) {
+            document.querySelectorAll('.dl-lang-content').forEach(el => el.style.display = 'none');
+            const target = document.getElementById('dl-lang-content-' + lang);
+            if (target) target.style.display = 'block';
+
+            document.querySelectorAll('.dl-lang-tab-btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-secondary');
+            });
+            const activeBtn = document.getElementById('dl-btn-tab-' + lang);
+            if (activeBtn) {
+                activeBtn.classList.remove('btn-secondary');
+                activeBtn.classList.add('btn-primary');
+            }
+        }
+
         function openDownloadEditor() {
             document.getElementById('download-editor-box').style.display = 'block';
             document.getElementById('download-editor-title').innerHTML = '<span class="material-icons">add_circle</span> Neuen Download bereitstellen';
@@ -342,6 +441,21 @@ foreach ($downloads as $d) {
             document.getElementById('download_show_counter').checked = true;
             document.getElementById('download_existing_file').value = '';
             document.getElementById('download_current_file_info').style.display = 'none';
+
+            activeDlLangs.forEach(al => {
+                if (al !== primaryDlLang) {
+                    const tEl = document.getElementById('download_trans_' + al + '_title');
+                    const dEl = document.getElementById('download_trans_' + al + '_desc');
+                    const fEl = document.getElementById('download_trans_' + al + '_features');
+                    const cEl = document.getElementById('download_trans_' + al + '_changelog');
+                    if (tEl) tEl.value = '';
+                    if (dEl) dEl.value = '';
+                    if (fEl) fEl.value = '';
+                    if (cEl) cEl.value = '';
+                }
+            });
+
+            switchDlLangTab(primaryDlLang);
             document.getElementById('download-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Download-Eintrag speichern';
             toggleDownloadSource();
             document.getElementById('download_title').focus();
@@ -399,6 +513,24 @@ foreach ($downloads as $d) {
                 document.getElementById('download_current_file_info').style.display = 'none';
             }
 
+            const tr = d.translations || {};
+            activeDlLangs.forEach(al => {
+                if (al !== primaryDlLang) {
+                    const tEl = document.getElementById('download_trans_' + al + '_title');
+                    const dEl = document.getElementById('download_trans_' + al + '_desc');
+                    const fEl = document.getElementById('download_trans_' + al + '_features');
+                    const cEl = document.getElementById('download_trans_' + al + '_changelog');
+                    if (tEl) tEl.value = tr[al]?.title || '';
+                    if (dEl) dEl.value = tr[al]?.description || '';
+                    if (fEl) {
+                        const fVal = tr[al]?.features;
+                        fEl.value = Array.isArray(fVal) ? fVal.join('\n') : (fVal || '');
+                    }
+                    if (cEl) cEl.value = tr[al]?.changelog || '';
+                }
+            });
+
+            switchDlLangTab(primaryDlLang);
             document.getElementById('download-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Änderungen speichern';
             document.getElementById('download-editor-box').scrollIntoView({ behavior: 'smooth' });
         }

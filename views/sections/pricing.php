@@ -26,17 +26,26 @@ $pricing_subtitle = !empty($data['texts']['pricing_subtitle']) ? $data['texts'][
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1100px; margin: 0 auto; align-items: stretch;">
             <?php foreach ($pricing_plans as $plan): ?>
                 <?php 
-                    $p_title = htmlspecialchars($plan['title'] ?? 'Angebot');
+                    $p_title_raw = (!empty($cur_lang) && !empty($plan['translations'][$cur_lang]['title'])) ? $plan['translations'][$cur_lang]['title'] : ($plan['title'] ?? 'Angebot');
+                    $p_period_raw = (!empty($cur_lang) && !empty($plan['translations'][$cur_lang]['period'])) ? $plan['translations'][$cur_lang]['period'] : ($plan['period'] ?? '');
+                    $p_desc_raw = (!empty($cur_lang) && !empty($plan['translations'][$cur_lang]['description'])) ? $plan['translations'][$cur_lang]['description'] : ($plan['description'] ?? '');
+                    $p_badge_raw = (!empty($cur_lang) && !empty($plan['translations'][$cur_lang]['badge'])) ? $plan['translations'][$cur_lang]['badge'] : ($plan['badge'] ?? '');
+                    $p_btn_raw = (!empty($cur_lang) && !empty($plan['translations'][$cur_lang]['button_text'])) ? $plan['translations'][$cur_lang]['button_text'] : ($plan['button_text'] ?? LanguageManager::t('btn.inquire_now', 'Jetzt anfragen', $cur_lang ?? null));
+                    
+                    $p_feats_raw = (!empty($cur_lang) && !empty($plan['translations'][$cur_lang]['features'])) ? $plan['translations'][$cur_lang]['features'] : ($plan['features'] ?? []);
+                    if (!is_array($p_feats_raw)) {
+                        $p_feats_raw = array_filter(array_map('trim', explode("\n", (string)$p_feats_raw)));
+                    }
+
+                    $p_title = htmlspecialchars($p_title_raw);
                     $p_price = htmlspecialchars($plan['price'] ?? '');
-                    $p_period = htmlspecialchars($plan['period'] ?? '');
-                    $p_desc = htmlspecialchars($plan['description'] ?? '');
-                    $p_badge = htmlspecialchars($plan['badge'] ?? '');
+                    $p_period = htmlspecialchars($p_period_raw);
+                    $p_desc = htmlspecialchars($p_desc_raw);
+                    $p_badge = htmlspecialchars($p_badge_raw);
                     $p_highlight = !empty($plan['highlighted']);
-                    $p_btn = htmlspecialchars($plan['button_text'] ?? LanguageManager::t('btn.inquire_now', 'Jetzt anfragen', $cur_lang ?? null));
+                    $p_btn = htmlspecialchars($p_btn_raw);
                     $p_link = htmlspecialchars($plan['button_link'] ?? '#contact');
-                    $p_features = is_array($plan['features'] ?? null) 
-                        ? $plan['features'] 
-                        : array_filter(array_map('trim', explode("\n", $plan['features'] ?? '')));
+                    $p_features = $p_feats_raw;
                 ?>
                 <div class="card" style="padding: 2.25rem 2rem; border-radius: var(--card-radius, 20px); display: flex; flex-direction: column; position: relative; <?php echo $p_highlight ? 'border: 2px solid var(--primary); box-shadow: 0 10px 30px rgba(46,98,72,0.15);' : ''; ?>">
                     <?php if (!empty($p_badge)): ?>

@@ -57,8 +57,13 @@ foreach ($downloads as $d) {
             <?php foreach ($downloads as $d): ?>
                 <?php 
                     $d_id = htmlspecialchars($d['id'] ?? '');
-                    $d_title = htmlspecialchars($d['title'] ?? 'Software');
-                    $d_desc = htmlspecialchars($d['description'] ?? '');
+                    $d_title_raw = (!empty($cur_lang) && !empty($d['translations'][$cur_lang]['title'])) ? $d['translations'][$cur_lang]['title'] : ($d['title'] ?? 'Software');
+                    $d_desc_raw = (!empty($cur_lang) && !empty($d['translations'][$cur_lang]['description'])) ? $d['translations'][$cur_lang]['description'] : ($d['description'] ?? '');
+                    $d_log_raw = (!empty($cur_lang) && !empty($d['translations'][$cur_lang]['changelog'])) ? $d['translations'][$cur_lang]['changelog'] : ($d['changelog'] ?? '');
+                    $d_features_raw = (!empty($cur_lang) && !empty($d['translations'][$cur_lang]['features'])) ? $d['translations'][$cur_lang]['features'] : ($d['features'] ?? []);
+                    
+                    $d_title = htmlspecialchars($d_title_raw);
+                    $d_desc = htmlspecialchars($d_desc_raw);
                     $d_cat = htmlspecialchars($d['category'] ?? 'Software');
                     $d_version = htmlspecialchars($d['version'] ?? '');
                     $d_platform = htmlspecialchars($d['platform'] ?? '');
@@ -66,8 +71,8 @@ foreach ($downloads as $d) {
                     $d_size = htmlspecialchars($d['file_size'] ?? '');
                     $d_clicks = (int)($d['download_count'] ?? 0);
                     $d_show_counter = ($d['show_counter'] !== false);
-                    $d_changelog = trim($d['changelog'] ?? '');
-                    $d_features = is_array($d['features'] ?? null) ? $d['features'] : [];
+                    $d_changelog = trim($d_log_raw);
+                    $d_features = is_array($d_features_raw) ? $d_features_raw : [];
                     $d_screenshots = is_array($d['screenshots'] ?? null) ? $d['screenshots'] : [];
 
                     // Passendes Icon ermitteln

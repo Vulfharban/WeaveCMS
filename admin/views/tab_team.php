@@ -44,6 +44,11 @@ $total_team = count($team);
                 include __DIR__ . '/partials/section_nav_bar.php';
             ?>
 
+<?php
+$active_langs = LanguageManager::getActiveLanguages($data);
+$primary_lang = LanguageManager::getPrimaryLanguage($data);
+$all_languages = LanguageManager::getSupportedLanguages();
+?>
             <!-- ──────────────── FORMULAR / EDITOR DRAWER ──────────────── -->
             <div id="team-editor-box" style="display:none; background:rgba(255,255,255,0.02); border:1px solid var(--primary); border-radius:16px; padding:2rem; margin-bottom:2.5rem; animation: fadeInTab 0.25s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
@@ -66,32 +71,82 @@ $total_team = count($team);
                             <input type="text" id="team_name" name="name" class="form-control" placeholder="z. B. Maxima Musterfrau" required>
                         </div>
                         <div class="form-group">
-                            <label for="team_role" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Rolle / Position *</label>
-                            <input type="text" id="team_role" name="role" class="form-control" placeholder="z. B. Inhaberin &amp; Korbmachermeisterin" required>
-                        </div>
-                    </div>
-
-                    <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
-                        <div class="form-group">
                             <label for="team_email" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">E-Mail-Adresse (Optional)</label>
                             <input type="email" id="team_email" name="email" class="form-control" placeholder="muster@atelier-beispiel.de">
-                        </div>
-                        <div class="form-group">
-                            <label for="team_image" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Profilbild (Upload)</label>
-                            <input type="file" id="team_image" name="image" class="form-control" accept="image/*">
-                            <div id="team_current_img_box" style="display:none; margin-top:8px; align-items:center; gap:8px;">
-                                <img id="team_current_img_preview" src="" alt="Vorschau" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
-                                <label style="font-size:0.85rem; color:#ef4444; cursor:pointer;">
-                                    <input type="checkbox" name="remove_image" value="1"> Bild entfernen
-                                </label>
-                            </div>
                         </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="team_bio" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Kurzbeschreibung / Vita</label>
-                        <textarea id="team_bio" name="bio" class="form-control" rows="4" placeholder="Kurze Beschreibung zur Person, Spezialisierung oder Leidenschaft..."></textarea>
+                        <label for="team_image" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Profilbild (Upload)</label>
+                        <input type="file" id="team_image" name="image" class="form-control" accept="image/*">
+                        <div id="team_current_img_box" style="display:none; margin-top:8px; align-items:center; gap:8px;">
+                            <img id="team_current_img_preview" src="" alt="Vorschau" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                            <label style="font-size:0.85rem; color:#ef4444; cursor:pointer;">
+                                <input type="checkbox" name="remove_image" value="1"> Bild entfernen
+                            </label>
+                        </div>
                     </div>
+
+                    <?php if (count($active_langs) > 1): ?>
+                        <!-- Sprach-Tabs im Editor -->
+                        <div style="margin-bottom: 1.25rem;">
+                            <label style="font-weight:700; color:var(--text-primary); font-size:0.9rem; margin-bottom:0.5rem; display:block;">Inhaltssprachen:</label>
+                            <div style="display:flex; gap:6px; border-bottom:1px solid var(--border-color); padding-bottom:4px;" id="team-lang-tab-bar">
+                                <?php foreach ($active_langs as $idx => $al): 
+                                    $is_prim = ($al === $primary_lang);
+                                    $lang_info = $all_languages[$al] ?? ['name' => strtoupper($al), 'flag' => '🌐'];
+                                ?>
+                                    <button type="button" 
+                                            class="team-lang-tab-btn btn <?php echo $is_prim ? 'btn-primary' : 'btn-secondary'; ?>" 
+                                            id="team-btn-tab-<?php echo $al; ?>"
+                                            onclick="switchTeamLangTab('<?php echo $al; ?>')"
+                                            style="padding: 5px 12px; font-size: 0.85rem; display:flex; align-items:center; gap:6px;">
+                                        <span><?php echo $lang_info['flag']; ?></span>
+                                        <span><?php echo htmlspecialchars($lang_info['name']); ?><?php echo $is_prim ? ' (Hauptsprache)' : ''; ?></span>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Tab-Inhalt: Hauptsprache -->
+                    <div id="team-lang-content-<?php echo $primary_lang; ?>" class="team-lang-content">
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="team_role" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                Rolle / Position * <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span>
+                            </label>
+                            <input type="text" id="team_role" name="role" class="form-control" placeholder="z. B. Inhaberin &amp; Korbmachermeisterin" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label for="team_bio" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                Kurzbeschreibung / Vita <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span>
+                            </label>
+                            <textarea id="team_bio" name="bio" class="form-control" rows="4" placeholder="Kurze Beschreibung zur Person, Spezialisierung oder Leidenschaft..."></textarea>
+                        </div>
+                    </div>
+
+                    <?php foreach ($active_langs as $al): ?>
+                        <?php if ($al === $primary_lang) continue; 
+                            $lang_info = $all_languages[$al] ?? ['name' => strtoupper($al), 'flag' => '🌐'];
+                        ?>
+                        <div id="team-lang-content-<?php echo $al; ?>" class="team-lang-content" style="display:none;">
+                            <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 0.6rem 0.9rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                                ℹ️ Übersetze Rolle und Vita für Besucher mit Sprache <strong><?php echo $lang_info['flag'] . ' ' . htmlspecialchars($lang_info['name']); ?></strong>. Falls leer, wird die Hauptsprache verwendet.
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="team_trans_<?php echo $al; ?>_role" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                    Rolle / Position (<?php echo htmlspecialchars($lang_info['name']); ?>)
+                                </label>
+                                <input type="text" id="team_trans_<?php echo $al; ?>_role" name="trans_<?php echo $al; ?>_role" class="form-control" placeholder="z. B. Owner &amp; Master Basketmaker">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.5rem;">
+                                <label for="team_trans_<?php echo $al; ?>_bio" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
+                                    Kurzbeschreibung / Vita (<?php echo htmlspecialchars($lang_info['name']); ?>)
+                                </label>
+                                <textarea id="team_trans_<?php echo $al; ?>_bio" name="trans_<?php echo $al; ?>_bio" class="form-control" rows="4" placeholder="Biografie auf <?php echo htmlspecialchars($lang_info['name']); ?>..."></textarea>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
 
                     <div style="display:flex; justify-content:flex-end; gap:12px;">
                         <button type="button" class="btn btn-secondary" onclick="closeTeamEditor()">Abbrechen</button>
@@ -128,9 +183,23 @@ $total_team = count($team);
                                     <h4 style="margin:0 0 4px 0; font-size:1.1rem; color:var(--text-primary);">
                                         <?php echo htmlspecialchars($m['name'] ?? ''); ?>
                                     </h4>
-                                    <span style="font-size:0.8rem; font-weight:700; color:var(--primary); background:rgba(46,98,72,0.08); padding:2px 8px; border-radius:999px;">
-                                        <?php echo htmlspecialchars($m['role'] ?? ''); ?>
-                                    </span>
+                                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                        <span style="font-size:0.8rem; font-weight:700; color:var(--primary); background:rgba(46,98,72,0.08); padding:2px 8px; border-radius:999px;">
+                                            <?php echo htmlspecialchars($m['role'] ?? ''); ?>
+                                        </span>
+                                        <?php if (count($active_langs) > 1): ?>
+                                            <?php foreach ($active_langs as $al): ?>
+                                                <?php if ($al === $primary_lang) continue; ?>
+                                                <?php if (!empty($m['translations'][$al]['role']) || !empty($m['translations'][$al]['bio'])): 
+                                                    $li = $all_languages[$al] ?? ['flag' => '🌐'];
+                                                ?>
+                                                    <span title="Übersetzung für <?php echo strtoupper($al); ?> gepflegt" style="font-size:0.75rem; background:rgba(16,185,129,0.12); color:var(--primary); border:1px solid rgba(16,185,129,0.25); padding:1px 6px; border-radius:4px; display:inline-flex; align-items:center; gap:2px;">
+                                                        <?php echo $li['flag']; ?> <?php echo strtoupper($al); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
 
@@ -160,6 +229,25 @@ $total_team = count($team);
         </div>
 
         <script>
+        const activeTeamLangs = <?php echo json_encode($active_langs); ?>;
+        const primaryTeamLang = <?php echo json_encode($primary_lang); ?>;
+
+        function switchTeamLangTab(lang) {
+            document.querySelectorAll('.team-lang-content').forEach(el => el.style.display = 'none');
+            const target = document.getElementById('team-lang-content-' + lang);
+            if (target) target.style.display = 'block';
+
+            document.querySelectorAll('.team-lang-tab-btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-secondary');
+            });
+            const activeBtn = document.getElementById('team-btn-tab-' + lang);
+            if (activeBtn) {
+                activeBtn.classList.remove('btn-secondary');
+                activeBtn.classList.add('btn-primary');
+            }
+        }
+
         function openTeamEditor() {
             document.getElementById('team-editor-box').style.display = 'block';
             document.getElementById('team-editor-title').innerHTML = '<span class="material-icons">person_add</span> Neues Teammitglied anlegen';
@@ -170,6 +258,17 @@ $total_team = count($team);
             document.getElementById('team_email').value = '';
             document.getElementById('team_bio').value = '';
             document.getElementById('team_current_img_box').style.display = 'none';
+
+            activeTeamLangs.forEach(al => {
+                if (al !== primaryTeamLang) {
+                    const rEl = document.getElementById('team_trans_' + al + '_role');
+                    const bEl = document.getElementById('team_trans_' + al + '_bio');
+                    if (rEl) rEl.value = '';
+                    if (bEl) bEl.value = '';
+                }
+            });
+
+            switchTeamLangTab(primaryTeamLang);
             document.getElementById('team-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Mitglied anlegen';
             document.getElementById('team_name').focus();
         }
@@ -193,6 +292,18 @@ $total_team = count($team);
             } else {
                 document.getElementById('team_current_img_box').style.display = 'none';
             }
+
+            const tr = memberData.translations || {};
+            activeTeamLangs.forEach(al => {
+                if (al !== primaryTeamLang) {
+                    const rEl = document.getElementById('team_trans_' + al + '_role');
+                    const bEl = document.getElementById('team_trans_' + al + '_bio');
+                    if (rEl) rEl.value = tr[al]?.role || '';
+                    if (bEl) bEl.value = tr[al]?.bio || '';
+                }
+            });
+
+            switchTeamLangTab(primaryTeamLang);
             document.getElementById('team-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Änderungen speichern';
             document.getElementById('team-editor-box').scrollIntoView({ behavior: 'smooth' });
         }

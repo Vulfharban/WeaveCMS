@@ -79,11 +79,15 @@
                             <span class="lightbox-hint"><span class="material-icons" style="font-size:18px;">zoom_in</span></span>
                         <?php endif; ?>
                     </div>
+                    <?php 
+                        $item_title = (!empty($cur_lang) && !empty($item['translations'][$cur_lang]['title'])) ? $item['translations'][$cur_lang]['title'] : ($item['title'] ?? '');
+                        $item_desc = (!empty($cur_lang) && !empty($item['translations'][$cur_lang]['description'])) ? $item['translations'][$cur_lang]['description'] : ($item['description'] ?? '');
+                    ?>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h3 style="margin:0; font-size:1.3rem;"><?php echo htmlspecialchars($item['title'] ?? ''); ?></h3>
+                        <h3 style="margin:0; font-size:1.3rem;"><?php echo htmlspecialchars($item_title); ?></h3>
                         <span style="font-size:0.75rem; background:rgba(16,185,129,0.1); color:var(--primary); padding:3px 10px; border-radius:12px; font-weight:600;"><?php echo htmlspecialchars($item['category'] ?? ''); ?></span>
                     </div>
-                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin:0;"><?php echo htmlspecialchars($item['description'] ?? ''); ?></p>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin:0;"><?php echo htmlspecialchars($item_desc); ?></p>
                 </div>
             <?php endforeach; ?>
         </div>

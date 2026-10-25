@@ -47,6 +47,9 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
             <?php 
                 $section_id = 'faq';
                 $current_tab = 'tab-faqs';
+                $active_langs = $active_langs ?? (class_exists('LanguageManager') ? LanguageManager::getActiveLanguages($data) : ['de']);
+                $primary_lang = $primary_lang ?? (class_exists('LanguageManager') ? LanguageManager::getPrimaryLanguage($data) : 'de');
+                $supported_langs = $supported_langs ?? (class_exists('LanguageManager') ? LanguageManager::getSupportedLanguages() : []);
                 include __DIR__ . '/partials/section_nav_bar.php';
             ?>
 
@@ -66,18 +69,59 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
                     <input type="hidden" name="action" id="faq_form_action" value="add_faq">
                     <input type="hidden" name="id" id="faq_id" value="">
 
-                    <div class="form-group" style="margin-bottom: 1.25rem;">
-                        <label for="faq_question" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Frage *</label>
-                        <input type="text" id="faq_question" name="question" class="form-control" placeholder="z. B. Muss ich Vorkenntnisse für die Kurse mitbringen?" required>
+                    <!-- Sprach-Reiter im FAQ-Editor -->
+                    <?php if (count($active_langs) > 1): ?>
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:1.5rem; flex-wrap:wrap; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-color);">
+                            <span style="font-size:0.88rem; font-weight:700; color:var(--text-secondary); margin-right:4px;">
+                                <span class="material-icons" style="font-size:16px; vertical-align:middle;">translate</span> Inhaltssprache:
+                            </span>
+                            <button type="button" class="btn btn-primary faq-lang-tab-btn" id="btn-faq-lang-<?php echo $primary_lang; ?>" onclick="switchFaqLangTab('<?php echo $primary_lang; ?>')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
+                                <span><?php echo $supported_langs[$primary_lang]['flag']; ?></span>
+                                <span><?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?> (Hauptsprache)</span>
+                            </button>
+                            <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
+                                <button type="button" class="btn btn-outline faq-lang-tab-btn" id="btn-faq-lang-<?php echo $al; ?>" onclick="switchFaqLangTab('<?php echo $al; ?>')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
+                                    <span><?php echo $supported_langs[$al]['flag']; ?></span>
+                                    <span><?php echo htmlspecialchars($supported_langs[$al]['name']); ?></span>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Panel Hauptsprache -->
+                    <div id="faq-lang-panel-<?php echo $primary_lang; ?>" class="faq-lang-panel">
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="faq_question" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Frage *</label>
+                            <input type="text" id="faq_question" name="question" class="form-control" placeholder="z. B. Muss ich Vorkenntnisse für die Kurse mitbringen?" required>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label for="faq_answer" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
+                                <span>Antwort (Markdown unterstützt) *</span>
+                                <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">**Fett**, Absätze, Listen, [Links](url)</span>
+                            </label>
+                            <textarea id="faq_answer" name="answer" class="form-control" rows="6" placeholder="Formuliere hier deine klare, freundliche Antwort..." required style="font-size:0.95rem; line-height:1.6;"></textarea>
+                        </div>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="faq_answer" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
-                            <span>Antwort (Markdown unterstützt) *</span>
-                            <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">**Fett**, Absätze, Listen, [Links](url)</span>
-                        </label>
-                        <textarea id="faq_answer" name="answer" class="form-control" rows="6" placeholder="Formuliere hier deine klare, freundliche Antwort..." required style="font-size:0.95rem; line-height:1.6;"></textarea>
-                    </div>
+                    <!-- Panels für weitere Sprachen -->
+                    <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
+                        <div id="faq-lang-panel-<?php echo $al; ?>" class="faq-lang-panel" style="display:none;">
+                            <div style="background:rgba(59, 130, 246, 0.08); border:1px solid #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:1.25rem; font-size:0.88rem; color:#1e40af; display:flex; align-items:center; gap:8px;">
+                                <span class="material-icons" style="font-size:18px; color:#2563eb;">translate</span>
+                                <span>Übersetzung für <strong><?php echo $supported_langs[$al]['flag'] . ' ' . htmlspecialchars($supported_langs[$al]['name']); ?></strong>. Bleibt ein Feld leer, greift automatisch die Hauptsprache.</span>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="faq_trans_<?php echo $al; ?>_question" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Frage (<?php echo htmlspecialchars($supported_langs[$al]['name']); ?>)</label>
+                                <input type="text" id="faq_trans_<?php echo $al; ?>_question" name="trans_<?php echo $al; ?>_question" class="form-control" placeholder="Frage auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>">
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 1.5rem;">
+                                <label for="faq_trans_<?php echo $al; ?>_answer" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Antwort auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?></label>
+                                <textarea id="faq_trans_<?php echo $al; ?>_answer" name="trans_<?php echo $al; ?>_answer" class="form-control" rows="6" placeholder="Übersetzte Antwort..." style="font-size:0.95rem; line-height:1.6;"></textarea>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
 
                     <div style="display:flex; justify-content:flex-end; gap:12px;">
                         <button type="button" class="btn btn-secondary" onclick="closeFaqEditor()">Abbrechen</button>
@@ -107,9 +151,20 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
                                     <span class="material-icons" style="font-size:20px;">help_outline</span>
                                 </div>
                                 <div style="flex:1;">
-                                    <h4 style="margin:0 0 6px 0; font-size:1.02rem; color:var(--text-primary);">
-                                        <?php echo htmlspecialchars($f['question'] ?? 'Frage'); ?>
-                                    </h4>
+                                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                                        <h4 style="margin:0; font-size:1.02rem; color:var(--text-primary);">
+                                            <?php echo htmlspecialchars($f['question'] ?? 'Frage'); ?>
+                                        </h4>
+                                        <?php if (!empty($f['translations']) && is_array($f['translations'])): ?>
+                                            <?php foreach ($f['translations'] as $tLang => $tVals): ?>
+                                                <?php if (!empty($tVals['question']) && isset($supported_langs[$tLang])): ?>
+                                                    <span style="font-size:0.75rem; background:rgba(59,130,246,0.1); color:#2563eb; padding:1px 6px; border-radius:6px; font-weight:700;" title="Übersetzt auf <?php echo htmlspecialchars($supported_langs[$tLang]['name']); ?>">
+                                                        <?php echo $supported_langs[$tLang]['flag'] . ' ' . strtoupper($tLang); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </div>
                                     <div style="font-size:0.88rem; color:var(--text-secondary); line-height:1.4; max-height:48px; overflow:hidden; text-overflow:ellipsis;">
                                         <?php echo htmlspecialchars(mb_strimwidth($f['answer'] ?? '', 0, 160, '...')); ?>
                                     </div>
@@ -136,6 +191,25 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
         </div>
 
         <script>
+        const FAQ_ACTIVE_LANGS = <?php echo json_encode($active_langs); ?>;
+        const FAQ_PRIMARY_LANG = <?php echo json_encode($primary_lang); ?>;
+
+        function switchFaqLangTab(lang) {
+            document.querySelectorAll('.faq-lang-panel').forEach(function(p) { p.style.display = 'none'; });
+            const p = document.getElementById('faq-lang-panel-' + lang);
+            if (p) p.style.display = 'block';
+
+            document.querySelectorAll('.faq-lang-tab-btn').forEach(function(b) {
+                b.classList.remove('btn-primary');
+                b.classList.add('btn-outline');
+            });
+            const b = document.getElementById('btn-faq-lang-' + lang);
+            if (b) {
+                b.classList.remove('btn-outline');
+                b.classList.add('btn-primary');
+            }
+        }
+
         function openFaqEditor() {
             document.getElementById('faq-editor-box').style.display = 'block';
             document.getElementById('faq-editor-title').innerHTML = '<span class="material-icons">add_circle</span> Neue FAQ-Frage anlegen';
@@ -143,6 +217,16 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
             document.getElementById('faq_id').value = '';
             document.getElementById('faq_question').value = '';
             document.getElementById('faq_answer').value = '';
+
+            FAQ_ACTIVE_LANGS.forEach(function(lang) {
+                if (lang === FAQ_PRIMARY_LANG) return;
+                const fQ = document.getElementById('faq_trans_' + lang + '_question');
+                if (fQ) fQ.value = '';
+                const fA = document.getElementById('faq_trans_' + lang + '_answer');
+                if (fA) fA.value = '';
+            });
+
+            switchFaqLangTab(FAQ_PRIMARY_LANG);
             document.getElementById('faq-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Frage anlegen';
             document.getElementById('faq_question').focus();
         }
@@ -158,6 +242,17 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
             document.getElementById('faq_id').value = faqData.id || '';
             document.getElementById('faq_question').value = faqData.question || '';
             document.getElementById('faq_answer').value = faqData.answer || '';
+
+            const trans = faqData.translations || {};
+            FAQ_ACTIVE_LANGS.forEach(function(lang) {
+                if (lang === FAQ_PRIMARY_LANG) return;
+                const fQ = document.getElementById('faq_trans_' + lang + '_question');
+                if (fQ) fQ.value = (trans[lang] && trans[lang].question) ? trans[lang].question : '';
+                const fA = document.getElementById('faq_trans_' + lang + '_answer');
+                if (fA) fA.value = (trans[lang] && trans[lang].answer) ? trans[lang].answer : '';
+            });
+
+            switchFaqLangTab(FAQ_PRIMARY_LANG);
             document.getElementById('faq-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Änderungen speichern';
             document.getElementById('faq-editor-box').scrollIntoView({ behavior: 'smooth' });
         }

@@ -27,8 +27,10 @@ $team_subtitle = !empty($data['texts']['team_subtitle']) ? $data['texts']['team_
             <?php foreach ($team_members as $m): ?>
                 <?php 
                     $m_name = htmlspecialchars($m['name'] ?? '');
-                    $m_role = htmlspecialchars($m['role'] ?? '');
-                    $m_bio = htmlspecialchars($m['bio'] ?? '');
+                    $m_role_raw = (!empty($cur_lang) && !empty($m['translations'][$cur_lang]['role'])) ? $m['translations'][$cur_lang]['role'] : ($m['role'] ?? '');
+                    $m_bio_raw = (!empty($cur_lang) && !empty($m['translations'][$cur_lang]['bio'])) ? $m['translations'][$cur_lang]['bio'] : ($m['bio'] ?? '');
+                    $m_role = htmlspecialchars($m_role_raw);
+                    $m_bio = htmlspecialchars($m_bio_raw);
                     $m_img = !empty($m['image']) ? htmlspecialchars($m['image']) : '';
                     $m_email = htmlspecialchars($m['email'] ?? '');
                 ?>
