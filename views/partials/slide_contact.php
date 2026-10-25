@@ -17,26 +17,44 @@
         <h2 style="color: var(--primary); margin-bottom: 2rem;"><?php echo htmlspecialchars(__('contact.title', 'Kontakt & Kursanfrage')); ?></h2>
         <div style="display: flex; flex-direction: column; gap: 1.5rem; color: var(--text-secondary);">
             
-            <p><?php echo htmlspecialchars($data['texts']['contact_intro_text'] ?? 'Hast du Fragen zu meinen Kursen, möchtest einen Gutschein erwerben oder ein individuelles Weidengeflecht anfragen?'); ?></p>
+            <?php if (!empty(trim($data['texts']['contact_intro_text'] ?? ''))): ?>
+            <p><?php echo htmlspecialchars($data['texts']['contact_intro_text']); ?></p>
+            <?php endif; ?>
 
+            <?php 
+            $c_name = trim($data['texts']['contact_name'] ?? '');
+            $c_street = trim($data['texts']['contact_street'] ?? '');
+            $c_city = trim($data['texts']['contact_city'] ?? '');
+            if ($c_name !== '' || $c_street !== '' || $c_city !== ''): 
+            ?>
             <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-color);">
                 <h4 style="color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
                     <span class="material-icons" style="color: var(--primary);">person</span>
                     <?php echo htmlspecialchars(__('contact.owner', 'Inhaberin')); ?>
                 </h4>
-                <p><?php echo htmlspecialchars($data['texts']['contact_name'] ?? ''); ?></p>
-                <p><?php echo htmlspecialchars($data['texts']['contact_street'] ?? ''); ?></p>
-                <p><?php echo htmlspecialchars($data['texts']['contact_city'] ?? ''); ?></p>
+                <?php if ($c_name !== ''): ?><p><?php echo htmlspecialchars($c_name); ?></p><?php endif; ?>
+                <?php if ($c_street !== ''): ?><p><?php echo htmlspecialchars($c_street); ?></p><?php endif; ?>
+                <?php if ($c_city !== ''): ?><p><?php echo htmlspecialchars($c_city); ?></p><?php endif; ?>
             </div>
+            <?php endif; ?>
 
+            <?php 
+            $c_phone = trim($data['texts']['contact_phone'] ?? '');
+            if ($c_phone !== ''): 
+            ?>
             <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-color);">
                 <h4 style="color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
                     <span class="material-icons" style="color: var(--primary);">phone</span>
                     <?php echo htmlspecialchars(__('contact.phone', 'Telefon')); ?>
                 </h4>
-                <p><a href="tel:<?php echo str_replace(' ', '', $data['texts']['contact_phone'] ?? ''); ?>" style="color: var(--text-primary);"><?php echo htmlspecialchars($data['texts']['contact_phone'] ?? ''); ?></a></p>
+                <p><a href="tel:<?php echo str_replace(' ', '', $c_phone); ?>" style="color: var(--text-primary);"><?php echo htmlspecialchars($c_phone); ?></a></p>
             </div>
+            <?php endif; ?>
 
+            <?php 
+            $c_email = trim($data['texts']['contact_email'] ?? '');
+            if ($c_email !== ''): 
+            ?>
             <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-color);">
                 <h4 style="color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
                     <span class="material-icons" style="color: var(--primary);">email</span>
@@ -64,10 +82,11 @@
                             <div id="contact-direct-captcha-feedback" style="display:none; color:#ef4444; font-size:0.75rem; margin-top:4px;"></div>
                         </div>
                     <?php else: ?>
-                        <a href="mailto:<?php echo htmlspecialchars($data['texts']['contact_email'] ?? ''); ?>" style="color: var(--primary);"><?php echo htmlspecialchars($data['texts']['contact_email'] ?? ''); ?></a>
+                        <a href="mailto:<?php echo htmlspecialchars($c_email); ?>" style="color: var(--primary);"><?php echo htmlspecialchars($c_email); ?></a>
                     <?php endif; ?>
                 </p>
             </div>
+            <?php endif; ?>
 
             <?php if (!empty($data['texts']['contact_instagram'])): ?>
                 <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-color);">
