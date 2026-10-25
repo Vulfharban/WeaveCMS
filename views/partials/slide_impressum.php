@@ -26,15 +26,31 @@
         <!-- Inhaltsbereich: Impressum -->
         <div id="legal-panel-impressum" style="font-size: 0.9rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 1.5rem;">
             <h2 style="color: var(--primary); margin: 0 0 0.5rem 0; font-size: 1.5rem;"><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></h2>
+            <?php 
+            $imp_name = trim($data['texts']['contact_name'] ?? '');
+            $imp_street = trim($data['texts']['contact_street'] ?? '');
+            $imp_city = trim($data['texts']['contact_city'] ?? '');
+            if ($imp_name !== '' || $imp_street !== '' || $imp_city !== ''): 
+            ?>
             <div>
                 <h4 style="color: var(--text-primary); margin-bottom: 0.25rem;"><?php echo htmlspecialchars(__('legal.tmg_notice', 'Angaben gemäß § 5 TMG')); ?></h4>
-                <p style="margin: 2px 0;"><?php echo htmlspecialchars($data['texts']['contact_name'] ?? ''); ?></p>
-                <p style="margin: 2px 0;"><?php echo htmlspecialchars($data['texts']['contact_street'] ?? ''); ?></p>
-                <p style="margin: 2px 0;"><?php echo htmlspecialchars($data['texts']['contact_city'] ?? ''); ?></p>
+                <?php if ($imp_name !== ''): ?><p style="margin: 2px 0;"><?php echo htmlspecialchars($imp_name); ?></p><?php endif; ?>
+                <?php if ($imp_street !== ''): ?><p style="margin: 2px 0;"><?php echo htmlspecialchars($imp_street); ?></p><?php endif; ?>
+                <?php if ($imp_city !== ''): ?><p style="margin: 2px 0;"><?php echo htmlspecialchars($imp_city); ?></p><?php endif; ?>
             </div>
+            <?php endif; ?>
+
+            <?php 
+            $imp_phone = trim($data['texts']['contact_phone'] ?? '');
+            $imp_email = trim($data['texts']['contact_email'] ?? '');
+            if ($imp_phone !== '' || $imp_email !== ''): 
+            ?>
             <div>
                 <h4 style="color: var(--text-primary); margin-bottom: 0.25rem;"><?php echo htmlspecialchars(__('legal.contact_headline', 'Kontakt')); ?></h4>
-                <p style="margin: 2px 0;"><?php echo htmlspecialchars(__('contact.phone', 'Telefon')); ?>: <?php echo htmlspecialchars($data['texts']['contact_phone'] ?? ''); ?></p>
+                <?php if ($imp_phone !== ''): ?>
+                <p style="margin: 2px 0;"><?php echo htmlspecialchars(__('contact.phone', 'Telefon')); ?>: <?php echo htmlspecialchars($imp_phone); ?></p>
+                <?php endif; ?>
+                <?php if ($imp_email !== ''): ?>
                 <p style="margin: 2px 0;">
                     <?php echo htmlspecialchars(__('contact.email', 'E-Mail')); ?>: 
                     <?php if (CaptchaManager::isImpressumEmailProtected($data)): ?>
@@ -58,10 +74,12 @@
                             <div id="impressum-captcha-feedback" style="display:none; color:#ef4444; font-size:0.75rem; margin-top:4px;"></div>
                         </div>
                     <?php else: ?>
-                        <?php echo htmlspecialchars($data['texts']['contact_email'] ?? ''); ?>
+                        <?php echo htmlspecialchars($imp_email); ?>
                     <?php endif; ?>
                 </p>
+                <?php endif; ?>
             </div>
+            <?php endif; ?>
             <?php if (!empty($data['texts']['impressum_supervisory'])): ?>
                 <div>
                     <h4 style="color: var(--text-primary); margin-bottom: 0.25rem;"><?php echo htmlspecialchars(__('legal.supervisory', 'Zuständige Aufsichtsbehörde / Kammer')); ?></h4>
