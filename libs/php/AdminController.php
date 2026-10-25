@@ -1117,7 +1117,8 @@ class AdminController {
             if (save_data($dataFile, $data)) {
                 $success_msg = '✓ Spamschutz-, SMTP-, Upload- und Produktions-Sicherheitseinstellungen erfolgreich gespeichert.';
             } else {
-                $error_msg = 'Fehler beim Speichern der Einstellungen.';
+                $reason = StorageManager::getLastError();
+                $error_msg = 'Fehler beim Speichern der Einstellungen: ' . $reason;
             }
         }
     }

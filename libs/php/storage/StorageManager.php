@@ -343,4 +343,24 @@ class StorageManager {
             'message' => "Erfolgreich zu MySQL ('{$dbName}') migriert! Die Datenbank ist nun als primäre Speicher-Engine aktiv."
         ];
     }
+
+    /**
+     * Gibt den genauen Grund des letzten Speicherfehlers zurück.
+     * @return string
+     */
+    public static function getLastError(): string {
+        $driver = self::getDriver();
+        if (method_exists($driver, 'getLastError')) {
+            $err = $driver->getLastError();
+            if (!empty($err)) {
+                return $err;
+            }
+        }
+        $last = error_get_last();
+        if (!empty($last['message'])) {
+            return $last['message'];
+        }
+        return 'Dateiberechtigungen (chmod/chown) prüfen. data.json oder das Serververzeichnis ist für den PHP-Prozess schreibgeschützt.';
+    }
 }
+
