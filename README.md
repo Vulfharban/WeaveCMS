@@ -22,14 +22,31 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **21-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 
-## Releases & Downloads (v1.2.0)
+## Releases & Downloads (v1.2.1)
 
-- 📦 **[WeaveCMS v1.2.0 Full Package](releases/weavecms-v1.2.0.zip)** (`releases/weavecms-v1.2.0.zip`, 11.88 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.2.0 Update Package](releases/update-v1.2.0.zip)** (`releases/update-v1.2.0.zip`, 0.50 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.2.1 Full Package](releases/weavecms-v1.2.1.zip)** (`releases/weavecms-v1.2.1.zip`, 11.88 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.2.1 Update Package](releases/update-v1.2.1.zip)** (`releases/update-v1.2.1.zip`, 0.50 MB) – Core system files for upgrading existing installations.
+
+## Changelog & Recent Updates
+
+### v1.2.1 (25. Oktober 2026)
+
+- 🎨 **Design-Toolbar für Einzelseiten:** Schnellauswahl und 1-Klick-Einfügen von vordefinierten Trennern, Farbboxen und Überschriftarten direkt im Admin-Seiteneditor.
+- ✂️ **Optische Trenner (Visual Dividers):** Farbverlauf-Linien (`divider-gradient`), zentrierte Icon-Trennlinien (`divider-icon`), leuchtende Glow-Linien (`divider-glow`), gepunktete und Wellen-Trenner.
+- 📦 **Einfärbbare Div-Boxen & Cards:** Sanfte Farbtöne (`box-soft-primary`, `box-soft-success`, `box-soft-amber`, `box-soft-purple`), Dark-/Gradient-Cards und frei einfärbbare Boxen mit Farbwähler.
+- 🏷️ **Vordefinierte Überschrift-Stile:** Akzent-Balken links, Farbverlauf-Unterstrich, Eyebrow/Kicker-Badges, Gradient-Schriftzüge und Icon-Headlines.
+- 📏 **Responsiver Einzelseiten-Container:** Automatische Skalierung bis zu `var(--container-max-width, 1100px)` für großzügige 2-Spalten-Grids und Projekt-Karten.
+- 🛠️ **MarkdownParser Entity-Fix:** Deaktivierung der Doppelkodierung (`double_encode = false`), sodass sowohl `&` als auch `&amp;` fehlerfrei als `&` im Browser angezeigt werden.
+
+### v1.2.0 (25. Oktober 2026)
+
+- 📋 Modernisiertes Aktive/Inaktive Sektionen Kanban-Board im Admin-Dashboard.
+- 🛡️ Optionaler Spamschutz (Captcha/Rechenaufgabe) für den Kontakt-Drawer analog zum Impressum.
+- 🌐 Optimierter Sprachwechsel ohne Reset auf das Dashboard.
 
 ## Installation
 
-1. Download **[weavecms-v1.2.0.zip](releases/weavecms-v1.2.0.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.2.1.zip](releases/weavecms-v1.2.1.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License
