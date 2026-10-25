@@ -87,8 +87,18 @@ class ShopManager {
             'created_at'  => date('Y-m-d H:i:s')
         ];
 
+        // Filter-Hook für Plugin-Erweiterungen (z. B. digitale Downloads, Varianten, Attribute)
+        if (class_exists('PluginManager')) {
+            $item = PluginManager::applyFilters('shop_product_data', $item, $data);
+        }
+
         array_unshift($products, $item);
         self::saveProducts($products);
+
+        if (class_exists('PluginManager')) {
+            PluginManager::doAction('shop_product_added', $item);
+        }
+
         return $item;
     }
 
@@ -112,6 +122,12 @@ class ShopManager {
                 if (isset($data['image'])) $p['image'] = trim($data['image']);
                 $p['active'] = !empty($data['active']);
                 $p['updated_at'] = date('Y-m-d H:i:s');
+
+                // Filter-Hook für zusätzliche Plugin-Felder
+                if (class_exists('PluginManager')) {
+                    $p = PluginManager::applyFilters('shop_product_data', $p, $data);
+                }
+
                 $found = true;
                 break;
             }
@@ -119,7 +135,11 @@ class ShopManager {
         unset($p);
 
         if ($found) {
-            return self::saveProducts($products);
+            $saved = self::saveProducts($products);
+            if ($saved && class_exists('PluginManager')) {
+                PluginManager::doAction('shop_product_updated', $id, $data);
+            }
+            return $saved;
         }
         return false;
     }
@@ -135,7 +155,11 @@ class ShopManager {
         }));
 
         if (count($products) < $initialCount) {
-            return self::saveProducts($products);
+            $saved = self::saveProducts($products);
+            if ($saved && class_exists('PluginManager')) {
+                PluginManager::doAction('shop_product_deleted', $id);
+            }
+            return $saved;
         }
         return false;
     }
@@ -193,13 +217,17 @@ class ShopManager {
      * Erstellt eine neue Bestellung.
      */
     public static function createOrder(array $orderData): array {
+        if (class_exists('PluginManager')) {
+            $orderData = PluginManager::applyFilters('shop_before_create_order', $orderData);
+        }
+
         $orders = self::getOrders();
         $orderId = 'ORD-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
 
         $newOrder = [
             'order_id'       => $orderId,
             'status'         => $orderData['status'] ?? 'paid', // paid, pending, shipped, cancelled
-            'payment_method' => $orderData['payment_method'] ?? 'credit_card', // credit_card, paypal, wero
+            'payment_method' => $orderData['payment_method'] ?? 'credit_card', // credit_card, paypal, wero, bank_transfer
             'payment_ref'    => $orderData['payment_ref'] ?? ('TXN-' . bin2hex(random_bytes(6))),
             'customer'       => [
                 'name'    => trim($orderData['customer']['name'] ?? ''),
@@ -251,24 +279,36 @@ class ShopManager {
      */
     public static function updateOrderStatus(string $orderId, string $newStatus): bool {
         $allowed = ['pending', 'paid', 'processing', 'shipped', 'completed', 'cancelled'];
+        if (class_exists('PluginManager')) {
+            $allowed = PluginManager::applyFilters('shop_allowed_order_statuses', $allowed);
+        }
+
         if (!in_array($newStatus, $allowed, true)) {
             return false;
         }
 
         $orders = self::getOrders();
         $updated = false;
+        $oldStatus = null;
+        $updatedOrder = null;
         foreach ($orders as &$o) {
             if (($o['order_id'] ?? '') === $orderId) {
+                $oldStatus = $o['status'] ?? 'pending';
                 $o['status'] = $newStatus;
                 $o['updated_at'] = date('Y-m-d H:i:s');
                 $updated = true;
+                $updatedOrder = $o;
                 break;
             }
         }
         unset($o);
 
         if ($updated) {
-            return self::saveOrders($orders);
+            $saved = self::saveOrders($orders);
+            if ($saved && class_exists('PluginManager')) {
+                PluginManager::doAction('shop_order_status_updated', $orderId, $newStatus, $oldStatus, $updatedOrder);
+            }
+            return $saved;
         }
         return false;
     }
@@ -349,7 +389,7 @@ class ShopManager {
 
         $total = round($subtotal + $shipping, 2);
 
-        return [
+        $cartResult = [
             'items'          => $resolvedItems,
             'items_count'    => array_sum(array_column($resolvedItems, 'qty')),
             'subtotal'       => round($subtotal, 2),
@@ -359,19 +399,86 @@ class ShopManager {
             'currency'       => $shopConfig['currency'] ?? 'EUR',
             'small_business' => $isSmallBusiness
         ];
+
+        if (class_exists('PluginManager')) {
+            $cartResult = PluginManager::applyFilters('shop_calculate_cart', $cartResult, $cartItems, $shopConfig);
+        }
+
+        return $cartResult;
     }
 
     // =========================================================================
-    // BEZAHLFUNKTIONEN (PAYMENT ENGINES)
+    // BEZAHLFUNKTIONEN (PAYMENT ENGINES & GATEWAYS)
     // =========================================================================
+
+    /**
+     * Gibt alle registrierten Zahlungsarten zurück.
+     * Ermöglicht Dritt-Plugins das Registrieren neuer Gateways via 'shop_payment_gateways'.
+     */
+    public static function getPaymentGateways(array $shopConfig = []): array {
+        $gateways = [
+            'credit_card' => [
+                'id'         => 'credit_card',
+                'title'      => 'Kreditkarte',
+                'subtitle'   => 'Visa, Mastercard',
+                'icon'       => '💳',
+                'badge'      => 'Visa, Mastercard',
+                'enabled'    => !empty($shopConfig['payment_credit_card']['enabled']),
+                'has_fields' => true
+            ],
+            'paypal' => [
+                'id'         => 'paypal',
+                'title'      => 'PayPal',
+                'subtitle'   => 'Express & Käuferschutz',
+                'icon'       => '🅿️',
+                'badge'      => 'PayPal Express',
+                'enabled'    => !empty($shopConfig['payment_paypal']['enabled']),
+                'has_fields' => false
+            ],
+            'wero' => [
+                'id'         => 'wero',
+                'title'      => 'WERO',
+                'subtitle'   => 'Bank-Sofortzahlung',
+                'icon'       => '🇪🇺',
+                'badge'      => 'WERO Sofort',
+                'enabled'    => !empty($shopConfig['payment_wero']['enabled']),
+                'has_fields' => false
+            ],
+            'bank_transfer' => [
+                'id'         => 'bank_transfer',
+                'title'      => 'Vorkasse',
+                'subtitle'   => 'Banküberweisung',
+                'icon'       => '🏦',
+                'badge'      => 'Vorkasse / Überweisung',
+                'enabled'    => !empty($shopConfig['payment_bank_transfer']['enabled']),
+                'has_fields' => false
+            ]
+        ];
+
+        if (class_exists('PluginManager')) {
+            $gateways = PluginManager::applyFilters('shop_payment_gateways', $gateways, $shopConfig);
+        }
+
+        return $gateways;
+    }
 
     /**
      * Führt die Bezahlung über das gewählte Zahlungssystem durch:
      * - 'credit_card' (Kreditkarte: Visa, Mastercard, Amex mit Luhn-Validierung)
      * - 'paypal'      (PayPal Checkout & Instant Redirect)
      * - 'wero'        (European Payments Initiative: Sofortüberweisung via QR / Bank-App)
+     * - 'bank_transfer' (Vorkasse / Manuelle Banküberweisung)
+     * - Beliebige weitere Plugins via Filter 'shop_process_payment'
      */
     public static function processPayment(string $method, float $total, array $details, array $shopConfig): array {
+        // Plugin Hook: Ermöglicht Dritt-Plugins, eigene Bezahlvorgänge vollständig abzuwickeln
+        if (class_exists('PluginManager')) {
+            $customResponse = PluginManager::applyFilters('shop_process_payment', null, $method, $total, $details, $shopConfig);
+            if (is_array($customResponse) && isset($customResponse['success'])) {
+                return $customResponse;
+            }
+        }
+
         switch ($method) {
             case 'credit_card':
                 return self::processCreditCard($total, $details, $shopConfig);
@@ -587,8 +694,18 @@ class ShopManager {
         require_once $mailerFile;
 
         // Globale CMS-Daten für SMTP & Kontaktdaten laden
-        $dataFile = dirname(__DIR__, 2) . '/data.json';
-        $data = file_exists($dataFile) ? (json_decode((string)@file_get_contents($dataFile), true) ?: []) : [];
+        $data = [];
+        if (class_exists('StorageManager')) {
+            try {
+                $data = StorageManager::getDriver()->loadData();
+            } catch (\Throwable $e) {
+                $data = [];
+            }
+        }
+        if (empty($data)) {
+            $dataFile = dirname(__DIR__, 2) . '/data.json';
+            $data = file_exists($dataFile) ? (json_decode((string)@file_get_contents($dataFile), true) ?: []) : [];
+        }
 
         $smtpConfig = $data['settings']['smtp'] ?? null;
         $shopOwnerEmail = trim($data['texts']['contact_email'] ?? '');
@@ -739,6 +856,12 @@ class ShopManager {
                           . ($order['customer']['country'] ?? '') . "\n\n"
                           . "Herzliche Grüße,\n{$shopOwnerName}";
 
+            if (class_exists('PluginManager')) {
+                $subjectCustomer = PluginManager::applyFilters('shop_order_customer_email_subject', $subjectCustomer, $order);
+                $htmlCustomer = PluginManager::applyFilters('shop_order_customer_email_html', $htmlCustomer, $order);
+                $textCustomer = PluginManager::applyFilters('shop_order_customer_email_text', $textCustomer, $order);
+            }
+
             $replyToEmail = !empty($shopOwnerEmail) ? $shopOwnerEmail : '';
             $replyToName = !empty($shopOwnerName) ? $shopOwnerName : '';
 
@@ -779,6 +902,12 @@ class ShopManager {
                        . "Gesamtbetrag: {$totalFmt}\n"
                        . "Zahlungsart: {$payMethodName}\n\n"
                        . "Artikel:\n" . $itemsText;
+
+            if (class_exists('PluginManager')) {
+                $subjectAdmin = PluginManager::applyFilters('shop_order_admin_email_subject', $subjectAdmin, $order);
+                $htmlAdmin = PluginManager::applyFilters('shop_order_admin_email_html', $htmlAdmin, $order);
+                $textAdmin = PluginManager::applyFilters('shop_order_admin_email_text', $textAdmin, $order);
+            }
 
             $resAdmin = SimpleMailer::send($shopOwnerEmail, $subjectAdmin, $htmlAdmin, $textAdmin, $customerEmail, $customerName, $smtpConfig);
             $result['admin'] = !empty($resAdmin['success']);

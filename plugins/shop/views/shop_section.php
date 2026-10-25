@@ -209,6 +209,11 @@ foreach ($activeProducts as $p) {
             <p style="margin: 0; font-size: 0.95rem;">Dein Warenkorb ist noch leer.</p>
         </div>
         <div id="shop-cart-items-list"></div>
+        <?php
+        if (class_exists('PluginManager')) {
+            PluginManager::doAction('shop_cart_after_items', $config);
+        }
+        ?>
     </div>
 
     <!-- Drawer Footer / Summen & Checkout-Button -->
@@ -221,6 +226,11 @@ foreach ($activeProducts as $p) {
             <span>Versandkosten:</span>
             <span id="shop-cart-shipping" style="font-weight: 600; color: var(--text-primary);">0,00 €</span>
         </div>
+        <?php
+        if (class_exists('PluginManager')) {
+            PluginManager::doAction('shop_cart_summary_rows', $config);
+        }
+        ?>
         <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; color: var(--text-primary); border-top: 1px dashed var(--border-color); padding-top: 8px; margin-bottom: 1.25rem;">
             <span>Gesamtbetrag:</span>
             <span id="shop-cart-total" style="color: var(--primary);">0,00 €</span>
@@ -392,6 +402,12 @@ foreach ($activeProducts as $p) {
                         <?php echo htmlspecialchars($bt_instruction); ?>
                     </p>
                 </div>
+
+                <?php
+                if (class_exists('PluginManager')) {
+                    PluginManager::doAction('shop_checkout_payment_fields', $config);
+                }
+                ?>
 
                 <!-- Gesamtsumme & Bestellen-Button -->
                 <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">

@@ -178,6 +178,13 @@ switch ($action) {
         exit;
 
     default:
+        // Filter-Hook für Addon-Plugins, um eigene API-Aktionen bereitzustellen (z. B. Gutscheincode prüfen, Sendungsverfolgung)
+        if (class_exists('PluginManager')) {
+            $handled = PluginManager::applyFilters('shop_api_action', false, $action, $jsonInput, $shopConfig);
+            if ($handled) {
+                exit;
+            }
+        }
         echo json_encode(['success' => false, 'message' => 'Ungültige Shop-Aktion.']);
         exit;
 }
