@@ -166,6 +166,22 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 
 ## 📈 Release History & Milestones
 
+### v1.2.0 (Modernized Sections Kanban, Contact Anti-Scraping & UI Hardening)
+* **Modernized Kanban Board for Active/Inactive Sections (Content & Pages):**
+  * **Intuitive Kanban Architecture:** Active Pages & Sections (Live) are positioned on the left (1.25× width with primary green accent) as the central workspace; the Inactive Module Pool on the right as component reservoir.
+  * **Elimination of Wireframe Borders:** Refined glassmorphic surface cards (`border-radius: 14px`) replacing rough dashed outlines, with dynamic dropzone cues during drag-over.
+  * **Squircle Icon Tiles & Badges:** 38×38px squircle icon tiles (`.sec-icon-tile`), position badges (`#1`, `#2`...), and clean status tags (`Plugin`, `Menu`, placement).
+  * **Ergonomic Action Toolbar:** Prominent `+ Activate` button in the pool and streamlined action buttons for reordering, editing, content management, and deactivation.
+* **Anti-Scraping Email Protection for Contact Drawer (`contact_email_captcha`):**
+  * **Direct Harvester Shield:** Optional obfuscation of the direct contact email address in the contact slide-in drawer to prevent automated web crawlers from scraping contact emails.
+  * **HTML5 Canvas Captcha:** 5-digit distorted numeric captcha with dynamic AJAX verification for visitors.
+  * **Independent Controls:** Separate toggle switches in the Security tab for imprint and contact email anti-scraping.
+* **Layout & Container Hardening:**
+  * **HTML Validation & Bugfix:** Removed premature closing `</div>` tag in `tab_texts.php` that previously caused section texts to leak across all admin navigation tabs.
+  * **Seamless Language Tab Navigation:** Reliable client-side language switching in texts and pages without unintended redirects to the dashboard.
+
+---
+
 ### v1.1.0 (Live Server Deployment, Production Hardening & Multi-Language Tabs / Phase 17)
 * **Live Server Deployment, SSL/HSTS Hardening & Production Security (Phase 17):**
   * **Strict HSTS Policy & SSL Preloading (17.1):** Configurable activation of `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` strictly on confirmed live domains with active SSL certificates.

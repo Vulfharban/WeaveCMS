@@ -165,6 +165,22 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ---
 
+### v1.2.0 (Modernes Sektionen-Kanban, Kontakt-Spamschutz & UI-Härtung)
+* **Modernisiertes Kanban-Board für Sektionen & Modul-Pool (Inhalte & Seiten):**
+  * **Logische Kanban-Architektur:** Aktive Seiten & Sektionen (Live) stehen links (1.25× Breite mit Primärakzent) als Hauptarbeitsbereich; inaktiver Modul-Pool rechts als Baustein-Vorrat.
+  * **Entfernung der Wireframe-Rahmen:** Sanfte, abgerundete Oberflächenkarten (`border-radius: 14px`) anstelle unfertiger gestrichelter Linien; dynamische Drop-Indikation bei Drag-Over.
+  * **Squircle Icon-Tiles & Positions-Badges:** Jedes Modul verfügt über ein 38×38px Squircle-Icon (`.sec-icon-tile`), Positions-Pills (`#1`, `#2`...) sowie aufgeräumte Status-Tags (`Plugin`, `Menü`, Platzierung).
+  * **Ergonomische Aktionsleiste:** Prominenter Button `+ Aktivieren` im Pool sowie dezente Icon-Toolbar für Sortierung, Einstellungen, Inhaltsverwaltung und Deaktivierung.
+* **Anti-Scraping E-Mail-Schutz für das Kontakt-Menü (`contact_email_captcha`):**
+  * **Direktschutz vor Harvestern:** Optionale Maskierung der direkten Kontakt-E-Mail-Adresse im Kontakt-Drawer vor automatisierten E-Mail-Scrapern.
+  * **HTML5 Canvas-Captcha:** Schnelle, barrierefreie Freischaltung per 5-stelligem Code direkt im Drawer mit automatischer AJAX-Verifikation.
+  * **Unabhängige Konfiguration:** Getrennte Schalter im Sicherheits-Tab für Impressum und Kontaktbereich.
+* **Layout- & Container-Härtung:**
+  * **HTML-Validierung & Fehlerbehebung:** Beseitigung eines vorzeitigen `</div>`-Tags in `tab_texts.php`, das Sektionstexte versehentlich auf allen Tabs angezeigt hatte.
+  * **Nahtlose Sprachumschaltung:** Robuster Wechsel zwischen Sprach-Tabs in Text- und Seiteneditoren ohne ungewollte Dashboard-Redirects.
+
+---
+
 ### v1.1.0 (Live-Server-Deployment, Produktions-Härtung & Universelle Sprach-Tabs / Phase 17)
 * **Live-Server-Deployment, SSL/HSTS-Härtung & Produktions-Sicherheit (Phase 17):**
   * **Strikte HSTS-Policy & SSL-Preloading (17.1):** Konfigurierbare Aktivierung von `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` exklusiv für bestätigte Live-Domains mit aktivem SSL-Zertifikat.
