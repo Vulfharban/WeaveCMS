@@ -22,12 +22,19 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **21-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 
-## Releases & Downloads (v1.2.1)
+## Releases & Downloads (v1.2.2)
 
-- 📦 **[WeaveCMS v1.2.1 Full Package](releases/weavecms-v1.2.1.zip)** (`releases/weavecms-v1.2.1.zip`, 11.88 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.2.1 Update Package](releases/update-v1.2.1.zip)** (`releases/update-v1.2.1.zip`, 0.50 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.2.2 Full Package](releases/weavecms-v1.2.2.zip)** (`releases/weavecms-v1.2.2.zip`, 11.90 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.2.2 Update Package](releases/update-v1.2.2.zip)** (`releases/update-v1.2.2.zip`, 0.51 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.2.2 (25. Oktober 2026)
+
+- 🛒 **Shop-Erweiterungs-Architektur (Add-on Plugins):** Leistungsfähiges Hook- und Filtersystem für Erweiterungs-Plugins (`shop_payment_gateways`, `shop_process_payment`, `shop_calculate_cart`, `shop_product_data`, `shop_admin_subtabs`, `shop_api_action`, `shop_email_order_data`, etc.). Ermöglicht nahtlose Integration von Dritt-Zahlungsanbietern, Rabatt-/Gutscheinsystemen, individuellen Produktfeldern und eigenen Admin-Tabs.
+- 📚 **Shop-Entwicklerdokumentation:** Vollständige Referenz und Quick-Start-Guide in `plugins/shop/README.md` inklusive lauffähigem Beispiel-Plugin für Gutscheincodes.
+- 🛡️ **SecurityManager Fix:** Einführung von `SecurityManager::getBaseUrl()` zur zuverlässigen URL-Ermittlung bei System-E-Mails und Webhooks.
+- 📦 **Plugin-Versionierung:** Anhebung des Shop-Plugins auf v1.2.0.
 
 ### v1.2.1 (25. Oktober 2026)
 
@@ -46,7 +53,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.2.1.zip](releases/weavecms-v1.2.1.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.2.2.zip](releases/weavecms-v1.2.2.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License
