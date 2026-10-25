@@ -118,6 +118,7 @@ class AdminController {
             case 'move_section':
             case 'toggle_section_visibility':
             case 'update_section':
+            case 'sync_sections_pool':
                 self::handleSectionAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
@@ -786,6 +787,47 @@ class AdminController {
      * Verarbeitet Sektions-Reihenfolge und Sichtbarkeiten.
      */
     protected static function handleSectionAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if ($action === 'sync_sections_pool') {
+            $active_ids = isset($_POST['active_ids']) && is_array($_POST['active_ids']) ? $_POST['active_ids'] : [];
+            $inactive_ids = isset($_POST['inactive_ids']) && is_array($_POST['inactive_ids']) ? $_POST['inactive_ids'] : [];
+
+            if (SectionManager::syncPoolAndOrder($data, $active_ids, $inactive_ids)) {
+                if (save_data($dataFile, $data)) {
+                    if (!empty($_POST['is_ajax'])) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        $active_types = [];
+                        foreach ($data['sections'] as $s) {
+                            if (!empty($s['visible'])) {
+                                $active_types[] = $s['type'] ?? $s['id'];
+                            }
+                        }
+                        echo json_encode([
+                            'success' => true,
+                            'message' => 'Seiten-Aufbau und Modul-Pool erfolgreich aktualisiert!',
+                            'active_types' => $active_types
+                        ]);
+                        exit;
+                    }
+                    $success_msg = 'Seiten-Aufbau und Modul-Pool erfolgreich aktualisiert!';
+                } else {
+                    if (!empty($_POST['is_ajax'])) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => false, 'error' => 'Fehler beim Speichern der Daten.']);
+                        exit;
+                    }
+                    $error_msg = 'Fehler beim Speichern der Daten.';
+                }
+            } else {
+                if (!empty($_POST['is_ajax'])) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode(['success' => false, 'error' => 'Fehler beim Verarbeiten des Modul-Pools.']);
+                    exit;
+                }
+                $error_msg = 'Fehler beim Verarbeiten des Modul-Pools.';
+            }
+            return;
+        }
+
         $sec_id = $_POST['section_id'] ?? '';
         if ($action === 'move_section') {
             $dir = $_POST['direction'] ?? 'up';

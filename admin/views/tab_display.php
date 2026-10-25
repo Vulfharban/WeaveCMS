@@ -360,7 +360,7 @@
                     <span class="material-icons" style="color:var(--primary);">accessibility_new</span> Besucher-Barrierefreiheit &amp; Ansicht
                 </h3>
                 <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height:1.5;">
-                    Ermögliche deinen Website-Besuchern maximalen Lesekomfort durch eine dezente Steuerleiste am oberen Seitenrand.
+                    Ermögliche deinen Website-Besuchern maximalen Lesekomfort durch dezente Bedienelemente direkt in der Navigation.
                 </p>
 
                 <?php 
@@ -371,10 +371,10 @@
                         <input type="checkbox" name="accessibility_bar_enabled" value="1" <?php echo $cur_a11y_bar ? 'checked' : ''; ?> style="width:20px; height:20px; margin-top:2px; accent-color:var(--primary);">
                         <div>
                             <span style="font-weight:700; font-size:1rem; color:var(--text-primary); display:block;">
-                                Besucher-Barrierefreiheitsleiste im Frontend anzeigen
+                                Besucher-Barrierefreiheit &amp; Ansicht im Menü anzeigen
                             </span>
                             <span style="font-size:0.86rem; color:var(--text-secondary); line-height:1.45; display:block; margin-top:4px;">
-                                Blendet am oberen Bildschirmrand eine Leiste mit Live Hell-/Dunkelmodus (🌙/☀️), stufenlosem Schriftgrößen-Zoom (A- / A+) und Sprachwechsler ein. Einstellungen der Besucher werden automatisch im Browser gespeichert.
+                                Bindet dezent in die Navigation (neben der Sprachauswahl) Bedienelemente für Live Hell-/Dunkelmodus (🌙/☀️ mit Tooltip) und stufenlosen Schriftgrößen-Zoom (A- / A+) ein. Einstellungen der Besucher werden automatisch im Browser gespeichert.
                             </span>
                         </div>
                     </label>
