@@ -19,6 +19,7 @@
                 <?php
                     $cur_captcha_mode = CaptchaManager::getMode($data);
                     $impressum_email_protected = CaptchaManager::isImpressumEmailProtected($data);
+                    $contact_email_protected = CaptchaManager::isContactEmailProtected($data);
                     $prod_sec = SecurityManager::getProductionSettings();
                     $is_https = SecurityManager::isHttps();
                     $perms_audit = SecurityManager::auditPermissions();
@@ -101,8 +102,8 @@
                     </div>
                 </div>
 
-                <!-- Anti-Scraping E-Mail-Schutz im Impressum -->
-                <div style="background:rgba(0,0,0,0.02); border:1px solid var(--border-color); border-radius:12px; padding:1.25rem; margin-bottom:2rem;">
+                <!-- Anti-Scraping E-Mail-Schutz (Impressum & Kontaktbereich) -->
+                <div style="background:rgba(0,0,0,0.02); border:1px solid var(--border-color); border-radius:12px; padding:1.25rem; margin-bottom:2rem; display:flex; flex-direction:column; gap:1rem;">
                     <label style="display:inline-flex; align-items:flex-start; gap:10px; cursor:pointer;">
                         <input type="checkbox" name="impressum_email_captcha" value="1" <?php echo $impressum_email_protected ? 'checked' : ''; ?> style="width:18px; height:18px; margin-top:2px;">
                         <div>
@@ -110,7 +111,19 @@
                                 🛡️ E-Mail-Adresse im Impressum mit aktiver Captcha-Prüfung schützen (Anti-Scraping)
                             </span>
                             <span style="font-size:0.84rem; color:var(--text-secondary); line-height:1.4; display:block; margin-top:2px;">
-                                Verhindert, dass automatisierte Adress-Harvester und Spam-Crawler deine E-Mail-Adresse im Klartext auslesen. Besucher schalten die Adresse per Klick und 5-stelligem Canvas-Code frei.
+                                Verhindert, dass automatisierte Adress-Harvester und Spam-Crawler deine E-Mail-Adresse im Impressum im Klartext auslesen. Besucher schalten die Adresse per Klick und 5-stelligem Canvas-Code frei.
+                            </span>
+                        </div>
+                    </label>
+
+                    <label style="display:inline-flex; align-items:flex-start; gap:10px; cursor:pointer; padding-top:0.75rem; border-top:1px solid rgba(0,0,0,0.06);">
+                        <input type="checkbox" name="contact_email_captcha" value="1" <?php echo $contact_email_protected ? 'checked' : ''; ?> style="width:18px; height:18px; margin-top:2px;">
+                        <div>
+                            <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem; display:block;">
+                                🛡️ E-Mail-Adresse im Kontaktbereich mit aktiver Captcha-Prüfung schützen (Anti-Scraping)
+                            </span>
+                            <span style="font-size:0.84rem; color:var(--text-secondary); line-height:1.4; display:block; margin-top:2px;">
+                                Schützt die direkte Kontakt-E-Mail-Adresse im Kontakt-Menü vor Spam-Harvestern. Besucher schalten die Adresse per Klick und 5-stelligem Canvas-Code frei (das Kontaktformular bleibt weiterhin uneingeschränkt nutzbar).
                             </span>
                         </div>
                     </label>

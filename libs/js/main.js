@@ -520,7 +520,7 @@ function sendRequestEmail(e, contactEmail) {
 
     // 5. Falls SMTP in den Einstellungen nicht aktiviert ist: Direkt mailto öffnen (kein PHP-Server-Mailer)
     const isSmtpEnabled = (typeof window !== 'undefined' && window.SERVER_SMTP_ENABLED === true);
-    const recipient = contactEmail || 'kontakt@maxima-musterfrau.de';
+    const recipient = contactEmail || window.UNLOCKED_CONTACT_EMAIL || 'kontakt@maxima-musterfrau.de';
     const mailtoUrl = buildMailtoUrl(recipient, name, email, phone, message);
 
     if (!isSmtpEnabled) {
@@ -867,10 +867,11 @@ function verifyImpressumCaptcha() {
         return;
     }
 
-    fetch('api/verify_email_captcha.php?action=verify&code=' + encodeURIComponent(code))
+    fetch('api/verify_email_captcha.php?action=verify&context=impressum&code=' + encodeURIComponent(code))
         .then(res => res.json())
         .then(data => {
             if (data.success && data.email) {
+                window.UNLOCKED_CONTACT_EMAIL = data.email;
                 const wrapper = document.getElementById('impressum-email-wrapper');
                 const box = document.getElementById('impressum-email-captcha-box');
                 if (box) box.style.display = 'none';
@@ -883,6 +884,76 @@ function verifyImpressumCaptcha() {
                     feedback.style.display = 'block';
                 }
                 fetchImpressumCaptcha();
+            }
+        }).catch(() => {
+            if (feedback) {
+                feedback.innerText = 'Verbindungsfehler beim Verifizieren.';
+                feedback.style.display = 'block';
+            }
+        });
+}
+
+/**
+ * Öffnet das Canvas-Captcha für die E-Mail-Freischaltung im Kontakt-Menü (Anti-Scraping).
+ */
+function openContactEmailCaptcha() {
+    const box = document.getElementById('contact-email-captcha-box');
+    if (box) {
+        box.style.display = 'block';
+        fetchContactCaptcha();
+    }
+}
+
+/**
+ * Lädt einen neuen Canvas-Code vom Server für das Kontakt-Menü.
+ */
+function fetchContactCaptcha() {
+    fetch('api/verify_email_captcha.php?action=get_challenge&context=contact')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.code) {
+                const canvas = document.getElementById('contact-direct-captcha-canvas');
+                if (canvas) {
+                    canvas.setAttribute('data-code', data.code);
+                    drawDistortedCanvas(canvas, data.code);
+                }
+            }
+        }).catch(() => {});
+}
+
+/**
+ * Verifiziert den eingegebenen Code und schaltet die E-Mail-Adresse im Kontaktbereich frei.
+ */
+function verifyContactCaptcha() {
+    const input = document.getElementById('contact-direct-captcha-input');
+    const feedback = document.getElementById('contact-direct-captcha-feedback');
+    const code = input ? input.value.trim() : '';
+
+    if (!code) {
+        if (feedback) {
+            feedback.innerText = 'Bitte gib den 5-stelligen Code ein.';
+            feedback.style.display = 'block';
+        }
+        return;
+    }
+
+    fetch('api/verify_email_captcha.php?action=verify&context=contact&code=' + encodeURIComponent(code))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.email) {
+                window.UNLOCKED_CONTACT_EMAIL = data.email;
+                const wrapper = document.getElementById('contact-email-wrapper');
+                const box = document.getElementById('contact-email-captcha-box');
+                if (box) box.style.display = 'none';
+                if (wrapper) {
+                    wrapper.innerHTML = `<a href="mailto:${data.email}" style="color:var(--primary); font-weight:600; text-decoration:underline;">${data.email}</a>`;
+                }
+            } else {
+                if (feedback) {
+                    feedback.innerText = data.error || 'Code leider nicht korrekt.';
+                    feedback.style.display = 'block';
+                }
+                fetchContactCaptcha();
             }
         }).catch(() => {
             if (feedback) {

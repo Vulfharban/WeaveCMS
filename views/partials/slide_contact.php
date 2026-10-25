@@ -42,7 +42,31 @@
                     <span class="material-icons" style="color: var(--primary);">email</span>
                     <?php echo htmlspecialchars(__('contact.email', 'E-Mail')); ?>
                 </h4>
-                <p><a href="mailto:<?php echo htmlspecialchars($data['texts']['contact_email'] ?? ''); ?>" style="color: var(--primary);"><?php echo htmlspecialchars($data['texts']['contact_email'] ?? ''); ?></a></p>
+                <p style="margin: 2px 0;">
+                    <?php if (CaptchaManager::isContactEmailProtected($data)): ?>
+                        <span id="contact-email-wrapper">
+                            <button type="button" class="btn btn-outline" onclick="openContactEmailCaptcha()" style="padding: 2px 8px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;">
+                                <span class="material-icons" style="font-size: 14px;">lock</span> E-Mail anzeigen (Spamschutz)
+                            </button>
+                        </span>
+                        <div id="contact-email-captcha-box" style="display:none; margin-top:8px; padding:10px; background:rgba(0,0,0,0.03); border:1px solid var(--border-color); border-radius:10px; max-width:280px;">
+                            <div style="font-size:0.78rem; margin-bottom:4px; color:var(--text-secondary);">Bitte den 5-stelligen Code eingeben:</div>
+                            <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                                <canvas id="contact-direct-captcha-canvas" width="140" height="38" style="background:#fff; border-radius:6px; border:1px solid var(--border-color);"></canvas>
+                                <button type="button" class="btn btn-secondary" onclick="fetchContactCaptcha()" style="padding:4px 6px;" title="Neu laden">
+                                    <span class="material-icons" style="font-size:15px;">refresh</span>
+                                </button>
+                            </div>
+                            <div style="display:flex; gap:6px;">
+                                <input type="text" id="contact-direct-captcha-input" maxlength="5" placeholder="Code..." style="width:85px; padding:4px 8px; font-size:0.85rem; border-radius:6px; border:1px solid var(--border-color);">
+                                <button type="button" class="btn btn-primary" onclick="verifyContactCaptcha()" style="padding:4px 10px; font-size:0.8rem;">Freischalten</button>
+                            </div>
+                            <div id="contact-direct-captcha-feedback" style="display:none; color:#ef4444; font-size:0.75rem; margin-top:4px;"></div>
+                        </div>
+                    <?php else: ?>
+                        <a href="mailto:<?php echo htmlspecialchars($data['texts']['contact_email'] ?? ''); ?>" style="color: var(--primary);"><?php echo htmlspecialchars($data['texts']['contact_email'] ?? ''); ?></a>
+                    <?php endif; ?>
+                </p>
             </div>
 
             <?php if (!empty($data['texts']['contact_instagram'])): ?>
@@ -62,7 +86,7 @@
             <!-- Interactive Request form inside sidebar -->
             <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
                 <h4 style="color: var(--text-primary); margin-bottom: 1rem;"><?php echo htmlspecialchars(__('contact.write_message', 'Nachricht schreiben')); ?></h4>
-                <form onsubmit="sendRequestEmail(event, '<?php echo htmlspecialchars($data['texts']['contact_email'] ?? 'kontakt@maxima-musterfrau.de', ENT_QUOTES, 'UTF-8'); ?>')">
+                <form onsubmit="sendRequestEmail(event, '<?php echo CaptchaManager::isContactEmailProtected($data) ? '' : htmlspecialchars($data['texts']['contact_email'] ?? 'kontakt@maxima-musterfrau.de', ENT_QUOTES, 'UTF-8'); ?>')">
                     
                     <!-- Honeypot-Falle für Spam-Roboter (für menschliche Besucher unsichtbar) -->
                     <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">

@@ -1077,6 +1077,7 @@ class AdminController {
         }
 
         $data['settings']['impressum_email_captcha'] = !empty($_POST['impressum_email_captcha']);
+        $data['settings']['contact_email_captcha'] = !empty($_POST['contact_email_captcha']);
 
         $submitted_captcha = $_POST['captcha_icons'] ?? [];
         $captcha_error = false;
