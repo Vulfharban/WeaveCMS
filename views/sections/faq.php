@@ -26,8 +26,10 @@ $faq_subtitle = !empty($data['texts']['faq_subtitle']) ? $data['texts']['faq_sub
         <div style="max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem;">
             <?php foreach ($faqs as $idx => $f): ?>
                 <?php 
-                    $q = htmlspecialchars($f['question'] ?? '');
-                    $a = MarkdownParser::parse($f['answer'] ?? '');
+                    $q_raw = (!empty($cur_lang) && !empty($f['translations'][$cur_lang]['question'])) ? $f['translations'][$cur_lang]['question'] : ($f['question'] ?? '');
+                    $a_raw = (!empty($cur_lang) && !empty($f['translations'][$cur_lang]['answer'])) ? $f['translations'][$cur_lang]['answer'] : ($f['answer'] ?? '');
+                    $q = htmlspecialchars($q_raw);
+                    $a = MarkdownParser::parse($a_raw);
                 ?>
                 <details class="card" style="padding: 1.25rem 1.5rem; border-radius: 14px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border-color)'">
                     <summary style="font-weight: 700; font-size: 1.05rem; color: var(--text-primary); list-style: none; display: flex; justify-content: space-between; align-items: center; user-select: none;">
@@ -50,12 +52,14 @@ $faq_subtitle = !empty($data['texts']['faq_subtitle']) ? $data['texts']['faq_sub
                 <?php 
                     $schema_entities = [];
                     foreach ($faqs as $f) {
+                        $q_schema = (!empty($cur_lang) && !empty($f['translations'][$cur_lang]['question'])) ? $f['translations'][$cur_lang]['question'] : ($f['question'] ?? '');
+                        $a_schema = (!empty($cur_lang) && !empty($f['translations'][$cur_lang]['answer'])) ? $f['translations'][$cur_lang]['answer'] : ($f['answer'] ?? '');
                         $schema_entities[] = json_encode([
                             "@type" => "Question",
-                            "name" => $f['question'] ?? '',
+                            "name" => $q_schema,
                             "acceptedAnswer" => [
                                 "@type" => "Answer",
-                                "text" => strip_tags(MarkdownParser::parse($f['answer'] ?? ''))
+                                "text" => strip_tags(MarkdownParser::parse($a_schema))
                             ]
                         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                     }

@@ -27,8 +27,11 @@
                     $spots_left = max(0, $c['max_participants'] - $c['current_participants']);
                     $is_bookable = $c['available'] && ($spots_left > 0);
                     $course_link = $site_url . '?course=' . $c['id'];
-                    $time_text = !empty($c['time']) ? $c['time'] : '10:00 - 16:00 Uhr';
-                    $location_text = !empty($c['location']) ? $c['location'] : 'Werkstatt Kraaker Straße 14, 19077 Rastow';
+                    $c_title_raw = (!empty($cur_lang) && !empty($c['translations'][$cur_lang]['title'])) ? $c['translations'][$cur_lang]['title'] : ($c['title'] ?? '');
+                    $c_desc_raw = (!empty($cur_lang) && !empty($c['translations'][$cur_lang]['description'])) ? $c['translations'][$cur_lang]['description'] : ($c['description'] ?? '');
+                    $c_date_raw = (!empty($cur_lang) && !empty($c['translations'][$cur_lang]['date_string'])) ? $c['translations'][$cur_lang]['date_string'] : ($c['date_string'] ?? '');
+                    $time_text = (!empty($cur_lang) && !empty($c['translations'][$cur_lang]['time'])) ? $c['translations'][$cur_lang]['time'] : (!empty($c['time']) ? $c['time'] : '10:00 - 16:00 Uhr');
+                    $location_text = (!empty($cur_lang) && !empty($c['translations'][$cur_lang]['location'])) ? $c['translations'][$cur_lang]['location'] : (!empty($c['location']) ? $c['location'] : 'Werkstatt Kraaker Straße 14, 19077 Rastow');
                     $is_highlighted = ($selected_course_id === (int)$c['id']);
                 ?>
                 <div class="course-row <?php echo $is_highlighted ? 'highlighted' : ''; ?>" id="course-<?php echo $c['id']; ?>">
@@ -36,7 +39,7 @@
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom: 0.75rem; flex-wrap:wrap;">
                             <span style="background: rgba(217, 119, 6, 0.12); color: var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; display:inline-flex; align-items:center; gap:5px;">
                                 <span class="material-icons" style="font-size:16px;">calendar_today</span>
-                                <?php echo htmlspecialchars($c['date_string']); ?>
+                                <?php echo htmlspecialchars($c_date_raw); ?>
                             </span>
                             
                             <?php if ($is_bookable): ?>
@@ -50,8 +53,8 @@
                             <?php endif; ?>
                         </div>
 
-                        <h3 style="margin: 0 0 0.5rem 0; font-size: 1.4rem;"><?php echo htmlspecialchars($c['title']); ?></h3>
-                        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom:0.75rem; line-height: 1.5;"><?php echo htmlspecialchars($c['description']); ?></p>
+                        <h3 style="margin: 0 0 0.5rem 0; font-size: 1.4rem;"><?php echo htmlspecialchars($c_title_raw); ?></h3>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom:0.75rem; line-height: 1.5;"><?php echo htmlspecialchars($c_desc_raw); ?></p>
                         
                         <!-- Meta Information: Time, Location, Participants -->
                         <div style="display:flex; gap: 0.75rem; flex-wrap:wrap; margin-top: 0.5rem;">

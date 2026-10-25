@@ -164,6 +164,7 @@ class AdminController {
                 break;
 
             case 'add_gallery':
+            case 'edit_gallery':
             case 'delete_gallery':
             case 'reorder_gallery':
                 self::handleGalleryAction($action, $dataFile, $data, $success_msg, $error_msg);
@@ -879,7 +880,7 @@ class AdminController {
                         'nav_label' => $t_nav,
                         'title' => $t_title
                     ];
-                } elseif (isset($_POST['trans_' . $lang . '_nav_label'])) {
+                } elseif (isset($_POST['trans_' . $lang . '_nav_label']) || isset($_POST['trans_' . $lang . '_title'])) {
                     unset($translations[$lang]);
                 }
             }
@@ -900,6 +901,19 @@ class AdminController {
                 'icon' => $icon,
                 'translations' => $translations
             ])) {
+                // Synchronisiere Sektionstitel in data['texts'] falls vorhanden
+                $textKey = $sec_id . '_title';
+                if (isset($data['texts'][$textKey]) && !empty($title)) {
+                    $data['texts'][$textKey] = $title;
+                }
+                foreach ($translations as $tLang => $tVals) {
+                    if (!empty($tVals['title'])) {
+                        if (!isset($data['texts_i18n'][$tLang]) || !is_array($data['texts_i18n'][$tLang])) {
+                            $data['texts_i18n'][$tLang] = [];
+                        }
+                        $data['texts_i18n'][$tLang][$textKey] = $tVals['title'];
+                    }
+                }
                 if (save_data($dataFile, $data)) {
                     $success_msg = 'Sektion & Menü-Titel „' . htmlspecialchars($nav_label ?: $title) . '“ erfolgreich aktualisiert!';
                 } else {
@@ -1259,6 +1273,14 @@ class AdminController {
             'past_courses_subtitle' => $_POST['past_courses_subtitle'] ?? '',
             'blog_title' => $_POST['blog_title'] ?? 'Aktuelles & Geschichten',
             'blog_subtitle' => $_POST['blog_subtitle'] ?? '',
+            'faq_title' => $_POST['faq_title'] ?? 'Häufige Fragen (FAQ)',
+            'faq_subtitle' => $_POST['faq_subtitle'] ?? '',
+            'team_title' => $_POST['team_title'] ?? 'Team & Mitarbeiter',
+            'team_subtitle' => $_POST['team_subtitle'] ?? '',
+            'downloads_title' => $_POST['downloads_title'] ?? 'Downloads & Software',
+            'downloads_subtitle' => $_POST['downloads_subtitle'] ?? '',
+            'pricing_title' => $_POST['pricing_title'] ?? 'Leistungen & Preise',
+            'pricing_subtitle' => $_POST['pricing_subtitle'] ?? '',
             'contact_intro_text' => $_POST['contact_intro_text'] ?? ''
         ];
 
@@ -1336,13 +1358,30 @@ class AdminController {
                     if (($item['sort_order'] ?? 0) >= $next_sort) $next_sort = ($item['sort_order'] ?? 0) + 1;
                 }
 
+                // Mehrsprachige Übersetzungen (title, description) sammeln
+                $active_langs = LanguageManager::getActiveLanguages($data);
+                $primary_lang = LanguageManager::getPrimaryLanguage($data);
+                $translations = [];
+                foreach ($active_langs as $al) {
+                    if ($al === $primary_lang) continue;
+                    $t_title = trim($_POST['trans_' . $al . '_title'] ?? '');
+                    $t_desc = trim($_POST['trans_' . $al . '_description'] ?? '');
+                    if ($t_title !== '' || $t_desc !== '') {
+                        $translations[$al] = [
+                            'title' => $t_title,
+                            'description' => $t_desc
+                        ];
+                    }
+                }
+
                 $data['gallery'][] = [
                     'id' => $next_id,
                     'title' => $title,
                     'description' => $description,
                     'image' => $image_path,
                     'category' => $category ?: 'Sonstiges',
-                    'sort_order' => $next_sort
+                    'sort_order' => $next_sort,
+                    'translations' => $translations
                 ];
 
                 if (save_data($dataFile, $data)) {
@@ -1350,6 +1389,61 @@ class AdminController {
                 } else {
                     $error_msg = 'Fehler beim Speichern der Galerie-Daten.';
                 }
+            }
+        } elseif ($action === 'edit_gallery') {
+            $id = (int)($_POST['id'] ?? 0);
+            $found_idx = -1;
+            foreach ($data['gallery'] as $idx => $item) {
+                if ((int)($item['id'] ?? 0) === $id) {
+                    $found_idx = $idx;
+                    break;
+                }
+            }
+            if ($found_idx === -1) {
+                $error_msg = 'Galerie-Element nicht gefunden.';
+                return;
+            }
+
+            $title = trim($_POST['title'] ?? '');
+            if (empty($title)) {
+                $error_msg = 'Bitte gib einen Titel für das Galerie-Element an.';
+                return;
+            }
+
+            if (!empty($_FILES['gallery_image']['name'])) {
+                $image_path = ImageUploader::upload('gallery_image', $data);
+                if ($image_path) {
+                    $data['gallery'][$found_idx]['image'] = $image_path;
+                }
+            }
+
+            $data['gallery'][$found_idx]['title'] = $title;
+            $data['gallery'][$found_idx]['description'] = trim($_POST['description'] ?? '');
+            $data['gallery'][$found_idx]['category'] = trim($_POST['category'] ?? 'Sonstiges');
+
+            // Mehrsprachige Übersetzungen sammeln
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = $data['gallery'][$found_idx]['translations'] ?? [];
+            foreach ($active_langs as $al) {
+                if ($al === $primary_lang) continue;
+                $t_title = trim($_POST['trans_' . $al . '_title'] ?? '');
+                $t_desc = trim($_POST['trans_' . $al . '_description'] ?? '');
+                if ($t_title !== '' || $t_desc !== '') {
+                    $translations[$al] = [
+                        'title' => $t_title,
+                        'description' => $t_desc
+                    ];
+                } else {
+                    unset($translations[$al]);
+                }
+            }
+            $data['gallery'][$found_idx]['translations'] = $translations;
+
+            if (save_data($dataFile, $data)) {
+                $success_msg = 'Galerie-Element erfolgreich aktualisiert!';
+            } else {
+                $error_msg = 'Fehler beim Speichern der Galerie-Daten.';
             }
         } elseif ($action === 'delete_gallery') {
             $id = (int)($_POST['id'] ?? 0);
@@ -1424,6 +1518,28 @@ class AdminController {
                 $slug = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $title));
                 $invite_token = 'kurs-' . $next_id . '-' . trim($slug, '-');
 
+                // Mehrsprachige Übersetzungen (title, description, date_string, time, location) sammeln
+                $active_langs = LanguageManager::getActiveLanguages($data);
+                $primary_lang = LanguageManager::getPrimaryLanguage($data);
+                $translations = [];
+                foreach ($active_langs as $al) {
+                    if ($al === $primary_lang) continue;
+                    $t_title = trim($_POST['trans_' . $al . '_title'] ?? '');
+                    $t_desc = trim($_POST['trans_' . $al . '_description'] ?? '');
+                    $t_date = trim($_POST['trans_' . $al . '_date_string'] ?? '');
+                    $t_time = trim($_POST['trans_' . $al . '_time'] ?? '');
+                    $t_loc = trim($_POST['trans_' . $al . '_location'] ?? '');
+                    if ($t_title !== '' || $t_desc !== '' || $t_date !== '' || $t_time !== '' || $t_loc !== '') {
+                        $translations[$al] = [
+                            'title' => $t_title,
+                            'description' => $t_desc,
+                            'date_string' => $t_date,
+                            'time' => $t_time,
+                            'location' => $t_loc
+                        ];
+                    }
+                }
+
                 $data['courses'][] = [
                     'id' => $next_id,
                     'title' => $title,
@@ -1435,7 +1551,8 @@ class AdminController {
                     'max_participants' => $max_participants,
                     'current_participants' => $current_participants,
                     'available' => $available,
-                    'invite_token' => $invite_token
+                    'invite_token' => $invite_token,
+                    'translations' => $translations
                 ];
 
                 if (save_data($dataFile, $data)) {
@@ -1462,6 +1579,32 @@ class AdminController {
                         $slug = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $c['title']));
                         $c['invite_token'] = 'kurs-' . $id . '-' . trim($slug, '-');
                     }
+
+                    // Mehrsprachige Übersetzungen sammeln
+                    $active_langs = LanguageManager::getActiveLanguages($data);
+                    $primary_lang = LanguageManager::getPrimaryLanguage($data);
+                    $translations = $c['translations'] ?? [];
+                    foreach ($active_langs as $al) {
+                        if ($al === $primary_lang) continue;
+                        $t_title = trim($_POST['trans_' . $al . '_title'] ?? '');
+                        $t_desc = trim($_POST['trans_' . $al . '_description'] ?? '');
+                        $t_date = trim($_POST['trans_' . $al . '_date_string'] ?? '');
+                        $t_time = trim($_POST['trans_' . $al . '_time'] ?? '');
+                        $t_loc = trim($_POST['trans_' . $al . '_location'] ?? '');
+                        if ($t_title !== '' || $t_desc !== '' || $t_date !== '' || $t_time !== '' || $t_loc !== '') {
+                            $translations[$al] = [
+                                'title' => $t_title,
+                                'description' => $t_desc,
+                                'date_string' => $t_date,
+                                'time' => $t_time,
+                                'location' => $t_loc
+                            ];
+                        } else {
+                            unset($translations[$al]);
+                        }
+                    }
+                    $c['translations'] = $translations;
+
                     $found = true;
                     break;
                 }
@@ -1926,10 +2069,26 @@ class AdminController {
                 return;
             }
 
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = [];
+            foreach ($active_langs as $lang) {
+                if ($lang === $primary_lang) continue;
+                $t_q = trim($_POST['trans_' . $lang . '_question'] ?? '');
+                $t_a = trim($_POST['trans_' . $lang . '_answer'] ?? '');
+                if ($t_q !== '' || $t_a !== '') {
+                    $translations[$lang] = [
+                        'question' => $t_q,
+                        'answer' => $t_a
+                    ];
+                }
+            }
+
             $newFaq = [
                 'id' => 'faq_' . uniqid(),
                 'question' => $question,
                 'answer' => $answer,
+                'translations' => $translations,
                 'created_at' => date('Y-m-d H:i:s')
             ];
 
@@ -1942,11 +2101,27 @@ class AdminController {
 
         } elseif ($action === 'edit_faq') {
             $faq_id = $_POST['id'] ?? '';
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = [];
+            foreach ($active_langs as $lang) {
+                if ($lang === $primary_lang) continue;
+                $t_q = trim($_POST['trans_' . $lang . '_question'] ?? '');
+                $t_a = trim($_POST['trans_' . $lang . '_answer'] ?? '');
+                if ($t_q !== '' || $t_a !== '') {
+                    $translations[$lang] = [
+                        'question' => $t_q,
+                        'answer' => $t_a
+                    ];
+                }
+            }
+
             $found = false;
             foreach ($data['faqs'] as &$f) {
                 if ((string)($f['id'] ?? '') === (string)$faq_id) {
                     $f['question'] = trim($_POST['question'] ?? '');
                     $f['answer'] = trim($_POST['answer'] ?? '');
+                    $f['translations'] = $translations;
                     $found = true;
                     break;
                 }
@@ -2000,6 +2175,22 @@ class AdminController {
                 }
             }
 
+            // Mehrsprachige Übersetzungen (role, bio) sammeln
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = [];
+            foreach ($active_langs as $al) {
+                if ($al === $primary_lang) continue;
+                $t_role = trim($_POST['trans_' . $al . '_role'] ?? '');
+                $t_bio = trim($_POST['trans_' . $al . '_bio'] ?? '');
+                if ($t_role !== '' || $t_bio !== '') {
+                    $translations[$al] = [
+                        'role' => $t_role,
+                        'bio' => $t_bio
+                    ];
+                }
+            }
+
             $newMember = [
                 'id' => 'team_' . uniqid(),
                 'name' => $name,
@@ -2007,6 +2198,7 @@ class AdminController {
                 'email' => trim($_POST['email'] ?? ''),
                 'bio' => trim($_POST['bio'] ?? ''),
                 'image' => $image_path,
+                'translations' => $translations,
                 'created_at' => date('Y-m-d H:i:s')
             ];
 
@@ -2048,11 +2240,30 @@ class AdminController {
                 $image_path = '';
             }
 
+            // Mehrsprachige Übersetzungen (role, bio) sammeln
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = $data['team'][$found_idx]['translations'] ?? [];
+            foreach ($active_langs as $al) {
+                if ($al === $primary_lang) continue;
+                $t_role = trim($_POST['trans_' . $al . '_role'] ?? '');
+                $t_bio = trim($_POST['trans_' . $al . '_bio'] ?? '');
+                if ($t_role !== '' || $t_bio !== '') {
+                    $translations[$al] = [
+                        'role' => $t_role,
+                        'bio' => $t_bio
+                    ];
+                } else {
+                    unset($translations[$al]);
+                }
+            }
+
             $data['team'][$found_idx]['name'] = $name;
             $data['team'][$found_idx]['role'] = $role;
             $data['team'][$found_idx]['email'] = trim($_POST['email'] ?? '');
             $data['team'][$found_idx]['bio'] = trim($_POST['bio'] ?? '');
             $data['team'][$found_idx]['image'] = $image_path;
+            $data['team'][$found_idx]['translations'] = $translations;
 
             if (save_data($dataFile, $data)) {
                 $success_msg = 'Teammitglied „' . htmlspecialchars($name) . '“ erfolgreich aktualisiert!';
@@ -2134,6 +2345,26 @@ class AdminController {
                 }
             }
 
+            // Mehrsprachige Übersetzungen (title, description, features, changelog) sammeln
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = [];
+            foreach ($active_langs as $al) {
+                if ($al === $primary_lang) continue;
+                $t_title = trim($_POST['trans_' . $al . '_title'] ?? '');
+                $t_desc = trim($_POST['trans_' . $al . '_description'] ?? '');
+                $t_feats = $parseFeatures($_POST['trans_' . $al . '_features'] ?? '');
+                $t_log = trim($_POST['trans_' . $al . '_changelog'] ?? '');
+                if ($t_title !== '' || $t_desc !== '' || !empty($t_feats) || $t_log !== '') {
+                    $translations[$al] = [
+                        'title' => $t_title,
+                        'description' => $t_desc,
+                        'features' => $t_feats,
+                        'changelog' => $t_log
+                    ];
+                }
+            }
+
             $newDl = [
                 'id' => 'dl_' . uniqid(),
                 'title' => $title,
@@ -2151,6 +2382,7 @@ class AdminController {
                 'changelog' => trim($_POST['changelog'] ?? ''),
                 'show_counter' => !empty($_POST['show_counter']),
                 'download_count' => 0,
+                'translations' => $translations,
                 'created_at' => date('Y-m-d H:i:s')
             ];
 
@@ -2185,6 +2417,28 @@ class AdminController {
             $externalUrl = trim($_POST['external_url'] ?? '');
             $fileSize = trim($_POST['file_size'] ?? ($data['downloads'][$found_idx]['file_size'] ?? ''));
 
+            // Mehrsprachige Übersetzungen sammeln
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = $data['downloads'][$found_idx]['translations'] ?? [];
+            foreach ($active_langs as $al) {
+                if ($al === $primary_lang) continue;
+                $t_title = trim($_POST['trans_' . $al . '_title'] ?? '');
+                $t_desc = trim($_POST['trans_' . $al . '_description'] ?? '');
+                $t_feats = $parseFeatures($_POST['trans_' . $al . '_features'] ?? '');
+                $t_log = trim($_POST['trans_' . $al . '_changelog'] ?? '');
+                if ($t_title !== '' || $t_desc !== '' || !empty($t_feats) || $t_log !== '') {
+                    $translations[$al] = [
+                        'title' => $t_title,
+                        'description' => $t_desc,
+                        'features' => $t_feats,
+                        'changelog' => $t_log
+                    ];
+                } else {
+                    unset($translations[$al]);
+                }
+            }
+
             $data['downloads'][$found_idx]['title'] = $title;
             $data['downloads'][$found_idx]['description'] = trim($_POST['description'] ?? '');
             $data['downloads'][$found_idx]['category'] = trim($_POST['category'] ?? 'Software');
@@ -2197,6 +2451,7 @@ class AdminController {
             $data['downloads'][$found_idx]['screenshots'] = $parseScreenshots($_POST['screenshots'] ?? '');
             $data['downloads'][$found_idx]['changelog'] = trim($_POST['changelog'] ?? '');
             $data['downloads'][$found_idx]['show_counter'] = !empty($_POST['show_counter']);
+            $data['downloads'][$found_idx]['translations'] = $translations;
 
             if (!empty($_FILES['download_file']['name'])) {
                 $docInfo = ImageUploader::uploadDocument('download_file');
@@ -2269,6 +2524,32 @@ class AdminController {
             $feats_raw = trim($_POST['features'] ?? '');
             $features = !empty($feats_raw) ? array_values(array_filter(array_map('trim', explode("\n", $feats_raw)))) : [];
 
+            // Mehrsprachige Übersetzungen sammeln
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = [];
+            foreach ($active_langs as $al) {
+                if ($al === $primary_lang) continue;
+                $t_title = trim($_POST['trans_' . $al . '_title'] ?? '');
+                $t_period = trim($_POST['trans_' . $al . '_period'] ?? '');
+                $t_badge = trim($_POST['trans_' . $al . '_badge'] ?? '');
+                $t_btn = trim($_POST['trans_' . $al . '_button_text'] ?? '');
+                $t_desc = trim($_POST['trans_' . $al . '_description'] ?? '');
+                $t_feats_raw = trim($_POST['trans_' . $al . '_features'] ?? '');
+                $t_feats = !empty($t_feats_raw) ? array_values(array_filter(array_map('trim', explode("\n", $t_feats_raw)))) : [];
+
+                if ($t_title !== '' || $t_period !== '' || $t_badge !== '' || $t_btn !== '' || $t_desc !== '' || !empty($t_feats)) {
+                    $translations[$al] = [
+                        'title' => $t_title,
+                        'period' => $t_period,
+                        'badge' => $t_badge,
+                        'button_text' => $t_btn,
+                        'description' => $t_desc,
+                        'features' => $t_feats
+                    ];
+                }
+            }
+
             $newPlan = [
                 'id' => 'pricing_' . uniqid(),
                 'title' => $title,
@@ -2280,6 +2561,7 @@ class AdminController {
                 'button_link' => trim($_POST['button_link'] ?? '#contact'),
                 'description' => trim($_POST['description'] ?? ''),
                 'features' => $features,
+                'translations' => $translations,
                 'created_at' => date('Y-m-d H:i:s')
             ];
 
@@ -2314,6 +2596,34 @@ class AdminController {
             $feats_raw = trim($_POST['features'] ?? '');
             $features = !empty($feats_raw) ? array_values(array_filter(array_map('trim', explode("\n", $feats_raw)))) : [];
 
+            // Mehrsprachige Übersetzungen sammeln
+            $active_langs = LanguageManager::getActiveLanguages($data);
+            $primary_lang = LanguageManager::getPrimaryLanguage($data);
+            $translations = $data['pricing'][$found_idx]['translations'] ?? [];
+            foreach ($active_langs as $al) {
+                if ($al === $primary_lang) continue;
+                $t_title = trim($_POST['trans_' . $al . '_title'] ?? '');
+                $t_period = trim($_POST['trans_' . $al . '_period'] ?? '');
+                $t_badge = trim($_POST['trans_' . $al . '_badge'] ?? '');
+                $t_btn = trim($_POST['trans_' . $al . '_button_text'] ?? '');
+                $t_desc = trim($_POST['trans_' . $al . '_description'] ?? '');
+                $t_feats_raw = trim($_POST['trans_' . $al . '_features'] ?? '');
+                $t_feats = !empty($t_feats_raw) ? array_values(array_filter(array_map('trim', explode("\n", $t_feats_raw)))) : [];
+
+                if ($t_title !== '' || $t_period !== '' || $t_badge !== '' || $t_btn !== '' || $t_desc !== '' || !empty($t_feats)) {
+                    $translations[$al] = [
+                        'title' => $t_title,
+                        'period' => $t_period,
+                        'badge' => $t_badge,
+                        'button_text' => $t_btn,
+                        'description' => $t_desc,
+                        'features' => $t_feats
+                    ];
+                } else {
+                    unset($translations[$al]);
+                }
+            }
+
             $data['pricing'][$found_idx]['title'] = $title;
             $data['pricing'][$found_idx]['price'] = $price;
             $data['pricing'][$found_idx]['period'] = trim($_POST['period'] ?? '');
@@ -2323,6 +2633,7 @@ class AdminController {
             $data['pricing'][$found_idx]['button_link'] = trim($_POST['button_link'] ?? '#contact');
             $data['pricing'][$found_idx]['description'] = trim($_POST['description'] ?? '');
             $data['pricing'][$found_idx]['features'] = $features;
+            $data['pricing'][$found_idx]['translations'] = $translations;
 
             if (save_data($dataFile, $data)) {
                 $success_msg = 'Preispaket „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';

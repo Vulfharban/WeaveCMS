@@ -316,6 +316,24 @@ class SectionManager {
             $visible = PluginManager::applyFilters('visible_sections', $visible, $data);
         }
 
+        if (class_exists('LanguageManager')) {
+            $curLang = LanguageManager::detectLanguage($data);
+            $primaryLang = LanguageManager::getPrimaryLanguage($data);
+            if ($curLang !== $primaryLang) {
+                foreach ($visible as &$sec) {
+                    if (!empty($sec['translations'][$curLang]['title'])) {
+                        $sec['title'] = $sec['translations'][$curLang]['title'];
+                    } elseif (!empty($data['texts_i18n'][$curLang][$sec['id'] . '_title'])) {
+                        $sec['title'] = $data['texts_i18n'][$curLang][$sec['id'] . '_title'];
+                    }
+                    if (!empty($sec['translations'][$curLang]['nav_label'])) {
+                        $sec['nav_label'] = $sec['translations'][$curLang]['nav_label'];
+                    }
+                }
+                unset($sec);
+            }
+        }
+
         return $visible;
     }
 
@@ -437,6 +455,9 @@ class SectionManager {
                 } else {
                     $key = 'nav.' . ($item['type'] ?? $item['id']);
                     $item['nav_label'] = LanguageManager::t($key, $item['nav_label'], $curLang);
+                }
+                if (!empty($item['translations'][$curLang]['title'])) {
+                    $item['title'] = $item['translations'][$curLang]['title'];
                 }
             }
         }

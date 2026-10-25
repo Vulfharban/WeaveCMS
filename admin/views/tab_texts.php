@@ -271,16 +271,23 @@
                         <?php if (count($active_langs) > 1): ?>
                             <div style="border:1px solid var(--border-color); background:rgba(251, 249, 246, 0.7); border-radius:12px; padding:1.25rem; margin-top:1.25rem; margin-bottom:1.5rem;">
                                 <h5 style="font-size:0.92rem; font-weight:700; color:var(--text-primary); margin:0 0 1rem 0; display:flex; align-items:center; gap:6px;">
-                                    <span class="material-icons" style="font-size:18px; color:var(--primary);">translate</span> Menü-Titel für weitere aktive Sprachen (optional):
+                                    <span class="material-icons" style="font-size:18px; color:var(--primary);">translate</span> Übersetzungen für weitere Sprachen (optional):
                                 </h5>
-                                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
+                                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
                                     <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
-                                        <div class="form-group">
-                                            <label style="font-size:0.85rem; font-weight:600; color:var(--text-primary); display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                                        <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:10px; padding:12px;">
+                                            <div style="font-weight:700; font-size:0.88rem; color:var(--primary); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
                                                 <span><?php echo $supported[$al]['flag']; ?></span>
-                                                <span>Menü-Titel auf <?php echo htmlspecialchars($supported[$al]['name']); ?>:</span>
-                                            </label>
-                                            <input type="text" id="sec_trans_<?php echo $al; ?>_nav_label" name="trans_<?php echo $al; ?>_nav_label" class="form-control" placeholder="Menü-Titel auf <?php echo htmlspecialchars($supported[$al]['name']); ?>" style="background:#ffffff; border:1px solid rgba(62,50,40,0.22); color:var(--text-primary); border-radius:10px; padding:8px 12px;">
+                                                <span><?php echo htmlspecialchars($supported[$al]['name']); ?></span>
+                                            </div>
+                                            <div class="form-group" style="margin-bottom:8px;">
+                                                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:3px;">Titel fürs Menü:</label>
+                                                <input type="text" id="sec_trans_<?php echo $al; ?>_nav_label" name="trans_<?php echo $al; ?>_nav_label" class="form-control" placeholder="Menü-Titel auf <?php echo htmlspecialchars($supported[$al]['name']); ?>" style="padding:7px 10px; font-size:0.88rem;">
+                                            </div>
+                                            <div class="form-group" style="margin-bottom:0;">
+                                                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:3px;">Sektions-Überschrift:</label>
+                                                <input type="text" id="sec_trans_<?php echo $al; ?>_title" name="trans_<?php echo $al; ?>_title" class="form-control" placeholder="Überschrift auf <?php echo htmlspecialchars($supported[$al]['name']); ?>" style="padding:7px 10px; font-size:0.88rem;">
+                                            </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -415,6 +422,62 @@
                 </div>
 
                 <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    ❓ Häufige Fragen &amp; Antworten (FAQ)
+                </h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>FAQ - Titel</label>
+                        <input type="text" name="faq_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['faq_title'] ?? ($is_primary_edit ? 'Häufige Fragen (FAQ)' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['faq_title'] ?? 'Häufige Fragen (FAQ)'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
+                    </div>
+                    <div class="form-group">
+                        <label>FAQ - Untertitel / Beschreibung</label>
+                        <input type="text" name="faq_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['faq_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['faq_subtitle'] ?? ''); ?>">
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    👥 Team &amp; Mitarbeiter
+                </h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Team - Titel</label>
+                        <input type="text" name="team_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['team_title'] ?? ($is_primary_edit ? 'Team & Mitarbeiter' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['team_title'] ?? 'Team & Mitarbeiter'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
+                    </div>
+                    <div class="form-group">
+                        <label>Team - Untertitel / Beschreibung</label>
+                        <input type="text" name="team_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['team_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['team_subtitle'] ?? ''); ?>">
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    💾 Downloads &amp; Software
+                </h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Downloads - Titel</label>
+                        <input type="text" name="downloads_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['downloads_title'] ?? ($is_primary_edit ? 'Downloads & Software' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['downloads_title'] ?? 'Downloads & Software'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
+                    </div>
+                    <div class="form-group">
+                        <label>Downloads - Untertitel / Beschreibung</label>
+                        <input type="text" name="downloads_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['downloads_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['downloads_subtitle'] ?? ''); ?>">
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                    🏷️ Leistungen &amp; Preise
+                </h3>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Preise - Titel</label>
+                        <input type="text" name="pricing_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['pricing_title'] ?? ($is_primary_edit ? 'Leistungen & Preise' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['pricing_title'] ?? 'Leistungen & Preise'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
+                    </div>
+                    <div class="form-group">
+                        <label>Preise - Untertitel / Beschreibung</label>
+                        <input type="text" name="pricing_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['pricing_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['pricing_subtitle'] ?? ''); ?>">
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
                     💬 Kontaktbereich (Seitenleiste &amp; Formular)
                 </h3>
                 <div class="form-group" style="margin-bottom: 2rem;">
@@ -446,9 +509,13 @@
             const trans = sec.translations || {};
             SEC_ACTIVE_LANGS.forEach(lang => {
                 if (lang === SEC_PRIMARY_LANG) return;
-                const field = document.getElementById('sec_trans_' + lang + '_nav_label');
-                if (field) {
-                    field.value = (trans[lang] && trans[lang].nav_label) ? trans[lang].nav_label : '';
+                const fieldNav = document.getElementById('sec_trans_' + lang + '_nav_label');
+                if (fieldNav) {
+                    fieldNav.value = (trans[lang] && trans[lang].nav_label) ? trans[lang].nav_label : '';
+                }
+                const fieldTitle = document.getElementById('sec_trans_' + lang + '_title');
+                if (fieldTitle) {
+                    fieldTitle.value = (trans[lang] && trans[lang].title) ? trans[lang].title : '';
                 }
             });
 

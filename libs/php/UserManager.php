@@ -268,7 +268,7 @@ class UserManager {
 
         // Reine Content-Aktionen (Redakteur & Moderator erlaubt)
         $editorialActions = [
-            'update_texts', 'update_impressum', 'add_gallery', 'delete_gallery', 'reorder_gallery',
+            'update_texts', 'update_impressum', 'add_gallery', 'edit_gallery', 'delete_gallery', 'reorder_gallery',
             'add_course', 'delete_course', 'add_past_course', 'delete_past_course',
             'add_custom_page', 'update_custom_page', 'delete_custom_page',
             'add_faq', 'update_faq', 'delete_faq',
