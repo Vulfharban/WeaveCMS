@@ -197,6 +197,55 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                                 <span>Seiteninhalt (Markdown) *</span>
                                 <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">Überschriften mit #, Absätze, **Fett**, [Links](url)</span>
                             </label>
+
+                            <!-- Design- & Layout-Toolbar für Einzelseiten -->
+                            <div class="page-editor-design-toolbar" style="background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:10px; padding:10px 14px; margin-bottom:0.75rem; display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+                                <span style="font-size:0.85rem; font-weight:700; color:var(--primary); display:inline-flex; align-items:center; gap:5px;">
+                                    <span class="material-icons" style="font-size:18px;">auto_awesome</span> Vorlage einfügen:
+                                </span>
+
+                                <!-- Überschriften-Stile -->
+                                <select onchange="insertPageSnippet(this, 'heading')" class="form-control" style="width:auto; padding:5px 10px; font-size:0.83rem; border-radius:8px; cursor:pointer;" title="Vordefinierte Überschriftarten">
+                                    <option value="">🏷️ Überschrift-Stil...</option>
+                                    <option value="left_bar">Akzent-Balken links</option>
+                                    <option value="underline">Farbverlauf-Unterstrich</option>
+                                    <option value="eyebrow">Eyebrow / Kicker-Badge</option>
+                                    <option value="gradient">Gradient-Farbverlauf</option>
+                                    <option value="icon">Icon-Überschrift (✨)</option>
+                                    <option value="display">Großer Display / Hero-Titel</option>
+                                </select>
+
+                                <!-- Einfärbbare Div-Boxen -->
+                                <select onchange="insertPageSnippet(this, 'box')" class="form-control" style="width:auto; padding:5px 10px; font-size:0.83rem; border-radius:8px; cursor:pointer;" title="Einfärbbare Boxen & Cards">
+                                    <option value="">📦 Einfärbbare Box...</option>
+                                    <option value="soft_primary">Sanfte Primär-Box (Theme)</option>
+                                    <option value="soft_success">Sanfte Smaragd/Erfolgs-Box</option>
+                                    <option value="soft_amber">Sanfte Bernstein/Warn-Box</option>
+                                    <option value="soft_purple">Sanfte Violett/Kreativ-Box</option>
+                                    <option value="gradient">Farbverlauf-Box (Gradient)</option>
+                                    <option value="dark">Dark / Glassmorphism-Card</option>
+                                    <option value="tintable">Frei einfärbbare Box (Farbwähler)</option>
+                                </select>
+
+                                <!-- Farbwähler für Box-Hintergrund -->
+                                <label title="Wunschfarbe für frei einfärbbare Box wählen" style="display:inline-flex; align-items:center; gap:4px; font-size:0.8rem; color:var(--text-secondary); cursor:pointer;">
+                                    <input type="color" id="picker_box_color" value="#e0f2fe" style="width:26px; height:26px; border:none; border-radius:6px; cursor:pointer; padding:0; background:none;">
+                                    <span>Farbe</span>
+                                </label>
+
+                                <!-- Optische Trenner -->
+                                <select onchange="insertPageSnippet(this, 'divider')" class="form-control" style="width:auto; padding:5px 10px; font-size:0.83rem; border-radius:8px; cursor:pointer;" title="Optische Trenner">
+                                    <option value="">✂️ Optischer Trenner...</option>
+                                    <option value="gradient">Farbverlauf-Linie</option>
+                                    <option value="icon_leaf">Trennlinie mit Blatt (🌿)</option>
+                                    <option value="icon_star">Trennlinie mit Stern (⭐)</option>
+                                    <option value="glow">Leuchtende Glow-Linie</option>
+                                    <option value="dots">Gepunkteter Trenner</option>
+                                    <option value="dashed">Gestrichelter Trenner</option>
+                                    <option value="wave">Wellen-Trennlinie</option>
+                                </select>
+                            </div>
+
                             <textarea id="page_content" name="content" class="form-control" rows="12" placeholder="Schreibe hier den vollständigen Text deiner Seite..." required style="font-family: monospace; font-size:0.95rem; line-height:1.6;"></textarea>
                         </div>
                     </div>
@@ -478,5 +527,106 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                 s = s.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
                 slugInput.value = s;
             }
+        }
+
+        function insertPageSnippet(selectElem, type) {
+            const val = selectElem.value;
+            if (!val) return;
+
+            let target = document.activeElement;
+            if (!target || target.tagName !== 'TEXTAREA') {
+                const activeLangPanel = document.querySelector('.page-lang-panel:not([style*="display: none"])');
+                target = activeLangPanel ? activeLangPanel.querySelector('textarea') : document.getElementById('page_content');
+            }
+            if (!target) {
+                target = document.getElementById('page_content');
+            }
+
+            let snippet = '';
+            const colorPicker = document.getElementById('picker_box_color');
+            const chosenColor = colorPicker ? colorPicker.value : '#e0f2fe';
+
+            if (type === 'heading') {
+                switch(val) {
+                    case 'left_bar':
+                        snippet = '\n<h3 class="heading-left-bar">Überschrift mit Akzentleiste</h3>\n';
+                        break;
+                    case 'underline':
+                        snippet = '\n<h3 class="heading-underline">Überschrift mit Unterstrich</h3>\n';
+                        break;
+                    case 'eyebrow':
+                        snippet = '\n<div class="heading-eyebrow">KATEGORIE / THEMA</div>\n<h2 class="heading-title">Große Hauptüberschrift</h2>\n';
+                        break;
+                    case 'gradient':
+                        snippet = '\n<h2 class="heading-gradient">Farbverlauf-Überschrift</h2>\n';
+                        break;
+                    case 'icon':
+                        snippet = '\n<h3 class="heading-icon"><span class="heading-icon-badge">✨</span> Überschrift mit Icon</h3>\n';
+                        break;
+                    case 'display':
+                        snippet = '\n<h1 class="heading-display">Markanter Display-Titel</h1>\n';
+                        break;
+                }
+            } else if (type === 'box') {
+                switch(val) {
+                    case 'soft_primary':
+                        snippet = '\n<div class="box-soft box-soft-primary">\n  <h4>Titel der Box</h4>\n  <p>Hier steht der beschreibende Text in einem harmonischen Theme-Farbton.</p>\n</div>\n';
+                        break;
+                    case 'soft_success':
+                        snippet = '\n<div class="box-soft box-soft-success">\n  <h4>Erfolgs- &amp; Statusmeldung</h4>\n  <p>Hier steht der Text im frischen Smaragdgrün-Ton.</p>\n</div>\n';
+                        break;
+                    case 'soft_amber':
+                        snippet = '\n<div class="box-soft box-soft-amber">\n  <h4>Wichtiger Hinweis</h4>\n  <p>Hier steht der Informationstext im warmen Bernsteinton.</p>\n</div>\n';
+                        break;
+                    case 'soft_purple':
+                        snippet = '\n<div class="box-soft box-soft-purple">\n  <h4>Kreativ-Bereich &amp; Besonderheiten</h4>\n  <p>Hier steht der Text im inspirierenden Violettton.</p>\n</div>\n';
+                        break;
+                    case 'gradient':
+                        snippet = '\n<div class="box-card box-gradient-primary">\n  <h4>Highlight mit Farbverlauf</h4>\n  <p>Ein besonders auffälliger Block mit dynamischem Verlaufshintergrund.</p>\n</div>\n';
+                        break;
+                    case 'dark':
+                        snippet = '\n<div class="box-card box-dark">\n  <h4>Dunkle Premium-Karte</h4>\n  <p>Exklusiver Slate-Hintergrund für moderne Kontraste.</p>\n</div>\n';
+                        break;
+                    case 'tintable':
+                        snippet = '\n<div class="box-tintable" style="background: ' + chosenColor + ';">\n  <h4>Individuell eingefärbte Box</h4>\n  <p>Passe die Hintergrundfarbe ganz nach Wunsch über das style-Attribut oder den Farbwähler an.</p>\n</div>\n';
+                        break;
+                }
+            } else if (type === 'divider') {
+                switch(val) {
+                    case 'gradient':
+                        snippet = '\n<div class="divider-gradient"></div>\n';
+                        break;
+                    case 'icon_leaf':
+                        snippet = '\n<div class="divider-icon"><span>🌿</span></div>\n';
+                        break;
+                    case 'icon_star':
+                        snippet = '\n<div class="divider-icon"><span>⭐</span></div>\n';
+                        break;
+                    case 'glow':
+                        snippet = '\n<div class="divider-glow"></div>\n';
+                        break;
+                    case 'dots':
+                        snippet = '\n<div class="divider-dots"></div>\n';
+                        break;
+                    case 'dashed':
+                        snippet = '\n<div class="divider-dashed"></div>\n';
+                        break;
+                    case 'wave':
+                        snippet = '\n<div class="divider-wave"></div>\n';
+                        break;
+                }
+            }
+
+            if (snippet && target) {
+                const start = target.selectionStart || target.value.length;
+                const end = target.selectionEnd || target.value.length;
+                const text = target.value;
+                target.value = text.substring(0, start) + snippet + text.substring(end);
+                target.focus();
+                const newPos = start + snippet.length;
+                target.setSelectionRange(newPos, newPos);
+            }
+
+            selectElem.selectedIndex = 0;
         }
         </script>

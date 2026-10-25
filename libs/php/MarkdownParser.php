@@ -37,8 +37,8 @@ class MarkdownParser {
             return $placeholder;
         }, $text);
 
-        // 2. Verbleibenden Text gegen XSS maskieren (alle anderen unzulässigen Tags wie <script>)
-        $safe = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        // 2. Verbleibenden Text gegen XSS maskieren (bestehende Entities wie &amp; nicht doppelt kodieren)
+        $safe = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
 
         // 3. Tabellen verarbeiten (bevor Zeilen umgebrochen werden)
         $safe = self::parseMarkdownTables($safe);
