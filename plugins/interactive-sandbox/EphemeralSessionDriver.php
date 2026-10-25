@@ -164,4 +164,13 @@ class EphemeralSessionDriver implements StorageDriverInterface {
         }
         return true;
     }
+
+    /**
+     * Gibt eventuelle Fehlermeldungen zurück.
+     */
+    public function getLastError(): ?string {
+        return null;
+    }
 }
+
+

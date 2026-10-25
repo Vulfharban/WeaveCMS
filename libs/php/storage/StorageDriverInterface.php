@@ -38,4 +38,11 @@ interface StorageDriverInterface {
      * @return string
      */
     public function getDriverName(): string;
+
+    /**
+     * Gibt die letzte Fehlermeldung bei Lese- oder Schreibfehlern zurück.
+     * @return string|null
+     */
+    public function getLastError(): ?string;
 }
+

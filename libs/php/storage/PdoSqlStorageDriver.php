@@ -17,6 +17,7 @@ class PdoSqlStorageDriver implements StorageDriverInterface {
     protected string $password;
     protected string $prefix;
     protected string $charset;
+    protected ?string $lastError = null;
 
     public function __construct(array $config = []) {
         $this->host = $config['host'] ?? '127.0.0.1';
@@ -111,6 +112,7 @@ class PdoSqlStorageDriver implements StorageDriverInterface {
             if ($this->pdo && $this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
+            $this->lastError = 'SQL-Fehler beim Speichern: ' . $e->getMessage();
             error_log('PdoSqlStorageDriver saveData error: ' . $e->getMessage());
             return false;
         }
@@ -122,6 +124,7 @@ class PdoSqlStorageDriver implements StorageDriverInterface {
             $stmt = $pdo->query("SELECT 1");
             return $stmt !== false;
         } catch (Exception $e) {
+            $this->lastError = $e->getMessage();
             return false;
         }
     }
@@ -129,4 +132,9 @@ class PdoSqlStorageDriver implements StorageDriverInterface {
     public function getDriverName(): string {
         return 'MySQL / MariaDB (Relational SQL)';
     }
+
+    public function getLastError(): ?string {
+        return $this->lastError;
+    }
 }
+
