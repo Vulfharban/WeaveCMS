@@ -19,6 +19,9 @@ class MarkdownParser {
             return '';
         }
 
+        // 0. HTML-Kommentare entfernen (<!-- ... --> werden im Frontend ausgeblendet)
+        $text = preg_replace('/<!--.*?-->/s', '', $text);
+
         // 1. Sichere HTML-Tags extrahieren und durch Platzhalter schützen
         $htmlTokens = [];
         $tokenIndex = 0;
