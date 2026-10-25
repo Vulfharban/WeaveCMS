@@ -117,8 +117,12 @@ $controllerResult = AdminController::handlePost($data_file, $data, $csrf_token);
 $success_msg = $controllerResult['success_msg'];
 $error_msg = $controllerResult['error_msg'];
 $active_tab = $controllerResult['active_tab'];
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !empty($_GET['tab'])) {
-    $active_tab = preg_replace('/[^a-zA-Z0-9_\-]/', '', (string)$_GET['tab']);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    if (!empty($_GET['tab'])) {
+        $active_tab = preg_replace('/[^a-zA-Z0-9_\-]/', '', (string)$_GET['tab']);
+    } elseif (!empty($_GET['edit_lang'])) {
+        $active_tab = 'tab-texts';
+    }
 }
 
 // 9. Galerie-Elemente im Arbeitsspeicher nach sort_order aufsteigend sortieren

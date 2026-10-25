@@ -305,189 +305,342 @@
             </div>
 
             <?php 
-                $edit_lang = isset($_GET['edit_lang']) && in_array($_GET['edit_lang'], $active_langs, true) ? $_GET['edit_lang'] : $primary_lang;
-                $is_primary_edit = ($edit_lang === $primary_lang);
-                $current_edit_texts = $is_primary_edit ? ($data['texts'] ?? []) : ($data['texts_i18n'][$edit_lang] ?? []);
                 $primary_texts = $data['texts'] ?? [];
+                $texts_i18n = $data['texts_i18n'] ?? [];
             ?>
 
             <?php if (count($active_langs) > 1): ?>
-                <!-- Sprachumschalter für Redakteure im Text-Tab -->
+                <!-- Sprachumschalter für Redakteure im Text-Tab (Client-Side Tabs ohne Reload) -->
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:1.5rem; flex-wrap:wrap; background:rgba(255,255,255,0.02); padding:12px 16px; border-radius:12px; border:1px solid var(--border-color);">
                     <span style="font-size:0.9rem; font-weight:700; color:var(--text-secondary); margin-right:6px; display:inline-flex; align-items:center; gap:4px;">
                         <span class="material-icons" style="font-size:18px;">translate</span> Sprache für Texte:
                     </span>
-                    <?php foreach ($active_langs as $al): ?>
-                        <?php $isActiveTab = ($al === $edit_lang); ?>
-                        <a href="?edit_lang=<?php echo urlencode($al); ?>#tab-texts" class="btn <?php echo $isActiveTab ? 'btn-primary' : 'btn-outline'; ?>" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
+                    <button type="button" class="btn btn-primary texts-lang-tab-btn" id="btn-texts-lang-<?php echo $primary_lang; ?>" onclick="switchTextsLangTab('<?php echo $primary_lang; ?>')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
+                        <span><?php echo $supported[$primary_lang]['flag']; ?></span>
+                        <span><?php echo htmlspecialchars($supported[$primary_lang]['native'] ?? $supported[$primary_lang]['name']); ?></span>
+                        <small style="opacity:0.85; font-size:0.75rem;">(Hauptsprache)</small>
+                    </button>
+                    <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
+                        <button type="button" class="btn btn-outline texts-lang-tab-btn" id="btn-texts-lang-<?php echo $al; ?>" onclick="switchTextsLangTab('<?php echo $al; ?>')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
                             <span><?php echo $supported[$al]['flag']; ?></span>
-                            <span><?php echo htmlspecialchars($supported[$al]['native']); ?></span>
-                            <?php if ($al === $primary_lang): ?><small style="opacity:0.85; font-size:0.75rem;">(Standard)</small><?php endif; ?>
-                        </a>
+                            <span><?php echo htmlspecialchars($supported[$al]['native'] ?? $supported[$al]['name']); ?></span>
+                        </button>
                     <?php endforeach; ?>
                 </div>
-
-                <?php if (!$is_primary_edit): ?>
-                    <div style="background:rgba(59, 130, 246, 0.08); border:1px solid #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:1.5rem; font-size:0.88rem; color:#1e40af; display:flex; align-items:center; gap:8px;">
-                        <span class="material-icons" style="font-size:18px; color:#2563eb;">info</span>
-                        <span>Du bearbeitest die Übersetzung für <strong><?php echo $supported[$edit_lang]['flag'] . ' ' . htmlspecialchars($supported[$edit_lang]['name']); ?></strong>. Leere Felder greifen automatisch auf den Text der Hauptsprache (<?php echo htmlspecialchars($supported[$primary_lang]['name']); ?>) zurück.</span>
-                    </div>
-                <?php endif; ?>
             <?php endif; ?>
 
             <form method="POST" action="">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="update_texts">
                 <input type="hidden" name="target_tab" value="tab-texts">
-                <input type="hidden" name="target_lang" value="<?php echo htmlspecialchars($edit_lang); ?>">
-                
-                <h3 style="font-size: 1.2rem; margin-top: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    🌿 Startseite &amp; Hero-Bereich
-                </h3>
-                <div class="form-group" style="margin-bottom: 1.25rem;">
-                    <label>Hero-Titel (große Hauptüberschrift)</label>
-                    <input type="text" name="hero_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['hero_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['hero_title'] ?? ''); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
-                </div>
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label>Hero-Untertitel</label>
-                    <input type="text" name="hero_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['hero_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['hero_subtitle'] ?? ''); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
+
+                <!-- Panel: Hauptsprache -->
+                <div id="texts-lang-panel-<?php echo $primary_lang; ?>" class="texts-lang-panel">
+                    <h3 style="font-size: 1.2rem; margin-top: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        🌿 Startseite &amp; Hero-Bereich
+                    </h3>
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label>Hero-Titel (große Hauptüberschrift)</label>
+                        <input type="text" name="hero_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['hero_title'] ?? ''); ?>" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label>Hero-Untertitel</label>
+                        <input type="text" name="hero_subtitle" class="form-control" value="<?php echo htmlspecialchars($primary_texts['hero_subtitle'] ?? ''); ?>" required>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        👤 Über Mich &amp; Meine Arbeit
+                    </h3>
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label>Über Mich - Überschrift</label>
+                        <input type="text" name="about_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['about_title'] ?? ''); ?>" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label>Über Mich - Beschreibungstext</label>
+                        <textarea name="about_text" class="form-control" rows="6" required><?php echo htmlspecialchars($primary_texts['about_text'] ?? ''); ?></textarea>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        🖼️ Galerie &amp; Handarbeit
+                    </h3>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>Galerie - Titel</label>
+                            <input type="text" name="gallery_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['gallery_title'] ?? 'Galerie & Handarbeit'); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Galerie - Untertitel / Beschreibung</label>
+                            <input type="text" name="gallery_subtitle" class="form-control" value="<?php echo htmlspecialchars($primary_texts['gallery_subtitle'] ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        📅 Kurse &amp; Workshops
+                    </h3>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>Kurse - Titel</label>
+                            <input type="text" name="courses_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['courses_title'] ?? 'Kurse & Workshops'); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Kurse - Untertitel / Infotext</label>
+                            <input type="text" name="courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($primary_texts['courses_subtitle'] ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        📸 Impressionen vergangener Kurse
+                    </h3>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>Impressionen - Titel</label>
+                            <input type="text" name="past_courses_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['past_courses_title'] ?? 'Impressionen vergangener Kurse'); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Impressionen - Untertitel (optional)</label>
+                            <input type="text" name="past_courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($primary_texts['past_courses_subtitle'] ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        📰 Blog &amp; Aktuelles
+                    </h3>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>Blog - Titel</label>
+                            <input type="text" name="blog_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['blog_title'] ?? 'Aktuelles & Geschichten'); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Blog - Untertitel / Beschreibung</label>
+                            <input type="text" name="blog_subtitle" class="form-control" value="<?php echo htmlspecialchars($primary_texts['blog_subtitle'] ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        ❓ Häufige Fragen &amp; Antworten (FAQ)
+                    </h3>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>FAQ - Titel</label>
+                            <input type="text" name="faq_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['faq_title'] ?? 'Häufige Fragen (FAQ)'); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>FAQ - Untertitel / Beschreibung</label>
+                            <input type="text" name="faq_subtitle" class="form-control" value="<?php echo htmlspecialchars($primary_texts['faq_subtitle'] ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        👥 Team &amp; Mitarbeiter
+                    </h3>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>Team - Titel</label>
+                            <input type="text" name="team_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['team_title'] ?? 'Team & Mitarbeiter'); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Team - Untertitel / Beschreibung</label>
+                            <input type="text" name="team_subtitle" class="form-control" value="<?php echo htmlspecialchars($primary_texts['team_subtitle'] ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        💾 Downloads &amp; Software
+                    </h3>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>Downloads - Titel</label>
+                            <input type="text" name="downloads_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['downloads_title'] ?? 'Downloads & Software'); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Downloads - Untertitel / Beschreibung</label>
+                            <input type="text" name="downloads_subtitle" class="form-control" value="<?php echo htmlspecialchars($primary_texts['downloads_subtitle'] ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        🏷️ Leistungen &amp; Preise
+                    </h3>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>Preise - Titel</label>
+                            <input type="text" name="pricing_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['pricing_title'] ?? 'Leistungen & Preise'); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Preise - Untertitel / Beschreibung</label>
+                            <input type="text" name="pricing_subtitle" class="form-control" value="<?php echo htmlspecialchars($primary_texts['pricing_subtitle'] ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        💬 Kontaktbereich (Seitenleiste &amp; Formular)
+                    </h3>
+                    <div class="form-group" style="margin-bottom: 2rem;">
+                        <label>Kontakt - Einleitungstext über dem Formular</label>
+                        <textarea name="contact_intro_text" class="form-control" rows="3"><?php echo htmlspecialchars($primary_texts['contact_intro_text'] ?? ''); ?></textarea>
+                    </div>
                 </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    👤 Über Mich &amp; Meine Arbeit
-                </h3>
-                <div class="form-group" style="margin-bottom: 1.25rem;">
-                    <label>Über Mich - Überschrift</label>
-                    <input type="text" name="about_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['about_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['about_title'] ?? ''); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
-                </div>
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label>Über Mich - Beschreibungstext</label>
-                    <textarea name="about_text" class="form-control" rows="6" placeholder="<?php echo htmlspecialchars($primary_texts['about_text'] ?? ''); ?>" <?php if ($is_primary_edit) echo 'required'; ?>><?php echo htmlspecialchars($current_edit_texts['about_text'] ?? ''); ?></textarea>
-                </div>
+                <!-- Panels für weitere aktive Sprachen -->
+                <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
+                    <?php $cur_trans = $texts_i18n[$al] ?? []; ?>
+                    <div id="texts-lang-panel-<?php echo $al; ?>" class="texts-lang-panel" style="display:none;">
+                        <div style="background:rgba(59, 130, 246, 0.08); border:1px solid #3b82f6; border-radius:10px; padding:12px 16px; margin-bottom:1.5rem; font-size:0.88rem; color:#1e40af; display:flex; align-items:center; gap:8px;">
+                            <span class="material-icons" style="font-size:20px; color:#2563eb;">translate</span>
+                            <span>Übersetzung für <strong><?php echo $supported[$al]['flag'] . ' ' . htmlspecialchars($supported[$al]['name']); ?></strong>. Leere Felder greifen im Frontend automatisch auf die Hauptsprache (<?php echo htmlspecialchars($supported[$primary_lang]['name']); ?>) zurück.</span>
+                        </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    🖼️ Galerie &amp; Handarbeit
-                </h3>
-                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label>Galerie - Titel</label>
-                        <input type="text" name="gallery_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['gallery_title'] ?? ($is_primary_edit ? 'Galerie & Handarbeit' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['gallery_title'] ?? 'Galerie & Handarbeit'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
-                    </div>
-                    <div class="form-group">
-                        <label>Galerie - Untertitel / Beschreibung</label>
-                        <input type="text" name="gallery_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['gallery_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['gallery_subtitle'] ?? ''); ?>">
-                    </div>
-                </div>
+                        <h3 style="font-size: 1.2rem; margin-top: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            🌿 Startseite &amp; Hero-Bereich
+                        </h3>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label>Hero-Titel (große Hauptüberschrift)</label>
+                            <input type="text" name="trans_<?php echo $al; ?>_hero_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['hero_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['hero_title'] ?? ''); ?>">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label>Hero-Untertitel</label>
+                            <input type="text" name="trans_<?php echo $al; ?>_hero_subtitle" class="form-control" value="<?php echo htmlspecialchars($cur_trans['hero_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['hero_subtitle'] ?? ''); ?>">
+                        </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    📅 Kurse &amp; Workshops
-                </h3>
-                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label>Kurse - Titel</label>
-                        <input type="text" name="courses_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['courses_title'] ?? ($is_primary_edit ? 'Kurse & Workshops' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['courses_title'] ?? 'Kurse & Workshops'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
-                    </div>
-                    <div class="form-group">
-                        <label>Kurse - Untertitel / Infotext</label>
-                        <input type="text" name="courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['courses_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['courses_subtitle'] ?? ''); ?>">
-                    </div>
-                </div>
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            👤 Über Mich &amp; Meine Arbeit
+                        </h3>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label>Über Mich - Überschrift</label>
+                            <input type="text" name="trans_<?php echo $al; ?>_about_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['about_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['about_title'] ?? ''); ?>">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label>Über Mich - Beschreibungstext</label>
+                            <textarea name="trans_<?php echo $al; ?>_about_text" class="form-control" rows="6" placeholder="<?php echo htmlspecialchars($primary_texts['about_text'] ?? ''); ?>"><?php echo htmlspecialchars($cur_trans['about_text'] ?? ''); ?></textarea>
+                        </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    📸 Impressionen vergangener Kurse
-                </h3>
-                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label>Impressionen - Titel</label>
-                        <input type="text" name="past_courses_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['past_courses_title'] ?? ($is_primary_edit ? 'Impressionen vergangener Kurse' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['past_courses_title'] ?? 'Impressionen vergangener Kurse'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
-                    </div>
-                    <div class="form-group">
-                        <label>Impressionen - Untertitel (optional)</label>
-                        <input type="text" name="past_courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['past_courses_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['past_courses_subtitle'] ?? ''); ?>">
-                    </div>
-                </div>
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            🖼️ Galerie &amp; Handarbeit
+                        </h3>
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>Galerie - Titel</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_gallery_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['gallery_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['gallery_title'] ?? 'Galerie & Handarbeit'); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Galerie - Untertitel / Beschreibung</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_gallery_subtitle" class="form-control" value="<?php echo htmlspecialchars($cur_trans['gallery_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['gallery_subtitle'] ?? ''); ?>">
+                            </div>
+                        </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    📰 Blog &amp; Aktuelles
-                </h3>
-                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label>Blog - Titel</label>
-                        <input type="text" name="blog_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['blog_title'] ?? ($is_primary_edit ? 'Aktuelles & Geschichten' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['blog_title'] ?? 'Aktuelles & Geschichten'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
-                    </div>
-                    <div class="form-group">
-                        <label>Blog - Untertitel / Beschreibung</label>
-                        <input type="text" name="blog_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['blog_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['blog_subtitle'] ?? ''); ?>">
-                    </div>
-                </div>
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            📅 Kurse &amp; Workshops
+                        </h3>
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>Kurse - Titel</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_courses_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['courses_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['courses_title'] ?? 'Kurse & Workshops'); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Kurse - Untertitel / Infotext</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($cur_trans['courses_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['courses_subtitle'] ?? ''); ?>">
+                            </div>
+                        </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    ❓ Häufige Fragen &amp; Antworten (FAQ)
-                </h3>
-                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label>FAQ - Titel</label>
-                        <input type="text" name="faq_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['faq_title'] ?? ($is_primary_edit ? 'Häufige Fragen (FAQ)' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['faq_title'] ?? 'Häufige Fragen (FAQ)'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
-                    </div>
-                    <div class="form-group">
-                        <label>FAQ - Untertitel / Beschreibung</label>
-                        <input type="text" name="faq_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['faq_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['faq_subtitle'] ?? ''); ?>">
-                    </div>
-                </div>
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            📸 Impressionen vergangener Kurse
+                        </h3>
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>Impressionen - Titel</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_past_courses_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['past_courses_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['past_courses_title'] ?? 'Impressionen vergangener Kurse'); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Impressionen - Untertitel (optional)</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_past_courses_subtitle" class="form-control" value="<?php echo htmlspecialchars($cur_trans['past_courses_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['past_courses_subtitle'] ?? ''); ?>">
+                            </div>
+                        </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    👥 Team &amp; Mitarbeiter
-                </h3>
-                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label>Team - Titel</label>
-                        <input type="text" name="team_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['team_title'] ?? ($is_primary_edit ? 'Team & Mitarbeiter' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['team_title'] ?? 'Team & Mitarbeiter'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
-                    </div>
-                    <div class="form-group">
-                        <label>Team - Untertitel / Beschreibung</label>
-                        <input type="text" name="team_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['team_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['team_subtitle'] ?? ''); ?>">
-                    </div>
-                </div>
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            📰 Blog &amp; Aktuelles
+                        </h3>
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>Blog - Titel</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_blog_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['blog_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['blog_title'] ?? 'Aktuelles & Geschichten'); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Blog - Untertitel / Beschreibung</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_blog_subtitle" class="form-control" value="<?php echo htmlspecialchars($cur_trans['blog_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['blog_subtitle'] ?? ''); ?>">
+                            </div>
+                        </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    💾 Downloads &amp; Software
-                </h3>
-                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label>Downloads - Titel</label>
-                        <input type="text" name="downloads_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['downloads_title'] ?? ($is_primary_edit ? 'Downloads & Software' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['downloads_title'] ?? 'Downloads & Software'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
-                    </div>
-                    <div class="form-group">
-                        <label>Downloads - Untertitel / Beschreibung</label>
-                        <input type="text" name="downloads_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['downloads_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['downloads_subtitle'] ?? ''); ?>">
-                    </div>
-                </div>
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            ❓ Häufige Fragen &amp; Antworten (FAQ)
+                        </h3>
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>FAQ - Titel</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_faq_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['faq_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['faq_title'] ?? 'Häufige Fragen (FAQ)'); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>FAQ - Untertitel / Beschreibung</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_faq_subtitle" class="form-control" value="<?php echo htmlspecialchars($cur_trans['faq_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['faq_subtitle'] ?? ''); ?>">
+                            </div>
+                        </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    🏷️ Leistungen &amp; Preise
-                </h3>
-                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label>Preise - Titel</label>
-                        <input type="text" name="pricing_title" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['pricing_title'] ?? ($is_primary_edit ? 'Leistungen & Preise' : '')); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['pricing_title'] ?? 'Leistungen & Preise'); ?>" <?php if ($is_primary_edit) echo 'required'; ?>>
-                    </div>
-                    <div class="form-group">
-                        <label>Preise - Untertitel / Beschreibung</label>
-                        <input type="text" name="pricing_subtitle" class="form-control" value="<?php echo htmlspecialchars($current_edit_texts['pricing_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['pricing_subtitle'] ?? ''); ?>">
-                    </div>
-                </div>
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            👥 Team &amp; Mitarbeiter
+                        </h3>
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>Team - Titel</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_team_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['team_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['team_title'] ?? 'Team & Mitarbeiter'); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Team - Untertitel / Beschreibung</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_team_subtitle" class="form-control" value="<?php echo htmlspecialchars($cur_trans['team_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['team_subtitle'] ?? ''); ?>">
+                            </div>
+                        </div>
 
-                <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
-                    💬 Kontaktbereich (Seitenleiste &amp; Formular)
-                </h3>
-                <div class="form-group" style="margin-bottom: 2rem;">
-                    <label>Kontakt - Einleitungstext über dem Formular</label>
-                    <textarea name="contact_intro_text" class="form-control" rows="3" placeholder="<?php echo htmlspecialchars($primary_texts['contact_intro_text'] ?? ''); ?>"><?php echo htmlspecialchars($current_edit_texts['contact_intro_text'] ?? ''); ?></textarea>
-                </div>
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            💾 Downloads &amp; Software
+                        </h3>
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>Downloads - Titel</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_downloads_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['downloads_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['downloads_title'] ?? 'Downloads & Software'); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Downloads - Untertitel / Beschreibung</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_downloads_subtitle" class="form-control" value="<?php echo htmlspecialchars($cur_trans['downloads_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['downloads_subtitle'] ?? ''); ?>">
+                            </div>
+                        </div>
 
-                <button type="submit" class="btn btn-primary">
-                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">save</span> <?php echo $is_primary_edit ? 'Sektionstexte speichern' : 'Übersetzung (' . strtoupper($edit_lang) . ') speichern'; ?>
-                </button>
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            🏷️ Leistungen &amp; Preise
+                        </h3>
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>Preise - Titel</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_pricing_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['pricing_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['pricing_title'] ?? 'Leistungen & Preise'); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Preise - Untertitel / Beschreibung</label>
+                                <input type="text" name="trans_<?php echo $al; ?>_pricing_subtitle" class="form-control" value="<?php echo htmlspecialchars($cur_trans['pricing_subtitle'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['pricing_subtitle'] ?? ''); ?>">
+                            </div>
+                        </div>
+
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            💬 Kontaktbereich (Seitenleiste &amp; Formular)
+                        </h3>
+                        <div class="form-group" style="margin-bottom: 2rem;">
+                            <label>Kontakt - Einleitungstext über dem Formular</label>
+                            <textarea name="trans_<?php echo $al; ?>_contact_intro_text" class="form-control" rows="3" placeholder="<?php echo htmlspecialchars($primary_texts['contact_intro_text'] ?? ''); ?>"><?php echo htmlspecialchars($cur_trans['contact_intro_text'] ?? ''); ?></textarea>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+
+                <div style="margin-top: 2rem; display:flex; align-items:center; gap:12px;">
+                    <button type="submit" class="btn btn-primary" style="padding:10px 24px; font-size:0.95rem; display:inline-flex; align-items:center; gap:8px;">
+                        <span class="material-icons" style="font-size:18px;">save</span> Alle Sektionstexte &amp; Übersetzungen speichern
+                    </button>
+                </div>
             </form>
         </div>
 
@@ -527,6 +680,21 @@
             const prev = document.getElementById('sec_edit_icon_preview');
             if (prev) {
                 prev.textContent = val && val.trim() ? val.trim() : 'bookmark';
+            }
+        }
+
+        function switchTextsLangTab(lang) {
+            document.querySelectorAll('.texts-lang-panel').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.texts-lang-tab-btn').forEach(b => {
+                b.classList.remove('btn-primary');
+                b.classList.add('btn-outline');
+            });
+            const panel = document.getElementById('texts-lang-panel-' + lang);
+            const btn = document.getElementById('btn-texts-lang-' + lang);
+            if (panel) panel.style.display = 'block';
+            if (btn) {
+                btn.classList.remove('btn-outline');
+                btn.classList.add('btn-primary');
             }
         }
 

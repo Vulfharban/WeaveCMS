@@ -44,7 +44,9 @@ class AdminController {
     public static function handlePost(string $dataFile, array &$data, string $csrfToken): array {
         $success_msg = '';
         $error_msg = '';
-        $active_tab = !empty($_GET['tab']) ? preg_replace('/[^a-zA-Z0-9_\-]/', '', (string)$_GET['tab']) : 'tab-dashboard';
+        $active_tab = !empty($_GET['tab']) 
+            ? preg_replace('/[^a-zA-Z0-9_\-]/', '', (string)$_GET['tab']) 
+            : (!empty($_GET['edit_lang']) ? 'tab-texts' : 'tab-dashboard');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return [
@@ -1268,56 +1270,84 @@ class AdminController {
      */
     protected static function handleTexts(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
         $primary_lang = LanguageManager::getPrimaryLanguage($data);
-        $target_lang = trim($_POST['target_lang'] ?? $primary_lang);
+        $active_langs = LanguageManager::getActiveLanguages($data);
         $supported = LanguageManager::getSupportedLanguages();
-        if (!isset($supported[$target_lang])) {
-            $target_lang = $primary_lang;
-        }
+        $target_lang = trim($_POST['target_lang'] ?? $primary_lang);
 
-        $fields = [
-            'hero_title' => $_POST['hero_title'] ?? '',
-            'hero_subtitle' => $_POST['hero_subtitle'] ?? '',
-            'about_title' => $_POST['about_title'] ?? '',
-            'about_text' => $_POST['about_text'] ?? '',
-            'gallery_title' => $_POST['gallery_title'] ?? 'Galerie & Handarbeit',
-            'gallery_subtitle' => $_POST['gallery_subtitle'] ?? '',
-            'courses_title' => $_POST['courses_title'] ?? 'Kurse & Workshops',
-            'courses_subtitle' => $_POST['courses_subtitle'] ?? '',
-            'past_courses_title' => $_POST['past_courses_title'] ?? 'Impressionen vergangener Kurse',
-            'past_courses_subtitle' => $_POST['past_courses_subtitle'] ?? '',
-            'blog_title' => $_POST['blog_title'] ?? 'Aktuelles & Geschichten',
-            'blog_subtitle' => $_POST['blog_subtitle'] ?? '',
-            'faq_title' => $_POST['faq_title'] ?? 'Häufige Fragen (FAQ)',
-            'faq_subtitle' => $_POST['faq_subtitle'] ?? '',
-            'team_title' => $_POST['team_title'] ?? 'Team & Mitarbeiter',
-            'team_subtitle' => $_POST['team_subtitle'] ?? '',
-            'downloads_title' => $_POST['downloads_title'] ?? 'Downloads & Software',
-            'downloads_subtitle' => $_POST['downloads_subtitle'] ?? '',
-            'pricing_title' => $_POST['pricing_title'] ?? 'Leistungen & Preise',
-            'pricing_subtitle' => $_POST['pricing_subtitle'] ?? '',
-            'contact_intro_text' => $_POST['contact_intro_text'] ?? ''
+        $text_keys = [
+            'hero_title', 'hero_subtitle', 'about_title', 'about_text',
+            'gallery_title', 'gallery_subtitle', 'courses_title', 'courses_subtitle',
+            'past_courses_title', 'past_courses_subtitle', 'blog_title', 'blog_subtitle',
+            'faq_title', 'faq_subtitle', 'team_title', 'team_subtitle',
+            'downloads_title', 'downloads_subtitle', 'pricing_title', 'pricing_subtitle',
+            'contact_intro_text'
         ];
 
-        if ($target_lang === $primary_lang) {
-            foreach ($fields as $k => $v) {
-                $data['texts'][$k] = $v;
+        $has_multi_trans = false;
+
+        // 1. Hauptsprache aktualisieren
+        if (!isset($data['texts']) || !is_array($data['texts'])) {
+            $data['texts'] = [];
+        }
+        if ($target_lang === $primary_lang || empty($_POST['target_lang'])) {
+            foreach ($text_keys as $k) {
+                if (isset($_POST[$k])) {
+                    $data['texts'][$k] = trim((string)$_POST[$k]);
+                }
             }
-            $msg = 'Inhaltstexte der Hauptsprache (' . $supported[$primary_lang]['name'] . ') erfolgreich gespeichert!';
-        } else {
-            if (!isset($data['texts_i18n']) || !is_array($data['texts_i18n'])) {
-                $data['texts_i18n'] = [];
+        }
+
+        // 2. Übersetzungen aller weiteren aktiven Sprachen verarbeiten (trans_{lang}_{key})
+        if (!isset($data['texts_i18n']) || !is_array($data['texts_i18n'])) {
+            $data['texts_i18n'] = [];
+        }
+
+        foreach ($active_langs as $al) {
+            if ($al === $primary_lang) {
+                continue;
             }
-            if (!isset($data['texts_i18n'][$target_lang]) || !is_array($data['texts_i18n'][$target_lang])) {
-                $data['texts_i18n'][$target_lang] = [];
+            if (!isset($data['texts_i18n'][$al]) || !is_array($data['texts_i18n'][$al])) {
+                $data['texts_i18n'][$al] = [];
             }
-            foreach ($fields as $k => $v) {
-                $data['texts_i18n'][$target_lang][$k] = $v;
+            foreach ($text_keys as $k) {
+                $trans_key = 'trans_' . $al . '_' . $k;
+                if (isset($_POST[$trans_key])) {
+                    $has_multi_trans = true;
+                    $val = trim((string)$_POST[$trans_key]);
+                    if ($val === '') {
+                        unset($data['texts_i18n'][$al][$k]);
+                    } else {
+                        $data['texts_i18n'][$al][$k] = $val;
+                    }
+                }
             }
-            $msg = 'Übersetzung für ' . $supported[$target_lang]['name'] . ' erfolgreich gespeichert!';
+            if (empty($data['texts_i18n'][$al])) {
+                unset($data['texts_i18n'][$al]);
+            }
+        }
+
+        // 3. Fallback für ältere POST-Requests mit gezieltem target_lang
+        if (!$has_multi_trans && !empty($_POST['target_lang']) && $_POST['target_lang'] !== $primary_lang) {
+            $tLang = trim((string)$_POST['target_lang']);
+            if (isset($supported[$tLang])) {
+                if (!isset($data['texts_i18n'][$tLang]) || !is_array($data['texts_i18n'][$tLang])) {
+                    $data['texts_i18n'][$tLang] = [];
+                }
+                foreach ($text_keys as $k) {
+                    if (isset($_POST[$k])) {
+                        $val = trim((string)$_POST[$k]);
+                        if ($val === '') {
+                            unset($data['texts_i18n'][$tLang][$k]);
+                        } else {
+                            $data['texts_i18n'][$tLang][$k] = $val;
+                        }
+                    }
+                }
+            }
         }
 
         if (save_data($dataFile, $data)) {
-            $success_msg = $msg;
+            $success_msg = 'Inhaltstexte und Sprachübersetzungen erfolgreich gespeichert!';
         } else {
             $error_msg = 'Fehler beim Speichern der Texte.';
         }

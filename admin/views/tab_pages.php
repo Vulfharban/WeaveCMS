@@ -306,18 +306,18 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                                     <div style="font-size:0.85rem; color:var(--text-secondary); display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:4px;">
                                         <span>Pfad: <code>?page=<?php echo htmlspecialchars($p_slug); ?></code></span>
                                         
-                                        <!-- Sprach-Badges -->
+                                        <!-- Sprach-Badges (Klickbar für Direktsprung zur Sprache) -->
                                         <span style="display:inline-flex; align-items:center; gap:4px;">
                                             <span style="font-size:0.75rem; color:var(--text-secondary);">Sprachen:</span>
-                                            <span style="font-size:0.72rem; font-weight:700; background:rgba(16,185,129,0.15); color:#10b981; padding:1px 6px; border-radius:4px;" title="<?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?> (Hauptsprache)">
+                                            <span onclick="editPage(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, '<?php echo $primary_lang; ?>')" style="font-size:0.72rem; font-weight:700; background:rgba(16,185,129,0.15); color:#10b981; padding:2px 8px; border-radius:4px; cursor:pointer;" title="<?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?> bearbeiten">
                                                 <?php echo $supported_langs[$primary_lang]['flag'] . ' ' . strtoupper($primary_lang); ?>
                                             </span>
                                             <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
                                                 <?php 
                                                     $has_trans = !empty($p['translations'][$al]['title']) || !empty($p['translations'][$al]['content']) || !empty($p['translations'][$al]['nav_label']); 
                                                 ?>
-                                                <span style="font-size:0.72rem; font-weight:700; background:<?php echo $has_trans ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)'; ?>; color:<?php echo $has_trans ? '#10b981' : 'var(--text-secondary)'; ?>; padding:1px 6px; border-radius:4px; border:1px solid <?php echo $has_trans ? 'rgba(16,185,129,0.3)' : 'var(--border-color)'; ?>;" title="<?php echo $has_trans ? 'Übersetzung für ' . htmlspecialchars($supported_langs[$al]['name']) . ' vorhanden' : 'Keine Übersetzung (greift auf ' . htmlspecialchars($supported_langs[$primary_lang]['name']) . ' zurück)'; ?>">
-                                                    <?php echo $supported_langs[$al]['flag'] . ' ' . strtoupper($al); ?> <?php echo $has_trans ? '✓' : '—'; ?>
+                                                <span onclick="editPage(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, '<?php echo $al; ?>')" style="font-size:0.72rem; font-weight:700; background:<?php echo $has_trans ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)'; ?>; color:<?php echo $has_trans ? '#10b981' : 'var(--text-secondary)'; ?>; padding:2px 8px; border-radius:4px; border:1px solid <?php echo $has_trans ? 'rgba(16,185,129,0.3)' : 'var(--border-color)'; ?>; cursor:pointer;" title="<?php echo $has_trans ? 'Übersetzung für ' . htmlspecialchars($supported_langs[$al]['name']) . ' bearbeiten' : 'Neue Übersetzung für ' . htmlspecialchars($supported_langs[$al]['name']) . ' anlegen'; ?>">
+                                                    <?php echo $supported_langs[$al]['flag'] . ' ' . strtoupper($al); ?> <?php echo $has_trans ? '✓' : '+'; ?>
                                                 </span>
                                             <?php endforeach; ?>
                                         </span>
@@ -426,7 +426,7 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             }
         }
 
-        function editPage(pageData) {
+        function editPage(pageData, targetLang = null) {
             document.getElementById('page-editor-box').style.display = 'block';
             document.getElementById('page-editor-title').innerHTML = '<span class="material-icons">edit</span> Einzelseite bearbeiten';
             document.getElementById('page_form_action').value = 'edit_page';
@@ -463,7 +463,8 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                 if (tContent) tContent.value = langTrans.content || '';
             });
 
-            switchPageLangTab(PAGE_PRIMARY_LANG);
+            const switchLang = targetLang && PAGE_ACTIVE_LANGS.includes(targetLang) ? targetLang : PAGE_PRIMARY_LANG;
+            switchPageLangTab(switchLang);
             document.getElementById('page-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Änderungen speichern';
             document.getElementById('page-editor-box').scrollIntoView({ behavior: 'smooth' });
         }

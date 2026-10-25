@@ -60,9 +60,14 @@ function switchTab(tabId, scrollToTop = true) {
         if (targetBtn) targetBtn.classList.add('active');
     }
     
-    // URL ohne veraltete Query-Parameter aktualisieren
+    // URL ohne veraltete Query-Parameter aktualisieren (relevante Parameter wie edit_lang beibehalten)
     if (window.history && window.history.replaceState) {
-        const cleanUrl = window.location.pathname + '#' + tabId;
+        const urlParams = new URLSearchParams(window.location.search);
+        let cleanQuery = '';
+        if (tabId === 'tab-texts' && urlParams.get('edit_lang')) {
+            cleanQuery = '?edit_lang=' + encodeURIComponent(urlParams.get('edit_lang'));
+        }
+        const cleanUrl = window.location.pathname + cleanQuery + '#' + tabId;
         history.replaceState(null, '', cleanUrl);
     }
 
@@ -764,6 +769,8 @@ function initAdminListeners() {
         const qTab = urlParams.get('tab');
         if (qTab && document.getElementById(qTab)) {
             targetTab = qTab;
+        } else if (urlParams.get('edit_lang') && document.getElementById('tab-texts')) {
+            targetTab = 'tab-texts';
         }
     }
 
