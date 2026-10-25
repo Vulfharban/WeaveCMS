@@ -32,7 +32,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
-## 🚀 Arbeitsablauf: Der 16-Phasen-Entwicklungsplan
+## 🚀 Arbeitsablauf: Der 21-Phasen-Entwicklungsplan
 
 ```
 [Phase 1: Recht & Texte] ──▶ [Phase 2: Datensicherheit] ──▶ [Phase 3: SEO & Sharing] ──▶ [Phase 4: Anfragen-Log]
@@ -51,8 +51,12 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   (Hooks & Webtrees Stammbäume)   (Neutrale Multi-Ratio Assets)     (Live-Tryout ohne Speichern & Auto-Reset)
          │
          ▼
-[Phase 16: Downloads & Security]
-  (Download-Portal, Klick-Tracking, Captcha-Engine & Accessibility-Bar)
+[Phase 16: Downloads & Security] ──▶ [Phase 17: Live-Server-Deployment] ──▶ [Phase 18: Flexible Architektur]
+  (Download-Portal, Klick-Tracking)    (SSL/HSTS, SRI & POSIX Audit)          (One-Pager vs Multi-Page)
+         │
+         ▼
+[Phase 19: Menü- & Theme-Hooks] ───▶ [Phase 20: Forum & User] ───────────▶ [Phase 21: Universal-Integrations]
+  (3 Menüstile & Position-Selector)    (Discussions, RBAC & Moderation)      (Externe Apps frei einbinden)
 ```
 
 ---
