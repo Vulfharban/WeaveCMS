@@ -30,6 +30,14 @@ $shopConfig = PluginManager::getPluginConfig('shop', $data, [
         'merchant_name'  => 'WeaveCMS Shop',
         'iban'           => 'DE89370400440532013000',
         'bic'            => 'BYLADEM1001'
+    ],
+    'payment_bank_transfer' => [
+        'enabled'        => true,
+        'bank_name'      => 'Hausbank',
+        'account_holder' => 'WeaveCMS Shop',
+        'iban'           => 'DE89370400440532013000',
+        'bic'            => 'BYLADEM1001',
+        'instruction'    => 'Bitte überweise den Gesamtbetrag unter Angabe deiner Bestellnummer.'
     ]
 ]);
 
@@ -121,7 +129,7 @@ switch ($action) {
 
         // Bestellung anlegen
         $orderRecord = [
-            'status'         => 'paid',
+            'status'         => $payResult['status'] ?? ($paymentMethod === 'bank_transfer' ? 'pending' : 'paid'),
             'payment_method' => $paymentMethod,
             'payment_ref'    => $payResult['payment_ref'] ?? ('REF-' . time()),
             'customer'       => $customer,
@@ -144,11 +152,15 @@ switch ($action) {
             );
         }
 
+        $successMsg = ($paymentMethod === 'bank_transfer')
+            ? 'Vielen Dank! Deine Bestellung ist eingegangen. Bitte überweise den Betrag unter Angabe deiner Bestellnummer.'
+            : 'Vielen Dank! Deine Bestellung wurde erfolgreich aufgegeben und bezahlt.';
+
         echo json_encode([
             'success'      => true,
             'order'        => $order,
             'payment_info' => $payResult,
-            'message'      => 'Vielen Dank! Deine Bestellung wurde erfolgreich aufgegeben und bezahlt.'
+            'message'      => $successMsg
         ], JSON_UNESCAPED_UNICODE);
         exit;
 

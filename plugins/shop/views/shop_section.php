@@ -16,6 +16,14 @@ $subtitle = $params['subtitle'] ?? ($config['section_subtitle'] ?? 'Handgefertig
 $currency = $config['currency'] ?? 'EUR';
 $isSmallBiz = !empty($config['small_business']);
 
+$btConfig = $config['payment_bank_transfer'] ?? [];
+$bt_enabled = !empty($btConfig['enabled']);
+$bt_bank = $btConfig['bank_name'] ?? '';
+$bt_holder = $btConfig['account_holder'] ?? '';
+$bt_iban = $btConfig['iban'] ?? '';
+$bt_bic = $btConfig['bic'] ?? '';
+$bt_instruction = $btConfig['instruction'] ?? 'Bitte überweise den Gesamtbetrag unter Angabe deiner Bestellnummer als Verwendungszweck.';
+
 $allProducts = ShopManager::getProducts();
 $activeProducts = array_filter($allProducts, function($p) {
     return !empty($p['active']);
@@ -55,6 +63,11 @@ foreach ($activeProducts as $p) {
             <span class="shop-pay-badge" style="display:inline-flex; align-items:center; gap:4px; padding: 4px 10px; border-radius: 6px; background: rgba(30,58,138,0.1); color: #1e3a8a; font-size: 0.8rem; font-weight: 700;">
                 🇪🇺 WERO (European Instant Payment)
             </span>
+            <?php if (!empty($bt_enabled)): ?>
+            <span class="shop-pay-badge" style="display:inline-flex; align-items:center; gap:4px; padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,0.04); font-size: 0.8rem; font-weight: 600;">
+                🏦 Vorkasse / Überweisung
+            </span>
+            <?php endif; ?>
         </div>
 
         <!-- Kategorie-Filter -->
@@ -281,7 +294,7 @@ foreach ($activeProducts as $p) {
                     <span>Zahlungsmethode auswählen</span>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.25rem;">
                     <!-- Kreditkarte -->
                     <label class="shop-method-card" id="label-pay-cc" style="border: 2px solid var(--primary); border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; background: rgba(46,98,72,0.05); transition: all 0.2s ease;">
                         <input type="radio" name="pay_method" value="credit_card" checked onchange="selectPaymentMethod('credit_card')" style="display:none;">
@@ -304,6 +317,14 @@ foreach ($activeProducts as $p) {
                         <div style="font-size: 22px; margin-bottom: 4px;">🇪🇺</div>
                         <div style="font-weight: 700; font-size: 0.88rem; color: #1e3a8a;">WERO</div>
                         <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">Bank-Sofortzahlung</div>
+                    </label>
+
+                    <!-- Vorkasse / Überweisung -->
+                    <label class="shop-method-card" id="label-pay-bt" style="border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; background: var(--card-bg, #fff); transition: all 0.2s ease;">
+                        <input type="radio" name="pay_method" value="bank_transfer" onchange="selectPaymentMethod('bank_transfer')" style="display:none;">
+                        <div style="font-size: 22px; margin-bottom: 4px;">🏦</div>
+                        <div style="font-weight: 700; font-size: 0.88rem;">Vorkasse</div>
+                        <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">Banküberweisung</div>
                     </label>
                 </div>
 
@@ -350,6 +371,28 @@ foreach ($activeProducts as $p) {
                     </div>
                 </div>
 
+                <!-- 4. Vorkasse Banküberweisung Info -->
+                <div id="pay-fields-bank_transfer" style="display:none; background: rgba(46,98,72,0.05); border: 1px solid rgba(46,98,72,0.25); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                        <span style="font-size:24px;">🏦</span>
+                        <div>
+                            <div style="font-weight: 700; color: var(--primary);">Zahlung per Banküberweisung (Vorkasse)</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Du erhältst unsere Kontodaten nach der Bestellung zusätzlich per E-Mail.</div>
+                        </div>
+                    </div>
+                    <?php if (!empty($bt_iban)): ?>
+                    <div style="background:#fff; border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; font-size:0.85rem; margin-top:8px;">
+                        <?php if (!empty($bt_holder)): ?><div>Empfänger: <strong><?php echo htmlspecialchars($bt_holder); ?></strong></div><?php endif; ?>
+                        <?php if (!empty($bt_bank)): ?><div>Bank: <strong><?php echo htmlspecialchars($bt_bank); ?></strong></div><?php endif; ?>
+                        <div>IBAN: <code style="font-weight:700; color:var(--primary);"><?php echo htmlspecialchars($bt_iban); ?></code></div>
+                        <?php if (!empty($bt_bic)): ?><div>BIC: <strong><?php echo htmlspecialchars($bt_bic); ?></strong></div><?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+                    <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 8px 0 0 0;">
+                        <?php echo htmlspecialchars($bt_instruction); ?>
+                    </p>
+                </div>
+
                 <!-- Gesamtsumme & Bestellen-Button -->
                 <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                     <div>
@@ -383,6 +426,21 @@ foreach ($activeProducts as $p) {
                         <canvas id="wero-qr-canvas" width="180" height="180" style="display:block;"></canvas>
                     </div>
                     <div id="wero-ref-code" style="font-size:0.75rem; font-family:monospace; margin-top:8px; color:var(--text-secondary);"></div>
+                </div>
+
+                <!-- Vorkasse Banküberweisung Box -->
+                <div id="bt-transfer-container" style="display:none; background: rgba(46,98,72,0.05); border: 2px dashed var(--primary); border-radius: 14px; padding: 1.5rem; max-width: 440px; margin: 0 auto 1.5rem; text-align: left;">
+                    <div style="font-weight: 800; color: var(--primary); margin-bottom: 6px; text-align: center;">🏦 Überweisungsinformationen</div>
+                    <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 12px; text-align: center;">
+                        Bitte überweise den Gesamtbetrag unter Angabe deiner Bestellnummer auf folgendes Konto:
+                    </p>
+                    <div style="font-size: 0.85rem; line-height: 1.6; background: #fff; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <?php if (!empty($bt_holder)): ?><div>Empfänger: <strong><?php echo htmlspecialchars($bt_holder); ?></strong></div><?php endif; ?>
+                        <?php if (!empty($bt_bank)): ?><div>Bank: <strong><?php echo htmlspecialchars($bt_bank); ?></strong></div><?php endif; ?>
+                        <div>IBAN: <strong style="color:var(--primary);"><?php echo htmlspecialchars($bt_iban); ?></strong></div>
+                        <?php if (!empty($bt_bic)): ?><div>BIC: <strong><?php echo htmlspecialchars($bt_bic); ?></strong></div><?php endif; ?>
+                        <div>Verwendungszweck: <strong id="bt-success-ref" style="color:var(--primary);"></strong></div>
+                    </div>
                 </div>
 
                 <!-- Bestelldaten Kachel -->
@@ -568,9 +626,9 @@ function closeShopCheckout() {
 
 function selectPaymentMethod(method) {
     activePaymentMethod = method;
-    ['credit_card', 'paypal', 'wero'].forEach(m => {
+    ['credit_card', 'paypal', 'wero', 'bank_transfer'].forEach(m => {
         const fieldEl = document.getElementById('pay-fields-' + m);
-        const labelEl = document.getElementById('label-pay-' + (m === 'credit_card' ? 'cc' : (m === 'paypal' ? 'pp' : 'wero')));
+        const labelEl = document.getElementById('label-pay-' + (m === 'credit_card' ? 'cc' : (m === 'paypal' ? 'pp' : (m === 'wero' ? 'wero' : 'bt'))));
         if (fieldEl) fieldEl.style.display = (m === method) ? 'block' : 'none';
         if (labelEl) {
             if (m === method) {
@@ -648,8 +706,13 @@ async function submitShopOrder() {
             document.getElementById('checkout-step-1').style.display = 'none';
             document.getElementById('checkout-success-view').style.display = 'block';
 
+            if (data.message) {
+                const msgEl = document.getElementById('order-success-msg');
+                if (msgEl) msgEl.innerText = data.message;
+            }
+
             document.getElementById('success-order-id').innerText = data.order.order_id;
-            document.getElementById('success-payment-method').innerText = activePaymentMethod.toUpperCase();
+            document.getElementById('success-payment-method').innerText = (activePaymentMethod === 'bank_transfer' ? 'Vorkasse / Überweisung' : activePaymentMethod.toUpperCase());
             document.getElementById('success-order-total').innerText = data.order.total.toFixed(2).replace('.', ',') + ' €';
 
             // Falls WERO: QR-Code zeichnen
@@ -663,6 +726,18 @@ async function submitShopOrder() {
             } else {
                 const weroContainer = document.getElementById('wero-qr-container');
                 if (weroContainer) weroContainer.style.display = 'none';
+            }
+
+            // Falls Vorkasse: Überweisungshinweise anzeigen
+            const btContainer = document.getElementById('bt-transfer-container');
+            if (btContainer) {
+                if (activePaymentMethod === 'bank_transfer') {
+                    btContainer.style.display = 'block';
+                    const btRef = document.getElementById('bt-success-ref');
+                    if (btRef) btRef.innerText = data.order.order_id;
+                } else {
+                    btContainer.style.display = 'none';
+                }
             }
         } else {
             alert(data.message || 'Die Bezahlung konnte nicht autorisiert werden.');

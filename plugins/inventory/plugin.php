@@ -142,6 +142,9 @@ PluginManager::addAction('shop_order_created', function($order) {
                 "Webshop-Verkauf an {$customerName} (Zahlung via {$method})",
                 'Webshop-Engine'
             );
+
+            // Prüfung auf Mindestbestand & E-Mail-Warnung
+            InventoryManager::checkAndNotifyLowStock($id);
         }
     }
 });
@@ -171,8 +174,9 @@ PluginManager::addFilter('plugin_validate_config_inventory', function($submitted
         $raw = explode(',', (string)$submitted['locations_list']);
         $cleaned['locations'] = array_values(array_filter(array_map('trim', $raw)));
     }
-    if (isset($submitted['notify_low_stock'])) {
-        $cleaned['notify_low_stock'] = !empty($submitted['notify_low_stock']);
+    $cleaned['notify_low_stock'] = !empty($submitted['notify_low_stock']);
+    if (isset($submitted['notify_email'])) {
+        $cleaned['notify_email'] = trim($submitted['notify_email']);
     }
 
     return $cleaned;

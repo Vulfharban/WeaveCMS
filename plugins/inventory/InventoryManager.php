@@ -242,7 +242,11 @@ class InventoryManager {
         unset($a);
 
         if ($found) {
-            return self::saveAllArticles($articles);
+            $saved = self::saveAllArticles($articles);
+            if ($saved) {
+                self::checkAndNotifyLowStock($id);
+            }
+            return $saved;
         }
         return false;
     }
@@ -281,7 +285,11 @@ class InventoryManager {
         unset($a);
 
         if ($found) {
-            return self::saveAllArticles($articles);
+            $saved = self::saveAllArticles($articles);
+            if ($saved) {
+                self::checkAndNotifyLowStock($id);
+            }
+            return $saved;
         }
         return false;
     }
@@ -457,6 +465,101 @@ class InventoryManager {
             'categories'              => $categories,
             'locations'               => $locations
         ];
+    }
+
+    /**
+     * Prüft ob der Bestand eines Artikels den Mindestbestand erreicht/unterschreitet
+     * und sendet bei Bedarf eine E-Mail-Warnung an den Administrator.
+     */
+    public static function checkAndNotifyLowStock(string $articleId): bool {
+        $article = self::getArticle($articleId);
+        if (!$article || !empty($article['unlimited'])) {
+            return false;
+        }
+
+        $stock = (int)($article['stock'] ?? 0);
+        $minStock = (int)($article['min_stock'] ?? 0);
+
+        if ($stock > $minStock) {
+            return false;
+        }
+
+        // Plugin-Konfiguration prüfen
+        $invConfig = [];
+        if (class_exists('PluginManager')) {
+            $invConfig = PluginManager::getPluginConfig('inventory');
+        }
+        $notifyEnabled = isset($invConfig['notify_low_stock']) ? !empty($invConfig['notify_low_stock']) : true;
+        if (!$notifyEnabled) {
+            return false;
+        }
+
+        // Empfänger-E-Mail ermitteln
+        $toEmail = trim($invConfig['notify_email'] ?? '');
+        if (empty($toEmail) && class_exists('StorageManager')) {
+            $globalSettings = StorageManager::getGlobalSettings();
+            $toEmail = trim($globalSettings['contact_email'] ?? ($globalSettings['admin_email'] ?? ''));
+        }
+        if (empty($toEmail) && !empty($_SESSION['admin_email'])) {
+            $toEmail = trim($_SESSION['admin_email']);
+        }
+        if (empty($toEmail)) {
+            $toEmail = 'admin@' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+        }
+
+        $subject = "[WeaveCMS Lager-Alarm] Mindestbestand erreicht: {$article['title']} (Bestand: {$stock})";
+
+        $htmlBody = "
+        <div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1f2937;\">
+            <div style=\"background: #1e3a8a; padding: 18px 24px; border-radius: 12px 12px 0 0; color: #fff;\">
+                <h2 style=\"margin: 0; font-size: 1.25rem;\">⚠️ Lager-Alarm: Mindestbestand unterschritten</h2>
+            </div>
+            <div style=\"border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 12px 12px; background: #fafafa;\">
+                <p style=\"font-size: 1rem; line-height: 1.5; margin-top: 0;\">
+                    Der Lagerbestand des folgenden Artikels hat den definierten Mindestbestand erreicht oder unterschritten:
+                </p>
+                <table style=\"width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #fff; border-radius: 8px; border: 1px solid #e5e7eb;\">
+                    <tr><td style=\"padding: 10px 14px; font-weight: bold; border-bottom: 1px solid #e5e7eb;\">Artikel:</td><td style=\"padding: 10px 14px; border-bottom: 1px solid #e5e7eb;\">{$article['title']}</td></tr>
+                    <tr><td style=\"padding: 10px 14px; font-weight: bold; border-bottom: 1px solid #e5e7eb;\">SKU / Art-Nr:</td><td style=\"padding: 10px 14px; border-bottom: 1px solid #e5e7eb;\">{$article['sku']}</td></tr>
+                    <tr><td style=\"padding: 10px 14px; font-weight: bold; border-bottom: 1px solid #e5e7eb;\">Aktueller Bestand:</td><td style=\"padding: 10px 14px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #ef4444;\">{$stock} {$article['unit']}</td></tr>
+                    <tr><td style=\"padding: 10px 14px; font-weight: bold; border-bottom: 1px solid #e5e7eb;\">Mindestbestand:</td><td style=\"padding: 10px 14px; border-bottom: 1px solid #e5e7eb;\">{$minStock} {$article['unit']}</td></tr>
+                    <tr><td style=\"padding: 10px 14px; font-weight: bold; border-bottom: 1px solid #e5e7eb;\">Lagerort:</td><td style=\"padding: 10px 14px; border-bottom: 1px solid #e5e7eb;\">{$article['location']}</td></tr>
+                    <tr><td style=\"padding: 10px 14px; font-weight: bold;\">Lieferant:</td><td style=\"padding: 10px 14px;\">{$article['supplier']}</td></tr>
+                </table>
+                <p style=\"font-size: 0.9rem; color: #6b7280; margin-bottom: 0;\">
+                    Bitte rechtzeitig Nachbestellungen oder Wareneingänge im WeaveCMS Lager-Plugin verbuchen.
+                </p>
+            </div>
+        </div>";
+
+        $plainBody = "LAGER-ALARM: Mindestbestand unterschritten!\n\n"
+            . "Artikel: {$article['title']} (SKU: {$article['sku']})\n"
+            . "Aktueller Bestand: {$stock} {$article['unit']}\n"
+            . "Mindestbestand: {$minStock} {$article['unit']}\n"
+            . "Lagerort: {$article['location']}\n"
+            . "Lieferant: {$article['supplier']}\n\n"
+            . "Bitte rechtzeitig Nachbestellungen im WeaveCMS Lager-Plugin veranlassen.";
+
+        // Security Event loggen falls vorhanden
+        if (class_exists('SecurityManager')) {
+            SecurityManager::logEvent(
+                'INVENTORY_LOW_STOCK',
+                "Lagerbestand für {$article['title']} ({$article['sku']}) kritisch: {$stock} / {$minStock}",
+                'WARNING'
+            );
+        }
+
+        // SimpleMailer nutzen falls vorhanden
+        $mailerPath = dirname(__DIR__, 2) . '/libs/php/Mailer.php';
+        if (file_exists($mailerPath)) {
+            require_once $mailerPath;
+        }
+
+        if (class_exists('SimpleMailer')) {
+            return SimpleMailer::send($toEmail, $subject, $htmlBody, $plainBody);
+        }
+
+        return false;
     }
 
     /**
