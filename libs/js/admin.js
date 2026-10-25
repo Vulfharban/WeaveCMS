@@ -664,6 +664,23 @@ function moveActiveSectionCard(secId, direction) {
 
 function transformSecCardState(card, isActive) {
     card.setAttribute('data-is-active', isActive ? '1' : '0');
+    if (isActive) {
+        card.classList.add('sec-card-active');
+        card.classList.remove('sec-card-pool');
+    } else {
+        card.classList.remove('sec-card-active');
+        card.classList.add('sec-card-pool');
+    }
+
+    const tile = card.querySelector('.sec-icon-tile');
+    if (tile) {
+        if (isActive) {
+            tile.classList.add('active-tile');
+        } else {
+            tile.classList.remove('active-tile');
+        }
+    }
+
     const badge = card.querySelector('.sec-badge-pos');
     const btnActivate = card.querySelector('.btn-activate-card');
     const activeControls = card.querySelector('.sec-active-controls');

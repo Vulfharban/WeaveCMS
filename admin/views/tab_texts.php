@@ -60,13 +60,13 @@
                     $is_plugin = !empty($sec['plugin']) || in_array($sec['type'], ['webtrees', 'shop'], true);
                     $sec_place = $sec['placement'] ?? 'both';
                     $place_badge = [
-                        'both' => ['label' => 'Start & Unterseite', 'bg' => 'rgba(16,185,129,0.1)', 'color' => '#10b981'],
-                        'home' => ['label' => 'Nur Startseite', 'bg' => 'rgba(245,158,11,0.1)', 'color' => '#d97706'],
-                        'page' => ['label' => 'Nur Unterseite', 'bg' => 'rgba(99,102,241,0.1)', 'color' => '#6366f1']
-                    ][$sec_place] ?? ['label' => 'Standard', 'bg' => 'rgba(0,0,0,0.05)', 'color' => 'var(--text-secondary)'];
+                        'both' => ['label' => 'Start & Unterseite'],
+                        'home' => ['label' => 'Nur Startseite'],
+                        'page' => ['label' => 'Nur Unterseite']
+                    ][$sec_place] ?? ['label' => 'Standard'];
                     $sec_json = htmlspecialchars(json_encode($sec), ENT_QUOTES, 'UTF-8');
             ?>
-                <div class="sec-card" 
+                <div class="sec-card <?php echo $is_active ? 'sec-card-active' : 'sec-card-pool'; ?>" 
                      id="sec-card-<?php echo $sec_id; ?>" 
                      data-sec-id="<?php echo $sec_id; ?>" 
                      data-sec-type="<?php echo $sec_type; ?>" 
@@ -77,20 +77,22 @@
                     <div class="sec-card-header">
                         <div class="sec-card-left">
                             <span class="material-icons sec-drag-handle" title="Gedrückt halten &amp; ziehen">drag_indicator</span>
-                            <span class="sec-badge-pos" style="font-weight:700; color:var(--text-secondary); font-size:0.82rem; min-width:20px; <?php if (!$is_active) echo 'display:none;'; ?>">#<?php echo ($idx + 1); ?></span>
-                            <span class="material-icons" style="color:var(--primary); font-size:22px; flex-shrink:0;"><?php echo htmlspecialchars($icon); ?></span>
+                            <span class="sec-badge-pos" style="<?php if (!$is_active) echo 'display:none;'; ?>">#<?php echo ($idx + 1); ?></span>
+                            <div class="sec-icon-tile <?php echo $is_active ? 'active-tile' : ''; ?>">
+                                <span class="material-icons" style="font-size:20px;"><?php echo htmlspecialchars($icon); ?></span>
+                            </div>
                             <div style="min-width:0; flex:1;">
                                 <div class="sec-card-title">
-                                    <span><?php echo $title; ?></span>
+                                    <span class="sec-title-text"><?php echo $title; ?></span>
                                     <?php if ($is_plugin): ?>
-                                        <span style="font-size:0.68rem; font-weight:700; color:#059669; background:rgba(5,150,105,0.1); padding:1px 6px; border-radius:999px;">Plugin</span>
+                                        <span class="sec-tag sec-tag-plugin">Plugin</span>
                                     <?php endif; ?>
                                     <?php if (!empty($sec['in_nav'])): ?>
-                                        <span style="font-size:0.68rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:1px 6px; border-radius:999px;">
-                                            Menü: <?php echo $nav_label; ?>
+                                        <span class="sec-tag sec-tag-nav">
+                                            <span class="material-icons" style="font-size:12px;">menu</span> <?php echo $nav_label; ?>
                                         </span>
                                     <?php endif; ?>
-                                    <span style="font-size:0.68rem; font-weight:600; color:<?php echo $place_badge['color']; ?>; background:<?php echo $place_badge['bg']; ?>; padding:1px 6px; border-radius:999px;">
+                                    <span class="sec-tag sec-tag-placement sec-tag-place-<?php echo htmlspecialchars($sec_place); ?>">
                                         <?php echo htmlspecialchars($place_badge['label']); ?>
                                     </span>
                                 </div>
@@ -100,34 +102,29 @@
 
                         <div class="sec-card-actions">
                             <!-- Schnell-Button für Inaktiv (Pool) -->
-                            <button type="button" class="sec-card-btn btn-activate btn-activate-card" onclick="activateSectionFromPool('<?php echo $sec_id; ?>')" title="Aktivieren &amp; auf Website einbinden" style="<?php if ($is_active) echo 'display:none;'; ?>">
-                                <span class="material-icons" style="font-size:15px;">add_circle_outline</span>
+                            <button type="button" class="btn-activate-card sec-btn-activate" onclick="activateSectionFromPool('<?php echo $sec_id; ?>')" title="Aktivieren &amp; auf Website einbinden" style="<?php if ($is_active) echo 'display:none;'; ?>">
+                                <span class="material-icons" style="font-size:16px;">add</span>
                                 <span>Aktivieren</span>
                             </button>
 
                             <!-- Steuerung für Aktive Sektionen -->
-                            <div class="sec-active-controls" style="display:<?php echo $is_active ? 'inline-flex' : 'none'; ?>; align-items:center; gap:4px;">
-                                <!-- Pfeil hoch -->
-                                <button type="button" class="sec-card-btn" onclick="moveActiveSectionCard('<?php echo $sec_id; ?>', 'up')" title="Nach oben verschieben">
-                                    <span class="material-icons" style="font-size:15px;">arrow_upward</span>
+                            <div class="sec-active-controls" style="display:<?php echo $is_active ? 'inline-flex' : 'none'; ?>; align-items:center; gap:5px;">
+                                <button type="button" class="sec-action-icon-btn" onclick="moveActiveSectionCard('<?php echo $sec_id; ?>', 'up')" title="Nach oben verschieben">
+                                    <span class="material-icons" style="font-size:16px;">arrow_upward</span>
                                 </button>
-                                <!-- Pfeil runter -->
-                                <button type="button" class="sec-card-btn" onclick="moveActiveSectionCard('<?php echo $sec_id; ?>', 'down')" title="Nach unten verschieben">
-                                    <span class="material-icons" style="font-size:15px;">arrow_downward</span>
+                                <button type="button" class="sec-action-icon-btn" onclick="moveActiveSectionCard('<?php echo $sec_id; ?>', 'down')" title="Nach unten verschieben">
+                                    <span class="material-icons" style="font-size:16px;">arrow_downward</span>
                                 </button>
-                                <!-- Einstellungen -->
-                                <button type="button" class="sec-card-btn" onclick="openSectionEditor(<?php echo $sec_json; ?>)" title="Titel &amp; Einstellungen anpassen">
-                                    <span class="material-icons" style="font-size:15px;">settings</span>
+                                <button type="button" class="sec-action-icon-btn" onclick="openSectionEditor(<?php echo $sec_json; ?>)" title="Titel &amp; Einstellungen anpassen">
+                                    <span class="material-icons" style="font-size:16px;">settings</span>
                                 </button>
-                                <!-- Direktsprung zu Inhalten falls Subtab existiert -->
                                 <?php if ($target_tab && $target_tab !== 'tab-texts'): ?>
-                                    <button type="button" class="sec-card-btn" onclick="switchTab('<?php echo $target_tab; ?>')" title="Inhalte verwalten">
-                                        <span class="material-icons" style="font-size:15px;">edit_note</span>
+                                    <button type="button" class="sec-action-icon-btn sec-btn-edit" onclick="switchTab('<?php echo $target_tab; ?>')" title="Inhalte dieses Moduls verwalten">
+                                        <span class="material-icons" style="font-size:16px;">edit_note</span>
                                     </button>
                                 <?php endif; ?>
-                                <!-- Deaktivieren / In Pool ablegen -->
-                                <button type="button" class="sec-card-btn btn-deactivate" onclick="deactivateSectionToPool('<?php echo $sec_id; ?>')" title="Deaktivieren &amp; in Pool ablegen">
-                                    <span class="material-icons" style="font-size:15px;">remove_circle_outline</span>
+                                <button type="button" class="sec-action-icon-btn sec-btn-deactivate" onclick="deactivateSectionToPool('<?php echo $sec_id; ?>')" title="In den Modul-Pool ablegen (deaktivieren)">
+                                    <span class="material-icons" style="font-size:16px;">remove_circle_outline</span>
                                 </button>
                             </div>
                         </div>
@@ -143,51 +140,26 @@
                 <!-- Responsive Switcher für Tablets & Smartphones (<= 900px) -->
                 <div class="sec-pool-mobile-switch">
                     <button type="button" class="btn btn-primary sec-view-tab-btn active" id="btn-show-active" onclick="switchPoolMobileTab('active')">
-                        <span class="material-icons" style="font-size:16px;">view_stream</span> Aktive Sektionen (<span id="active-sec-badge-count"><?php echo count($active_sections); ?></span>)
+                        <span class="material-icons" style="font-size:16px;">check_circle</span> Aktive Seiten (<span id="active-sec-badge-count"><?php echo count($active_sections); ?></span>)
                     </button>
                     <button type="button" class="btn btn-outline sec-view-tab-btn" id="btn-show-pool" onclick="switchPoolMobileTab('pool')">
                         <span class="material-icons" style="font-size:16px;">widgets</span> Modul-Pool (<span id="pool-sec-badge-count"><?php echo count($pool_sections); ?></span>)
                     </button>
                 </div>
 
-                <!-- 2-Spalten Modul-Board (Desktop: nebeneinander, Mobil/Tablet: umschaltbar) -->
+                <!-- 2-Spalten Modul-Board: Aktive Seiten LINKS (Fokus), Modul-Pool RECHTS (Vorrat) -->
                 <div class="sec-pool-grid view-active" id="sec-pool-grid">
-                    <!-- 1. SPALTE: VERFÜGBARER MODUL-POOL (INAKTIV) -->
-                    <div class="sec-pool-col sec-col-pool" id="sec-col-pool">
-                        <div class="sec-col-header">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span class="material-icons" style="color:var(--primary); font-size:20px;">widgets</span>
-                                <h3 style="margin:0; font-size:1.05rem; color:var(--text-primary);">Modul-Pool (Inaktiv)</h3>
-                            </div>
-                            <span class="sec-count-badge" id="pool-count-label"><?php echo count($pool_sections); ?> im Pool</span>
-                        </div>
-                        <p class="sec-col-desc">
-                            Nicht genutzte Seitenkategorien. Ziehe sie nach rechts oder tippe auf <strong>+ Aktivieren</strong>.
-                        </p>
-                        
-                        <div class="sec-dropzone" id="dropzone-pool" ondragover="handleSecDragOver(event)" ondragleave="handleSecDragLeave(event)" ondrop="handleSecDrop(event, 'pool')">
-                            <?php foreach ($pool_sections as $idx => $sec): ?>
-                                <?php $render_sec_card($sec, false, $idx); ?>
-                            <?php endforeach; ?>
-
-                            <div class="sec-empty-state" id="pool-empty-state" style="<?php echo empty($pool_sections) ? 'display:flex;' : 'display:none;'; ?>">
-                                <span class="material-icons" style="font-size:28px; opacity:0.4;">inventory_2</span>
-                                <span>Alle Module sind aktuell aktiv auf deiner Website eingebunden.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2. SPALTE: AKTIVE WEBSITE-INHALTE (LIVE) -->
+                    <!-- 1. SPALTE: AKTIVE WEBSITE-INHALTE (LIVE) -->
                     <div class="sec-pool-col sec-col-active" id="sec-col-active">
                         <div class="sec-col-header">
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <span class="material-icons" style="color:#10b981; font-size:20px;">check_circle</span>
-                                <h3 style="margin:0; font-size:1.05rem; color:var(--text-primary);">Aktive Seiten &amp; Sektionen (Live)</h3>
+                                <span class="material-icons" style="color:var(--primary); font-size:22px;">check_circle</span>
+                                <h3 style="margin:0; font-size:1.1rem; color:var(--text-primary); font-weight:700;">Aktive Seiten &amp; Sektionen (Live)</h3>
                             </div>
                             <span class="sec-count-badge active" id="active-count-label"><?php echo count($active_sections); ?> aktiv</span>
                         </div>
                         <p class="sec-col-desc">
-                            Reihenfolge auf Startseite &amp; Menü. Ziehe Module nach oben/unten oder zurück in den Pool.
+                            Reihenfolge auf Startseite &amp; Menü. Ziehe Module nach oben/unten oder nach rechts in den Pool.
                         </p>
 
                         <div class="sec-dropzone" id="dropzone-active" ondragover="handleSecDragOver(event)" ondragleave="handleSecDragLeave(event)" ondrop="handleSecDrop(event, 'active')">
@@ -196,8 +168,33 @@
                             <?php endforeach; ?>
 
                             <div class="sec-empty-state" id="active-empty-state" style="<?php echo empty($active_sections) ? 'display:flex;' : 'display:none;'; ?>">
-                                <span class="material-icons" style="font-size:28px; opacity:0.4;">playlist_add</span>
+                                <span class="material-icons" style="font-size:32px; opacity:0.4;">playlist_add</span>
                                 <span>Keine aktiven Module. Ziehe Kategorien aus dem Pool hierher.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. SPALTE: VERFÜGBARER MODUL-POOL (INAKTIV) -->
+                    <div class="sec-pool-col sec-col-pool" id="sec-col-pool">
+                        <div class="sec-col-header">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span class="material-icons" style="color:#b26c39; font-size:22px;">widgets</span>
+                                <h3 style="margin:0; font-size:1.1rem; color:var(--text-primary); font-weight:700;">Modul-Pool (Inaktiv)</h3>
+                            </div>
+                            <span class="sec-count-badge" id="pool-count-label"><?php echo count($pool_sections); ?> im Pool</span>
+                        </div>
+                        <p class="sec-col-desc">
+                            Nicht genutzte Seitenkategorien. Ziehe sie nach links oder tippe auf <strong>+ Aktivieren</strong>.
+                        </p>
+                        
+                        <div class="sec-dropzone" id="dropzone-pool" ondragover="handleSecDragOver(event)" ondragleave="handleSecDragLeave(event)" ondrop="handleSecDrop(event, 'pool')">
+                            <?php foreach ($pool_sections as $idx => $sec): ?>
+                                <?php $render_sec_card($sec, false, $idx); ?>
+                            <?php endforeach; ?>
+
+                            <div class="sec-empty-state" id="pool-empty-state" style="<?php echo empty($pool_sections) ? 'display:flex;' : 'display:none;'; ?>">
+                                <span class="material-icons" style="font-size:32px; opacity:0.4;">inventory_2</span>
+                                <span>Alle Module sind aktuell aktiv auf deiner Website eingebunden.</span>
                             </div>
                         </div>
                     </div>
