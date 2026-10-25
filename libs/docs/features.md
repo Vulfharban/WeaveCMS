@@ -125,6 +125,12 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Mehrbenutzersystem (RBAC)** | Benutzerrollen: Administrator, Moderator, Redakteur (Content-User) mit granularen Rechten. | ✅ Integriert (Phase 10) |
 | **Brute-Force-Schutz & Rate-Limiting** | Progressive Verzögerung und temporäre IP-Sperre nach wiederholten Fehlversuchen. | ✅ Integriert (Phase 9) |
 | **Audit- & Security-Logging** | Manipulationssicheres Protokollieren aller sicherheitsrelevanter Aktionen in `data/security.log`. | ✅ Integriert (Phase 9) |
+| **Strikte HSTS-Policy & SSL-Preload** | Erzwingt verschlüsselte HTTPS-Verbindungen mit optionalem Preload-Header für moderne Browser. | ✅ Integriert (Phase 17.1) |
+| **Production-CSP & SRI** | Gehärtete Content Security Policy gegen XSS und Subresource Integrity Hash-Prüfung (`renderSriTag`). | ✅ Integriert (Phase 17.2) |
+| **Dateisystem-Audit (POSIX/Linux)** | Automatischer Check der Berechtigungen (`chmod 0640/0750`) im Admin-Sicherheits-Tab und Dashboard. | ✅ Integriert (Phase 17.3) |
+| **Reverse-Proxy Anti-Spoofing** | Striktes IP-Filtering für Upstream-Proxies & Cloudflare (`X-Forwarded-For` Schutz). | ✅ Integriert (Phase 17.4) |
+| **Admin-E-Mail-Alarmierung** | Automatische Alarm-E-Mails bei Brute-Force-Lockouts mit Cooldown-Schutz gegen E-Mail-Fluten. | ✅ Integriert (Phase 17.5) |
+| **Live-Deployment Checkliste** | Integrierte Status-Matrix und Direkt-Links zu SecurityHeaders.com und Qualys SSL Labs. | ✅ Integriert (Phase 17.6) |
 
 ---
 
@@ -159,7 +165,18 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ---
 
-## 📈 Release-Historie & Meilensteine
+### v1.1.0 (Live-Server-Deployment, Produktions-Härtung & Universelle Sprach-Tabs / Phase 17)
+* **Live-Server-Deployment, SSL/HSTS-Härtung & Produktions-Sicherheit (Phase 17):**
+  * **Strikte HSTS-Policy & SSL-Preloading (17.1):** Konfigurierbare Aktivierung von `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` exklusiv für bestätigte Live-Domains mit aktivem SSL-Zertifikat.
+  * **Gehärtete Production-CSP & Subresource Integrity (17.2):** Schärfung der HTTP Content Security Policy (`script-src`, `style-src`, `object-src 'none'`, `form-action 'self'`) sowie SRI-Tag-Generator `SecurityManager::renderSriTag`.
+  * **Dateisystem-Berechtigungen & POSIX-Audit (17.3):** Live-Audit-Prüfung im Sicherheitsbereich und Dashboard für sensible Dateien (`config.php`, `config.local.php`, `data/data.json`) und Ordner (`data/`, `backups/`, `logs/`, `images/uploads/`) inklusive `.htaccess`-Schutz.
+  * **Reverse-Proxy & Trusted-Proxy IP-Filter (17.4):** Robuster Anti-IP-Spoofing-Schutz; Header wie `CF-Connecting-IP` und `X-Forwarded-For` werden nur noch von explizit autorisierten Upstream-Proxies oder CIDR-Subnetzen akzeptiert.
+  * **Automatisierte Admin-E-Mail-Alarmierung (17.5):** Automatische Warnung per E-Mail bei Brute-Force-Lockouts mit integriertem Cooldown-Schutz (verhindert E-Mail-Fluten).
+  * **Live-Deployment Checkliste (17.6):** 4-Punkte-Checkliste und Direkt-Prüflinks zu SecurityHeaders.com und Qualys SSL Labs direkt im Backend. 27/27 Tests in `tests/test_phase17_production_security.php` bestanden.
+* **Übersichtliche Mehrsprachigkeit mit Sprach-Tabs (Option A & B):**
+  * **Sprach-Tabs je Sektion & Modul:** Umschaltung (`[🇩🇪 Hauptsprache] [🇬🇧 English] ...`) in allen Editoren und Drawers (Sektionsleisten, FAQ, Team, Downloads, Preise, Kurse, Galerie) ohne langes Scrollen.
+  * **Sprach-Badges:** Visuelle Indikatoren in den Admin-Listenansichten aller Content-Module über gepflegte Übersetzungen.
+  * **Automatische Frontend-Kaskade:** Dynamische Textauflösung mit Fallback auf die Hauptsprache.
 
 ### v1.0.0 (Offizielles Release 1.0.0 / Phase 20)
 * **In-Navbar Barrierefreiheit & UX-Bereinigung:**

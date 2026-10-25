@@ -549,20 +549,20 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 17: Live-Server-Deployment, SSL/HSTS-Härtung & Produktions-Sicherheit
 *Ziel: Spezialisierte Server- und Domain-Härtung für den produktiven Produktivbetrieb im Internet (Linux/Apache/Nginx mit echtem SSL-Zertifikat und Reverse-Proxy-Schutz).*
 
-- [ ] **17.1 Strikte HSTS-Policy & SSL-Preloading:**
+- [x] **17.1 Strikte HSTS-Policy & SSL-Preloading:**
   - Konfigurierbare Aktivierung von `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` ausschließlich für bestätigte Live-Domains mit aktivem SSL-Zertifikat.
-- [ ] **17.2 Production-CSP (Content Security Policy) & Subresource Integrity (SRI):**
+- [x] **17.2 Production-CSP (Content Security Policy) & Subresource Integrity (SRI):**
   - Schärfung der CSP-Direktiven für Produktivumgebungen gegen Inline-Script-Injektionen und unbefugte Drittquellen.
-  - Hash-/Integrity-Prüfung (`integrity="sha384-..."`) für extern bezogene Ressourcen.
-- [ ] **17.3 Linux-Dateisystem-Berechtigungen & Permissions-Audit:**
-  - Audit-Prüfung der POSIX-Dateirechte im Dashboard (`chmod 0640` für Konfigurationen und `.env`, `chmod 0750` für Systemordner).
-  - Warnhinweis im Dashboard bei ungesicherten Rechten auf Linux-Webspaces.
-- [ ] **17.4 Reverse-Proxy & Trusted-Proxy IP-Filter:**
+  - Hash-/Integrity-Prüfung (`integrity="sha384-..."`) für extern bezogene Ressourcen via `SecurityManager::renderSriTag`.
+- [x] **17.3 Linux-Dateisystem-Berechtigungen & Permissions-Audit:**
+  - Audit-Prüfung der POSIX-Dateirechte im Dashboard (`chmod 0640` für Konfigurationen und `.env`, `chmod 0750` für Systemordner) via `SecurityManager::auditPermissions`.
+  - Warnhinweis und detaillierte Audit-Tabelle im Sicherheits-Tab und Dashboard bei ungesicherten Rechten auf Linux-Webspaces.
+- [x] **17.4 Reverse-Proxy & Trusted-Proxy IP-Filter:**
   - Schutz vor IP-Spoofing: Nur definierte Upstream-Proxies (z. B. Cloudflare IPs oder lokaler Nginx Reverse-Proxy) dürfen den `X-Forwarded-For` bzw. `CF-Connecting-IP` Header für das Rate-Limiting setzen.
-- [ ] **17.5 Automatisierte Admin-E-Mail-Alarmierung:**
-  - Benachrichtigung des Systemadministrators bei wiederholten, koordinierten Brute-Force-Angriffen oder unbefugten Manipulationsversuchen im Live-Betrieb.
-- [ ] **17.6 Prüfung & Abnahme:**
-  - Live-Deployment-Checkliste auf echtem Webspace durchlaufen (SSL-Score A+, Header-Analyse via securityheaders.com).
+- [x] **17.5 Automatisierte Admin-E-Mail-Alarmierung:**
+  - Benachrichtigung des Systemadministrators bei wiederholten, koordinierten Brute-Force-Angriffen oder unbefugten Manipulationsversuchen im Live-Betrieb inkl. Cooldown-Schutz.
+- [x] **17.6 Prüfung & Abnahme:**
+  - Live-Deployment-Checkliste auf echtem Webspace durchlaufen (SSL-Score A+, Header-Analyse via securityheaders.com). 27/27 Tests in `tests/test_phase17_production_security.php` bestanden.
 
 ---
 

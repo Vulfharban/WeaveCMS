@@ -1096,9 +1096,23 @@ class AdminController {
             $data['settings']['captcha_icons'] = ['basket', 'branch', 'paw', 'sun'];
         }
 
+        if (!isset($data['settings']['prod_security']) || !is_array($data['settings']['prod_security'])) {
+            $data['settings']['prod_security'] = [];
+        }
+
+        // Phase 17: Live-Server-Deployment, SSL/HSTS-Härtung & Produktions-Sicherheit
+        $data['settings']['prod_security']['hsts_preload'] = !empty($_POST['prod_hsts_preload']);
+        $data['settings']['prod_security']['production_csp'] = !empty($_POST['prod_production_csp']);
+        $data['settings']['prod_security']['trusted_proxies'] = trim($_POST['prod_trusted_proxies'] ?? '127.0.0.1, ::1');
+        $data['settings']['prod_security']['alert_email'] = trim($_POST['prod_alert_email'] ?? '');
+        $data['settings']['prod_security']['alert_on_bruteforce'] = !empty($_POST['prod_alert_on_bruteforce']);
+        $data['settings']['prod_security']['alert_cooldown_minutes'] = max(5, (int)($_POST['prod_alert_cooldown_minutes'] ?? 15));
+
+        SecurityManager::setProductionSettings($data['settings']['prod_security']);
+
         if (!$captcha_error) {
             if (save_data($dataFile, $data)) {
-                $success_msg = '✓ Spamschutz-, SMTP- und Upload-Einstellungen erfolgreich gespeichert.';
+                $success_msg = '✓ Spamschutz-, SMTP-, Upload- und Produktions-Sicherheitseinstellungen erfolgreich gespeichert.';
             } else {
                 $error_msg = 'Fehler beim Speichern der Einstellungen.';
             }
