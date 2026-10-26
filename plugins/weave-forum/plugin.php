@@ -123,6 +123,10 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
                     save_data(dirname(__DIR__, 2) . '/data.json', $data);
                     header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=migrated_sqlite#tab-plugins');
                     exit;
+                } else {
+                    $err = urlencode($res['message'] ?? 'Migration nach SQLite fehlgeschlagen.');
+                    header("Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_err={$err}#tab-plugins");
+                    exit;
                 }
             } else {
                 $res = ForumManager::migrateSqliteToJson();
@@ -131,6 +135,10 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
                     PluginManager::savePluginConfig('weave-forum', $config, $data);
                     save_data(dirname(__DIR__, 2) . '/data.json', $data);
                     header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=migrated_json#tab-plugins');
+                    exit;
+                } else {
+                    $err = urlencode($res['message'] ?? 'Migration nach JSON fehlgeschlagen.');
+                    header("Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_err={$err}#tab-plugins");
                     exit;
                 }
             }

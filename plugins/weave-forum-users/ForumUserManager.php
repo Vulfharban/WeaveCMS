@@ -61,7 +61,7 @@ class ForumUserManager {
     /**
      * Stellt eine SQLite-Verbindung her und initialisiert die Tabelle.
      */
-    protected static function getSqlitePdo(): PDO {
+    public static function getSqlitePdo(): PDO {
         if (self::$sqlitePdo !== null) {
             return self::$sqlitePdo;
         }
@@ -103,6 +103,11 @@ class ForumUserManager {
             CREATE INDEX IF NOT EXISTS idx_fusers_username ON weave_forum_users(username);
             CREATE INDEX IF NOT EXISTS idx_fusers_email ON weave_forum_users(email);
         ");
+
+        // Wenn ForumManager existiert, auch die Foren-Inhaltstabellen sicherstellen
+        if (class_exists('ForumManager')) {
+            ForumManager::initSqliteTables($pdo);
+        }
 
         self::$sqlitePdo = $pdo;
         return $pdo;
@@ -585,61 +590,75 @@ class ForumUserManager {
 
     /**
      * Migriert alle Foren-Benutzer von JSON nach SQLite.
+     * Erstellt die SQLite-Datenbank und Tabellen auch dann sauber, wenn noch keine JSON-Datei vorhanden ist.
      */
     public static function migrateToJsonToSqlite(): array {
-        $jsonFile = self::getJsonFilePath();
-        if (!file_exists($jsonFile)) {
-            return ['success' => false, 'message' => 'Keine Datei data/forum_users.json gefunden.'];
-        }
-
-        $raw = @file_get_contents($jsonFile);
-        $users = json_decode((string)$raw, true);
-        if (!is_array($users)) {
-            return ['success' => false, 'message' => 'Die Datei forum_users.json enthält kein gültiges JSON-Array.'];
+        if (!self::isSqliteSupported()) {
+            return [
+                'success' => false,
+                'message' => 'Die PHP-Erweiterung pdo_sqlite ist auf diesem Server nicht geladen. Bitte in php.ini "extension=pdo_sqlite" aktivieren.'
+            ];
         }
 
         try {
             $pdo = self::getSqlitePdo();
-            $pdo->beginTransaction();
-            $stmt = $pdo->prepare("
-                INSERT OR REPLACE INTO weave_forum_users (
-                    id, username, email, password_hash, role, status, avatar, signature,
-                    bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email
-                ) VALUES (
-                    :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
-                    :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email
-                )
-            ");
+            $jsonFile = self::getJsonFilePath();
+            $users = [];
+
+            if (file_exists($jsonFile)) {
+                $raw = @file_get_contents($jsonFile);
+                $decoded = json_decode((string)$raw, true);
+                if (is_array($decoded)) {
+                    $users = $decoded;
+                }
+            }
 
             $count = 0;
-            foreach ($users as $u) {
-                if (empty($u['id'])) continue;
-                $stmt->execute([
-                    ':id' => $u['id'],
-                    ':username' => $u['username'],
-                    ':email' => mb_strtolower($u['email']),
-                    ':password_hash' => $u['password_hash'] ?? '',
-                    ':role' => $u['role'] ?? self::ROLE_USER,
-                    ':status' => $u['status'] ?? self::STATUS_ACTIVE,
-                    ':avatar' => $u['avatar'] ?? '',
-                    ':signature' => $u['signature'] ?? '',
-                    ':bio' => $u['bio'] ?? '',
-                    ':created_at' => $u['created_at'] ?? date('Y-m-d H:i:s'),
-                    ':last_login' => $u['last_login'] ?? '',
-                    ':post_count' => (int)($u['post_count'] ?? 0),
-                    ':topic_count' => (int)($u['topic_count'] ?? 0),
-                    ':banned_until' => $u['banned_until'] ?? null,
-                    ':ban_reason' => $u['ban_reason'] ?? '',
-                    ':notification_email' => !empty($u['notification_email']) ? 1 : 0
-                ]);
-                $count++;
+            if (!empty($users)) {
+                $pdo->beginTransaction();
+                $stmt = $pdo->prepare("
+                    INSERT OR REPLACE INTO weave_forum_users (
+                        id, username, email, password_hash, role, status, avatar, signature,
+                        bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email
+                    ) VALUES (
+                        :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
+                        :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email
+                    )
+                ");
+
+                foreach ($users as $u) {
+                    if (empty($u['id'])) continue;
+                    $stmt->execute([
+                        ':id' => $u['id'],
+                        ':username' => $u['username'],
+                        ':email' => mb_strtolower($u['email']),
+                        ':password_hash' => $u['password_hash'] ?? '',
+                        ':role' => $u['role'] ?? self::ROLE_USER,
+                        ':status' => $u['status'] ?? self::STATUS_ACTIVE,
+                        ':avatar' => $u['avatar'] ?? '',
+                        ':signature' => $u['signature'] ?? '',
+                        ':bio' => $u['bio'] ?? '',
+                        ':created_at' => $u['created_at'] ?? date('Y-m-d H:i:s'),
+                        ':last_login' => $u['last_login'] ?? '',
+                        ':post_count' => (int)($u['post_count'] ?? 0),
+                        ':topic_count' => (int)($u['topic_count'] ?? 0),
+                        ':banned_until' => $u['banned_until'] ?? null,
+                        ':ban_reason' => $u['ban_reason'] ?? '',
+                        ':notification_email' => !empty($u['notification_email']) ? 1 : 0
+                    ]);
+                    $count++;
+                }
+                $pdo->commit();
             }
-            $pdo->commit();
+
+            $msg = $count > 0
+                ? "Erfolgreich {$count} Benutzer von JSON in die SQLite-Datenbank übertragen!"
+                : "SQLite-Datenbank (data/forum.sqlite) und Tabellen wurden erfolgreich initialisiert und aktiviert!";
 
             return [
                 'success' => true,
                 'count' => $count,
-                'message' => "Erfolgreich {$count} Benutzer von JSON in die SQLite-Datenbank übertragen!"
+                'message' => $msg
             ];
         } catch (Exception $e) {
             if (isset($pdo) && $pdo->inTransaction()) {
