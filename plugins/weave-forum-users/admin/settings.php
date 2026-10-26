@@ -31,6 +31,9 @@ $filteredUsers = array_filter($users, function($u) use ($searchQuery, $roleFilte
 });
 
 $msg = $_GET['fuser_msg'] ?? '';
+$err = $_GET['fuser_err'] ?? '';
+$migratedCount = isset($_GET['fuser_count']) ? (int)$_GET['fuser_count'] : null;
+$isSqliteSupported = ForumUserManager::isSqliteSupported();
 ?>
 
 <div class="card p-6 mb-6">
@@ -54,10 +57,19 @@ $msg = $_GET['fuser_msg'] ?? '';
         </div>
     </div>
 
+    <?php if (!empty($err)): ?>
+        <div class="alert alert-danger mb-4">
+            <span class="material-icons">error</span>
+            <?= htmlspecialchars($err) ?>
+        </div>
+    <?php endif; ?>
+
     <?php if ($msg === 'migrated_sqlite'): ?>
         <div class="alert alert-success mb-4">
             <span class="material-icons">check_circle</span>
-            Erfolgreich nach SQLite migriert! Der aktive Speichertreiber wurde auf SQLite umgestellt.
+            <?= ($migratedCount !== null && $migratedCount > 0)
+                ? "Erfolgreich {$migratedCount} Benutzer nach SQLite migriert! Die SQLite-Datenbank (data/forum.sqlite) ist aktiv."
+                : "SQLite-Datenbank (data/forum.sqlite) und Tabellen wurden erfolgreich initialisiert und als aktiver Speichertreiber aktiviert!" ?>
         </div>
     <?php elseif ($msg === 'migrated_json'): ?>
         <div class="alert alert-success mb-4">
@@ -290,23 +302,46 @@ $msg = $_GET['fuser_msg'] ?? '';
                     </h4>
                     <?php if ($currentDriver === 'sqlite'): ?>
                         <span class="badge badge-success">Aktiv</span>
+                    <?php elseif (!$isSqliteSupported): ?>
+                        <span class="badge badge-warning">PHP pdo_sqlite fehlt</span>
                     <?php endif; ?>
                 </div>
                 <p class="text-xs text-muted mb-3">
                     Pfad: <code><?= htmlspecialchars($sqliteFile) ?></code><br>
-                    Status: <?= file_exists($sqliteFile) ? 'Existiert (' . filesize($sqliteFile) . ' Bytes)' : 'Wird bei Migration automatisch erstellt' ?>
+                    Status: <?= file_exists($sqliteFile) ? 'Existiert (' . filesize($sqliteFile) . ' Bytes)' : 'Wird bei Aktivierung automatisch erstellt' ?>
                 </p>
+
+                <?php if (!$isSqliteSupported): ?>
+                    <div class="alert alert-warning text-xs mb-3">
+                        <strong>Hinweis:</strong> Die PHP-Erweiterung <code>pdo_sqlite</code> ist derzeit nicht geladen.
+                        Bitte in der <code>php.ini</code> die Zeile <code>extension=pdo_sqlite</code> aktivieren und den Webserver neu starten.
+                    </div>
+                <?php endif; ?>
+
                 <?php if ($currentDriver !== 'sqlite'): ?>
                     <form method="post">
                         <input type="hidden" name="action" value="forum_migrate_storage">
                         <input type="hidden" name="target_driver" value="sqlite">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
-                        <button type="submit" class="btn btn-primary btn-sm w-full">
+                        <button type="submit" class="btn btn-primary btn-sm w-full" <?= !$isSqliteSupported ? 'disabled' : '' ?>>
                             Daten nach SQLite migrieren & aktivieren
                         </button>
                     </form>
                 <?php endif; ?>
             </div>
+        </div>
+
+        <div class="p-4 rounded border bg-light text-sm text-muted">
+            <div class="font-bold flex items-center gap-2 text-dark mb-1">
+                <span class="material-icons text-primary text-base">info</span>
+                Warum werden bei SQLite keine Datenbank-Zugangsdaten (Host, Benutzer, Passwort) abgefragt?
+            </div>
+            <p class="mb-0">
+                <strong>SQLite</strong> ist eine serverlose, dateibasierte SQL-Datenbank (Zero-Configuration). 
+                Im Unterschied zu MySQL oder MariaDB benötigt SQLite keinen separaten Datenbank-Serverdienst und keine Zugangsdaten. 
+                Alle Tabellen, Benutzerkonten und Indizes werden direkt, isoliert und transaktionssicher in der Datei 
+                <code><?= htmlspecialchars($sqliteFile) ?></code> gespeichert. Die Datenbankdatei und alle benötigten Tabellen werden beim Klick auf die Migration vollautomatisch angelegt.
+            </p>
         </div>
     </div>
 

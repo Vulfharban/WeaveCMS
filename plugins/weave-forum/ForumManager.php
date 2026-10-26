@@ -52,7 +52,7 @@ class ForumManager {
     /**
      * Stellt eine SQLite-Verbindung her und initialisiert Tabellen.
      */
-    protected static function getSqlitePdo(): PDO {
+    public static function getSqlitePdo(): PDO {
         if (self::$sqlitePdo !== null) {
             return self::$sqlitePdo;
         }
@@ -71,6 +71,20 @@ class ForumManager {
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ]);
+
+        self::initSqliteTables($pdo);
+
+        self::$sqlitePdo = $pdo;
+        return $pdo;
+    }
+
+    /**
+     * Initialisiert alle Forentabellen und Indizes in der SQLite-Datenbank.
+     */
+    public static function initSqliteTables(?PDO $pdo = null): PDO {
+        if ($pdo === null) {
+            return self::getSqlitePdo();
+        }
 
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS weave_forum_categories (
@@ -167,7 +181,6 @@ class ForumManager {
             $pdo->exec("ALTER TABLE weave_forum_topics ADD COLUMN is_solved INTEGER DEFAULT 0");
         } catch (Exception $e) {}
 
-        self::$sqlitePdo = $pdo;
         return $pdo;
     }
 
@@ -1501,9 +1514,22 @@ class ForumManager {
     // =========================================================================
 
     public static function migrateToJsonToSqlite(): array {
+        if (!self::isSqliteSupported()) {
+            return [
+                'success' => false,
+                'message' => 'Die PHP-Erweiterung pdo_sqlite ist auf diesem Server nicht geladen. Bitte in php.ini "extension=pdo_sqlite" aktivieren.'
+            ];
+        }
+
         $data = self::loadJsonData();
         try {
             $pdo = self::getSqlitePdo();
+
+            // Falls das Benutzerverwaltungs-Plugin existiert, auch die Benutzertabelle initialisieren
+            if (class_exists('ForumUserManager')) {
+                ForumUserManager::getSqlitePdo();
+            }
+
             $pdo->beginTransaction();
 
             // 1. Kategorien

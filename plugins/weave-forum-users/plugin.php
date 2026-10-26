@@ -64,7 +64,12 @@ if (!empty($_SESSION['admin_logged_in'])) {
                         $config['storage_driver'] = 'sqlite';
                         PluginManager::savePluginConfig('weave-forum-users', $config, $data);
                         save_data(dirname(__DIR__, 2) . '/data.json', $data);
-                        header('Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=migrated_sqlite#tab-plugins');
+                        $count = (int)($res['count'] ?? 0);
+                        header("Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=migrated_sqlite&fuser_count={$count}#tab-plugins");
+                        exit;
+                    } else {
+                        $err = urlencode($res['message'] ?? 'Migration nach SQLite fehlgeschlagen.');
+                        header("Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_err={$err}#tab-plugins");
                         exit;
                     }
                 } else {
@@ -73,7 +78,12 @@ if (!empty($_SESSION['admin_logged_in'])) {
                         $config['storage_driver'] = 'json';
                         PluginManager::savePluginConfig('weave-forum-users', $config, $data);
                         save_data(dirname(__DIR__, 2) . '/data.json', $data);
-                        header('Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=migrated_json#tab-plugins');
+                        $count = (int)($res['count'] ?? 0);
+                        header("Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=migrated_json&fuser_count={$count}#tab-plugins");
+                        exit;
+                    } else {
+                        $err = urlencode($res['message'] ?? 'Migration nach JSON fehlgeschlagen.');
+                        header("Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_err={$err}#tab-plugins");
                         exit;
                     }
                 }
