@@ -634,7 +634,7 @@ if (!$is_locked && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_ins
     <div class="installer-header">
         <div class="installer-brand">
             <span class="logo-icon">🌿</span>
-            <span class="brand-text">WeaveCMS v<?php echo htmlspecialchars(Installer::VERSION); ?></span>
+            <span class="brand-text">WeaveCMS v<?php echo htmlspecialchars(Installer::getVersion()); ?></span>
         </div>
         <h1 class="installer-title">Installations-Assistent</h1>
         <p class="installer-subtitle">Richte deine moderne, modulare Website in 5 einfachen Schritten ein.</p>
@@ -686,7 +686,7 @@ if (!$is_locked && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_ins
                         </div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
                             <span style="color:var(--text-secondary);">Version:</span>
-                            <span style="font-weight:600;">v<?php echo htmlspecialchars($lock_data['version'] ?? Installer::VERSION); ?></span>
+                            <span style="font-weight:600;">v<?php echo htmlspecialchars($lock_data['version'] ?? Installer::getVersion()); ?></span>
                         </div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
                             <span style="color:var(--text-secondary);">Speicher-Typ:</span>

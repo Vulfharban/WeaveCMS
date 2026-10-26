@@ -11,7 +11,15 @@ require_once __DIR__ . '/storage/StorageManager.php';
 
 class Installer {
     const LOCK_FILE = 'installed.lock';
-    const VERSION = '0.4.0';
+    const VERSION = '1.2.3';
+
+    /**
+     * Liefert die aktuelle WeaveCMS-Version.
+     * @return string
+     */
+    public static function getVersion(): string {
+        return defined('WEAVE_VERSION') ? WEAVE_VERSION : self::VERSION;
+    }
 
     /**
      * Ermittelt den absoluten Pfad zur Wurzel von WeaveCMS.
@@ -48,7 +56,7 @@ class Installer {
         }
         $content = file_get_contents($path);
         $data = json_decode((string)$content, true);
-        return is_array($data) ? $data : ['installed_at' => date('Y-m-d H:i:s'), 'version' => self::VERSION];
+        return is_array($data) ? $data : ['installed_at' => date('Y-m-d H:i:s'), 'version' => self::getVersion()];
     }
 
     /**
@@ -785,7 +793,7 @@ class Installer {
         // Lock-Datei schreiben
         $lock_payload = [
             'installed_at' => date('Y-m-d H:i:s'),
-            'version' => self::VERSION,
+            'version' => self::getVersion(),
             'admin_user' => $admin_user,
             'php_version' => PHP_VERSION,
             'site_name' => $site_name,
