@@ -22,12 +22,19 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **21-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 
-## Releases & Downloads (v1.2.3)
+## Releases & Downloads (v1.2.4)
 
-- 📦 **[WeaveCMS v1.2.3 Full Package](releases/weavecms-v1.2.3.zip)** (`releases/weavecms-v1.2.3.zip`, 11.93 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.2.3 Update Package](releases/update-v1.2.3.zip)** (`releases/update-v1.2.3.zip`, 0.52 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.2.4 Full Package](releases/weavecms-v1.2.4.zip)** (`releases/weavecms-v1.2.4.zip`, 11.93 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.2.4 Update Package](releases/update-v1.2.4.zip)** (`releases/update-v1.2.4.zip`, 0.52 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.2.4 (26. Oktober 2026)
+
+- 🗄️ **Forum SQLite-Storage & Migration:** Die 1-Klick-Migration zu SQLite (`data/forum.sqlite`) in `weave-forum` und `weave-forum-users` initialisiert die Datenbankdatei sowie sämtliche Tabellen (`users`, `categories`, `boards`, `topics`, `posts`, `likes`, `reports`, `subscriptions`, `audit_log`) und Indizes nun auch dann zuverlässig, wenn WeaveCMS im Flat-File JSON-Modus läuft und noch keine Foren-Dateien existierten.
+- 🛡️ **Fehler- und Status-Reporting:** Detaillierte visuelle Erfolgs- und Fehlermeldungen bei der Speichermigration (`fuser_err` / `forum_err`), Erkennung der PHP-Erweiterung `pdo_sqlite` und integrierte Informationsbox zur serverlosen Zero-Configuration-Architektur von SQLite.
+- 🖥️ **Admin-Navigation & Tab-Initialisierung:** Behebung des `switchTab is not defined` JavaScript-Fehlers bei Neuinstallationen im Flat-File JSON-Modus durch zuverlässige Sprachprüfung (`getCurrentLanguage()`) und optimierte Skript-Reihenfolge im Head.
+- 📦 **Automatisierte Release-Synchronisation:** Neues CLI-Tool `tools/set_version.php` zur lückenlosen Synchronisation von Systemversionen (`config.php`, `Installer.php`), Generierung der Release-Pakete (`Full` und `Update`) sowie automatischer Aktualisierung der `README.md`.
 
 ### v1.2.3 (26. Oktober 2026)
 
@@ -62,7 +69,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.2.3.zip](releases/weavecms-v1.2.3.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.2.4.zip](releases/weavecms-v1.2.4.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

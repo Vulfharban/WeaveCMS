@@ -13,7 +13,7 @@ SecurityManager::applySecurityHeaders();
 SecurityManager::initSecureSession();
 
 // 2. Standard-Fallback-Zugangsdaten, Version & Tokens
-define('WEAVE_VERSION', '1.2.3');
+define('WEAVE_VERSION', '1.2.4');
 define('DEFAULT_ADMIN_PASSWORD', 'admin123123');
 define('DEFAULT_ADMIN_PIN', '1977');
 define('ADMIN_TOKEN', 'xyz123'); // Beibehalten für direkten Zugriff via URL-Token falls benötigt
