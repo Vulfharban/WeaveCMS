@@ -9,14 +9,15 @@
  * @var string $site_url
  */
 
-$p_title = htmlspecialchars($active_post['title'] ?? 'Artikel');
+$trans = (!empty($cur_lang) && !empty($active_post['translations'][$cur_lang])) ? $active_post['translations'][$cur_lang] : [];
+$p_title = htmlspecialchars(!empty($trans['title']) ? $trans['title'] : ($active_post['title'] ?? 'Artikel'));
 $p_slug = htmlspecialchars($active_post['slug'] ?? '');
 $p_date_raw = $active_post['date'] ?? '';
 $p_date_formatted = !empty($p_date_raw) ? date('d. F Y', strtotime($p_date_raw)) : '';
 $p_author = htmlspecialchars($active_post['author'] ?? ($data['texts']['contact_name'] ?? 'Redaktion'));
 $p_img = !empty($active_post['image']) ? htmlspecialchars($active_post['image']) : '';
-$p_teaser = htmlspecialchars($active_post['teaser'] ?? '');
-$p_content_raw = $active_post['content'] ?? '';
+$p_teaser = htmlspecialchars(!empty($trans['teaser']) ? $trans['teaser'] : ($active_post['teaser'] ?? ''));
+$p_content_raw = !empty($trans['content']) ? $trans['content'] : ($active_post['content'] ?? '');
 $p_tags = $active_post['tags'] ?? [];
 
 // Lesezeit schätzen (ca. 200 Wörter pro Minute)
@@ -117,7 +118,7 @@ $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?l
     <!-- Weiteres Stöbern -->
     <div style="margin-top: 3rem; text-align: center;">
         <a href="./#blog" class="btn btn-primary" style="padding:12px 24px;">
-            <span class="material-icons" style="font-size:18px;">arrow_back</span> Zurück zu allen Beiträgen
+            <span class="material-icons" style="font-size:18px;">arrow_back</span> <?php echo LanguageManager::t('btn.back_overview', 'Zurück zur Übersicht', $cur_lang ?? null); ?>
         </a>
     </div>
 </div>

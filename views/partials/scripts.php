@@ -37,21 +37,24 @@
 
     <!-- Dynamische Server-Daten vor dem Hauptskript bereitstellen -->
     <script>
-        window.SERVER_GALLERY_ITEMS = <?php echo json_encode(array_values(array_map(function($item) {
+        window.SERVER_GALLERY_ITEMS = <?php echo json_encode(array_values(array_map(function($item) use ($cur_lang) {
             $raw = $item['image'] ?? '';
             $img_src = (strpos($raw, 'http://') === 0 || strpos($raw, 'https://') === 0)
                 ? $raw
                 : ((strpos($raw, '/') === 0) ? '.' . $raw : './' . $raw);
+            $item_title = (!empty($cur_lang) && !empty($item['translations'][$cur_lang]['title'])) ? $item['translations'][$cur_lang]['title'] : ($item['title'] ?? '');
+            $item_desc = (!empty($cur_lang) && !empty($item['translations'][$cur_lang]['description'])) ? $item['translations'][$cur_lang]['description'] : ($item['description'] ?? '');
+            $item_cat = LanguageManager::t('category.' . ($item['category'] ?? ''), $item['category'] ?? '', $cur_lang ?? null);
             return [
                 'id' => $item['id'],
-                'title' => $item['title'] ?? '',
-                'category' => $item['category'] ?? '',
-                'description' => $item['description'] ?? '',
+                'title' => $item_title,
+                'category' => $item_cat,
+                'description' => $item_desc,
                 'image' => $img_src
             ];
         }, $visible_gallery))); ?>;
         
-        window.SERVER_SPAM_ICONS = <?php echo json_encode(array_values(CaptchaManager::getActiveIcons($data))); ?>;
+        window.SERVER_SPAM_ICONS = <?php echo json_encode(array_values(CaptchaManager::getActiveIcons($data, $cur_lang))); ?>;
         window.SERVER_SMTP_ENABLED = <?php echo (!empty($data['settings']['smtp']['enabled']) && !empty($data['settings']['smtp']['host'])) ? 'true' : 'false'; ?>;
         window.CONTACT_MAIL_GREETING = <?php echo json_encode($data['texts']['contact_mail_greeting'] ?? 'Hallo Maxima,'); ?>;
         window.COURSE_REQUEST_TEMPLATE = <?php echo json_encode($data['texts']['course_request_template'] ?? "Hallo Maxima,\n\nich interessiere mich für deinen Workshop \"{kurs}\" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\n\nViele Grüße"); ?>;

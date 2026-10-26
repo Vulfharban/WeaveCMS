@@ -64,11 +64,11 @@
                     <?php if (CaptchaManager::isContactEmailProtected($data)): ?>
                         <span id="contact-email-wrapper">
                             <button type="button" class="btn btn-outline" onclick="openContactEmailCaptcha()" style="padding: 2px 8px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;">
-                                <span class="material-icons" style="font-size: 14px;">lock</span> E-Mail anzeigen (Spamschutz)
+                                <span class="material-icons" style="font-size: 14px;">lock</span> <?php echo htmlspecialchars(__('contact.show_email', 'E-Mail anzeigen (Spamschutz)')); ?>
                             </button>
                         </span>
                         <div id="contact-email-captcha-box" style="display:none; margin-top:8px; padding:10px; background:rgba(0,0,0,0.03); border:1px solid var(--border-color); border-radius:10px; max-width:280px;">
-                            <div style="font-size:0.78rem; margin-bottom:4px; color:var(--text-secondary);">Bitte den 5-stelligen Code eingeben:</div>
+                            <div style="font-size:0.78rem; margin-bottom:4px; color:var(--text-secondary);"><?php echo htmlspecialchars(__('contact.enter_code', 'Bitte den 5-stelligen Code eingeben:')); ?></div>
                             <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
                                 <canvas id="contact-direct-captcha-canvas" width="140" height="38" style="background:#fff; border-radius:6px; border:1px solid var(--border-color);"></canvas>
                                 <button type="button" class="btn btn-secondary" onclick="fetchContactCaptcha()" style="padding:4px 6px;" title="Neu laden">
@@ -76,8 +76,8 @@
                                 </button>
                             </div>
                             <div style="display:flex; gap:6px;">
-                                <input type="text" id="contact-direct-captcha-input" maxlength="5" placeholder="Code..." style="width:85px; padding:4px 8px; font-size:0.85rem; border-radius:6px; border:1px solid var(--border-color);">
-                                <button type="button" class="btn btn-primary" onclick="verifyContactCaptcha()" style="padding:4px 10px; font-size:0.8rem;">Freischalten</button>
+                                <input type="text" id="contact-direct-captcha-input" maxlength="5" placeholder="<?php echo htmlspecialchars(__('contact.code_placeholder', 'Code...')); ?>" style="width:85px; padding:4px 8px; font-size:0.85rem; border-radius:6px; border:1px solid var(--border-color);">
+                                <button type="button" class="btn btn-primary" onclick="verifyContactCaptcha()" style="padding:4px 10px; font-size:0.8rem;"><?php echo htmlspecialchars(__('contact.unlock', 'Freischalten')); ?></button>
                             </div>
                             <div id="contact-direct-captcha-feedback" style="display:none; color:#ef4444; font-size:0.75rem; margin-top:4px;"></div>
                         </div>
@@ -109,13 +109,13 @@
                     
                     <!-- Honeypot-Falle für Spam-Roboter (für menschliche Besucher unsichtbar) -->
                     <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
-                        <label for="req-website">Bitte dieses Feld freilassen</label>
+                        <label for="req-website"><?php echo htmlspecialchars(__('contact.leave_blank', 'Bitte dieses Feld freilassen')); ?></label>
                         <input type="text" id="req-website" name="website" tabindex="-1" autocomplete="off">
                     </div>
 
                     <div class="form-group">
                         <label for="req-name"><?php echo htmlspecialchars(__('contact.name', 'Dein Name')); ?> <span style="color:#ef4444;">*</span></label>
-                        <input type="text" id="req-name" class="form-control" style="padding:8px 12px;" placeholder="z. B. Maria Müller" required>
+                        <input type="text" id="req-name" class="form-control" style="padding:8px 12px;" placeholder="<?php echo htmlspecialchars(__('contact.placeholder_name', 'z. B. Maria Müller')); ?>" required>
                     </div>
 
                     <div class="form-group">
@@ -142,7 +142,11 @@
                     <?php if ($cur_mode === CaptchaManager::MODE_ICONS): ?>
                         <div class="form-group" style="margin-bottom: 1.25rem;">
                             <label id="spam-protection-label" style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 0.9rem;">
-                                Sicherheitsprüfung: Klicke auf <strong><?php echo htmlspecialchars($initial_target['prompt'] ?? 'den Weidenzweig 🌿'); ?></strong>
+                                <?php 
+                                    $spam_label = __('contact.spam_label', 'Sicherheitsprüfung: Klicke auf {prompt}');
+                                    $target_str = '<strong>' . htmlspecialchars($initial_target['prompt'] ?? 'den Weidenzweig 🌿') . '</strong>';
+                                    echo str_replace('{prompt}', $target_str, htmlspecialchars($spam_label, ENT_NOQUOTES, 'UTF-8'));
+                                ?>
                             </label>
                             <div id="spam-icon-grid" class="spam-icon-grid">
                                 <?php foreach ($server_active_icons as $srv_key => $srv_icon): 
@@ -159,7 +163,7 @@
                         </div>
 
                     <?php elseif ($cur_mode === CaptchaManager::MODE_MATH): ?>
-                        <?php $mathChallenge = CaptchaManager::generateMathChallenge(); ?>
+                        <?php $mathChallenge = CaptchaManager::generateMathChallenge($cur_lang ?? null); ?>
                         <div class="form-group" style="margin-bottom: 1.25rem;">
                             <label for="req-math-answer" style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 0.9rem;">
                                 Sicherheitsprüfung: <strong><?php echo htmlspecialchars($mathChallenge['question']); ?></strong> <span style="color:#ef4444;">*</span>

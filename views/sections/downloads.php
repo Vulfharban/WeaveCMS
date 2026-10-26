@@ -37,7 +37,7 @@ foreach ($downloads as $d) {
             <!-- Interaktive Kategorie-Filter-Buttons -->
             <div class="dl-filter-bar" style="display:inline-flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:1.5rem; background:rgba(0,0,0,0.03); padding:6px; border-radius:12px; border:1px solid var(--border-color);">
                 <button type="button" class="dl-filter-btn active" onclick="filterDownloads('all', this)">
-                    Alle Anzeigen (<?php echo count($downloads); ?>)
+                    <?php echo htmlspecialchars(LanguageManager::t('btn.show_all', 'Alle anzeigen', $cur_lang ?? null)); ?> (<?php echo count($downloads); ?>)
                 </button>
                 <?php foreach ($categories as $cat): ?>
                     <button type="button" class="dl-filter-btn" onclick="filterDownloads('<?php echo htmlspecialchars(addslashes($cat)); ?>', this)">
@@ -159,19 +159,19 @@ foreach ($downloads as $d) {
                     <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <?php if (!empty($d_changelog)): ?>
-                                <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 4px;" onclick="openChangelogModal('<?php echo $d_id; ?>', '<?php echo htmlspecialchars(addslashes($d['title'])); ?>')">
+                                <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 4px;" onclick="openChangelogModal('<?php echo $d_id; ?>', '<?php echo htmlspecialchars(addslashes($d_title)); ?>')">
                                     <span class="material-icons" style="font-size: 15px;">history</span> Changelog
                                 </button>
                                 <!-- Versteckter Changelog-HTML-Container -->
                                 <div id="raw-changelog-<?php echo $d_id; ?>" style="display: none;">
-                                    <?php echo MarkdownParser::parse($d['changelog']); ?>
+                                    <?php echo MarkdownParser::parse($d_changelog); ?>
                                 </div>
                             <?php endif; ?>
                         </div>
 
                         <a href="api/download.php?id=<?php echo urlencode($d['id'] ?? ''); ?>" target="_blank" class="btn btn-primary" style="padding: 8px 18px; font-size: 0.88rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                             <span class="material-icons" style="font-size: 18px;">file_download</span>
-                            <span>Download<?php if ($d_show_counter): ?> (<?php echo number_format($d_clicks, 0, ',', '.'); ?>)<?php endif; ?></span>
+                            <span><?php echo LanguageManager::t('btn.download', 'Download', $cur_lang ?? null); ?><?php if ($d_show_counter): ?> (<?php echo number_format($d_clicks, 0, ',', '.'); ?>)<?php endif; ?></span>
                         </a>
                     </div>
                 </div>
@@ -191,7 +191,7 @@ foreach ($downloads as $d) {
             <div id="changelog-modal-content" style="padding: 1.75rem; overflow-y: auto; font-size: 0.92rem; line-height: 1.6; color: var(--text-primary);">
             </div>
             <div style="padding: 1rem 1.75rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end;">
-                <button type="button" class="btn btn-secondary" onclick="closeChangelogModal()">Schließen</button>
+                <button type="button" class="btn btn-secondary" onclick="closeChangelogModal()"><?php echo htmlspecialchars(LanguageManager::t('btn.close', 'Schließen', $cur_lang ?? null)); ?></button>
             </div>
         </div>
     </div>

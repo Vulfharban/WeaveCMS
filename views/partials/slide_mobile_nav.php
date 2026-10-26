@@ -16,7 +16,7 @@
     <label for="menu-toggle-mobile" class="menu-overlay mobile-overlay"></label>
     <div class="slide-menu mobile-menu">
         <label for="menu-toggle-mobile" class="close-menu-btn">&times;</label>
-        <h2 style="color: var(--primary); margin-bottom: 2rem;">Navigation</h2>
+        <h2 style="color: var(--primary); margin-bottom: 2rem;"><?php echo htmlspecialchars(__('nav.menu', 'Navigation')); ?></h2>
         <nav style="display: flex; flex-direction: column; gap: 1.5rem;">
             <?php 
                 $is_subpage_view = isset($_GET['page']) || isset($_GET['blog']);

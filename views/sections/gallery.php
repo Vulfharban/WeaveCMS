@@ -25,7 +25,7 @@
         <div class="filter-container">
             <button class="filter-btn active" onclick="filterGallery('all', this)"><?php echo htmlspecialchars(__('btn.filter_all', 'Alle')); ?></button>
             <?php foreach ($categories as $cat): ?>
-                <button class="filter-btn" onclick="filterGallery('<?php echo htmlspecialchars($cat); ?>', this)"><?php echo htmlspecialchars($cat); ?></button>
+                <button class="filter-btn" onclick="filterGallery('<?php echo htmlspecialchars($cat); ?>', this)"><?php echo htmlspecialchars(LanguageManager::t('category.' . $cat, $cat, $cur_lang ?? null)); ?></button>
             <?php endforeach; ?>
         </div>
 
@@ -85,7 +85,7 @@
                     ?>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <h3 style="margin:0; font-size:1.3rem;"><?php echo htmlspecialchars($item_title); ?></h3>
-                        <span style="font-size:0.75rem; background:rgba(16,185,129,0.1); color:var(--primary); padding:3px 10px; border-radius:12px; font-weight:600;"><?php echo htmlspecialchars($item['category'] ?? ''); ?></span>
+                        <span style="font-size:0.75rem; background:rgba(16,185,129,0.1); color:var(--primary); padding:3px 10px; border-radius:12px; font-weight:600;"><?php echo htmlspecialchars(LanguageManager::t('category.' . ($item['category'] ?? ''), $item['category'] ?? '', $cur_lang ?? null)); ?></span>
                     </div>
                     <p style="color: var(--text-secondary); font-size: 0.95rem; margin:0;"><?php echo htmlspecialchars($item_desc); ?></p>
                 </div>

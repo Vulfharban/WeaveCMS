@@ -83,8 +83,17 @@ class CaptchaManager {
      * @param array|null $data Konfigurationsdaten aus data.json
      * @return array
      */
-    public static function getActiveIcons(?array $data = null): array {
+    public static function getActiveIcons(?array $data = null, ?string $lang = null): array {
         $all = self::getAllIcons();
+        if ($lang === null && class_exists('LanguageManager')) {
+            $lang = LanguageManager::getCurrentLanguage();
+        }
+        if ($lang) {
+            foreach ($all as $k => &$icon) {
+                $icon['prompt'] = LanguageManager::t('captcha.prompt_' . $k, $icon['prompt'], $lang);
+            }
+            unset($icon);
+        }
         $configured = $data['settings']['captcha_icons'] ?? null;
 
         if (is_array($configured) && count($configured) === 4) {
@@ -149,7 +158,7 @@ class CaptchaManager {
      * Generiert eine dynamische Mathe-Aufgabe (z. B. 4 + 3) und speichert das Ergebnis in der Session.
      * @return array ['question' => string, 'hash' => string]
      */
-    public static function generateMathChallenge(): array {
+    public static function generateMathChallenge(?string $lang = null): array {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             @session_start();
         }
@@ -160,8 +169,18 @@ class CaptchaManager {
         $_SESSION['weave_captcha_math_result'] = $result;
         $hash = hash_hmac('sha256', (string)$result, session_id() ?: 'weave_salt_math');
 
+        if ($lang === null && class_exists('LanguageManager')) {
+            $lang = LanguageManager::getCurrentLanguage();
+        }
+        $question = "Wie viel ist {$num1} + {$num2}?";
+        if ($lang === 'en') {
+            $question = "How much is {$num1} + {$num2}?";
+        } elseif ($lang === 'it') {
+            $question = "Quanto fa {$num1} + {$num2}?";
+        }
+
         return [
-            'question' => "Wie viel ist {$num1} + {$num2}?",
+            'question' => $question,
             'num1' => $num1,
             'num2' => $num2,
             'hash' => $hash
@@ -253,10 +272,11 @@ class CaptchaManager {
     /**
      * Wählt per Zufall eine Challenge für das Kontaktformular aus den aktiven Symbolen.
      * @param array|null $data
+     * @param string|null $lang
      * @return array ['icons' => array, 'target_key' => string, 'target_prompt' => string]
      */
-    public static function getRandomChallenge(?array $data = null): array {
-        $active = self::getActiveIcons($data);
+    public static function getRandomChallenge(?array $data = null, ?string $lang = null): array {
+        $active = self::getActiveIcons($data, $lang);
         $keys = array_keys($active);
         $targetKey = $keys[array_rand($keys)];
 

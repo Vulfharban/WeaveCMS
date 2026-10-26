@@ -20,7 +20,7 @@
 
     <div style="display:flex; flex-direction:column; gap: 1.5rem; margin-bottom: 5rem;">
         <?php if (empty($data['courses'])): ?>
-            <p style="text-align: center; color: var(--text-secondary);">Aktuell sind keine Kurstermine festgelegt. Schreib mir gern eine Anfrage bei Interesse!</p>
+            <p style="text-align: center; color: var(--text-secondary);"><?php echo htmlspecialchars(__('courses.no_dates', 'Aktuell sind keine Kurstermine festgelegt. Schreib mir gern eine Anfrage bei Interesse!')); ?></p>
         <?php else: ?>
             <?php foreach ($data['courses'] as $c): ?>
                 <?php 
@@ -78,7 +78,7 @@
                         
                         <div style="display:flex; gap:8px; width:100%; justify-content:flex-end; flex-wrap:wrap;">
                             <?php if ($is_bookable): ?>
-                                <button onclick="requestCourse('<?php echo htmlspecialchars(addslashes($c['title'])); ?>', '<?php echo htmlspecialchars(addslashes($c['date_string'])); ?>', '<?php echo htmlspecialchars(addslashes($time_text)); ?>', '<?php echo htmlspecialchars(addslashes($location_text)); ?>')" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; flex:1; justify-content:center;">
+                                <button onclick="requestCourse('<?php echo htmlspecialchars(addslashes($c_title_raw)); ?>', '<?php echo htmlspecialchars(addslashes($c_date_raw)); ?>', '<?php echo htmlspecialchars(addslashes($time_text)); ?>', '<?php echo htmlspecialchars(addslashes($location_text)); ?>')" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; flex:1; justify-content:center;">
                                     <?php echo htmlspecialchars(__('btn.inquire_now', 'Jetzt anfragen')); ?>
                                 </button>
                             <?php else: ?>
@@ -88,7 +88,7 @@
                             <?php endif; ?>
                             
                             <!-- Share Button -->
-                            <button type="button" class="btn btn-outline" style="padding: 8px 10px; font-size: 0.85rem;" title="<?php echo htmlspecialchars(__('btn.share', 'Diesen Kurs teilen')); ?>" onclick="shareCourse('<?php echo htmlspecialchars(addslashes($c['title'])); ?>', '<?php echo htmlspecialchars(addslashes($c['date_string'])); ?>', '<?php echo htmlspecialchars($course_link); ?>')">
+                            <button type="button" class="btn btn-outline" style="padding: 8px 10px; font-size: 0.85rem;" title="<?php echo htmlspecialchars(__('btn.share', 'Diesen Kurs teilen')); ?>" onclick="shareCourse('<?php echo htmlspecialchars(addslashes($c_title_raw)); ?>', '<?php echo htmlspecialchars(addslashes($c_date_raw)); ?>', '<?php echo htmlspecialchars($course_link); ?>')">
                                 <span class="material-icons" style="font-size:16px;">share</span>
                             </button>
                         </div>
