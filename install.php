@@ -1203,7 +1203,7 @@ opcache.enable = 1</pre>
                     <div class="grid-2">
                         <div class="form-group">
                             <label for="admin_pin">Sicherheits-PIN (4 bis 6 Ziffern) *</label>
-                            <input type="password" id="admin_pin" name="admin_pin" class="form-control" maxlength="6" pattern="[0-9]{4,6}" placeholder="z. B. 1977" required>
+                            <input type="password" id="admin_pin" name="admin_pin" class="form-control" maxlength="6" pattern="[0-9]{4,6}" required>
                             <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:4px;">Wird für Notfall-Wiederherstellungen benötigt.</div>
                         </div>
                         <div class="form-group">

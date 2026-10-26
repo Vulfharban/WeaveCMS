@@ -211,7 +211,7 @@ class StorageManager {
             return [
                 'type' => 'mysql',
                 'name' => 'MySQL / MariaDB',
-                'location' => "Datenbank: {$db} auf {$host} (Tabelle: {$prefix}documents)",
+                'location' => "Datenbank: {$db} auf {$host} (Tabellen: {$prefix}*)",
                 'ping_ok' => $ping,
                 'is_fallback' => false
             ];

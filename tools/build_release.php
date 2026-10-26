@@ -64,6 +64,7 @@ $excludePatterns = [
     '~^data\.json$~',
     '~^contacts\.json$~',
     '~^data/sandbox/.*~',
+    '~^data/stats\.json$~',
     '~^data/.*\.sqlite$~',
     '~^images/uploads/(?!(\.gitkeep|\.htaccess)$).*~',
     '~^downloads/(?!(\.gitkeep|\.htaccess)$).*~'

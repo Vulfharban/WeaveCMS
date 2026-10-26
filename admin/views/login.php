@@ -60,7 +60,7 @@
                 <div class="form-group" style="margin-bottom: 1.75rem;">
                     <label for="pin" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">PIN-Code</label>
                     <div style="position:relative;">
-                        <input type="password" id="pin" name="pin" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px; letter-spacing: 3px;" placeholder="z. B. 1977" maxlength="10" required>
+                        <input type="password" id="pin" name="pin" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px; letter-spacing: 3px;" maxlength="10" required>
                         <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); cursor:pointer; font-size:18px;" onclick="toggleVisibility('pin')">pin</span>
                     </div>
                 </div>
