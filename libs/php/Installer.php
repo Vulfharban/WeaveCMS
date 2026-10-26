@@ -672,11 +672,23 @@ class Installer {
         
         $first_name = explode(' ', $owner_name)[0] ?? 'Hallo';
         $base_data['texts']['contact_mail_greeting'] = 'Hallo ' . $first_name . ',';
-        if (isset($base_data['texts_i18n']['en'])) {
-            $base_data['texts_i18n']['en']['contact_mail_greeting'] = 'Hello ' . $first_name . ',';
-        }
-        if (isset($base_data['texts_i18n']['it'])) {
-            $base_data['texts_i18n']['it']['contact_mail_greeting'] = 'Ciao ' . $first_name . ',';
+        $greetings = [
+            'en' => 'Hello %s,',
+            'fr' => 'Bonjour %s,',
+            'it' => 'Ciao %s,',
+            'nl' => 'Hallo %s,',
+            'es' => 'Hola %s,',
+            'pt' => 'Olá %s,',
+            'el' => 'Γεια σας %s,',
+            'da' => 'Hej %s,',
+            'no' => 'Hei %s,',
+            'sv' => 'Hej %s,',
+            'fi' => 'Hei %s,'
+        ];
+        foreach ($greetings as $glang => $gpattern) {
+            if (isset($base_data['texts_i18n'][$glang])) {
+                $base_data['texts_i18n'][$glang]['contact_mail_greeting'] = sprintf($gpattern, $first_name);
+            }
         }
 
         // SEO aktualisieren
