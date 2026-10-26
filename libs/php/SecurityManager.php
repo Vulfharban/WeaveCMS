@@ -319,6 +319,10 @@ class SecurityManager {
      * @return void
      */
     public static function initSecureSession(): void {
+        if (php_sapi_name() === 'cli') {
+            return;
+        }
+
         if (session_status() === PHP_SESSION_ACTIVE) {
             self::checkInactivityTimeout();
             return;
