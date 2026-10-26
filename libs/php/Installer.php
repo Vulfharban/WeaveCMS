@@ -11,7 +11,7 @@ require_once __DIR__ . '/storage/StorageManager.php';
 
 class Installer {
     const LOCK_FILE = 'installed.lock';
-    const VERSION = '1.2.3';
+    const VERSION = '1.2.4';
 
     /**
      * Liefert die aktuelle WeaveCMS-Version.
