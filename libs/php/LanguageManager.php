@@ -276,6 +276,16 @@ class LanguageManager {
     }
 
     /**
+     * Ermittelt die aktuell aktive Sprache für den Besucher/Request (Alias für detectLanguage).
+     *
+     * @param array|null $data
+     * @return string Sprachcode (z. B. 'de', 'en')
+     */
+    public static function getCurrentLanguage(?array $data = null): string {
+        return self::detectLanguage($data);
+    }
+
+    /**
      * Ermittelt die OpenGraph-Locale (z. B. 'de_DE', 'en_US', 'fr_FR') für eine Sprache.
      *
      * @param string $langCode
