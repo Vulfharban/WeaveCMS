@@ -38,12 +38,13 @@ $blog_subtitle = !empty($data['texts']['blog_subtitle']) ? $data['texts']['blog_
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem;">
             <?php foreach ($published_posts as $post): ?>
                 <?php
-                    $p_title = htmlspecialchars($post['title'] ?? 'Ohne Titel');
+                    $trans = (!empty($cur_lang) && !empty($post['translations'][$cur_lang])) ? $post['translations'][$cur_lang] : [];
+                    $p_title = htmlspecialchars(!empty($trans['title']) ? $trans['title'] : ($post['title'] ?? 'Ohne Titel'));
                     $p_slug = htmlspecialchars($post['slug'] ?? '');
                     $p_date_raw = $post['date'] ?? '';
                     $p_date_formatted = !empty($p_date_raw) ? date('d.m.Y', strtotime($p_date_raw)) : '';
                     $p_author = htmlspecialchars($post['author'] ?? ($data['texts']['contact_name'] ?? ''));
-                    $p_teaser = htmlspecialchars($post['teaser'] ?? '');
+                    $p_teaser = htmlspecialchars(!empty($trans['teaser']) ? $trans['teaser'] : ($post['teaser'] ?? ''));
                     $p_img = !empty($post['image']) ? htmlspecialchars($post['image']) : '';
                     $p_tags = $post['tags'] ?? [];
                     $p_url = '?blog=' . urlencode($post['slug'] ?? '');

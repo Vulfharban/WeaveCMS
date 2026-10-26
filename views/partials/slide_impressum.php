@@ -56,11 +56,11 @@
                     <?php if (CaptchaManager::isImpressumEmailProtected($data)): ?>
                         <span id="impressum-email-wrapper">
                             <button type="button" class="btn btn-outline" onclick="openImpressumEmailCaptcha()" style="padding: 2px 8px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;">
-                                <span class="material-icons" style="font-size: 14px;">lock</span> E-Mail anzeigen (Spamschutz)
+                                <span class="material-icons" style="font-size: 14px;">lock</span> <?php echo htmlspecialchars(__('contact.show_email', 'E-Mail anzeigen (Spamschutz)')); ?>
                             </button>
                         </span>
                         <div id="impressum-email-captcha-box" style="display:none; margin-top:8px; padding:10px; background:rgba(0,0,0,0.03); border:1px solid var(--border-color); border-radius:10px; max-width:280px;">
-                            <div style="font-size:0.78rem; margin-bottom:4px; color:var(--text-secondary);">Bitte den 5-stelligen Code eingeben:</div>
+                            <div style="font-size:0.78rem; margin-bottom:4px; color:var(--text-secondary);"><?php echo htmlspecialchars(__('contact.enter_code', 'Bitte den 5-stelligen Code eingeben:')); ?></div>
                             <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
                                 <canvas id="impressum-captcha-canvas" width="140" height="38" style="background:#fff; border-radius:6px; border:1px solid var(--border-color);"></canvas>
                                 <button type="button" class="btn btn-secondary" onclick="fetchImpressumCaptcha()" style="padding:4px 6px;" title="Neu laden">
@@ -68,8 +68,8 @@
                                 </button>
                             </div>
                             <div style="display:flex; gap:6px;">
-                                <input type="text" id="impressum-captcha-input" maxlength="5" placeholder="Code..." style="width:85px; padding:4px 8px; font-size:0.85rem; border-radius:6px; border:1px solid var(--border-color);">
-                                <button type="button" class="btn btn-primary" onclick="verifyImpressumCaptcha()" style="padding:4px 10px; font-size:0.8rem;">Freischalten</button>
+                                <input type="text" id="impressum-captcha-input" maxlength="5" placeholder="<?php echo htmlspecialchars(__('contact.code_placeholder', 'Code...')); ?>" style="width:85px; padding:4px 8px; font-size:0.85rem; border-radius:6px; border:1px solid var(--border-color);">
+                                <button type="button" class="btn btn-primary" onclick="verifyImpressumCaptcha()" style="padding:4px 10px; font-size:0.8rem;"><?php echo htmlspecialchars(__('contact.unlock', 'Freischalten')); ?></button>
                             </div>
                             <div id="impressum-captcha-feedback" style="display:none; color:#ef4444; font-size:0.75rem; margin-top:4px;"></div>
                         </div>

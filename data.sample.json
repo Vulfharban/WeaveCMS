@@ -17,7 +17,23 @@
             "max_participants": 10,
             "current_participants": 4,
             "available": true,
-            "invite_token": "kurs-1-grundkurs-formgebung"
+            "invite_token": "kurs-1-grundkurs-formgebung",
+            "translations": {
+                "en": {
+                    "title": "Foundations of Craftsmanship & Design",
+                    "description": "Learn the principles of natural material craftsmanship and shape your very first custom design object.",
+                    "date_string": "November 15, 2026",
+                    "time": "10:00 AM - 4:00 PM",
+                    "location": "Atelier Workshop, Musterstraße 12, 12345 Musterstadt"
+                },
+                "it": {
+                    "title": "Corso base di artigianato & design",
+                    "description": "Scopri i principi della lavorazione dei materiali naturali e crea il tuo primo pezzo di design personalizzato.",
+                    "date_string": "15 novembre 2026",
+                    "time": "10:00 - 16:00",
+                    "location": "Laboratorio Atelier, Musterstraße 12, 12345 Musterstadt"
+                }
+            }
         },
         {
             "id": 2,
@@ -30,7 +46,23 @@
             "max_participants": 8,
             "current_participants": 8,
             "available": false,
-            "invite_token": "kurs-2-natur-design"
+            "invite_token": "kurs-2-natur-design",
+            "translations": {
+                "en": {
+                    "title": "Creative Workshop: Nature & Design",
+                    "description": "Create elegant home and garden decorations handcrafted from sustainable natural materials.",
+                    "date_string": "December 05, 2026",
+                    "time": "11:00 AM - 3:30 PM",
+                    "location": "Atelier Workshop, Musterstraße 12, 12345 Musterstadt"
+                },
+                "it": {
+                    "title": "Workshop creativo: Natura & Design",
+                    "description": "Realizza eleganti decorazioni per la casa e il giardino utilizzando materiali naturali sostenibili.",
+                    "date_string": "05 dicembre 2026",
+                    "time": "11:00 - 15:30",
+                    "location": "Laboratorio Atelier, Musterstraße 12, 12345 Musterstadt"
+                }
+            }
         }
     ],
     "gallery": [
@@ -42,7 +74,17 @@
             "category": "Design & Unikate",
             "sort_order": 1,
             "aspect_ratio": "3:4",
-            "alt": "Hochformatige Holzskulptur als Unikat für moderne Innenräume"
+            "alt": "Hochformatige Holzskulptur als Unikat für moderne Innenräume",
+            "translations": {
+                "en": {
+                    "title": "Unique Sculpture",
+                    "description": "Elegant freestanding wooden sculpture with soft, organic contours."
+                },
+                "it": {
+                    "title": "Scultura unica",
+                    "description": "Elegante scultura in legno autoportante dalle linee morbide e organiche."
+                }
+            }
         },
         {
             "id": 2,
@@ -52,7 +94,17 @@
             "category": "Naturmaterialien",
             "sort_order": 2,
             "aspect_ratio": "2:3",
-            "alt": "Schlanke hohe Holzbodenvase aus natürlichem Eichenholz"
+            "alt": "Schlanke hohe Holzbodenvase aus natürlichem Eichenholz",
+            "translations": {
+                "en": {
+                    "title": "Natura Floor Vase",
+                    "description": "Hand-turned solid oak floor vase highlighting fine natural grain."
+                },
+                "it": {
+                    "title": "Vaso da terra Natura",
+                    "description": "Vaso da terra tornito a mano in legno massello di rovere con venature naturali."
+                }
+            }
         },
         {
             "id": 3,
@@ -62,7 +114,17 @@
             "category": "Atelier & Werkstatt",
             "sort_order": 3,
             "aspect_ratio": "16:9",
-            "alt": "Panorama-Aufnahme einer handwerklichen Werkbank mit Holzwerkzeugen"
+            "alt": "Panorama-Aufnahme einer handwerklichen Werkbank mit Holzwerkzeugen",
+            "translations": {
+                "en": {
+                    "title": "Atelier Workbench",
+                    "description": "Behind the scenes: Traditional crafting tools and handpicked raw materials."
+                },
+                "it": {
+                    "title": "Banco da lavoro dell'Atelier",
+                    "description": "Dietro le quinte: Strumenti artigianali tradizionali e materie prime selezionate a mano."
+                }
+            }
         },
         {
             "id": 4,
@@ -72,7 +134,17 @@
             "category": "Wohnaccessoires",
             "sort_order": 4,
             "aspect_ratio": "3:2",
-            "alt": "Ausgewogenes Tischobjekt in warmen Terrakotta- und Naturtönen"
+            "alt": "Ausgewogenes Tischobjekt in warmen Terrakotta- und Naturtönen",
+            "translations": {
+                "en": {
+                    "title": "Terra Table Object",
+                    "description": "Modern sculptural centerpiece crafted from fired terracotta and willow fibers."
+                },
+                "it": {
+                    "title": "Centrotavola Terra",
+                    "description": "Centrotavola scultoreo moderno in terracotta e fibre naturali intrecciate."
+                }
+            }
         },
         {
             "id": 5,
@@ -82,7 +154,17 @@
             "category": "Design & Unikate",
             "sort_order": 5,
             "aspect_ratio": "1:1",
-            "alt": "Quadratische Ansicht einer minimalistischen Handwerksschale"
+            "alt": "Quadratische Ansicht einer minimalistischen Handwerksschale",
+            "translations": {
+                "en": {
+                    "title": "Minimalist Shallow Bowl",
+                    "description": "Timeless decorative flat bowl with a velvety texture for fruit or fine accessories."
+                },
+                "it": {
+                    "title": "Ciotola piatta minimal",
+                    "description": "Elegante ciotola decorativa con finitura vellutata per frutta o piccoli oggetti."
+                }
+            }
         },
         {
             "id": 6,
@@ -92,7 +174,17 @@
             "category": "Wohnaccessoires",
             "sort_order": 6,
             "aspect_ratio": "1:1",
-            "alt": "Quadratisches handgefertigtes Kissen aus natürlichem Leinenstoff"
+            "alt": "Quadratisches handgefertigtes Kissen aus natürlichem Leinenstoff",
+            "translations": {
+                "en": {
+                    "title": "Organic Linen Cushion",
+                    "description": "Handwoven pure natural linen cushion cover featuring an organic textured weave."
+                },
+                "it": {
+                    "title": "Cuscino in lino biologico",
+                    "description": "Fodera per cuscino tessuta a mano in puro lino naturale con texture biologica."
+                }
+            }
         },
         {
             "id": 7,
@@ -102,7 +194,17 @@
             "category": "Naturmaterialien",
             "sort_order": 7,
             "aspect_ratio": "4:3",
-            "alt": "Klassisches Windlicht mit Holzfasson und warmem Kerzenlicht"
+            "alt": "Klassisches Windlicht mit Holzfasson und warmem Kerzenlicht",
+            "translations": {
+                "en": {
+                    "title": "Aura Lantern",
+                    "description": "Harmonious union of mouth-blown glass and curved natural hardwood frame."
+                },
+                "it": {
+                    "title": "Lanterna Aura",
+                    "description": "Connubio armonioso tra vetro soffiato a bocca e struttura in legno curvato."
+                }
+            }
         },
         {
             "id": 8,
@@ -112,7 +214,17 @@
             "category": "Atelier & Werkstatt",
             "sort_order": 8,
             "aspect_ratio": "4:3",
-            "alt": "Historische und moderne Handwerkzeuge geordnet auf Werkstatttisch"
+            "alt": "Historische und moderne Handwerkzeuge geordnet auf Werkstatttisch",
+            "translations": {
+                "en": {
+                    "title": "Heritage Tools",
+                    "description": "Meticulously maintained carving, shaping, and weaving tools in our workshop."
+                },
+                "it": {
+                    "title": "Attrezzi tradizionali",
+                    "description": "Strumenti accuratamente conservati per l'intaglio, la piegatura e la formatura artigianale."
+                }
+            }
         },
         {
             "id": 9,
@@ -122,7 +234,17 @@
             "category": "Design & Unikate",
             "sort_order": 9,
             "aspect_ratio": "3:4",
-            "alt": "Vertikales Akustik-Wandpaneel aus Naturholzleisten"
+            "alt": "Vertikales Akustik-Wandpaneel aus Naturholzleisten",
+            "translations": {
+                "en": {
+                    "title": "Acoustic Wall Panel",
+                    "description": "Structured natural wood slat panel designed for organic room acoustic enhancement."
+                },
+                "it": {
+                    "title": "Pannello acustico da parete",
+                    "description": "Pannello decorativo a doghe in legno naturale per migliorare l'acustica degli ambienti."
+                }
+            }
         }
     ],
     "past_courses": [
@@ -136,7 +258,17 @@
             "title": "Hero-Bereich & Hauptüberschrift",
             "nav_label": "Start",
             "visible": true,
-            "in_nav": false
+            "in_nav": false,
+            "translations": {
+                "en": {
+                    "title": "Hero & Welcome",
+                    "nav_label": "Home"
+                },
+                "it": {
+                    "title": "Benvenuti & Atelier",
+                    "nav_label": "Home"
+                }
+            }
         },
         {
             "id": "gallery",
@@ -144,7 +276,17 @@
             "title": "Galerie & Portfolio",
             "nav_label": "Galerie",
             "visible": true,
-            "in_nav": true
+            "in_nav": true,
+            "translations": {
+                "en": {
+                    "title": "Gallery & Portfolio",
+                    "nav_label": "Gallery"
+                },
+                "it": {
+                    "title": "Galleria & Creazioni",
+                    "nav_label": "Galleria"
+                }
+            }
         },
         {
             "id": "courses",
@@ -152,7 +294,17 @@
             "title": "Kurse & Workshops",
             "nav_label": "Workshops",
             "visible": false,
-            "in_nav": true
+            "in_nav": true,
+            "translations": {
+                "en": {
+                    "title": "Courses & Workshops",
+                    "nav_label": "Workshops"
+                },
+                "it": {
+                    "title": "Corsi & Workshop",
+                    "nav_label": "Workshop"
+                }
+            }
         },
         {
             "id": "past_courses",
@@ -160,7 +312,17 @@
             "title": "Impressionen vergangener Workshops",
             "nav_label": "Impressionen",
             "visible": false,
-            "in_nav": false
+            "in_nav": false,
+            "translations": {
+                "en": {
+                    "title": "Workshop Impressions",
+                    "nav_label": "Impressions"
+                },
+                "it": {
+                    "title": "Impressioni dei workshop",
+                    "nav_label": "Impressioni"
+                }
+            }
         },
         {
             "id": "blog",
@@ -168,7 +330,17 @@
             "title": "Aktuelles & Blog",
             "nav_label": "Blog",
             "visible": false,
-            "in_nav": true
+            "in_nav": true,
+            "translations": {
+                "en": {
+                    "title": "News & Stories",
+                    "nav_label": "Blog"
+                },
+                "it": {
+                    "title": "Novità & Storie",
+                    "nav_label": "Blog"
+                }
+            }
         },
         {
             "id": "pricing",
@@ -176,7 +348,17 @@
             "title": "Leistungen & Preise",
             "nav_label": "Preise",
             "visible": false,
-            "in_nav": true
+            "in_nav": true,
+            "translations": {
+                "en": {
+                    "title": "Services & Pricing",
+                    "nav_label": "Pricing"
+                },
+                "it": {
+                    "title": "Servizi & Prezzi",
+                    "nav_label": "Prezzi"
+                }
+            }
         },
         {
             "id": "faq",
@@ -184,7 +366,17 @@
             "title": "Häufige Fragen (FAQ)",
             "nav_label": "FAQ",
             "visible": true,
-            "in_nav": true
+            "in_nav": true,
+            "translations": {
+                "en": {
+                    "title": "Frequently Asked Questions (FAQ)",
+                    "nav_label": "FAQ"
+                },
+                "it": {
+                    "title": "Domande frequenti (FAQ)",
+                    "nav_label": "FAQ"
+                }
+            }
         },
         {
             "id": "team",
@@ -192,7 +384,17 @@
             "title": "Unser Team & Meister",
             "nav_label": "Team",
             "visible": true,
-            "in_nav": true
+            "in_nav": true,
+            "translations": {
+                "en": {
+                    "title": "Our Team & Masters",
+                    "nav_label": "Team"
+                },
+                "it": {
+                    "title": "Il nostro Team & Maestri",
+                    "nav_label": "Team"
+                }
+            }
         },
         {
             "id": "downloads",
@@ -200,7 +402,17 @@
             "title": "Downloads & Dokumente",
             "nav_label": "Downloads",
             "visible": true,
-            "in_nav": false
+            "in_nav": false,
+            "translations": {
+                "en": {
+                    "title": "Downloads & Documents",
+                    "nav_label": "Downloads"
+                },
+                "it": {
+                    "title": "Download & Documenti",
+                    "nav_label": "Download"
+                }
+            }
         },
         {
             "id": "about",
@@ -208,7 +420,17 @@
             "title": "Über mein Atelier",
             "nav_label": "Über mich",
             "visible": true,
-            "in_nav": true
+            "in_nav": true,
+            "translations": {
+                "en": {
+                    "title": "About My Atelier & Craftsmanship",
+                    "nav_label": "About"
+                },
+                "it": {
+                    "title": "Il mio Atelier & Artigianato",
+                    "nav_label": "Chi sono"
+                }
+            }
         }
     ],
     "seo": {
@@ -317,7 +539,19 @@
                 "Handwerk",
                 "Tradition"
             ],
-            "created_at": "2026-10-20 10:00:00"
+            "created_at": "2026-10-20 10:00:00",
+            "translations": {
+                "en": {
+                    "title": "Tradition & Modernity: A Glimpse into Our Workshop",
+                    "teaser": "How handpicked natural materials transform into bespoke home decor and what drives our atelier.",
+                    "content": "## Where Ideas Take Shape\n\nIn our atelier, we blend traditional crafting techniques with contemporary design concepts. Every piece begins with carefully selected sustainable raw materials...\n\n### Sustainability at the Core\n\n- Use of regional, renewable raw materials\n- Pure handwork without artificial chemical sealants\n- Longevity through time-tested joinery and weaving techniques\n\nWe look forward to sharing this passion with you!"
+                },
+                "it": {
+                    "title": "Tradizione & Modernità: Uno sguardo al nostro laboratorio",
+                    "teaser": "Come da materiali naturali selezionati nascono pezzi d'arredo unici e qual è la filosofia del nostro atelier.",
+                    "content": "## Dove le idee prendono forma\n\nNel nostro laboratorio uniamo tecniche artigianali tradizionali a concetti di design contemporaneo. Ogni creazione inizia con un'accurata selezione dei materiali naturali...\n\n### Sostenibilità al centro\n\n- Utilizzo di materie prime regionali e rinnovabili\n- Lavoro puramente manuale senza sigillanti chimici artificiali\n- Durabilità garantita da tecniche di intreccio tradizionali\n\nSiamo felici di condividere questa passione con voi!"
+                }
+            }
         },
         {
             "id": 2,
@@ -334,7 +568,19 @@
                 "Pflege",
                 "Natur"
             ],
-            "created_at": "2026-10-21 09:30:00"
+            "created_at": "2026-10-21 09:30:00",
+            "translations": {
+                "en": {
+                    "title": "Tips for Caring for Handcrafted Unique Pieces",
+                    "teaser": "With a few simple steps, natural woven crafts and decor objects remain beautiful for many years.",
+                    "content": "## Proper Care for Natural Materials\n\nNatural crafts are sturdy and durable when following a few basic guidelines...\n\n### 3 Golden Rules for Longevity\n\n- Regular dusting with a soft brush or cloth\n- Light water misting in very dry winter indoor heating environments\n- Avoid direct, continuous outdoor moisture exposure\n\nThis ensures you enjoy your handcrafted centerpiece for years to come!"
+                },
+                "it": {
+                    "title": "Consigli per la cura delle creazioni artigianali",
+                    "teaser": "Con pochi semplici accorgimenti, gli oggetti in fibre naturali si mantengono splendidi per molti anni.",
+                    "content": "## La giusta cura per i materiali naturali\n\nI manufatti naturali sono robusti e durevoli se si osservano alcune semplici regole fondamentali...\n\n### 3 regole d'oro per la massima durata\n\n- Spolverare regolarmente con un pennello morbido o un panno asciutto\n- Nebulizzare leggermente con acqua in inverno se l'aria dei termosifoni è molto secca\n- Evitare l'esposizione diretta e continua all'umidità esterna\n\nCosì potrai goderti la tua creazione per molti anni!"
+                }
+            }
         }
     ],
     "pages": [
@@ -370,19 +616,49 @@
             "id": "faq_1",
             "question": "Brauche ich Vorkenntnisse für die Kurse und Workshops?",
             "answer": "Nein, überhaupt nicht! Unsere Einsteigerkurse sind so aufgebaut, dass du Schritt für Schritt alle Handgriffe lernst. Auch als absoluter Neuling nimmst du am Ende des Tages dein eigenes, fertiges Werkstück mit nach Hause.",
-            "created_at": "2026-10-21 11:00:00"
+            "created_at": "2026-10-21 11:00:00",
+            "translations": {
+                "en": {
+                    "question": "Do I need previous experience for the workshops?",
+                    "answer": "Not at all! Our beginner workshops are structured so that you learn every step from scratch. Even with zero experience, you will take home your own completed handcrafted piece at the end of the day."
+                },
+                "it": {
+                    "question": "Ho bisogno di esperienza precedente per i corsi?",
+                    "answer": "Assolutamente no! I nostri corsi per principianti sono strutturati per insegnarti ogni passaggio passo dopo passo. Anche senza alcuna esperienza, a fine giornata porterai a casa la tua creazione completata."
+                }
+            }
         },
         {
             "id": "faq_2",
             "question": "Fertigt ihr auch individuelle Maße oder Sonderanfertigungen an?",
             "answer": "Ja, sehr gerne! Ob ein maßgefertigter Truhenkorb für eine Dachschräge, ein Schrankeinsatz oder ein spezieller Gartensichtschutz – sprich uns einfach über das Kontaktformular an.",
-            "created_at": "2026-10-21 11:05:00"
+            "created_at": "2026-10-21 11:05:00",
+            "translations": {
+                "en": {
+                    "question": "Do you create bespoke sizes or custom commissions?",
+                    "answer": "Yes, with pleasure! Whether it's a made-to-measure chest basket for a sloped ceiling, cabinet inserts, or custom garden screens – simply contact us via our inquiry form."
+                },
+                "it": {
+                    "question": "Realizzate anche creazioni su misura o commissioni speciali?",
+                    "answer": "Sì, molto volentieri! Che si tratti di una cesta su misura per una mansarda, divisori o pannelli per il giardino – contattaci semplicemente tramite il modulo di richiesta."
+                }
+            }
         },
         {
             "id": "faq_3",
             "question": "Kann man Gutscheine für Kurse oder Werkstücke verschenken?",
             "answer": "Ja! Gutscheine können über einen beliebigen Betrag oder direkt für einen bestimmten Workshop ausgestellt werden. Schreib uns dazu einfach eine kurze Nachricht.",
-            "created_at": "2026-10-21 11:10:00"
+            "created_at": "2026-10-21 11:10:00",
+            "translations": {
+                "en": {
+                    "question": "Can I purchase gift vouchers for workshops or crafts?",
+                    "answer": "Yes! Gift vouchers can be issued for any desired amount or directly for a specific workshop. Simply send us a brief message."
+                },
+                "it": {
+                    "question": "È possibile regalare buoni per corsi o creazioni artigianali?",
+                    "answer": "Sì! I buoni regalo possono essere emessi per qualsiasi importo desiderato o direttamente per un determinato corso. Inviaci un breve messaggio."
+                }
+            }
         }
     ],
     "team": [
@@ -393,7 +669,17 @@
             "email": "maxima@musteratelier.de",
             "bio": "Seit über 15 Jahren verbindet Maxima alte Handwerkstraditionen mit moderner Ästhetik. Sie leitet die Workshops und entwirft neue Kollektionen.",
             "image": "",
-            "created_at": "2026-10-21 11:00:00"
+            "created_at": "2026-10-21 11:00:00",
+            "translations": {
+                "en": {
+                    "role": "Founder & Master Artisan",
+                    "bio": "For over 15 years, Maxima has combined traditional crafting heritage with modern aesthetics. She leads the workshops and designs new collections."
+                },
+                "it": {
+                    "role": "Titolare & Maestra artigiana",
+                    "bio": "Da oltre 15 anni Maxima unisce le antiche tradizioni dell'artigianato all'estetica moderna. Conduce i workshop e crea nuove collezioni."
+                }
+            }
         },
         {
             "id": "team_2",
@@ -402,7 +688,17 @@
             "email": "lukas@musteratelier.de",
             "bio": "Lukas sorgt für die solide Basis: Er fertigt Korbholzböden, Werkzeuge und Gestelle aus nachhaltigen heimischen Hölzern.",
             "image": "",
-            "created_at": "2026-10-21 11:05:00"
+            "created_at": "2026-10-21 11:05:00",
+            "translations": {
+                "en": {
+                    "role": "Workshop Manager & Wood Artisan",
+                    "bio": "Lukas provides the solid foundation: He crafts wooden bases, specialty tools, and framework elements from sustainable local timber."
+                },
+                "it": {
+                    "role": "Responsabile del laboratorio & Design del legno",
+                    "bio": "Lukas cura la base delle creazioni: realizza fondi in legno, strumenti artigianali e intelaiature con legni locali sostenibili."
+                }
+            }
         }
     ],
     "downloads": [
@@ -428,7 +724,29 @@
             "changelog": "### v1.2.0 (2026-10-22)\n- Neu: Modulare Captcha-Auswahl-Engine integriert\n- Optimiert: Download-Klickcounter mit Bot-Filter\n- Fix: Barrierefreie Themes und Schriftgrößen-Zoom",
             "show_counter": true,
             "download_count": 48,
-            "created_at": "2026-10-22 09:00:00"
+            "created_at": "2026-10-22 09:00:00",
+            "translations": {
+                "en": {
+                    "title": "WeaveTool Studio & Backup Manager",
+                    "description": "Lightweight management and backup tool for WeaveCMS instances with SQLite synchronization and integrity checking.",
+                    "features": [
+                        "100% offline capable without cloud dependencies",
+                        "Supports JSON and SQL storage engines",
+                        "Automatic integrity checks against data corruption"
+                    ],
+                    "changelog": "### v1.2.0 (2026-10-22)\n- New: Modular captcha engine integrated\n- Improved: Download click counter with bot filter\n- Fix: Accessible theme controls and font-zoom"
+                },
+                "it": {
+                    "title": "WeaveTool Studio & Gestore Backup",
+                    "description": "Strumento leggero per la gestione e il backup di installazioni WeaveCMS con sincronizzazione e verifica dell'integrità.",
+                    "features": [
+                        "Funzionamento 100% offline senza dipendenze cloud",
+                        "Supporta motori di archiviazione JSON e SQL",
+                        "Controllo automatico di integrità contro la perdita di dati"
+                    ],
+                    "changelog": "### v1.2.0 (2026-10-22)\n- Novità: Motore captcha modulare integrato\n- Migliorato: Contatore download con filtro bot\n- Fix: Temi accessibili e zoom della dimensione testo"
+                }
+            }
         },
         {
             "id": "dl_kursbroschuere_2026",
@@ -450,7 +768,29 @@
             "changelog": "### Version 2026.1\n- Aktualisierte Termine für Herbst und Winter 2026\n- Neue Sonderkurse für Naturdesign integriert",
             "show_counter": true,
             "download_count": 132,
-            "created_at": "2026-10-22 09:15:00"
+            "created_at": "2026-10-22 09:15:00",
+            "translations": {
+                "en": {
+                    "title": "Workshop Guide & Course Brochure 2026",
+                    "description": "The complete annual program with all workshop dates, pricing, material recommendations, and packing lists.",
+                    "features": [
+                        "All workshop dates & modules at a glance",
+                        "Print-optimized DIN A4 format",
+                        "Includes comprehensive material & care guide"
+                    ],
+                    "changelog": "### Version 2026.1\n- Updated schedule for Autumn and Winter 2026\n- New specialty workshops for natural design integrated"
+                },
+                "it": {
+                    "title": "Guida del laboratorio & Brochure corsi 2026",
+                    "description": "Il programma annuale completo con tutte le date dei workshop, i prezzi, i consigli sui materiali e le note pratiche.",
+                    "features": [
+                        "Tutte le date e i moduli in un colpo d'occhio",
+                        "Formato A4 ottimizzato per la stampa",
+                        "Include guida completa ai materiali e alla cura"
+                    ],
+                    "changelog": "### Versione 2026.1\n- Date aggiornate per l'autunno e l'inverno 2026\n- Nuovi corsi speciali per il design naturale"
+                }
+            }
         }
     ],
     "pricing": [
@@ -470,7 +810,35 @@
                 "Eigenes fertiges Werkstück zum Mitnehmen",
                 "Werkzeugausleihe & Erfrischungen"
             ],
-            "created_at": "2026-10-21 11:00:00"
+            "created_at": "2026-10-21 11:00:00",
+            "translations": {
+                "en": {
+                    "title": "Foundation Workshop",
+                    "period": "/ person",
+                    "badge": "Popular",
+                    "button_text": "Request spot",
+                    "description": "The perfect starting point: Discover essential techniques and weave your very first bespoke bowl.",
+                    "features": [
+                        "4 hours of personalized intensive guidance",
+                        "All natural materials included",
+                        "Your own finished unique piece to take home",
+                        "Tool rental & refreshments provided"
+                    ]
+                },
+                "it": {
+                    "title": "Workshop base",
+                    "period": "/ persona",
+                    "badge": "Popolare",
+                    "button_text": "Richiedi posto",
+                    "description": "Il punto di partenza ideale: scopri le tecniche essenziali e realizza il tuo primo manufatto unico.",
+                    "features": [
+                        "4 ore di insegnamento intensivo e personalizzato",
+                        "Tutti i materiali naturali inclusi",
+                        "La tua creazione finita da portare a casa",
+                        "Noleggio attrezzi e rinfreschi inclusi"
+                    ]
+                }
+            }
         },
         {
             "id": "pricing_2",
@@ -489,7 +857,37 @@
                 "Umfassendes Handout & Pflegeöl",
                 "Gemeinsames Bio-Mittagessen inklusive"
             ],
-            "created_at": "2026-10-21 11:05:00"
+            "created_at": "2026-10-21 11:05:00",
+            "translations": {
+                "en": {
+                    "title": "Full-Day Masterclass",
+                    "period": "/ person",
+                    "badge": "Recommended",
+                    "button_text": "Book now",
+                    "description": "For those wishing to dive deeper: Create a sturdy carrying basket or fireside log basket.",
+                    "features": [
+                        "7 hours of master instruction",
+                        "Premium natural willows in diverse earth tones",
+                        "Large handle basket or firewood basket",
+                        "Comprehensive handout & wood care oil",
+                        "Shared organic lunch included"
+                    ]
+                },
+                "it": {
+                    "title": "Corso avanzato di un giorno",
+                    "period": "/ persona",
+                    "badge": "Consigliato",
+                    "button_text": "Prenota ora",
+                    "description": "Per chi desidera approfondire: crea una robusta cesta da trasporto o per la legna da ardere.",
+                    "features": [
+                        "7 ore di guida con maestro artigiano",
+                        "Materiali naturali premium in varie tonalità",
+                        "Grande cesta con manico o cesta per legna",
+                        "Dispensa dettagliata e olio per la cura",
+                        "Pranzo biologico condiviso incluso"
+                    ]
+                }
+            }
         },
         {
             "id": "pricing_3",
@@ -507,7 +905,35 @@
                 "Wahl aus 5 natürlichen Weidenfarben",
                 "Optional mit Leder- oder Holzelementen"
             ],
-            "created_at": "2026-10-21 11:10:00"
+            "created_at": "2026-10-21 11:10:00",
+            "translations": {
+                "en": {
+                    "title": "Custom Commission",
+                    "period": "/ piece",
+                    "badge": "Unique",
+                    "button_text": "Send inquiry",
+                    "description": "Looking for a custom basket made to specific dimensions for shelves, boats, or fireplaces? We build to your sketches.",
+                    "features": [
+                        "Personal consultation & material swatches",
+                        "Precision tailored to the millimeter",
+                        "Choice of 5 natural willow tones",
+                        "Optional leather or hardwood accents"
+                    ]
+                },
+                "it": {
+                    "title": "Creazione su misura",
+                    "period": "/ pezzo",
+                    "badge": "Pezzo unico",
+                    "button_text": "Invia richiesta",
+                    "description": "Cerchi una cesta su misura per mensole, barche o caminetto? Realizziamo su misura in base ai tuoi schizzi.",
+                    "features": [
+                        "Consulenza personalizzata & campioni di materiale",
+                        "Lavorazione su misura precisa al millimetro",
+                        "Scelta tra 5 tonalità naturali di salice",
+                        "Dettagli opzionali in cuoio o legno massello"
+                    ]
+                }
+            }
         }
     ],
     "texts_i18n": {
@@ -532,7 +958,15 @@
             "team_subtitle": "Meet the creative craftspeople and instructors behind our workshops and collections.",
             "downloads_title": "Downloads & Documents",
             "downloads_subtitle": "Download care instructions, workshop schedules, and informational flyers directly.",
-            "contact_intro_text": "Do you have questions about our workshops, want to order a voucher, or inquire about a custom-made design?"
+            "contact_intro_text": "Do you have questions about our workshops, want to order a voucher, or inquire about a custom-made design?",
+            "meta_title": "Atelier Musterfrau | Handcrafted Unique Pieces & Creative Workshops",
+            "meta_description": "Handcrafted unique pieces, sustainable natural materials, and inspiring workshop courses.",
+            "impressum_supervisory": "Chamber of Crafts & Trade Authority",
+            "impressum_vat_id": "According to § 19 UStG, no VAT is charged (small business regulation).",
+            "impressum_disclaimer": "Despite careful control of the contents, we assume no liability for the content of external links. The operators of linked pages are solely responsible for their content.",
+            "contact_mail_greeting": "Hello Maxima,",
+            "course_request_template": "Hello Maxima,\r\n\r\nI am interested in your workshop \"{kurs}\" on {datum} ({uhrzeit}) in {ort} and would like to ask if spots are still available.\r\n\r\nBest regards",
+            "privacy_policy_text": "### 1. Privacy at a Glance\r\n\r\nProtecting your personal data is an important priority for us. This policy gives you an overview of how your data is collected and processed.\r\n\r\n### 2. Responsible Entity\r\n\r\nThe entity responsible for data processing on this website is the proprietor named in the Legal Notice.\r\n\r\n### 3. Data Collection on Our Website\r\n\r\n**Server Log Files:**\r\nThe web server automatically collects technical connection data (e.g., anonymized IP address, browser type, requested URL, date and time of access). This data is technically necessary to deliver the website reliably and securely.\r\n\r\n**Contact Form & Email Inquiries:**\r\nWhen you send us inquiries via the contact form or email, your details from the inquiry form, including contact information, are stored for processing your request and answering follow-up questions.\r\n\r\n### 4. No Advertising or Tracking Cookies\r\n\r\nThis website completely abstains from using third-party tracking, analytics, or marketing cookies that require consent."
         },
         "it": {
             "hero_title": "Atelier Musterfrau",
@@ -555,7 +989,15 @@
             "team_subtitle": "Incontra gli artigiani e gli istruttori appassionati dietro ai nostri corsi e collezioni.",
             "downloads_title": "Download & Documenti",
             "downloads_subtitle": "Scarica direttamente guide per la cura, calendari dei corsi e brochure informative.",
-            "contact_intro_text": "Hai domande sui nostri corsi, desideri acquistare un buono o richiedere un pezzo su misura?"
+            "contact_intro_text": "Hai domande sui nostri corsi, desideri acquistare un buono o richiedere un pezzo su misura?",
+            "meta_title": "Atelier Musterfrau | Pezzi unici fatti a mano & Workshop creativi",
+            "meta_description": "Pezzi unici fatti a mano, materiali naturali sostenibili e workshop creativi stimolanti.",
+            "impressum_supervisory": "Camera dell'Artigianato e del Commercio",
+            "impressum_vat_id": "Regime dei piccoli contribuenti: non soggetta ad imposta sul valore aggiunto (§ 19 UStG).",
+            "impressum_disclaimer": "Nonostante un attento controllo dei contenuti, non ci assumiamo alcuna responsabilità per i contenuti dei link esterni. I gestori delle pagine collegate sono i soli responsabili dei loro contenuti.",
+            "contact_mail_greeting": "Ciao Maxima,",
+            "course_request_template": "Ciao Maxima,\r\n\r\nsono interessato/a al tuo workshop \"{kurs}\" del {datum} ({uhrzeit}) a {ort} e vorrei chiedere se ci sono ancora posti disponibili.\r\n\r\nCordiali saluti",
+            "privacy_policy_text": "### 1. La privacy in sintesi\r\n\r\nLa protezione dei tuoi dati personali è per noi una priorità fondamentale. Questa informativa offre una panoramica su quali dati vengono raccolti e su come vengono trattati.\r\n\r\n### 2. Titolare del trattamento\r\n\r\nIl titolare del trattamento dei dati su questo sito web è il gestore indicato nelle Note Legali / Impressum.\r\n\r\n### 3. Raccolta dati sul nostro sito web\r\n\r\n**File di log del server:**\r\nIl server web raccoglie automaticamente dati tecnici di connessione (es. indirizzo IP anonimizzato, tipo di browser, URL visitato, data e ora dell'accesso). Questi dati sono tecnicamente indispensabili per garantire stabilità e sicurezza del sito.\r\n\r\n**Modulo di contatto & richieste via e-mail:**\r\nQuando ci invii richieste tramite modulo di contatto o e-mail, i dati forniti nel modulo, compresi i recapiti di contatto, vengono memorizzati per l'elaborazione della richiesta e per eventuali domande successive.\r\n\r\n### 4. Nessun cookie pubblicitario o di tracciamento\r\n\r\nQuesto sito rinuncia completamente all'utilizzo di cookie di terze parti di tracciamento, analisi o profilazione commerciale."
         }
     }
 }

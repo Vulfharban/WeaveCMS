@@ -30,15 +30,12 @@ class FrontendController {
         $lang_switch_items = LanguageManager::getLanguageSwitchItems($data);
 
         // Dynamische Übersetzung der Inhaltstexte mit automatischer Fallback-Kaskade
-        $content_keys = [
-            'hero_title', 'hero_subtitle', 'about_title', 'about_text',
-            'gallery_title', 'gallery_subtitle', 'courses_title', 'courses_subtitle',
-            'past_courses_title', 'past_courses_subtitle', 'blog_title', 'blog_subtitle',
-            'faq_title', 'faq_subtitle', 'team_title', 'team_subtitle',
-            'downloads_title', 'downloads_subtitle', 'pricing_title', 'pricing_subtitle',
-            'contact_intro_text', 'privacy_policy_text'
-        ];
-        foreach ($content_keys as $ck) {
+        $all_text_keys = array_unique(array_merge(
+            array_keys($data['texts'] ?? []),
+            array_keys($data['texts_i18n'][$cur_lang] ?? []),
+            array_keys($data['texts_i18n'][$primary_lang] ?? [])
+        ));
+        foreach ($all_text_keys as $ck) {
             $translated_val = LanguageManager::getContentText($data, $ck, $cur_lang);
             if ($translated_val !== '') {
                 $data['texts'][$ck] = $translated_val;
@@ -109,13 +106,20 @@ class FrontendController {
         $hero_title = $texts['hero_title'] ?? 'Handgefertigte Unikate & Workshops';
         $contact_name = $texts['contact_name'] ?? 'Maxima Musterfrau';
 
-        $meta_title = !empty(trim($seo['meta_title'] ?? ''))
-            ? trim($seo['meta_title'])
-            : ($hero_title . ' | ' . $contact_name);
+        $i18n_meta_title = $data['texts_i18n'][$cur_lang]['meta_title'] ?? null;
+        $i18n_meta_desc = $data['texts_i18n'][$cur_lang]['meta_description'] ?? null;
 
-        $meta_desc = !empty(trim($seo['meta_description'] ?? ''))
-            ? trim($seo['meta_description'])
-            : ($texts['hero_subtitle'] ?? 'Entdecke handgefertigte Naturgeflechte und Workshops.');
+        $meta_title = !empty(trim($i18n_meta_title ?? ''))
+            ? trim($i18n_meta_title)
+            : (!empty(trim($seo['meta_title'] ?? ''))
+                ? trim($seo['meta_title'])
+                : ($hero_title . ' | ' . $contact_name));
+
+        $meta_desc = !empty(trim($i18n_meta_desc ?? ''))
+            ? trim($i18n_meta_desc)
+            : (!empty(trim($seo['meta_description'] ?? ''))
+                ? trim($seo['meta_description'])
+                : ($texts['hero_subtitle'] ?? 'Entdecke handgefertigte Naturgeflechte und Workshops.'));
 
         $meta_keywords = !empty(trim($seo['meta_keywords'] ?? ''))
             ? trim($seo['meta_keywords'])
@@ -138,7 +142,7 @@ class FrontendController {
             : rtrim($site_url, '/') . '/' . ltrim($og_image_raw, '/');
 
         // 10. Captcha & SMTP Status
-        $server_active_icons = CaptchaManager::getActiveIcons($data);
+        $server_active_icons = CaptchaManager::getActiveIcons($data, $cur_lang);
         $initial_keys = array_keys($server_active_icons);
         $initial_target_key = !empty($initial_keys) ? $initial_keys[array_rand($initial_keys)] : null;
         $initial_target = $initial_target_key ? $server_active_icons[$initial_target_key] : null;
@@ -146,9 +150,11 @@ class FrontendController {
         $smtp_active = !empty($settings['smtp']['enabled']) && !empty($settings['smtp']['host']);
 
         // 11. Datenschutz-Text
-        $cur_privacy_text = !empty($settings['privacy_policy_text'])
-            ? $settings['privacy_policy_text']
-            : (!empty($texts['privacy_policy_text']) ? $texts['privacy_policy_text'] : MarkdownParser::getDefaultPrivacyPolicyText($data));
+        $cur_privacy_text = !empty($data['texts_i18n'][$cur_lang]['privacy_policy_text'])
+            ? $data['texts_i18n'][$cur_lang]['privacy_policy_text']
+            : (!empty($settings['privacy_policy_text'])
+                ? $settings['privacy_policy_text']
+                : (!empty($texts['privacy_policy_text']) ? $texts['privacy_policy_text'] : MarkdownParser::getDefaultPrivacyPolicyText($data)));
 
         return compact(
             'data',
