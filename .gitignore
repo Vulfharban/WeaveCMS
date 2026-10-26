@@ -21,6 +21,7 @@ backups/*.zip
 backups/*.json
 data/contacts.json
 data/rate_limits.json
+data/stats.json
 data/forum_*.json
 data/forum*.sqlite
 data/integrations.json

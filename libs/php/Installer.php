@@ -703,31 +703,23 @@ class Installer {
                 return ['success' => false, 'error' => 'Für MySQL müssen Host, Datenbankname und Benutzer angegeben werden.'];
             }
 
-            // Verbindungstest durchführen und DB bei Bedarf anlegen
+            // Verbindungstest durchführen und DB nur anlegen, wenn gewünscht (Standard: ja)
+            $create_db = !empty($params['db_create_if_missing']);
             $test = StorageManager::testDbConnection([
                 'host' => $db_host,
                 'port' => $db_port,
                 'database' => $db_name,
                 'username' => $db_user,
                 'password' => $db_pass,
-                'create_db' => true
+                'create_db' => $create_db
             ]);
 
             if (!$test['success']) {
                 return ['success' => false, 'error' => 'MySQL-Verbindungsfehler: ' . $test['message']];
             }
-
-            // config.local.php schreiben
-            $local_conf = "<?php\n" .
-                "// WeaveCMS Lokale Umgebungskonfiguration (wird nicht ins Git-Repository übertragen)\n" .
-                "define('WEAVE_STORAGE_DRIVER', 'mysql');\n" .
-                "define('WEAVE_DB_HOST', " . var_export($db_host, true) . ");\n" .
-                "define('WEAVE_DB_PORT', " . $db_port . ");\n" .
-                "define('WEAVE_DB_NAME', " . var_export($db_name, true) . ");\n" .
-                "define('WEAVE_DB_USER', " . var_export($db_user, true) . ");\n" .
-                "define('WEAVE_DB_PASS', " . var_export($db_pass, true) . ");\n" .
-                "define('WEAVE_DB_PREFIX', " . var_export($db_prefix, true) . ");\n";
-            @file_put_contents($root . '/config.local.php', $local_conf);
+            if (!empty($test['db_missing'])) {
+                return ['success' => false, 'error' => "Die Datenbank '{$db_name}' existiert nicht. Bitte lege sie an oder aktiviere die Option zum automatischen Erzeugen."];
+            }
 
             // Tabellen anlegen und Daten sichern
             $sqlDriver = new PdoSqlStorageDriver([
@@ -739,8 +731,25 @@ class Installer {
                 'prefix' => $db_prefix
             ]);
 
-            if (!$sqlDriver->init() || !$sqlDriver->saveData($base_data)) {
-                return ['success' => false, 'error' => 'Fehler beim Initialisieren der MySQL-Tabellen.'];
+            if (!$sqlDriver->init()) {
+                return ['success' => false, 'error' => 'Fehler beim Anlegen der MySQL-Tabellen: ' . ($sqlDriver->getLastError() ?? 'Unbekannter Fehler')];
+            }
+            if (!$sqlDriver->saveData($base_data)) {
+                return ['success' => false, 'error' => 'Fehler beim Speichern der Daten in MySQL: ' . ($sqlDriver->getLastError() ?? 'Unbekannter Fehler')];
+            }
+
+            // config.local.php erst nach erfolgreicher Einrichtung schreiben
+            $local_conf = "<?php\n" .
+                "// WeaveCMS Lokale Umgebungskonfiguration (wird nicht ins Git-Repository übertragen)\n" .
+                "define('WEAVE_STORAGE_DRIVER', 'mysql');\n" .
+                "define('WEAVE_DB_HOST', " . var_export($db_host, true) . ");\n" .
+                "define('WEAVE_DB_PORT', " . $db_port . ");\n" .
+                "define('WEAVE_DB_NAME', " . var_export($db_name, true) . ");\n" .
+                "define('WEAVE_DB_USER', " . var_export($db_user, true) . ");\n" .
+                "define('WEAVE_DB_PASS', " . var_export($db_pass, true) . ");\n" .
+                "define('WEAVE_DB_PREFIX', " . var_export($db_prefix, true) . ");\n";
+            if (@file_put_contents($root . '/config.local.php', $local_conf) === false) {
+                return ['success' => false, 'error' => 'Konnte config.local.php nicht schreiben. Bitte prüfe die Schreibrechte im Hauptverzeichnis.'];
             }
         } else {
             // JSON Modus: config.local.php entfernen, falls vorhanden

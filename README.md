@@ -22,12 +22,20 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **21-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 
-## Releases & Downloads (v1.2.2)
+## Releases & Downloads (v1.2.3)
 
-- 📦 **[WeaveCMS v1.2.2 Full Package](releases/weavecms-v1.2.2.zip)** (`releases/weavecms-v1.2.2.zip`, 11.90 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.2.2 Update Package](releases/update-v1.2.2.zip)** (`releases/update-v1.2.2.zip`, 0.51 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.2.3 Full Package](releases/weavecms-v1.2.3.zip)** (`releases/weavecms-v1.2.3.zip`, 11.89 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.2.3 Update Package](releases/update-v1.2.3.zip)** (`releases/update-v1.2.3.zip`, 0.51 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.2.3 (26. Oktober 2026)
+
+- 🗄️ **Relationales MySQL/MariaDB-Schema:** Statt eines JSON-Blobs je Schlüssel legt der SQL-Treiber nun eigene Tabellen je Inhaltsbereich an (`gallery`, `courses`, `pages`, `faqs`, `team`, `users` …) mit lesbaren Spalten (`item_id`, `title`, `status`, `sort_pos`), `config` für Einstellungen/Texte/SEO und `lists` für Textlisten. Unbekannte Schlüssel (z. B. Plugins) landen in `documents`. Die Daten bleiben 1:1 kompatibel zum JSON-Modus; Altbestände aus `documents` werden beim nächsten Speichern automatisch überführt.
+- 🧩 **Fehlende vs. leere Bereiche:** Bei MySQL wird zwischen nie vorhandenen und bewusst leeren Bereichen unterschieden – identisches Verhalten wie bei JSON.
+- 🛠️ **Installer (MySQL):** Konkrete SQL-Fehlermeldungen statt Pauschalfehler, die Option „Datenbank automatisch erzeugen“ wird berücksichtigt, `config.local.php` wird erst nach erfolgreicher Tabellenanlage geschrieben.
+- 📊 **Statistik:** `data/stats.json` wird nicht mehr ausgeliefert; neue Installationen starten mit leerer Besucherstatistik.
+- 🔐 **PIN-Eingabe:** Keine Beispiel-Vorbelegung („1977“) mehr im Installer und Admin-Login.
 
 ### v1.2.2 (25. Oktober 2026)
 
@@ -53,7 +61,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.2.2.zip](releases/weavecms-v1.2.2.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.2.3.zip](releases/weavecms-v1.2.3.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License
