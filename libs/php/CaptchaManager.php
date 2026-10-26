@@ -172,12 +172,22 @@ class CaptchaManager {
         if ($lang === null && class_exists('LanguageManager')) {
             $lang = LanguageManager::getCurrentLanguage();
         }
-        $question = "Wie viel ist {$num1} + {$num2}?";
-        if ($lang === 'en') {
-            $question = "How much is {$num1} + {$num2}?";
-        } elseif ($lang === 'it') {
-            $question = "Quanto fa {$num1} + {$num2}?";
-        }
+        $math_formats = [
+            'de' => "Wie viel ist %d + %d?",
+            'en' => "How much is %d + %d?",
+            'fr' => "Combien font %d + %d ?",
+            'it' => "Quanto fa %d + %d?",
+            'nl' => "Hoeveel is %d + %d?",
+            'es' => "¿Cuánto es %d + %d?",
+            'pt' => "Quanto é %d + %d?",
+            'el' => "Πόσο κάνει %d + %d;",
+            'da' => "Hvor meget er %d + %d?",
+            'no' => "Hvor mye er %d + %d?",
+            'sv' => "Hur mycket är %d + %d?",
+            'fi' => "Paljonko on %d + %d?"
+        ];
+        $pattern = $math_formats[$lang] ?? "Wie viel ist %d + %d?";
+        $question = sprintf($pattern, $num1, $num2);
 
         return [
             'question' => $question,

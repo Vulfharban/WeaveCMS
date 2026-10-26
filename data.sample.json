@@ -32,6 +32,69 @@
                     "date_string": "15 novembre 2026",
                     "time": "10:00 - 16:00",
                     "location": "Laboratorio Atelier, Musterstraße 12, 12345 Musterstadt"
+                },
+                "nl": {
+                    "title": "Basiscursus Ambacht & Vormgeving",
+                    "description": "Leer traditionele vlechttechnieken en creëer je eigen ronde schaal of mand van duurzame materialen.",
+                    "date_string": "15 november 2026",
+                    "time": "10:00 - 16:00 uur",
+                    "location": "Atelier Kraaker Straße 14, 19077 Rastow"
+                },
+                "fr": {
+                    "title": "Cours d'initiation à l'artisanat & au design",
+                    "description": "Apprenez les techniques traditionnelles de vannerie et réalisez votre propre coupe ou panier à partir de matériaux durables.",
+                    "date_string": "15 novembre 2026",
+                    "time": "10h00 - 16h00",
+                    "location": "Atelier Kraaker Straße 14, 19077 Rastow"
+                },
+                "es": {
+                    "title": "Curso básico de artesanía & diseño",
+                    "description": "Aprende las técnicas tradicionales de cestería y elabora tu propia bandeja o cesta con materiales sostenibles.",
+                    "date_string": "15 de noviembre de 2026",
+                    "time": "10:00 - 16:00 h",
+                    "location": "Taller Kraaker Straße 14, 19077 Rastow"
+                },
+                "pt": {
+                    "title": "Curso de iniciação ao artesanato & design",
+                    "description": "Aprenda técnicas tradicionais de cestaria e crie a sua própria fruteira ou cesto com materiais sustentáveis.",
+                    "date_string": "15 de novembro de 2026",
+                    "time": "10:00 - 16:00",
+                    "location": "Atelier Kraaker Straße 14, 19077 Rastow"
+                },
+                "el": {
+                    "title": "Βασικό σεμινάριο χειροτεχνίας & σχεδιασμού",
+                    "description": "Μάθετε παραδοσιακές τεχνικές πλεξίματος και δημιουργήστε το δικό σας καλάθι ή μπολ από βιώσιμα υλικά.",
+                    "date_string": "15 Νοεμβρίου 2026",
+                    "time": "10:00 - 16:00",
+                    "location": "Εργαστήριο Kraaker Straße 14, 19077 Rastow"
+                },
+                "da": {
+                    "title": "Grundkursus i håndværk & formgivning",
+                    "description": "Lær traditionelle fletteteknikker og skab din egen skål eller kurv af bæredygtige naturmaterialer.",
+                    "date_string": "15. november 2026",
+                    "time": "10:00 - 16:00",
+                    "location": "Værksted Kraaker Straße 14, 19077 Rastow"
+                },
+                "no": {
+                    "title": "Grunnkurs i håndverk & formgiving",
+                    "description": "Lær tradisjonelle fletteteknikker og lag din egen bolle eller kurv av bærekraftige naturmaterialer.",
+                    "date_string": "15. november 2026",
+                    "time": "10:00 - 16:00",
+                    "location": "Verksted Kraaker Straße 14, 19077 Rastow"
+                },
+                "sv": {
+                    "title": "Grundkurs i hantverk & formgivning",
+                    "description": "Lär dig traditionella flätningstekniker och skapa ditt eget fat eller korg av hållbara naturmaterial.",
+                    "date_string": "15 november 2026",
+                    "time": "10:00 - 16:00",
+                    "location": "Verkstad Kraaker Straße 14, 19077 Rastow"
+                },
+                "fi": {
+                    "title": "Käsityön & muotoilun peruskurssi",
+                    "description": "Opi perinteisiä punontatekniikoita ja valmista oma kulho tai kori kestävistä luonnonmateriaaleista.",
+                    "date_string": "15. marraskuuta 2026",
+                    "time": "klo 10:00 - 16:00",
+                    "location": "Työpaja Kraaker Straße 14, 19077 Rastow"
                 }
             }
         },
@@ -61,6 +124,69 @@
                     "date_string": "05 dicembre 2026",
                     "time": "11:00 - 15:30",
                     "location": "Laboratorio Atelier, Musterstraße 12, 12345 Musterstadt"
+                },
+                "nl": {
+                    "title": "Gevorderdenworkshop: Artistieke vlechtsculpturen",
+                    "description": "Voor deelnemers met voorkennis: vrije vormen, artistieke structuren en decoratieve sculpturen voor binnen en buiten.",
+                    "date_string": "28 november 2026",
+                    "time": "09:30 - 17:00 uur",
+                    "location": "Atelier Kraaker Straße 14, 19077 Rastow"
+                },
+                "fr": {
+                    "title": "Atelier perfectionnement : Sculptures tressées artistiques",
+                    "description": "Pour personnes expérimentées : formes libres, structures artistiques et sculptures décoratives pour intérieur et extérieur.",
+                    "date_string": "28 novembre 2026",
+                    "time": "09h30 - 17h00",
+                    "location": "Atelier Kraaker Straße 14, 19077 Rastow"
+                },
+                "es": {
+                    "title": "Taller avanzado: Esculturas trenzadas artísticas",
+                    "description": "Para personas con experiencia: formas libres, estructuras artísticas y esculturas decorativas para interior y jardín.",
+                    "date_string": "28 de noviembre de 2026",
+                    "time": "09:30 - 17:00 h",
+                    "location": "Taller Kraaker Straße 14, 19077 Rastow"
+                },
+                "pt": {
+                    "title": "Workshop avançado: Esculturas entrançadas artísticas",
+                    "description": "Para participantes com experiência: formas livres, estruturas artísticas e esculturas decorativas para interior e jardim.",
+                    "date_string": "28 de novembro de 2026",
+                    "time": "09:30 - 17:00",
+                    "location": "Atelier Kraaker Straße 14, 19077 Rastow"
+                },
+                "el": {
+                    "title": "Προχωρημένο εργαστήριο: Καλλιτεχνικά γλυπτά πλεξίματος",
+                    "description": "Για συμμετέχοντες με προηγούμενη εμπειρία: ελεύθερες φόρμες, καλλιτεχνικές δομές και διακοσμητικά γλυπτά.",
+                    "date_string": "28 Νοεμβρίου 2026",
+                    "time": "09:30 - 17:00",
+                    "location": "Εργαστήριο Kraaker Straße 14, 19077 Rastow"
+                },
+                "da": {
+                    "title": "Avanceret workshop: Kunstneriske fletteskulpturer",
+                    "description": "For øvede deltagere: frie former, kunstneriske strukturer og dekorative skulpturer til indendørs og have.",
+                    "date_string": "28. november 2026",
+                    "time": "09:30 - 17:00",
+                    "location": "Værksted Kraaker Straße 14, 19077 Rastow"
+                },
+                "no": {
+                    "title": "Videregående workshop: Kunstneriske fletteskulpturer",
+                    "description": "For viderekomne: frie former, kunstneriske strukturer og dekorative skulpturer for hjem og hage.",
+                    "date_string": "28. november 2026",
+                    "time": "09:30 - 17:00",
+                    "location": "Verksted Kraaker Straße 14, 19077 Rastow"
+                },
+                "sv": {
+                    "title": "Avancerad workshop: Konstnärliga flätade skulpturer",
+                    "description": "För erfarna deltagare: fria former, konstnärliga strukturer och dekorativa skulpturer för hem och trädgård.",
+                    "date_string": "28 november 2026",
+                    "time": "09:30 - 17:00",
+                    "location": "Verkstad Kraaker Straße 14, 19077 Rastow"
+                },
+                "fi": {
+                    "title": "Jatkotyöpaja: Taiteelliset punotut veistokset",
+                    "description": "Kokeneemmille tekijöille: vapaat muodot, taiteelliset rakenteet ja koristeelliset veistokset kotiin ja puutarhaan.",
+                    "date_string": "28. marraskuuta 2026",
+                    "time": "klo 09:30 - 17:00",
+                    "location": "Työpaja Kraaker Straße 14, 19077 Rastow"
                 }
             }
         }
@@ -83,6 +209,42 @@
                 "it": {
                     "title": "Scultura unica",
                     "description": "Elegante scultura in legno autoportante dalle linee morbide e organiche."
+                },
+                "nl": {
+                    "title": "Unieke sculptuur",
+                    "description": "Elegante vrijstaande houten sculptuur met zachte, organische contouren."
+                },
+                "fr": {
+                    "title": "Sculpture unique",
+                    "description": "Élégante sculpture en bois autoportante aux contours doux et organiques."
+                },
+                "es": {
+                    "title": "Escultura única",
+                    "description": "Elegante escultura de madera exenta con contornos suaves y orgánicos."
+                },
+                "pt": {
+                    "title": "Escultura única",
+                    "description": "Elegante escultura em madeira com contornos suaves e orgânicos."
+                },
+                "el": {
+                    "title": "Μοναδικό γλυπτό",
+                    "description": "Κομψό ξύλινο γλυπτό με απαλές, οργανικές γραμμές."
+                },
+                "da": {
+                    "title": "Unika-skulptur",
+                    "description": "Elegant fritstående træskulptur med bløde, organiske konturer."
+                },
+                "no": {
+                    "title": "Unika-skulptur",
+                    "description": "Elegant frittstående treskulptur med myke, organiske konturer."
+                },
+                "sv": {
+                    "title": "Unik skulptur",
+                    "description": "Elegant fristående träskulptur med mjuka, organiska konturer."
+                },
+                "fi": {
+                    "title": "Uniikki veistos",
+                    "description": "Tyylikäs vapaasti seisova puuveistos pehmeillä, orgaanisilla linjoilla."
                 }
             }
         },
@@ -103,6 +265,42 @@
                 "it": {
                     "title": "Vaso da terra Natura",
                     "description": "Vaso da terra tornito a mano in legno massello di rovere con venature naturali."
+                },
+                "nl": {
+                    "title": "Rustieke boomschijf",
+                    "description": "Natuurlijk geoliede massief houten schijf met karakteristieke jaarringen."
+                },
+                "fr": {
+                    "title": "Disque de bois rustique",
+                    "description": "Rondin de bois massif huilé naturellement avec des cernes de croissance caractéristiques."
+                },
+                "es": {
+                    "title": "Rodaja de madera rústica",
+                    "description": "Rodaja de madera maciza aceitada de forma natural con anillos de crecimiento característicos."
+                },
+                "pt": {
+                    "title": "Fatia de madeira rústica",
+                    "description": "Fatia de madeira maciça oleada naturalmente com anéis de crescimento característicos."
+                },
+                "el": {
+                    "title": "Ρουστίκ δίσκος κορμού",
+                    "description": "Φυσικά λαδωμένος δίσκος από μασίφ ξύλο με χαρακτηριστικούς δακτυλίους."
+                },
+                "da": {
+                    "title": "Rustik træskive",
+                    "description": "Naturligt olieret massivtræsskive med karakteristiske årringe."
+                },
+                "no": {
+                    "title": "Rustikk treskive",
+                    "description": "Naturlig oljet massivtreskive med karakteristiske årringer."
+                },
+                "sv": {
+                    "title": "Rustik träskiva",
+                    "description": "Naturligt oljad massivträskiva med karakteristiska årsringar."
+                },
+                "fi": {
+                    "title": "Maalaismainen puukiekko",
+                    "description": "Luonnollisesti öljytty massiivipuukiekko upeilla vuosilustoilla."
                 }
             }
         },
@@ -123,6 +321,42 @@
                 "it": {
                     "title": "Banco da lavoro dell'Atelier",
                     "description": "Dietro le quinte: Strumenti artigianali tradizionali e materie prime selezionate a mano."
+                },
+                "nl": {
+                    "title": "Klassieke draagmand",
+                    "description": "Duurzame handgeweven mand met ergonomische beugelhandgreep."
+                },
+                "fr": {
+                    "title": "Panier classique",
+                    "description": "Panier tressé à la main résistant avec poignée ergonomique."
+                },
+                "es": {
+                    "title": "Cesta clásica con asa",
+                    "description": "Cesta artesanal resistente tejida a mano con asa ergonómica."
+                },
+                "pt": {
+                    "title": "Cesto clássico de asa",
+                    "description": "Cesto artesanal resistente com pega ergonómica em arco."
+                },
+                "el": {
+                    "title": "Κλασικό καλάθι με λαβή",
+                    "description": "Ανθεκτικό χειροποίητο ψάθινο καλάθι με εργονομική λαβή."
+                },
+                "da": {
+                    "title": "Klassisk bøjlekurv",
+                    "description": "Slidstærk håndflettet kurv med ergonomisk hanke."
+                },
+                "no": {
+                    "title": "Klassisk bærekorv",
+                    "description": "Slitesterk håndflettet kurv med ergonomisk hank."
+                },
+                "sv": {
+                    "title": "Klassisk handkorg",
+                    "description": "Slitstark handflätad korg med ergonomiskt bygelhandtag."
+                },
+                "fi": {
+                    "title": "Perinteinen kantokori",
+                    "description": "Kestävä käsinpunottu kori ergonomisella sankakahvalla."
                 }
             }
         },
@@ -143,6 +377,42 @@
                 "it": {
                     "title": "Centrotavola Terra",
                     "description": "Centrotavola scultoreo moderno in terracotta e fibre naturali intrecciate."
+                },
+                "nl": {
+                    "title": "Elegante wanddecoratie",
+                    "description": "Filigraan houten wandelement met organische vlechtstructuur."
+                },
+                "fr": {
+                    "title": "Décoration murale élégante",
+                    "description": "Élément mural en bois filigrane avec structure de tressage organique."
+                },
+                "es": {
+                    "title": "Decoración de pared elegante",
+                    "description": "Elemento mural de madera de diseño fino con estructura tejida orgánica."
+                },
+                "pt": {
+                    "title": "Decoração de parede elegante",
+                    "description": "Elemento de parede em madeira com estrutura entrançada orgânica."
+                },
+                "el": {
+                    "title": "Κομψή διακόσμηση τοίχου",
+                    "description": "Λεπτοδουλεμένο ξύλινο διακοσμητικό τοίχου με οργανική πλέξη."
+                },
+                "da": {
+                    "title": "Elegant vægdekoration",
+                    "description": "Fint forarbejdet trævægelement med organisk flettestruktur."
+                },
+                "no": {
+                    "title": "Elegant veggdekor",
+                    "description": "Fint utført treveggelement med organisk flettestruktur."
+                },
+                "sv": {
+                    "title": "Elegant väggdekoration",
+                    "description": "Fint utformat träväggselement med organisk flätstruktur."
+                },
+                "fi": {
+                    "title": "Tyylikäs seinäkoriste",
+                    "description": "Siro puinen seinäelementti orgaanisella punosrakenteella."
                 }
             }
         },
@@ -163,6 +433,42 @@
                 "it": {
                     "title": "Ciotola piatta minimal",
                     "description": "Elegante ciotola decorativa con finitura vellutata per frutta o piccoli oggetti."
+                },
+                "nl": {
+                    "title": "Moderne plantenpot",
+                    "description": "Tijdloze plantenbak van natuurlijk geweven vlechtwerk voor binnenruimtes."
+                },
+                "fr": {
+                    "title": "Cache-pot moderne",
+                    "description": "Cache-pot intemporel en vannerie naturelle pour espaces intérieurs."
+                },
+                "es": {
+                    "title": "Macetero moderno",
+                    "description": "Macetero atemporal de fibras naturales trenzadas para salones."
+                },
+                "pt": {
+                    "title": "Vaso moderno",
+                    "description": "Vaso intemporal em fibras naturais entrançadas para interiores."
+                },
+                "el": {
+                    "title": "Μοντέρνα γλάστρα",
+                    "description": "Διαχρονικό κασπό από φυσική πλέξη για εσωτερικούς χώρους."
+                },
+                "da": {
+                    "title": "Moderne urtepotteskjuler",
+                    "description": "Tidløs plantekrukke i naturflet til bolig og stue."
+                },
+                "no": {
+                    "title": "Moderne potteskjuler",
+                    "description": "Tidløs plantepotte i naturflett for stue og oppholdsrom."
+                },
+                "sv": {
+                    "title": "Modern ytterkruka",
+                    "description": "Tidlös blomkruka i naturflätning för moderna hem."
+                },
+                "fi": {
+                    "title": "Moderni suojaruukku",
+                    "description": "Ajaton luonnonpunottu suojaruukku sisätiloihin ja kotiin."
                 }
             }
         },
@@ -183,6 +489,42 @@
                 "it": {
                     "title": "Cuscino in lino biologico",
                     "description": "Fodera per cuscino tessuta a mano in puro lino naturale con texture biologica."
+                },
+                "nl": {
+                    "title": "Atelier impressie",
+                    "description": "Een blik achter de schermen van ons atelier tijdens het bewerken van materialen."
+                },
+                "fr": {
+                    "title": "Ambiance d'atelier",
+                    "description": "Un aperçu des coulisses de notre atelier pendant le travail des matières."
+                },
+                "es": {
+                    "title": "Ambiente del taller",
+                    "description": "Una mirada entre bastidores a nuestro taller durante el proceso de elaboración."
+                },
+                "pt": {
+                    "title": "Ambiente de atelier",
+                    "description": "Um olhar pelos bastidores do nosso atelier durante o fabrico artesanal."
+                },
+                "el": {
+                    "title": "Στιγμιότυπο εργαστηρίου",
+                    "description": "Μια ματιά στα παρασκήνια του εργαστηρίου μας κατά τη διαδικασία δημιουργίας."
+                },
+                "da": {
+                    "title": "Værkstedsstemning",
+                    "description": "Et kig bag kulisserne i vores værksted under bearbejdning af materialer."
+                },
+                "no": {
+                    "title": "Verkstedstemning",
+                    "description": "Et innblikk bak kulissene i verkstedet vårt under bearbeiding av materialer."
+                },
+                "sv": {
+                    "title": "Ateljéstämning",
+                    "description": "En blick bakom kulisserna i vår verkstad under tillverkningen."
+                },
+                "fi": {
+                    "title": "Työpajatunnelmaa",
+                    "description": "Kurkistus ateljeemme kulissien taakse materiaalien työstön aikana."
                 }
             }
         },
@@ -203,6 +545,42 @@
                 "it": {
                     "title": "Lanterna Aura",
                     "description": "Connubio armonioso tra vetro soffiato a bocca e struttura in legno curvato."
+                },
+                "nl": {
+                    "title": "Gevlochten fruitschaal",
+                    "description": "Luchtige fruitschaal met decoratief stermotief van natuurlijk materiaal."
+                },
+                "fr": {
+                    "title": "Coupe à fruits tressée",
+                    "description": "Coupe à fruits aérée avec motif étoilé décoratif en matériaux naturels."
+                },
+                "es": {
+                    "title": "Frutero trenzado",
+                    "description": "Frutero ligero con motivo estrellado decorativo elaborado con fibras naturales."
+                },
+                "pt": {
+                    "title": "Fruteira entrançada",
+                    "description": "Fruteira arejada com motivo estrelado decorativo em fibras naturais."
+                },
+                "el": {
+                    "title": "Πλεκτή φρουτιέρα",
+                    "description": "Ανάλαφρη φρουτιέρα με διακοσμητικό σχέδιο αστεριού από φυσικά υλικά."
+                },
+                "da": {
+                    "title": "Flettet frugtskål",
+                    "description": "Luftig frugtskål med dekorativt stjernemønster i naturmateriale."
+                },
+                "no": {
+                    "title": "Flettet fruktskål",
+                    "description": "Luftig fruktskål med dekorativt stjernemønster i naturmateriale."
+                },
+                "sv": {
+                    "title": "Flätad fruktskål",
+                    "description": "Luftig fruktskål med dekorativt stjärnmönster av naturmaterial."
+                },
+                "fi": {
+                    "title": "Punottu hedelmäkulho",
+                    "description": "Ilmava hedelmäkulho koristeellisella tähtikuviolla luonnonmateriaaleista."
                 }
             }
         },
@@ -223,6 +601,42 @@
                 "it": {
                     "title": "Attrezzi tradizionali",
                     "description": "Strumenti accuratamente conservati per l'intaglio, la piegatura e la formatura artigianale."
+                },
+                "nl": {
+                    "title": "Vlechtcursus impressies",
+                    "description": "Deelnemers aan het werk tijdens onze praktische weekendworkshop."
+                },
+                "fr": {
+                    "title": "Atelier pratique de tressage",
+                    "description": "Les participants en pleine création lors de notre atelier pratique du week-end."
+                },
+                "es": {
+                    "title": "Taller práctico de cestería",
+                    "description": "Participantes concentrados durante nuestro taller práctico de fin de semana."
+                },
+                "pt": {
+                    "title": "Workshop prático de cestaria",
+                    "description": "Participantes em plena criação no nosso workshop prático de fim de semana."
+                },
+                "el": {
+                    "title": "Εργαστήριο πλεξίματος στην πράξη",
+                    "description": "Συμμετέχοντες επί τω έργω κατά τη διάρκεια του σαββατοκύριακου."
+                },
+                "da": {
+                    "title": "Flettekursus i praksis",
+                    "description": "Deltagere i fuld gang under vores praktiske weekendworkshop."
+                },
+                "no": {
+                    "title": "Flettekurs i praksis",
+                    "description": "Deltakere i full aktivitet under vår praktiske helgeworkshop."
+                },
+                "sv": {
+                    "title": "Flätningskurs i praktiken",
+                    "description": "Deltagare i fullt skapande under vår praktiska helgkurs."
+                },
+                "fi": {
+                    "title": "Punontatyöpaja käytännössä",
+                    "description": "Osallistujat täydessä työn touhussa viikonlopun käytännön kurssilla."
                 }
             }
         },
@@ -243,6 +657,42 @@
                 "it": {
                     "title": "Pannello acustico da parete",
                     "description": "Pannello decorativo a doghe in legno naturale per migliorare l'acustica degli ambienti."
+                },
+                "nl": {
+                    "title": "Seizoensdecoratie",
+                    "description": "Sfeervolle herfstdecoratie gemaakt van lokale wilgentwijgen en hout."
+                },
+                "fr": {
+                    "title": "Décoration de saison",
+                    "description": "Décoration automnale chaleureuse confectionnée à partir d'osier local et de bois."
+                },
+                "es": {
+                    "title": "Decoración de temporada",
+                    "description": "Acogedora decoración otoñal elaborada con ramas locales de sauce y madera."
+                },
+                "pt": {
+                    "title": "Decoração de época",
+                    "description": "Decoração outonal acolhedora feita com ramos locais de salgueiro e madeira."
+                },
+                "el": {
+                    "title": "Εποχιακή διακόσμηση",
+                    "description": "Ατμοσφαιρική φθινοπωρινή διακόσμηση από τοπικά κλαδιά ιτιάς και ξύλο."
+                },
+                "da": {
+                    "title": "Sæsonpynt & Dekoration",
+                    "description": "Stemningsfuld efterårsdekoration fremstillet af lokale pilegrene og træ."
+                },
+                "no": {
+                    "title": "Sesongdekorasjon",
+                    "description": "Stemningsfull høstdekorasjon laget av lokale pilkvister og tre."
+                },
+                "sv": {
+                    "title": "Säsongsdekoration",
+                    "description": "Stämningsfull höstdekoration tillverkad av lokala pilkvistar och trä."
+                },
+                "fi": {
+                    "title": "Kausikoriste",
+                    "description": "Tunnelmallinen syyskoriste lähialueen pajunoksista ja puusta."
                 }
             }
         }
@@ -267,6 +717,42 @@
                 "it": {
                     "title": "Benvenuti & Atelier",
                     "nav_label": "Home"
+                },
+                "nl": {
+                    "title": "Start",
+                    "nav_label": "Start"
+                },
+                "fr": {
+                    "title": "Accueil",
+                    "nav_label": "Accueil"
+                },
+                "es": {
+                    "title": "Inicio",
+                    "nav_label": "Inicio"
+                },
+                "pt": {
+                    "title": "Início",
+                    "nav_label": "Início"
+                },
+                "el": {
+                    "title": "Αρχική",
+                    "nav_label": "Αρχική"
+                },
+                "da": {
+                    "title": "Start",
+                    "nav_label": "Start"
+                },
+                "no": {
+                    "title": "Hjem",
+                    "nav_label": "Hjem"
+                },
+                "sv": {
+                    "title": "Hem",
+                    "nav_label": "Hem"
+                },
+                "fi": {
+                    "title": "Etusivu",
+                    "nav_label": "Etusivu"
                 }
             }
         },
@@ -284,6 +770,42 @@
                 },
                 "it": {
                     "title": "Galleria & Creazioni",
+                    "nav_label": "Galleria"
+                },
+                "nl": {
+                    "title": "Galerij & Portfolio",
+                    "nav_label": "Galerij"
+                },
+                "fr": {
+                    "title": "Galerie & Portfolio",
+                    "nav_label": "Galerie"
+                },
+                "es": {
+                    "title": "Galería & Portfolio",
+                    "nav_label": "Galería"
+                },
+                "pt": {
+                    "title": "Galeria & Portfólio",
+                    "nav_label": "Galeria"
+                },
+                "el": {
+                    "title": "Γκαλερί & Έργα",
+                    "nav_label": "Γκαλερί"
+                },
+                "da": {
+                    "title": "Galleri & Portefølje",
+                    "nav_label": "Galleri"
+                },
+                "no": {
+                    "title": "Galleri & Portefølje",
+                    "nav_label": "Galleri"
+                },
+                "sv": {
+                    "title": "Galleri & Portfölj",
+                    "nav_label": "Galleri"
+                },
+                "fi": {
+                    "title": "Galleria & Portfolio",
                     "nav_label": "Galleria"
                 }
             }
@@ -303,6 +825,42 @@
                 "it": {
                     "title": "Corsi & Workshop",
                     "nav_label": "Workshop"
+                },
+                "nl": {
+                    "title": "Cursussen & Workshops",
+                    "nav_label": "Workshops"
+                },
+                "fr": {
+                    "title": "Cours & Ateliers",
+                    "nav_label": "Ateliers"
+                },
+                "es": {
+                    "title": "Cursos & Talleres",
+                    "nav_label": "Talleres"
+                },
+                "pt": {
+                    "title": "Cursos & Workshops",
+                    "nav_label": "Workshops"
+                },
+                "el": {
+                    "title": "Σεμινάρια & Εργαστήρια",
+                    "nav_label": "Εργαστήρια"
+                },
+                "da": {
+                    "title": "Kurser & Workshops",
+                    "nav_label": "Workshops"
+                },
+                "no": {
+                    "title": "Kurs & Workshops",
+                    "nav_label": "Workshops"
+                },
+                "sv": {
+                    "title": "Kurser & Workshops",
+                    "nav_label": "Workshops"
+                },
+                "fi": {
+                    "title": "Kurssit & Työpajat",
+                    "nav_label": "Työpajat"
                 }
             }
         },
@@ -321,6 +879,42 @@
                 "it": {
                     "title": "Impressioni dei workshop",
                     "nav_label": "Impressioni"
+                },
+                "nl": {
+                    "title": "Impressies van eerdere cursussen",
+                    "nav_label": "Impressies"
+                },
+                "fr": {
+                    "title": "Impressions des ateliers passés",
+                    "nav_label": "Impressions"
+                },
+                "es": {
+                    "title": "Impresiones de talleres anteriores",
+                    "nav_label": "Impresiones"
+                },
+                "pt": {
+                    "title": "Impressões de workshops anteriores",
+                    "nav_label": "Impressões"
+                },
+                "el": {
+                    "title": "Στιγμιότυπα προηγούμενων εργαστηρίων",
+                    "nav_label": "Εντυπώσεις"
+                },
+                "da": {
+                    "title": "Indtryk fra tidligere kurser",
+                    "nav_label": "Indtryk"
+                },
+                "no": {
+                    "title": "Inntrykk fra tidligere kurs",
+                    "nav_label": "Inntrykk"
+                },
+                "sv": {
+                    "title": "Intryck från tidigare kurser",
+                    "nav_label": "Intryck"
+                },
+                "fi": {
+                    "title": "Kuvia aiemmilta kursseilta",
+                    "nav_label": "Kuvia"
                 }
             }
         },
@@ -339,6 +933,42 @@
                 "it": {
                     "title": "Novità & Storie",
                     "nav_label": "Blog"
+                },
+                "nl": {
+                    "title": "Nieuws & Blog",
+                    "nav_label": "Blog"
+                },
+                "fr": {
+                    "title": "Actualités & Blog",
+                    "nav_label": "Blog"
+                },
+                "es": {
+                    "title": "Noticias & Blog",
+                    "nav_label": "Blog"
+                },
+                "pt": {
+                    "title": "Notícias & Blog",
+                    "nav_label": "Blog"
+                },
+                "el": {
+                    "title": "Νέα & Blog",
+                    "nav_label": "Blog"
+                },
+                "da": {
+                    "title": "Nyheder & Blog",
+                    "nav_label": "Blog"
+                },
+                "no": {
+                    "title": "Aktuelt & Blogg",
+                    "nav_label": "Blogg"
+                },
+                "sv": {
+                    "title": "Aktuellt & Blogg",
+                    "nav_label": "Blogg"
+                },
+                "fi": {
+                    "title": "Ajankohtaista & Blogi",
+                    "nav_label": "Blogi"
                 }
             }
         },
@@ -357,6 +987,42 @@
                 "it": {
                     "title": "Servizi & Prezzi",
                     "nav_label": "Prezzi"
+                },
+                "nl": {
+                    "title": "Diensten & Prijzen",
+                    "nav_label": "Prijzen"
+                },
+                "fr": {
+                    "title": "Services & Tarifs",
+                    "nav_label": "Tarifs"
+                },
+                "es": {
+                    "title": "Servicios & Tarifas",
+                    "nav_label": "Precios"
+                },
+                "pt": {
+                    "title": "Serviços & Preços",
+                    "nav_label": "Preços"
+                },
+                "el": {
+                    "title": "Υπηρεσίες & Τιμές",
+                    "nav_label": "Τιμές"
+                },
+                "da": {
+                    "title": "Ydelser & Priser",
+                    "nav_label": "Priser"
+                },
+                "no": {
+                    "title": "Tjenester & Priser",
+                    "nav_label": "Priser"
+                },
+                "sv": {
+                    "title": "Tjänster & Priser",
+                    "nav_label": "Priser"
+                },
+                "fi": {
+                    "title": "Palvelut & Hinnasto",
+                    "nav_label": "Hinnasto"
                 }
             }
         },
@@ -374,6 +1040,42 @@
                 },
                 "it": {
                     "title": "Domande frequenti (FAQ)",
+                    "nav_label": "FAQ"
+                },
+                "nl": {
+                    "title": "Veelgestelde vragen (FAQ)",
+                    "nav_label": "FAQ"
+                },
+                "fr": {
+                    "title": "Foire aux questions (FAQ)",
+                    "nav_label": "FAQ"
+                },
+                "es": {
+                    "title": "Preguntas frecuentes (FAQ)",
+                    "nav_label": "FAQ"
+                },
+                "pt": {
+                    "title": "Perguntas frequentes (FAQ)",
+                    "nav_label": "FAQ"
+                },
+                "el": {
+                    "title": "Συχνές Ερωτήσεις (FAQ)",
+                    "nav_label": "FAQ"
+                },
+                "da": {
+                    "title": "Ofte stillede spørgsmål (FAQ)",
+                    "nav_label": "FAQ"
+                },
+                "no": {
+                    "title": "Ofte stilte spørsmål (FAQ)",
+                    "nav_label": "FAQ"
+                },
+                "sv": {
+                    "title": "Vanliga frågor (FAQ)",
+                    "nav_label": "FAQ"
+                },
+                "fi": {
+                    "title": "Usein kysytyt kysymykset (FAQ)",
                     "nav_label": "FAQ"
                 }
             }
@@ -393,6 +1095,42 @@
                 "it": {
                     "title": "Il nostro Team & Maestri",
                     "nav_label": "Team"
+                },
+                "nl": {
+                    "title": "Ons team & Meesters",
+                    "nav_label": "Team"
+                },
+                "fr": {
+                    "title": "Notre équipe & Maîtres",
+                    "nav_label": "Équipe"
+                },
+                "es": {
+                    "title": "Nuestro equipo & Maestros",
+                    "nav_label": "Equipo"
+                },
+                "pt": {
+                    "title": "A nossa equipa & Mestres",
+                    "nav_label": "Equipa"
+                },
+                "el": {
+                    "title": "Η ομάδα & Οι τεχνίτες μας",
+                    "nav_label": "Ομάδα"
+                },
+                "da": {
+                    "title": "Vores team & Mestre",
+                    "nav_label": "Team"
+                },
+                "no": {
+                    "title": "Vårt team & Mestere",
+                    "nav_label": "Team"
+                },
+                "sv": {
+                    "title": "Vårt team & Mästare",
+                    "nav_label": "Team"
+                },
+                "fi": {
+                    "title": "Tiimimme & Mestarit",
+                    "nav_label": "Tiimi"
                 }
             }
         },
@@ -411,6 +1149,42 @@
                 "it": {
                     "title": "Download & Documenti",
                     "nav_label": "Download"
+                },
+                "nl": {
+                    "title": "Downloads & Software",
+                    "nav_label": "Downloads"
+                },
+                "fr": {
+                    "title": "Téléchargements & Logiciels",
+                    "nav_label": "Téléchargements"
+                },
+                "es": {
+                    "title": "Descargas & Software",
+                    "nav_label": "Descargas"
+                },
+                "pt": {
+                    "title": "Transferências & Software",
+                    "nav_label": "Transferências"
+                },
+                "el": {
+                    "title": "Λήψεις & Λογισμικό",
+                    "nav_label": "Λήψεις"
+                },
+                "da": {
+                    "title": "Downloads & Software",
+                    "nav_label": "Downloads"
+                },
+                "no": {
+                    "title": "Nedlastinger & Programvare",
+                    "nav_label": "Nedlastinger"
+                },
+                "sv": {
+                    "title": "Nedladdningar & Programvara",
+                    "nav_label": "Nedladdningar"
+                },
+                "fi": {
+                    "title": "Lataukset & Ohjelmistot",
+                    "nav_label": "Lataukset"
                 }
             }
         },
@@ -429,6 +1203,42 @@
                 "it": {
                     "title": "Il mio Atelier & Artigianato",
                     "nav_label": "Chi sono"
+                },
+                "nl": {
+                    "title": "Over ons atelier",
+                    "nav_label": "Over mij"
+                },
+                "fr": {
+                    "title": "À propos de notre atelier",
+                    "nav_label": "À propos"
+                },
+                "es": {
+                    "title": "Sobre nuestro atelier",
+                    "nav_label": "Sobre mí"
+                },
+                "pt": {
+                    "title": "Sobre o nosso atelier",
+                    "nav_label": "Sobre mim"
+                },
+                "el": {
+                    "title": "Σχετικά με το εργαστήριό μας",
+                    "nav_label": "Σχετικά"
+                },
+                "da": {
+                    "title": "Om vores atelier",
+                    "nav_label": "Om mig"
+                },
+                "no": {
+                    "title": "Om vårt atelier",
+                    "nav_label": "Om meg"
+                },
+                "sv": {
+                    "title": "Om vår ateljé",
+                    "nav_label": "Om mig"
+                },
+                "fi": {
+                    "title": "Tietoa ateljeestamme",
+                    "nav_label": "Tietoa"
                 }
             }
         }
@@ -481,7 +1291,16 @@
         "active_languages": [
             "de",
             "en",
-            "it"
+            "fr",
+            "it",
+            "nl",
+            "es",
+            "pt",
+            "el",
+            "da",
+            "no",
+            "sv",
+            "fi"
         ],
         "contact_placement": "footer",
         "impressum_placement": "footer",
@@ -550,6 +1369,51 @@
                     "title": "Tradizione & Modernità: Uno sguardo al nostro laboratorio",
                     "teaser": "Come da materiali naturali selezionati nascono pezzi d'arredo unici e qual è la filosofia del nostro atelier.",
                     "content": "## Dove le idee prendono forma\n\nNel nostro laboratorio uniamo tecniche artigianali tradizionali a concetti di design contemporaneo. Ogni creazione inizia con un'accurata selezione dei materiali naturali...\n\n### Sostenibilità al centro\n\n- Utilizzo di materie prime regionali e rinnovabili\n- Lavoro puramente manuale senza sigillanti chimici artificiali\n- Durabilità garantita da tecniche di intreccio tradizionali\n\nSiamo felici di condividere questa passione con voi!"
+                },
+                "nl": {
+                    "title": "Traditie & Moderniteit: Een blik in ons atelier",
+                    "teaser": "Hoe uit geselecteerde natuurlijke materialen moderne designstukken ontstaan en wat ons atelier inspireert.",
+                    "content": "## Passie voor natuurlijk handwerk\n\nIn ons atelier ontmoet eeuwenoude ambachtskunst hedendaags minimalistisch design. Elk stuk begint met de zorgvuldige selectie van hernieuwbare natuurlijke grondstoffen.\n\n### Duurzaamheid en respect voor de natuur\n\nWij gebruiken uitsluitend onbehandelde, ecologisch verantwoorde materialen van regionale herkomst. Door het harmonieuze samenspel van ambachtelijke technieken en strakke lijnen ontstaan tijdloze woonaccessoires die generaties lang meegaan.\n\n> *\"Handwerk is de dialoog tussen mens, natuurlijk materiaal en tijd.\"*\n\nKom gerust eens langs in ons atelier of neem deel aan een van onze creatieve workshops!"
+                },
+                "fr": {
+                    "title": "Tradition & Modernité : Un regard au cœur de notre atelier",
+                    "teaser": "Comment des matériaux naturels soigneusement choisis se transforment en objets de design uniques et ce qui anime notre atelier.",
+                    "content": "## La passion de l'artisanat naturel\n\nAu sein de notre atelier, l'artisanat ancestral rencontre le design épuré contemporain. Chaque pièce commence par la sélection méticuleuse de matières naturelles renouvelables.\n\n### Durabilité et respect de la nature\n\nNous utilisons exclusivement des matières écologiques et non traitées issues de ressources régionales. L'harmonie entre techniques artisanales rigoureuses et lignes modernes donne naissance à des objets durables conçus pour traverser les générations.\n\n> *« L'artisanat est un dialogue intime entre la main, la matière naturelle et le temps. »*\n\nVenez nous rendre visite à l'atelier ou participez à l'un de nos prochains ateliers pratiques !"
+                },
+                "es": {
+                    "title": "Tradición & Modernidad: Una mirada a nuestro taller",
+                    "teaser": "Cómo seleccionamos materiales naturales para crear piezas únicas de diseño contemporáneo y cuál es la filosofía de nuestro atelier.",
+                    "content": "## Pasión por la artesanía natural\n\nEn nuestro taller, las técnicas tradicionales se unen al diseño limpio y contemporáneo. Cada pieza nace con la cuidada selección de materias primas naturales y sostenibles.\n\n### Sostenibilidad y respeto por la naturaleza\n\nEmpleamos exclusivamente materiales ecológicos y no tratados de origen regional. Esta combinación entre saber hacer artesanal y líneas elegantes da como resultado objetos de decoración atemporales pensados para perdurar.\n\n> *\"La artesanía es un diálogo sincero entre la persona, la materia prima y el tiempo.\"*\n\n¡Te invitamos a visitarnos en nuestro taller o a participar en uno de nuestros cursos creativos!"
+                },
+                "pt": {
+                    "title": "Tradição & Modernidade: Um olhar sobre o nosso atelier",
+                    "teaser": "Como transformamos matérias naturais selecionadas em peças de design únicas e qual é a paixão que move o nosso atelier.",
+                    "content": "## Paixão pelo artesanato natural\n\nNo nosso atelier, a mestria artesanal secular encontra o design contemporâneo. Cada peça tem início na seleção cuidada de matérias-primas naturais renováveis.\n\n### Sustentabilidade e harmonia natural\n\nUtilizamos exclusivamente materiais ecológicos e não tratados de origem regional. A fusão entre o rigor do trabalho manual e linhas sóbrias resulta em peças intemporais feitas para durar gerações.\n\n> *« O artesanato é o diálogo vivo entre as mãos, a matéria natural e o tempo. »*\n\nVisite o nosso espaço ou participe num dos nossos workshops práticos!"
+                },
+                "el": {
+                    "title": "Παράδοση & Σύγχρονη Ματιά: Μέσα στο εργαστήριό μας",
+                    "teaser": "Πώς επιλεγμένα φυσικά υλικά μεταμορφώνονται σε μοναδικά έργα σύγχρονου design και τι εμπνέει το atelier μας.",
+                    "content": "## Πάθος για τη φυσική χειροτεχνία\n\nΣτο εργαστήριό μας, η παραδοσιακή τεχνογνωσία συναντά τον σύγχρονο μινιμαλισμό. Κάθε δημιούργημα ξεκινά με την προσεκτική επιλογή ανανεώσιμων φυσικών υλικών.\n\n### Βιωσιμότητα και σεβασμός στη φύση\n\nΧρησιμοποιούμε αποκλειστικά ανεπεξέργαστα, οικολογικά υλικά περιφερειακής προέλευσης. Ο συνδυασμός αυθεντικής δεξιοτεχνίας και καθαρών γραμμών προσφέρει διαχρονικά κομμάτια για κάθε χώρο.\n\n> *«Η χειροτεχνία είναι ένας διάλογος ανάμεσα στα χέρια, το φυσικό υλικό και τον χρόνο.»*\n\nΕπισκεφθείτε το εργαστήριό μας ή λάβετε μέρος στα σεμινάριά μας!"
+                },
+                "da": {
+                    "title": "Tradition & Nutid: Et kig ind i vores værksted",
+                    "teaser": "Hvordan udvalgte naturmaterialer forvandles til moderne unika-design, og hvad der driver vores atelier.",
+                    "content": "## Passion for ægte naturhåndværk\n\nI vores værksted mødes ældgamle håndværkstraditioner med moderne nordisk minimalisme. Hvert eneste stykke begynder med udvælgelsen af bæredygtige råmaterialer.\n\n### Bæredygtighed og omtanke for naturen\n\nVi anvender udelukkende ubehandlede, økologiske naturmaterialer fra nærområdet. Samspillet mellem solidt håndværk og tidløse linjer skaber holdbare brugskunstgenstande, der holder i generationer.\n\n> *\"Håndværk er en levende samtale mellem menneskets hænder, naturmaterialet og tiden.\"*\n\nKig forbi vores atelier eller tilmeld dig en af vores kreative workshops!"
+                },
+                "no": {
+                    "title": "Tradisjon & Nyskaping: Et innblikk i vårt verksted",
+                    "teaser": "Hvordan nøye utvalgte naturmaterialer forvandles til tidløse designgjenstander, og hva som inspirerer vårt atelier.",
+                    "content": "## Kjærlighet til ekte håndverk\n\nI verkstedet vårt møter tradisjonelle teknikker et moderne og rent formspråk. Hvert arbeid starter med en bevisst utvelgelse av fornybare naturmaterialer.\n\n### Bærekraft og respekt for naturen\n\nVi benytter utelukkende ubehandlede, miljøvennlige råstoffer fra nærområdet. Gjennom balansen mellom presist håndlag og rene linjer oppstår varige interiørgjenstander som gleder i mange år.\n\n> *«Håndverk er den nære dialogen mellom hender, natur og tid.»*\n\nKom gjerne innom verkstedet eller bli med på et av våre lærerike kurs!"
+                },
+                "sv": {
+                    "title": "Tradition & Nutid: En inblick i vår ateljé",
+                    "teaser": "Hur handplockade naturmaterial förvandlas till unika designföremål och vad som formar vår skaparglädje.",
+                    "content": "## Passion för naturligt hantverk\n\nI vår ateljé möts klassiska hantverksmetoder och modern skandinavisk formgivning. Varje alster tar sin början i valet av hållbara naturråvaror.\n\n### Hållbarhet och omsorg om naturen\n\nVi arbetar uteslutande med obehandlade, ekologiska material från lokala odlare. Den harmoniska balansen mellan gedigen hantverksskicklighet och stilren design skapar tidlösa inredningsdetaljer.\n\n> *\"Hantverk är en levande dialog mellan handens rörelse, naturens material och tiden.\"*\n\nVälkommen att besöka vår ateljé eller boka en plats på våra kurser!"
+                },
+                "fi": {
+                    "title": "Perinne & Nykyaika: Kurkistus ateljeeseemme",
+                    "teaser": "Miten valikoidut luonnonmateriaalit muotoutuvat moderneiksi uniikkiteoksiksi ja mikä inspiroi ateljeetamme.",
+                    "content": "## Rakkautta aitoon luonnonkäsityöhön\n\nAteljeessamme perinteinen käsityötaito kohtaa selkeälinjaisen nykymuotoilun. Jokainen esine saa alkunsa uusiutuvien luonnonmateriaalien huolellisesta valinnasta.\n\n### Kestävyys ja luonnon kunnioitus\n\nKäytämme ainoastaan käsittelemättömiä, ekologisia ja paikallisia materiaaleja. Käsityön tarkkuuden ja ajattoman muotoilun yhdistelmä synnyttää kestäviä sisustusesineitä sukupolvelta toiselle.\n\n> *\"Käsityö on käden, luonnonmateriaalin ja ajan välinen aito vuoropuhelu.\"*\n\nTervetuloa vierailemaan ateljeessamme tai osallistumaan inspiroiviin työpajoihimme!"
                 }
             }
         },
@@ -579,6 +1443,51 @@
                     "title": "Consigli per la cura delle creazioni artigianali",
                     "teaser": "Con pochi semplici accorgimenti, gli oggetti in fibre naturali si mantengono splendidi per molti anni.",
                     "content": "## La giusta cura per i materiali naturali\n\nI manufatti naturali sono robusti e durevoli se si osservano alcune semplici regole fondamentali...\n\n### 3 regole d'oro per la massima durata\n\n- Spolverare regolarmente con un pennello morbido o un panno asciutto\n- Nebulizzare leggermente con acqua in inverno se l'aria dei termosifoni è molto secca\n- Evitare l'esposizione diretta e continua all'umidità esterna\n\nCosì potrai goderti la tua creazione per molti anni!"
+                },
+                "nl": {
+                    "title": "Natuurlijke materialen en hun verzorging",
+                    "teaser": "Praktische tips voor een lange levensduur en optimale verzorging van natuurlijke vlechtwerken en hout.",
+                    "content": "## Verzorgingstips voor natuurlijke werkstukken\n\nNatuurlijke materialen zoals wilgentwijgen, hout en riet zijn levendig, robuust en bijzonder duurzaam wanneer ze goed worden onderhouden.\n\n### Schoonmaken en opfrissen\n\n- **Stof:** Regelmatig afborstelen met een zachte borstel.\n- **Vocht:** Af en toe licht bevochtigen met waternevel houdt het vlechtwerk elastisch.\n- **Zonlicht:** Bescherm fijne stukken tegen aanhoudend fel zonlicht om uitdroging te voorkomen."
+                },
+                "fr": {
+                    "title": "Matières naturelles et conseils d'entretien",
+                    "teaser": "Recommandations pratiques pour préserver la beauté et la longévité de vos vanneries et objets en bois.",
+                    "content": "## Prendre soin de vos objets artisanaux\n\nLes matières naturelles comme le saule, le bois et l'osier sont vivantes, nobles et remarquablement durables lorsqu'elles reçoivent l'attention nécessaire.\n\n### Nettoyage et hydratation\n\n- **Dépoussiérage :** Brossez délicatement à sec avec une brosse souple.\n- **Hydratation :** Brumisez légèrement vos vanneries avec de l'eau tiède pour préserver leur souplesse naturelle.\n- **Exposition :** Évitez une exposition prolongée aux fortes chaleurs directes."
+                },
+                "es": {
+                    "title": "Materiales naturales y consejos de cuidado",
+                    "teaser": "Guía práctica para mantener la flexibilidad y durabilidad de tus cestas y piezas de madera natural.",
+                    "content": "## Cuidado y mantenimiento de piezas naturales\n\nLas fibras naturales como el sauce, el mimbre y la madera maciza son resistentes y atemporales si reciben unos cuidados básicos.\n\n### Limpieza y conservación\n\n- **Polvo:** Limpiar suavemente con un cepillo de cerdas blandas.\n- **Hidratación:** Pulverizar ligeramente con agua tibia ayuda a mantener la elasticidad del trenzado.\n- **Ubicación:** Proteger de fuentes de calor directo excesivo."
+                },
+                "pt": {
+                    "title": "Materiais naturais e dicas de conservação",
+                    "teaser": "Recomendações práticas para preservar a beleza e a elasticidade das suas peças em vime e madeira.",
+                    "content": "## Cuidados para peças em fibras naturais\n\nO salgueiro, o vime e a madeira maciça são materiais nobres e duradouros com a manutenção adequada.\n\n### Dicas essenciais\n\n- **Limpeza:** Escovar periodicamente com uma escova de cerdas suaves.\n- **Elasticidade:** Humedecer suavemente com um vaporizador de água para manter as fibras flexíveis.\n- **Ambiente:** Evitar o contacto direto prolongado com fontes intensas de calor."
+                },
+                "el": {
+                    "title": "Φυσικά υλικά & συμβουλές φροντίδας",
+                    "teaser": "Πρακτικές οδηγίες για τη διατήρηση της αντοχής και της ομορφιάς των χειροποίητων φυσικών αντικειμένων σας.",
+                    "content": "## Φροντίδα φυσικών χειροποίητων έργων\n\nΗ ιτιά, το ξύλο και τα φυσικά κλαδιά διατηρούνται άψογα για δεκαετίες με απλή, τακτική φροντίδα.\n\n### Καθαρισμός και συντήρηση\n\n- **Ξεσκόνισμα:** Χρησιμοποιήστε ένα μαλακό πινέλο ή στεγνό πανί.\n- **Ενυδάτωση:** Ένας ελαφρύς ψεκασμός με καθαρό νερό διατηρεί την ελαστικότητα των ινών.\n- **Προστασία:** Αποφύγετε την παρατεταμένη έκθεση σε άμεση έντονη θερμότητα."
+                },
+                "da": {
+                    "title": "Naturmaterialer og gode plejeråd",
+                    "teaser": "Praktiske tips til at bevare smidigheden og gløden i flettede kurve og unikt træhåndværk.",
+                    "content": "## Sådan plejer du dine naturværker\n\nPil, træ og naturlige fletmaterialer er robuste råvarer, der holder sig smukke i årtier med den rette pleje.\n\n### Rengøring og vedligeholdelse\n\n- **Støv:** Børst let med en blød børste eller klud.\n- **Fugt:** En let overbrusning med en vandforstøver holder pilens fibre smidige.\n- **Placering:** Undgå vedvarende placering tæt op ad radiatorer eller udtørrende varmekilder."
+                },
+                "no": {
+                    "title": "Naturmaterialer og enkel vedlikehold",
+                    "teaser": "Praktiske råd for å ta vare på flettede kurver og håndlagde treprodukter.",
+                    "content": "## Enkle pleietips for naturprodukter\n\nPil og heltre er slitesterke materialer som beholder sin naturlige styrke med minimalt stell.\n\n### Rengjøring og fuktighet\n\n- **Støvtørking:** Tørk forsiktig av med en myk børste.\n- **Fuktighet:** Dusj kurvene lett med vann av og til for å bevare spensten i flettematerialet.\n- **Varme:** Skån produktene mot direkte og intens tørr varme."
+                },
+                "sv": {
+                    "title": "Naturmaterial och skötselråd",
+                    "teaser": "Praktiska tips för att bevara skönheten och hållbarheten hos handflätade korgar och träföremål.",
+                    "content": "## Sköt om dina hantverksföremål\n\nPil, trä och naturfiber är tåliga material som åldras med vacker patina om de tas om hand på rätt sätt.\n\n### Skötsel och rengöring\n\n- **Rengöring:** Borsta varsamt bort damm med en mjuk borste.\n- **Fuktighet:** Spraya lätt med en blomspruta med jämna mellanrum för att hålla fibrerna elastiska.\n- **Placering:** Undvik placering intill starka värmeelement."
+                },
+                "fi": {
+                    "title": "Luonnonmateriaalit ja hoito-ohjeet",
+                    "teaser": "Käytännön vinkkejä punottujen korien ja puuesineiden pitkäikäiseen huolenpitoon.",
+                    "content": "## Luonnonmateriaalien hoito\n\nPaju ja massiivipuu ovat eläviä ja kestäviä materiaaleja, jotka säilyvät kauniina vuosikymmeniä oikealla hoidolla.\n\n### Puhdistus ja kosteutus\n\n- **Pölynpoisto:** Harjaa kevyesti pehmeällä harjalla.\n- **Kosteutus:** Kevyt sumutus puhtaalla vedellä silloin tällöin pitää punoskuidut kimmoisina.\n- **Sijoitus:** Vältä pitkäaikaista sijoittamista kuumien pattereiden välittömään läheisyyteen."
                 }
             }
         }
@@ -998,6 +1907,285 @@
             "contact_mail_greeting": "Ciao Maxima,",
             "course_request_template": "Ciao Maxima,\r\n\r\nsono interessato/a al tuo workshop \"{kurs}\" del {datum} ({uhrzeit}) a {ort} e vorrei chiedere se ci sono ancora posti disponibili.\r\n\r\nCordiali saluti",
             "privacy_policy_text": "### 1. La privacy in sintesi\r\n\r\nLa protezione dei tuoi dati personali è per noi una priorità fondamentale. Questa informativa offre una panoramica su quali dati vengono raccolti e su come vengono trattati.\r\n\r\n### 2. Titolare del trattamento\r\n\r\nIl titolare del trattamento dei dati su questo sito web è il gestore indicato nelle Note Legali / Impressum.\r\n\r\n### 3. Raccolta dati sul nostro sito web\r\n\r\n**File di log del server:**\r\nIl server web raccoglie automaticamente dati tecnici di connessione (es. indirizzo IP anonimizzato, tipo di browser, URL visitato, data e ora dell'accesso). Questi dati sono tecnicamente indispensabili per garantire stabilità e sicurezza del sito.\r\n\r\n**Modulo di contatto & richieste via e-mail:**\r\nQuando ci invii richieste tramite modulo di contatto o e-mail, i dati forniti nel modulo, compresi i recapiti di contatto, vengono memorizzati per l'elaborazione della richiesta e per eventuali domande successive.\r\n\r\n### 4. Nessun cookie pubblicitario o di tracciamento\r\n\r\nQuesto sito rinuncia completamente all'utilizzo di cookie di terze parti di tracciamento, analisi o profilazione commerciale."
+        },
+        "nl": {
+            "hero_title": "Atelier voor Ambacht, Natuur & Design",
+            "hero_subtitle": "Unieke handgemaakte stukken, duurzame natuurlijke materialen en inspirerende creatieve workshops.",
+            "about_title": "Over ons atelier",
+            "about_text": "Welkom in ons atelier! Hier verbinden we eeuwenoud handwerk met eigentijdse vormentaal. Elk werkstuk ontstaat met toewijding, geduld en respect voor de natuur.",
+            "gallery_title": "Galerij & Portfolio",
+            "gallery_subtitle": "Ontdek een selectie van onze handgemaakte unieke stukken en creaties uit het atelier.",
+            "courses_title": "Cursussen & Workshops",
+            "courses_subtitle": "Ervaar het ambacht zelf. In kleine groepen leer je traditionele technieken en creëer je je eigen werkstuk.",
+            "past_courses_title": "Impressies van eerdere cursussen",
+            "past_courses_subtitle": "Sfeerbeelden en creaties van onze enthousiaste workshopdeelnemers.",
+            "blog_title": "Nieuws & Blog",
+            "blog_subtitle": "Verhalen, inzichten en nieuws rechtstreeks uit ons atelier.",
+            "faq_title": "Veelgestelde vragen (FAQ)",
+            "faq_subtitle": "Hier vind je antwoorden op de meest gestelde vragen over onze cursussen, werkstukken en materialen.",
+            "team_title": "Ons team & Meesters",
+            "team_subtitle": "Maak kennis met de creatieve geesten achter onze creaties en workshops.",
+            "downloads_title": "Downloads & Software",
+            "downloads_subtitle": "Handige gidsen, materiaaloverzichten en documentatie om direct te downloaden.",
+            "pricing_title": "Diensten & Prijzen",
+            "pricing_subtitle": "Transparante tarieven voor workshops, unieke maatwerkstukken en meesterbegeleiding.",
+            "contact_intro_text": "Heb je vragen over onze cursussen, wil je een cadeaubon bestellen of een werkstuk op maat laten maken? Neem gerust contact op!",
+            "contact_mail_greeting": "Hallo Maxima,",
+            "course_request_template": "Hallo Maxima,\n\nik heb interesse in de workshop \"{kurs}\" op {datum} ({uhrzeit}) in {ort} en wil graag vragen of er nog plaatsen vrij zijn.\n\nVriendelijke groet",
+            "impressum_disclaimer": "Ondanks zorgvuldige controle aanvaarden wij geen aansprakelijkheid voor de inhoud van externe links. Voor de inhoud van gelinkte pagina's zijn uitsluitend de betreffende beheerders verantwoordelijk.",
+            "impressum_vat_id": "Vrijgesteld van btw volgens de kleineondernemersregeling.",
+            "impressum_supervisory": "Kamer van Koophandel / Bevoegde toezichthoudende instantie",
+            "meta_title": "Atelier voor Ambacht, Natuur & Design",
+            "meta_description": "Unieke handgemaakte stukken, duurzame natuurlijke materialen en inspirerende creatieve workshops.",
+            "privacy_policy_text": "### 1. Privacy in het kort\n\nDe bescherming van je persoonsgegevens is voor ons van groot belang. Deze verklaring geeft een overzicht van hoe we met je gegevens omgaan.\n\n### 2. Verantwoordelijke instantie\n\nVerantwoordelijk voor de gegevensverwerking op deze website is de beheerder zoals vermeld in het colofon.\n\n### 3. Gegevensverzameling\n\n**Serverlogbestanden:**\nDe webserver verzamelt geanonimiseerde technische gegevens (bijv. IP-adres, browsertype, datum en tijd) die nodig zijn om de website veilig en stabiel te laten werken.\n\n**Contactformulier & E-mail:**\nWanneer je ons een bericht stuurt, bewaren we je gegevens uitsluitend om je vraag te beantwoorden.\n\n### 4. Geen trackingcookies\n\nDeze website gebruikt geen tracking-, analyse- of advertentiecookies van derden die toestemming vereisen."
+        },
+        "fr": {
+            "hero_title": "Atelier d'Artisanat, Nature & Design",
+            "hero_subtitle": "Pièces uniques façonnées à la main, matières naturelles durables et ateliers créatifs conviviaux.",
+            "about_title": "À propos de notre atelier",
+            "about_text": "Bienvenue dans notre atelier ! Nous y associons le geste artisanal traditionnel aux lignes épurées contemporaines. Chaque création naît avec passion, patience et respect de la nature.",
+            "gallery_title": "Galerie & Portfolio",
+            "gallery_subtitle": "Découvrez une sélection de nos créations uniques et objets d'art conçus à l'atelier.",
+            "courses_title": "Cours & Ateliers",
+            "courses_subtitle": "Pratiquez l'artisanat de vos mains. En petits groupes, apprenez les techniques traditionnelles et repartez avec votre objet.",
+            "past_courses_title": "Impressions des ateliers passés",
+            "past_courses_subtitle": "Moments partagés et créations de nos talentueux participants.",
+            "blog_title": "Actualités & Blog",
+            "blog_subtitle": "Histoires, coulisses et nouveautés en direct de notre atelier.",
+            "faq_title": "Foire aux questions (FAQ)",
+            "faq_subtitle": "Retrouvez les réponses aux questions les plus fréquentes sur nos cours, pièces et matières.",
+            "team_title": "Notre équipe & Maîtres",
+            "team_subtitle": "Faites connaissance avec les créateurs passionnés qui donnent vie à nos créations.",
+            "downloads_title": "Téléchargements & Logiciels",
+            "downloads_subtitle": "Guides pratiques, fiches matières et documentations à télécharger directement.",
+            "pricing_title": "Services & Tarifs",
+            "pricing_subtitle": "Des tarifs clairs pour nos ateliers, pièces sur mesure et accompagnements particuliers.",
+            "contact_intro_text": "Vous avez des questions sur nos ateliers, souhaitez offrir un bon cadeau ou commander une création sur mesure ? Écrivez-nous !",
+            "contact_mail_greeting": "Bonjour Maxima,",
+            "course_request_template": "Bonjour Maxima,\n\nje suis intéressé(e) par votre atelier \"{kurs}\" du {datum} ({uhrzeit}) à {ort} et souhaite savoir s'il reste des places disponibles.\n\nBien cordialement",
+            "impressum_disclaimer": "Malgré un contrôle rigoureux du contenu, nous déclinons toute responsabilité quant au contenu des liens externes. Seuls les exploitants des sites liés en sont responsables.",
+            "impressum_vat_id": "Exonéré de TVA selon le régime des micro-entreprises.",
+            "impressum_supervisory": "Chambre des Métiers et de l'Artisanat compétente",
+            "meta_title": "Atelier d'Artisanat, Nature & Design",
+            "meta_description": "Pièces uniques façonnées à la main, matières naturelles durables et ateliers créatifs.",
+            "privacy_policy_text": "### 1. La protection des données en bref\n\nLa protection de vos données personnelles est une priorité essentielle. Cette déclaration vous informe des données collectées et de leur utilisation.\n\n### 2. Responsable du traitement\n\nLe responsable du traitement des données sur ce site est l'exploitant désigné dans les Mentions Légales.\n\n### 3. Collecte des données\n\n**Fichiers journaux du serveur :**\nLe serveur collecte automatiquement des données techniques anonymisées (ex. adresse IP, type de navigateur, date et heure) indispensables au fonctionnement sécurisé du site.\n\n**Formulaire de contact & e-mails :**\nLorsque vous nous contactez, vos informations sont conservées uniquement pour traiter votre demande.\n\n### 4. Aucun cookie publicitaire ou de pistage\n\nCe site n'utilise aucun cookie tiers nécessitant un consentement à des fins de pistage ou de marketing."
+        },
+        "es": {
+            "hero_title": "Taller de Artesanía, Naturaleza & Diseño",
+            "hero_subtitle": "Piezas únicas hechas a mano, materiales naturales sostenibles y talleres creativos inspiradores.",
+            "about_title": "Sobre nuestro taller",
+            "about_text": "¡Te damos la bienvenida a nuestro taller! Unimos la artesanía tradicional con un diseño contemporáneo y sereno. Cada obra se crea con paciencia, esmero y respeto por el entorno.",
+            "gallery_title": "Galería & Portfolio",
+            "gallery_subtitle": "Explora una cuidada selección de nuestras piezas únicas y creaciones artesanas.",
+            "courses_title": "Cursos & Talleres",
+            "courses_subtitle": "Vive el oficio en primera persona. En grupos reducidos, aprende técnicas tradicionales y crea tu propia pieza.",
+            "past_courses_title": "Impresiones de talleres anteriores",
+            "past_courses_subtitle": "Momentos y creaciones de nuestros participantes en el taller.",
+            "blog_title": "Noticias & Blog",
+            "blog_subtitle": "Relatos, procesos de creación y novedades desde nuestro taller.",
+            "faq_title": "Preguntas frecuentes (FAQ)",
+            "faq_subtitle": "Respuestas claras a las dudas más habituales sobre cursos, encargos y materiales.",
+            "team_title": "Nuestro equipo & Maestros",
+            "team_subtitle": "Conoce a las manos y mentes creativas detrás de nuestras piezas y talleres.",
+            "downloads_title": "Descargas & Software",
+            "downloads_subtitle": "Guías prácticas, calendarios de materiales y documentación descargable.",
+            "pricing_title": "Servicios & Tarifas",
+            "pricing_subtitle": "Tarifas transparentes para talleres, encargos personalizados y clases individuales.",
+            "contact_intro_text": "¿Tienes preguntas sobre los talleres, quieres un vale de regalo o encargar una pieza a medida? ¡Escríbenos con total confianza!",
+            "contact_mail_greeting": "Hola Maxima,",
+            "course_request_template": "Hola Maxima,\n\nme interesa tu taller \"{kurs}\" del {datum} ({uhrzeit}) en {ort} y me gustaría saber si aún quedan plazas libres.\n\nUn cordial saludo",
+            "impressum_disclaimer": "A pesar de un control exhaustivo de los contenidos, no asumimos responsabilidad alguna por los enlaces externos. El contenido de las páginas enlazadas es responsabilidad exclusiva de sus titulares.",
+            "impressum_vat_id": "Exento de IVA conforme al régimen especial de pequeños empresarios.",
+            "impressum_supervisory": "Cámara Oficial de Comercio y Artesanía competente",
+            "meta_title": "Taller de Artesanía, Naturaleza & Diseño",
+            "meta_description": "Piezas únicas hechas a mano, materiales naturales sostenibles y talleres creativos.",
+            "privacy_policy_text": "### 1. Protección de datos de un vistazo\n\nLa protección de tus datos personales es fundamental para nosotros. Esta política explica cómo se recopilan y tratan tus datos.\n\n### 2. Responsable del tratamiento\n\nEl responsable del tratamiento en este sitio web es el titular indicado en el Aviso Legal.\n\n### 3. Recopilación de datos\n\n**Archivos de registro del servidor:**\nEl servidor recopila automáticamente datos técnicos anonimizados (dirección IP, navegador, fecha y hora) necesarios para el funcionamiento seguro del sitio.\n\n**Formulario de contacto y correos:**\nTus datos se conservan exclusivamente para responder a tu consulta.\n\n### 4. Sin cookies de seguimiento\n\nEste sitio no utiliza cookies de terceros para publicidad ni seguimiento publicitario que requieran consentimiento."
+        },
+        "pt": {
+            "hero_title": "Atelier de Artesanato, Natureza & Design",
+            "hero_subtitle": "Peças únicas feitas à mão, matérias-primas sustentáveis e workshops criativos de partilha.",
+            "about_title": "Sobre o nosso atelier",
+            "about_text": "Bem-vindo ao nosso atelier! Aliamos a mestria do artesanato ancestral a um design elegante e funcional. Cada criação nasce do respeito profundo pela natureza.",
+            "gallery_title": "Galeria & Portfólio",
+            "gallery_subtitle": "Descubra uma seleção das nossas peças exclusivas e criações de atelier.",
+            "courses_title": "Cursos & Workshops",
+            "courses_subtitle": "Experimente a arte de criar com as mãos. Em pequenos grupos, aprenda técnicas tradicionais e leve a sua peça para casa.",
+            "past_courses_title": "Impressões de workshops anteriores",
+            "past_courses_subtitle": "Momentos inspiradores e criações partilhadas pelos nossos participantes.",
+            "blog_title": "Notícias & Blog",
+            "blog_subtitle": "Histórias, técnicas e novidades diretamente do nosso atelier.",
+            "faq_title": "Perguntas frequentes (FAQ)",
+            "faq_subtitle": "Encontre respostas para as perguntas mais comuns sobre cursos, peças e cuidados.",
+            "team_title": "A nossa equipa & Mestres",
+            "team_subtitle": "Conheça quem dá alma e mestria às nossas criações e formações.",
+            "downloads_title": "Transferências & Software",
+            "downloads_subtitle": "Manuais práticos, tabelas de matérias e guias para descarregar.",
+            "pricing_title": "Serviços & Preços",
+            "pricing_subtitle": "Preços transparentes para workshops, encomendas exclusivas e aulas particulares.",
+            "contact_intro_text": "Tem dúvidas sobre os cursos, deseja adquirir um vale de oferta ou encomendar uma peça personalizada? Fale connosco!",
+            "contact_mail_greeting": "Olá Maxima,",
+            "course_request_template": "Olá Maxima,\n\ntenho interesse no workshop \"{kurs}\" de {datum} ({uhrzeit}) em {ort} e gostaria de saber se ainda existem vagas disponíveis.\n\nCom os melhores cumprimentos",
+            "impressum_disclaimer": "Apesar do controlo cuidadoso dos conteúdos, não assumimos qualquer responsabilidade pelos links externos. O conteúdo das páginas hiperligadas é da exclusiva responsabilidade dos seus operadores.",
+            "impressum_vat_id": "Isento de IVA ao abrigo do regime especial dos pequenos sujeitos passivos.",
+            "impressum_supervisory": "Associação ou Câmara de Artesanato competente",
+            "meta_title": "Atelier de Artesanato, Natureza & Design",
+            "meta_description": "Peças únicas feitas à mão, matérias-primas sustentáveis e workshops criativos.",
+            "privacy_policy_text": "### 1. Privacidade em resumo\n\nA proteção dos seus dados pessoais é uma prioridade para nós. Esta política explica de forma transparente como os seus dados são tratados.\n\n### 2. Responsável pelo tratamento\n\nO responsável pelo tratamento dos dados neste site é o operador identificado na Ficha Técnica / Impressum.\n\n### 3. Recolha de dados\n\n**Ficheiros de registo do servidor:**\nO servidor web regista automaticamente dados técnicos anonimizados essenciais à segurança e fiabilidade do site.\n\n**Contacto por formulário e e-mail:**\nOs dados submetidos são utilizados apenas para responder ao seu pedido.\n\n### 4. Isenção de cookies de rastreio\n\nEste website não utiliza cookies de terceiros para publicidade ou rastreio comercial que exijam consentimento."
+        },
+        "el": {
+            "hero_title": "Εργαστήριο Χειροτεχνίας, Φύσης & Design",
+            "hero_subtitle": "Χειροποίητα μοναδικά έργα, βιώσιμα φυσικά υλικά και εμπνευσμένα δημιουργικά σεμινάρια.",
+            "about_title": "Σχετικά με το εργαστήριό μας",
+            "about_text": "Καλώς ήρθατε στο εργαστήριό μας! Εδώ συνδυάζουμε την πανάρχαια χειροτεχνική παράδοση με τη σύγχρονη αισθητική. Κάθε αντικείμενο δημιουργείται με υπομονή, μεράκι και σεβασμό στη φύση.",
+            "gallery_title": "Γκαλερί & Έργα",
+            "gallery_subtitle": "Ανακαλύψτε επιλεγμένα χειροποίητα έργα και μοναδικές δημιουργίες από το atelier μας.",
+            "courses_title": "Σεμινάρια & Εργαστήρια",
+            "courses_subtitle": "Ζήστε τη χαρά της δημιουργίας με τα χέρια σας. Σε ολιγομελή τμήματα μαθαίνετε παραδοσιακές τεχνικές.",
+            "past_courses_title": "Στιγμιότυπα προηγούμενων εργαστηρίων",
+            "past_courses_subtitle": "Όμορφες στιγμές και δημιουργίες των συμμετεχόντων στα σεμινάριά μας.",
+            "blog_title": "Νέα & Blog",
+            "blog_subtitle": "Ιστορίες, τεχνικές και νέα απευθείας από το εργαστήριό μας.",
+            "faq_title": "Συχνές Ερωτήσεις (FAQ)",
+            "faq_subtitle": "Απαντήσεις στις πιο συνηθισμένες ερωτήσεις σχετικά με τα σεμινάρια, τα έργα και τα υλικά.",
+            "team_title": "Η ομάδα & Οι τεχνίτες μας",
+            "team_subtitle": "Γνωρίστε τους δημιουργούς πίσω από τις χειροποίητες δημιουργίες και τα μαθήματά μας.",
+            "downloads_title": "Λήψεις & Λογισμικό",
+            "downloads_subtitle": "Χρήσιμοι οδηγοί, ημερολόγια υλικών και έντυπα για άμεση λήψη.",
+            "pricing_title": "Υπηρεσίες & Τιμές",
+            "pricing_subtitle": "Διαφανείς τιμές για σεμινάρια, ειδικές παραγγελίες και ιδιαίτερα μαθήματα.",
+            "contact_intro_text": "Έχετε ερωτήσεις για τα σεμινάρια, θέλετε δωροεπιταγή ή μια ειδική παραγγελία κατά παραγγελία; Επικοινωνήστε μαζί μας!",
+            "contact_mail_greeting": "Γεια σας Maxima,",
+            "course_request_template": "Γεια σας Maxima,\n\nενδιαφέρομαι για το σεμινάριο \"{kurs}\" στις {datum} ({uhrzeit}) στο {ort} και θα ήθελα να ρωτήσω αν υπάρχουν διαθέσιμες θέσεις.\n\nΜε εκτίμηση",
+            "impressum_disclaimer": "Παρά τον προσεκτικό έλεγχο, δεν αναλαμβάνουμε καμία ευθύνη για το περιεχόμενο εξωτερικών συνδέσμων. Την ευθύνη φέρουν αποκλειστικά οι διαχειριστές των αντίστοιχων σελίδων.",
+            "impressum_vat_id": "Απαλλαγή από ΦΠΑ σύμφωνα με το ειδικό καθεστώς μικρών επιχειρήσεων.",
+            "impressum_supervisory": "Αρμόδιο Επαγγελματικό Επιμελητήριο",
+            "meta_title": "Εργαστήριο Χειροτεχνίας, Φύσης & Design",
+            "meta_description": "Χειροποίητα μοναδικά έργα, βιώσιμα φυσικά υλικά και εμπνευσμένα δημιουργικά σεμινάρια.",
+            "privacy_policy_text": "### 1. Η προστασία δεδομένων με συντομία\n\nΗ προστασία των προσωπικών σας δεδομένων αποτελεί απόλυτη προτεραιότητα για εμάς. Η παρούσα δήλωση εξηγεί πώς συλλέγονται και επεξεργάζονται τα δεδομένα σας.\n\n### 2. Υπεύθυνος επεξεργασίας\n\nΥπεύθυνος επεξεργασίας δεδομένων σε αυτόν τον ιστότοπο είναι ο διαχειριστής που αναγράφεται στα Στοιχεία Ταυτότητας.\n\n### 3. Συλλογή δεδομένων\n\n**Αρχεία καταγραφής διακομιστή:**\nΟ διακομιστής συλλέγει αυτόματα ανωνυμοποιημένα τεχνικά δεδομένα σύνδεσης (π.χ. διεύθυνση IP, πρόγραμμα περιήγησης, ημερομηνία και ώρα) που είναι τεχνικά αναγκαία.\n\n**Φόρμα επικοινωνίας & email:**\nΤα δεδομένα σας αποθηκεύονται αποκλειστικά για την επεξεργασία του αιτήματός σας.\n\n### 4. Χωρίς cookies παρακολούθησης\n\nΑυτός ο ιστότοπος δεν χρησιμοποιεί cookies παρακολούθησης ή διαφήμισης τρίτων που απαιτούν συγκατάθεση."
+        },
+        "da": {
+            "hero_title": "Atelier for Håndværk, Natur & Design",
+            "hero_subtitle": "Håndlavede unika-værker, bæredygtige naturmaterialer og inspirerende kurser i værkstedet.",
+            "about_title": "Om vores atelier",
+            "about_text": "Velkommen til vores værksted! Her forener vi klassisk håndværkstradition med nutidig nordisk formgivning. Hvert værk skabes med tålmodighed og dyb respekt for naturen.",
+            "gallery_title": "Galleri & Portefølje",
+            "gallery_subtitle": "Gå på opdagelse i et udvalg af vores håndlavede unika-værker og kreationer.",
+            "courses_title": "Kurser & Workshops",
+            "courses_subtitle": "Oplev håndværket på tætteste hold. På små hold lærer du traditionelle teknikker og fremstiller dit eget værk.",
+            "past_courses_title": "Indtryk fra tidligere kurser",
+            "past_courses_subtitle": "Stemningsfulde billeder og kreative værker skabt af vores kursusdeltagere.",
+            "blog_title": "Nyheder & Blog",
+            "blog_subtitle": "Historier, indsigt og nyt direkte fra vores atelier.",
+            "faq_title": "Ofte stillede spørgsmål (FAQ)",
+            "faq_subtitle": "Find svar på de mest almindelige spørgsmål om vores workshops, værker og materialer.",
+            "team_title": "Vores team & Mestre",
+            "team_subtitle": "Mød de kreative hænder og personligheder bag vores unika-arbejder og kurser.",
+            "downloads_title": "Downloads & Software",
+            "downloads_subtitle": "Praktiske vejledninger, materialeoversigter og dokumenter til direkte download.",
+            "pricing_title": "Ydelser & Priser",
+            "pricing_subtitle": "Gennemskuelige priser på workshops, specialbestillinger og personlig mesterundervisning.",
+            "contact_intro_text": "Har du spørgsmål til vores kurser, ønsker du et gavekort eller en bestilling på specialmål? Skriv endelig til os!",
+            "contact_mail_greeting": "Hej Maxima,",
+            "course_request_template": "Hej Maxima,\n\njeg er interesseret i din workshop \"{kurs}\" den {datum} ({uhrzeit}) i {ort} og vil gerne høre, om der stadig er ledige pladser.\n\nVenlig hilsen",
+            "impressum_disclaimer": "Trods omhyggelig kontrol påtager vi os intet ansvar for indholdet af eksterne links. For indholdet af de linkede sider er udelukkende de pågældende operatører ansvarlige.",
+            "impressum_vat_id": "Momsfritaget i henhold til reglerne for mindre erhvervsdrivende.",
+            "impressum_supervisory": "Kompetent håndværker- eller erhvervsforening",
+            "meta_title": "Atelier for Håndværk, Natur & Design",
+            "meta_description": "Håndlavede unika-værker, bæredygtige naturmaterialer og inspirerende kurser.",
+            "privacy_policy_text": "### 1. Databeskyttelse i overblik\n\nBeskyttelsen af dine personlige oplysninger er en hjertesag for os. Denne erklæring giver dig et klart overblik over behandlingen af dine data.\n\n### 2. Dataansvarlig\n\nDataansvarlig for dette website er den indehaver, der er oplyst under Kolofon / Impressum.\n\n### 3. Dataindsamling\n\n**Server-logfiler:**\nWebserveren indsamler automatisk anonymiserede tekniske forbindelsesdata (f.eks. IP-adresse, browsertype, dato og tid), der er teknisk nødvendige for en stabil drift.\n\n**Kontaktformular & e-mail:**\nHenvendelser gemmes udelukkende med henblik på at besvare dit spørgsmål.\n\n### 4. Ingen sporingscookies\n\nDette website anvender ingen tredjeparts sporings-, analyse- eller markedsføringscookies, der kræver samtykke."
+        },
+        "no": {
+            "hero_title": "Atelier for Håndverk, Natur & Design",
+            "hero_subtitle": "Håndlagde unike gjenstander, bærekraftige naturmaterialer og inspirerende kurs.",
+            "about_title": "Om vårt atelier",
+            "about_text": "Velkommen til vårt atelier! Vi forener tradisjonsrikt håndverk med moderne, tidløs formgiving. Hvert produkt skapes med omsorg, tålmodighet og dyp respekt for naturen.",
+            "gallery_title": "Galleri & Portefølje",
+            "gallery_subtitle": "Oppdag et utvalg av våre håndlagde unika-arbeider og verkstedsgjenstander.",
+            "courses_title": "Kurs & Workshops",
+            "courses_subtitle": "Lær faget fra grunnen av. I små grupper lærer du tradisjonelle teknikker og lager ditt eget arbeid.",
+            "past_courses_title": "Inntrykk fra tidligere kurs",
+            "past_courses_subtitle": "Bilder og kreative resultater fra våre fornøyde kursdeltakere.",
+            "blog_title": "Aktuelt & Blogg",
+            "blog_subtitle": "Historier, inspirasjon og nyheter direkte fra atelieret.",
+            "faq_title": "Ofte stilte spørsmål (FAQ)",
+            "faq_subtitle": "Her finner du svar på vanlige spørsmål om våre kurs, bestillinger og materialer.",
+            "team_title": "Vårt team & Mestere",
+            "team_subtitle": "Bli kjent med håndverkerne bak våre produkter og kurs.",
+            "downloads_title": "Nedlastinger & Programvare",
+            "downloads_subtitle": "Nyttige veiledninger, materialoversikter og dokumentasjon for nedlasting.",
+            "pricing_title": "Tjenester & Priser",
+            "pricing_subtitle": "Tydelige priser på workshops, spesialoppdrag og individuell veiledning.",
+            "contact_intro_text": "Har du spørsmål om kursene våre, ønsker et gavekort eller vil bestille et skreddersydd arbeid? Ta gjerne kontakt!",
+            "contact_mail_greeting": "Hei Maxima,",
+            "course_request_template": "Hei Maxima,\n\njeg er interessert i kurset \"{kurs}\" den {datum} ({uhrzeit}) i {ort} og lurer på om det fremdeles er ledige plasser.\n\nVennlig hilsen",
+            "impressum_disclaimer": "Til tross for grundig kontroll påtar vi oss intet ansvar for innholdet på eksterne lenker. Operatørene av de lenkede sidene er selv fullt ansvarlige for sitt innhold.",
+            "impressum_vat_id": "Mva-fritatt i henhold til gjeldende regler for småforetak.",
+            "impressum_supervisory": "Ansvarlig tilsynsmyndighet / Håndverkskammer",
+            "meta_title": "Atelier for Håndverk, Natur & Design",
+            "meta_description": "Håndlagde unike gjenstander, bærekraftige naturmaterialer og inspirerende kurs.",
+            "privacy_policy_text": "### 1. Personvern i korte trekk\n\nBeskyttelsen av dine personopplysninger er svært viktig for oss. Denne erklæringen gir deg oversikt over hvordan data behandles.\n\n### 2. Behandlingsansvarlig\n\nAnsvarlig for databehandlingen på dette nettstedet er virksomheten oppgitt under Juridisk informasjon / Impressum.\n\n### 3. Datainnsamling\n\n**Tjenerlogger:**\nNettjeneren samler automatisk inn anonymiserte tekniske oppkoblingsdata (f.eks. IP-adresse, nettleser, tidspunkt) som er nødvendige for stabil drift.\n\n**Kontaktskjema og e-post:**\nOpplysninger du sender oss benyttes kun til å besvare din henvendelse.\n\n### 4. Ingen sporingskapsler\n\nDette nettstedet benytter ingen samtykkepliktige sporings- eller analysecookies fra tredjeparter."
+        },
+        "sv": {
+            "hero_title": "Ateljé för Hantverk, Natur & Design",
+            "hero_subtitle": "Handgjorda unika föremål, hållbara naturmaterial och inspirerande skapande workshops.",
+            "about_title": "Om vår ateljé",
+            "about_text": "Varmt välkommen till vår ateljé! Här förenar vi klassiska hantverkstraditioner med en ren, modern formkänsla. Varje föremål formas med tålamod, omsorg och respekt för naturen.",
+            "gallery_title": "Galleri & Portfölj",
+            "gallery_subtitle": "Upptäck ett urval av våra handgjorda unika föremål och ateljéarbeten.",
+            "courses_title": "Kurser & Workshops",
+            "courses_subtitle": "Upplev hantverksglädjen på plats. I små grupper lär du dig traditionella tekniker och skapar ditt eget föremål.",
+            "past_courses_title": "Intryck från tidigare kurser",
+            "past_courses_subtitle": "Stämningsfulla bilder och skaparglädje från våra tidigare kursdeltagare.",
+            "blog_title": "Aktuellt & Blogg",
+            "blog_subtitle": "Berättelser, inspiration och nyheter direkt från ateljén.",
+            "faq_title": "Vanliga frågor (FAQ)",
+            "faq_subtitle": "Här hittar du svar på vanliga frågor om våra workshops, beställningar och material.",
+            "team_title": "Vårt team & Mästare",
+            "team_subtitle": "Möt de engagerade hantverkarna bakom våra kreationer och kurser.",
+            "downloads_title": "Nedladdningar & Programvara",
+            "downloads_subtitle": "Praktiska guider, materialöversikter och informationsblad för direkt nedladdning.",
+            "pricing_title": "Tjänster & Priser",
+            "pricing_subtitle": "Tydliga priser för workshops, måttbeställda unika arbeten och privatlektioner.",
+            "contact_intro_text": "Har du frågor om våra kurser, vill beställa ett presentkort eller diskutera ett måttbeställt arbete? Hör gärna av dig!",
+            "contact_mail_greeting": "Hej Maxima,",
+            "course_request_template": "Hej Maxima,\n\njag är intresserad av din workshop \"{kurs}\" den {datum} ({uhrzeit}) i {ort} och undrar om det fortfarande finns platser kvar.\n\nVänliga hälsningar",
+            "impressum_disclaimer": "Trots noggrann kontroll ansvarar vi inte för innehållet i externa länkar. För innehållet på länkade sidor ansvarar uteslutande respektive webbplatsägare.",
+            "impressum_vat_id": "Momsbefriad enligt bestämmelserna för småföretagare.",
+            "impressum_supervisory": "Behörig hantverks- eller branschorganisation",
+            "meta_title": "Ateljé för Hantverk, Natur & Design",
+            "meta_description": "Handgjorda unika föremål, hållbara naturmaterial och inspirerande workshops.",
+            "privacy_policy_text": "### 1. Dataskydd i korthet\n\nSkyddet av dina personuppgifter är av högsta vikt för oss. Denna information ger en översikt över hur vi hanterar dina uppgifter.\n\n### 2. Personuppgiftsansvarig\n\nPersonuppgiftsansvarig för denna webbplats är den innehavare som anges under Impressum / Rättslig information.\n\n### 3. Datainsamling\n\n**Serverloggar:**\nWebbservern samlar automatiskt in anonymiserad teknisk anslutningsdata (t.ex. IP-adress, webbläsare, tidpunkt) som är tekniskt nödvändig för stabil drift.\n\n**Kontaktformulär och e-post:**\nDina uppgifter sparas enbart för att hantera och besvara ditt ärende.\n\n### 4. Inga spårningskakor\n\nDenna webbplats använder inga samtyckeskrävande spårnings-, analys- eller marknadsföringskakor från tredje part."
+        },
+        "fi": {
+            "hero_title": "Käsityön, Luonnon & Muotoilun Ateljee",
+            "hero_subtitle": "Käsintehtyjä uniikkiteoksia, kestäviä luonnonmateriaaleja ja inspiroivia luovia työpajoja.",
+            "about_title": "Tietoa ateljeestamme",
+            "about_text": "Lämpimästi tervetuloa ateljeeseemme! Yhdistämme perinteisen käsityötaidon selkeään ja moderniin muotokieleen. Jokainen esine syntyy kärsivällisyydellä ja luontoa kunnioittaen.",
+            "gallery_title": "Galleria & Portfolio",
+            "gallery_subtitle": "Tutustu valikoimaan käsintehtyjä uniikkiteoksiamme ja ateljeen tuotantoa.",
+            "courses_title": "Kurssit & Työpajat",
+            "courses_subtitle": "Koe käsillä tekemisen ilo. Pienryhmissä opit perinteisiä tekniikoita ja valmistat oman teoksesi.",
+            "past_courses_title": "Kuvia aiemmilta kursseilta",
+            "past_courses_subtitle": "Tunnelmia ja työnäytteitä kursseillemme osallistuneilta taitajilta.",
+            "blog_title": "Ajankohtaista & Blogi",
+            "blog_subtitle": "Tarinoita, työtapoja ja kuulumisia suoraan ateljeestamme.",
+            "faq_title": "Usein kysytyt kysymykset (FAQ)",
+            "faq_subtitle": "Vastauksia yleisimpiin kysymyksiin kursseistamme, tuotteistamme ja materiaaleistamme.",
+            "team_title": "Tiimimme & Mestarit",
+            "team_subtitle": "Tutustu käsityöläisiin ja ohjaajiin tuotteidemme ja kurssiemme takana.",
+            "downloads_title": "Lataukset & Ohjelmistot",
+            "downloads_subtitle": "Käytännöllisiä oppaita, materiaalitietoja ja esitteitä suoraan ladattavaksi.",
+            "pricing_title": "Palvelut & Hinnasto",
+            "pricing_subtitle": "Selkeä ja läpinäkyvä hinnoittelu työpajoille, tilaustöille ja yksityisopetukselle.",
+            "contact_intro_text": "Onko sinulla kysyttävää kursseista, haluatko lahjakortin tai tilata yksilöllisen tilaustyön? Ota rohkeasti yhteyttä!",
+            "contact_mail_greeting": "Hei Maxima,",
+            "course_request_template": "Hei Maxima,\n\nolen kiinnostunut kurssistasi \"{kurs}\", joka järjestetään {datum} ({uhrzeit}) paikassa {ort}, ja haluaisin tiedustella vapaita paikkoja.\n\nYstävällisin terveisin",
+            "impressum_disclaimer": "Huolellisesta tarkastuksesta huolimatta emme vastaa ulkoisten linkkien sisällöstä. Linkitettyjen sivustojen sisällöstä vastaavat yksinomaan niiden ylläpitäjät.",
+            "impressum_vat_id": "ALV-vapaa pienyritystoimintaa koskevan sääntelyn mukaisesti.",
+            "impressum_supervisory": "Toimivaltainen kauppa- tai käsityökamari",
+            "meta_title": "Käsityön, Luonnon & Muotoilun Ateljee",
+            "meta_description": "Käsintehtyjä uniikkiteoksia, kestäviä luonnonmateriaaleja ja inspiroivia työpajoja.",
+            "privacy_policy_text": "### 1. Tietosuoja pähkinänkuoressa\n\nHenkilötietojesi suojaaminen on meille ensiarvoisen tärkeää. Tämä seloste antaa yleiskuvan siitä, miten tietojasi käsitellään.\n\n### 2. Rekisterinpitäjä\n\nTämän verkkosivuston rekisterinpitäjä on Oikeudellisissa tiedoissa / Julkaisijatiedoissa mainittu toimija.\n\n### 3. Tietojen kerääminen\n\n**Palvelimen lokitiedostot:**\nVerkkopalvelin kerää automaattisesti anonymisoituja teknisiä yhteystietoja (esim. IP-osoite, selain, kellonaika), jotka ovat välttämättömiä sivuston turvalliselle toiminnalle.\n\n**Yhteydenottolomake ja sähköposti:**\nLähettämiäsi tietoja käytetään ainoastaan yhteydenottopyyntösi käsittelyyn.\n\n### 4. Ei seurantatiedostoja\n\nTämä sivusto ei käytä suostumusta vaativia kolmansien osapuolten seuranta-, analyysi- tai markkinointievästeitä."
         }
     }
 }
