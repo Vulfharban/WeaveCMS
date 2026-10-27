@@ -52,6 +52,18 @@ if (!empty($_SESSION['admin_logged_in'])) {
                 exit;
             }
 
+            // Seiten-Administrator als Forum-Administrator übernehmen / synchronisieren
+            if ($action === 'forum_users_sync_site_admin') {
+                global $data;
+                $res = ForumUserManager::syncSiteAdminAsForumAdmin($data);
+                $msgCode = $res['success'] ? 'admin_synced' : 'sync_err';
+                $extra = $res['success'] 
+                    ? '&fuser_name=' . urlencode($res['username']) . '&fuser_status=' . (!empty($res['is_new']) ? 'created' : 'updated')
+                    : '&fuser_err=' . urlencode($res['message']);
+                header("Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg={$msgCode}{$extra}#tab-plugins");
+                exit;
+            }
+
             // Speicher-Migration (JSON ➔ MySQL / JSON ➔ SQLite / SQLite/MySQL ➔ JSON)
             if ($action === 'forum_migrate_storage') {
                 $target = trim($_POST['target_driver'] ?? 'json');

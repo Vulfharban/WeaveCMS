@@ -70,6 +70,17 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
                     <a href="?page=forum&view=help" class="kunena-nav-link <?= $view === 'help' ? 'active' : '' ?>">
                         <span class="material-icons">help_outline</span> Hilfe & FAQ
                     </a>
+                    <?php if ($currentUser && class_exists('ForumUserManager') && ForumUserManager::userCan('moderate', $currentUser)): ?>
+                        <?php $openReports = ForumManager::getReports('open'); ?>
+                        <a href="?page=forum&view=moderation" class="kunena-nav-link <?= $view === 'moderation' ? 'active' : '' ?>" style="color: #d97706;">
+                            <span class="material-icons" style="font-size: 16px;">shield</span> Moderation
+                            <?php if (!empty($openReports)): ?>
+                                <span class="kunena-cat-badge" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; font-size:10px; padding:1px 6px; margin-left:2px;">
+                                    <?= count($openReports) ?>
+                                </span>
+                            <?php endif; ?>
+                        </a>
+                    <?php endif; ?>
                 </nav>
             </div>
 
@@ -138,6 +149,9 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
             <?php elseif ($view === 'profile'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
                 <span class="kunena-breadcrumb-current">Mein Profil</span>
+            <?php elseif ($view === 'moderation'): ?>
+                <span class="kunena-breadcrumb-sep">›</span>
+                <span class="kunena-breadcrumb-current">Moderationszentrale</span>
             <?php endif; ?>
         </div>
     </div>
@@ -166,6 +180,8 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
         } elseif ($view === 'profile') {
             $userView = dirname(__DIR__, 2) . '/weave-forum-users/views/profile.php';
             if (file_exists($userView)) require $userView;
+        } elseif ($view === 'moderation') {
+            require __DIR__ . '/forum_moderation.php';
         } else {
             require __DIR__ . '/forum_index.php';
         }

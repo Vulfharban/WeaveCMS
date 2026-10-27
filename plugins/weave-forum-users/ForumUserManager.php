@@ -552,10 +552,141 @@ class ForumUserManager {
             @session_start();
         }
         $id = $_SESSION['weave_forum_user_id'] ?? null;
-        if (empty($id)) {
-            return null;
+        if (!empty($id)) {
+            $user = self::getUserById((string)$id);
+            if ($user) {
+                return $user;
+            }
         }
-        return self::getUserById((string)$id);
+
+        // Automatische Erkennung einer aktiven CMS-Administrator-Sitzung
+        if (!empty($_SESSION['admin_logged_in'])) {
+            $siteAdmin = self::getSiteAdminUser();
+            if ($siteAdmin) {
+                return $siteAdmin;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Ermittelt das Forum-Benutzerkonto des WeaveCMS-Seiten-Administrators.
+     */
+    public static function getSiteAdminUser(?array $data = null): ?array {
+        if ($data === null) {
+            $data = $GLOBALS['data'] ?? [];
+            if (empty($data)) {
+                $root = dirname(__DIR__, 2);
+                $df = $root . '/data.json';
+                if (file_exists($df)) {
+                    $data = json_decode((string)file_get_contents($df), true) ?: [];
+                }
+            }
+        }
+
+        $contactName = !empty($data['texts']['contact_name']) ? trim($data['texts']['contact_name']) : 'Christian Wolfrum';
+        $contactEmail = !empty($data['texts']['contact_email']) ? trim($data['texts']['contact_email']) : '';
+
+        $users = self::getAllUsers();
+        // 1. Suche nach Email oder Name mit Rolle Admin
+        foreach ($users as $u) {
+            if (($u['role'] ?? '') === self::ROLE_ADMIN) {
+                if (!empty($contactEmail) && strcasecmp($u['email'] ?? '', $contactEmail) === 0) {
+                    return $u;
+                }
+                if (strcasecmp($u['username'] ?? '', $contactName) === 0) {
+                    return $u;
+                }
+            }
+        }
+        // 2. Fallback: Erster Admin
+        foreach ($users as $u) {
+            if (($u['role'] ?? '') === self::ROLE_ADMIN) {
+                return $u;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Übernimmt den WeaveCMS-Seitenadministrator als offiziellen Forum-Administrator (forum_admin)
+     * in die aktive Speicher-Engine (JSON und/oder relationale Datenbank).
+     */
+    public static function syncSiteAdminAsForumAdmin(?array $data = null): array {
+        if ($data === null) {
+            $data = $GLOBALS['data'] ?? [];
+            if (empty($data)) {
+                $root = dirname(__DIR__, 2);
+                $df = $root . '/data.json';
+                if (file_exists($df)) {
+                    $data = json_decode((string)file_get_contents($df), true) ?: [];
+                }
+            }
+        }
+
+        $username = !empty($data['texts']['contact_name']) ? trim($data['texts']['contact_name']) : 'Christian Wolfrum';
+        $email = !empty($data['texts']['contact_email']) ? trim($data['texts']['contact_email']) : 'admin@weavecms.local';
+
+        // Passwort-Hash ermitteln
+        $pwHash = $data['settings']['admin_password_hash'] ?? null;
+        if (empty($pwHash)) {
+            $defaultPw = defined('DEFAULT_ADMIN_PASSWORD') ? DEFAULT_ADMIN_PASSWORD : 'admin123123';
+            $pwHash = password_hash($defaultPw, PASSWORD_DEFAULT);
+        }
+
+        // Benutzer suchen (per Email oder Username)
+        $existing = self::findUser($email) ?? self::findUser($username);
+
+        if ($existing) {
+            $existing['role'] = self::ROLE_ADMIN;
+            $existing['status'] = self::STATUS_ACTIVE;
+            $existing['username'] = $username;
+            $existing['email'] = $email;
+            if (!empty($pwHash) && empty($existing['password_hash'])) {
+                $existing['password_hash'] = $pwHash;
+            }
+            if (empty($existing['signature'])) {
+                $existing['signature'] = 'WeaveCMS Site Administrator';
+            }
+            self::saveUser($existing);
+            return [
+                'success' => true,
+                'username' => $username,
+                'email' => $email,
+                'is_new' => false,
+                'message' => "Seiten-Administrator '{$username}' ({$email}) wurde erfolgreich als Forum-Administrator (forum_admin) aktualisiert und freigeschaltet."
+            ];
+        }
+
+        $newUser = [
+            'id' => 'user_admin_' . substr(md5($email . $username), 0, 8),
+            'username' => $username,
+            'email' => $email,
+            'password_hash' => $pwHash,
+            'role' => self::ROLE_ADMIN,
+            'status' => self::STATUS_ACTIVE,
+            'avatar' => '',
+            'signature' => 'WeaveCMS Site Administrator',
+            'bio' => 'Offizieller Seiten-Administrator der WeaveCMS-Instanz.',
+            'created_at' => date('Y-m-d H:i:s'),
+            'last_login' => date('Y-m-d H:i:s'),
+            'post_count' => 0,
+            'topic_count' => 0,
+            'banned_until' => null,
+            'ban_reason' => '',
+            'notification_email' => 1
+        ];
+
+        self::saveUser($newUser);
+
+        return [
+            'success' => true,
+            'username' => $username,
+            'email' => $email,
+            'is_new' => true,
+            'message' => "Seiten-Administrator '{$username}' ({$email}) wurde erfolgreich als neuer Forum-Administrator (forum_admin) in die Datenbank/JSON eingetragen."
+        ];
     }
 
     /**

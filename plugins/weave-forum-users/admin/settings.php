@@ -91,6 +91,14 @@ $isSqliteSupported = ForumUserManager::isSqliteSupported();
             <span class="material-icons">delete</span>
             Benutzerkonto wurde endgültig gelöscht.
         </div>
+    <?php elseif ($msg === 'admin_synced'): ?>
+        <div class="alert alert-success mb-4 flex items-center gap-2">
+            <span class="material-icons">verified_user</span>
+            <div>
+                <strong>Seiten-Administrator erfolgreich als Forum-Admin synchronisiert!</strong><br>
+                Benutzerkonto <em><?= htmlspecialchars($_GET['fuser_name'] ?? '') ?></em> ist nun als <strong>Forum-Administrator (forum_admin)</strong> in der aktiven Speicher-Engine (<?= strtoupper($currentDriver) ?>) hinterlegt.
+            </div>
+        </div>
     <?php endif; ?>
 
     <!-- Sub-Nav / Tabs -->
@@ -102,6 +110,44 @@ $isSqliteSupported = ForumUserManager::isSqliteSupported();
 
     <!-- TAB 1: USER LIST -->
     <div id="fusers-list" class="tab-pane">
+        <!-- Seiten-Administrator Sync Card -->
+        <?php
+        $siteAdminName = !empty($data['texts']['contact_name']) ? trim($data['texts']['contact_name']) : 'Christian Wolfrum';
+        $siteAdminEmail = !empty($data['texts']['contact_email']) ? trim($data['texts']['contact_email']) : 'admin@weavecms.local';
+        $siteAdminAccount = ForumUserManager::getSiteAdminUser($data);
+        ?>
+        <div class="card p-4 mb-6 border border-primary/30 bg-primary/5 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-start gap-3">
+                <div class="p-2.5 rounded-lg bg-primary/10 text-primary">
+                    <span class="material-icons text-2xl">admin_panel_settings</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-foreground flex items-center gap-2">
+                        <span>Seiten-Administrator als Forum-Administrator</span>
+                        <?php if ($siteAdminAccount): ?>
+                            <span class="badge badge-success text-[11px]">✓ Aktiv im Forum registriert</span>
+                        <?php else: ?>
+                            <span class="badge badge-warning text-[11px]">Noch nicht übertragen</span>
+                        <?php endif; ?>
+                    </h3>
+                    <p class="text-xs text-muted mt-0.5">
+                        Aktueller Seiten-Admin: <strong><?= htmlspecialchars($siteAdminName) ?></strong> (<?= htmlspecialchars($siteAdminEmail) ?>).
+                        Mit einem Klick wird dieses Administratorkonto in die Forendatenbank (<?= strtoupper($currentDriver) ?>) mit der Rolle <code>forum_admin</code> eingetragen oder aktualisiert.
+                    </p>
+                </div>
+            </div>
+            <div class="shrink-0 flex items-center gap-2">
+                <form method="post" class="inline">
+                    <input type="hidden" name="action" value="forum_users_sync_site_admin">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                    <button type="submit" class="btn btn-primary btn-sm flex items-center gap-1.5 font-bold shadow-sm">
+                        <span class="material-icons text-sm">sync</span>
+                        <?= $siteAdminAccount ? 'Als Forum-Admin synchronisieren' : 'Seiten-Admin jetzt als Forum-Admin anlegen' ?>
+                    </button>
+                </form>
+            </div>
+        </div>
+
         <!-- Filter & Search -->
         <form method="get" class="flex flex-wrap gap-3 mb-4 items-center">
             <input type="hidden" name="tab" value="tab-plugins">
