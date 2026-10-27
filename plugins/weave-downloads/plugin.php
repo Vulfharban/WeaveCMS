@@ -55,3 +55,22 @@ PluginManager::addAction('admin_render_plugin_settings_weave-downloads', functio
     </div>
     <?php
 });
+
+// 3. Shortcode [downloads]
+PluginManager::addFilter('content_shortcodes', function($content, $data) {
+    if (empty($content) || !is_string($content)) {
+        return $content;
+    }
+
+    if (strpos($content, '[downloads]') !== false) {
+        ob_start();
+        $downloads = $data['downloads'] ?? [];
+        $dl_title = !empty($data['texts']['downloads_title']) ? $data['texts']['downloads_title'] : 'Downloads &amp; Software';
+        $dl_subtitle = !empty($data['texts']['downloads_subtitle']) ? $data['texts']['downloads_subtitle'] : '';
+        require dirname(__DIR__, 2) . '/views/sections/downloads.php';
+        $dlHtml = ob_get_clean();
+        $content = str_replace('[downloads]', $dlHtml, $content);
+    }
+
+    return $content;
+});

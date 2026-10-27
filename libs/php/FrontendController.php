@@ -109,17 +109,34 @@ class FrontendController {
         $i18n_meta_title = $data['texts_i18n'][$cur_lang]['meta_title'] ?? null;
         $i18n_meta_desc = $data['texts_i18n'][$cur_lang]['meta_description'] ?? null;
 
-        $meta_title = !empty(trim($i18n_meta_title ?? ''))
-            ? trim($i18n_meta_title)
-            : (!empty(trim($seo['meta_title'] ?? ''))
-                ? trim($seo['meta_title'])
-                : ($hero_title . ' | ' . $contact_name));
+        // Falls in der Übersetzung noch der alte Entwicklungs-Dummy vorhanden ist, verwerfen
+        if (!empty($i18n_meta_title) && (str_contains($i18n_meta_title, 'Atelier Musterfrau') || str_contains($i18n_meta_title, 'Handcrafted Unique Pieces'))) {
+            $i18n_meta_title = null;
+        }
+        if (!empty($i18n_meta_desc) && (str_contains($i18n_meta_desc, 'Handcrafted unique pieces') || str_contains($i18n_meta_desc, 'Musterfrau'))) {
+            $i18n_meta_desc = null;
+        }
 
-        $meta_desc = !empty(trim($i18n_meta_desc ?? ''))
-            ? trim($i18n_meta_desc)
-            : (!empty(trim($seo['meta_description'] ?? ''))
-                ? trim($seo['meta_description'])
-                : ($texts['hero_subtitle'] ?? 'Entdecke handgefertigte Naturgeflechte und Workshops.'));
+        // Bei Primärsprache hat der zentral konfigurierte SEO-Titel Vorrang
+        if ($cur_lang === $primary_lang && !empty(trim($seo['meta_title'] ?? ''))) {
+            $meta_title = trim($seo['meta_title']);
+        } else {
+            $meta_title = !empty(trim($i18n_meta_title ?? ''))
+                ? trim($i18n_meta_title)
+                : (!empty(trim($seo['meta_title'] ?? ''))
+                    ? trim($seo['meta_title'])
+                    : ($hero_title . ' | ' . $contact_name));
+        }
+
+        if ($cur_lang === $primary_lang && !empty(trim($seo['meta_description'] ?? ''))) {
+            $meta_desc = trim($seo['meta_description']);
+        } else {
+            $meta_desc = !empty(trim($i18n_meta_desc ?? ''))
+                ? trim($i18n_meta_desc)
+                : (!empty(trim($seo['meta_description'] ?? ''))
+                    ? trim($seo['meta_description'])
+                    : ($texts['hero_subtitle'] ?? 'Entdecke handgefertigte Naturgeflechte und Workshops.'));
+        }
 
         $meta_keywords = !empty(trim($seo['meta_keywords'] ?? ''))
             ? trim($seo['meta_keywords'])
@@ -391,7 +408,8 @@ class FrontendController {
         $renderSections = !empty($vm['home_sections']) ? $vm['home_sections'] : $vm['visible_sections'];
         foreach ($renderSections as $sec) {
             $secType = !empty($sec['type']) ? $sec['type'] : ($sec['id'] ?? '');
-            self::renderSection($secType, $vm);
+            $renderTarget = file_exists(dirname(__DIR__, 2) . '/views/sections/' . $secType . '.php') ? $secType : ($sec['id'] ?? $secType);
+            self::renderSection($renderTarget, $vm);
         }
         echo '</main>';
 

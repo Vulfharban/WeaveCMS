@@ -128,12 +128,12 @@ if (!empty($_POST['archive_only'])) {
 }
 
 // 4. Empfänger und Konfiguration ermitteln
-$to_email = trim($data['texts']['contact_email'] ?? 'kontakt@maxima-musterfrau.de');
+$to_email = trim($data['texts']['contact_email'] ?? ('info@' . ($_SERVER['SERVER_NAME'] ?? 'example.org')));
 if (empty($to_email) || !filter_var($to_email, FILTER_VALIDATE_EMAIL)) {
-    $to_email = 'kontakt@maxima-musterfrau.de';
+    $to_email = 'info@' . ($_SERVER['SERVER_NAME'] ?? 'example.org');
 }
 
-$greeting = trim($data['texts']['contact_mail_greeting'] ?? 'Hallo Maxima,');
+$greeting = trim($data['texts']['contact_mail_greeting'] ?? 'Hallo,');
 $mail_body_text = $message;
 if (!empty($greeting) && stripos($mail_body_text, $greeting) !== 0) {
     $mail_body_text = $greeting . "\n\n" . $mail_body_text;
@@ -151,7 +151,7 @@ if (empty($smtp_config['enabled']) || empty($smtp_config['host'])) {
 }
 
 // 5. E-Mail-Inhalte aufbauen (HTML & Plaintext)
-$site_brand = !empty($data['texts']['contact_name']) ? $data['texts']['contact_name'] : 'Atelier Musterfrau';
+$site_brand = !empty($data['texts']['contact_name']) ? $data['texts']['contact_name'] : 'WeaveCMS';
 $subject = "Neue Kontaktanfrage von " . $name . " | " . $site_brand;
 
 $now_formatted = date('d.m.Y \u\m H:i \U\h\r');

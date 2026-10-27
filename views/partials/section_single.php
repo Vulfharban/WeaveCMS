@@ -28,7 +28,8 @@ $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?l
     <!-- Sektions-Container -->
     <main class="container">
         <?php 
-        FrontendController::renderSection($sec_type, $vars ?? get_defined_vars());
+        $render_target = file_exists(dirname(__DIR__) . '/sections/' . $sec_type . '.php') ? $sec_type : $sec_id;
+        FrontendController::renderSection($render_target, $vars ?? get_defined_vars());
         ?>
     </main>
 </div>

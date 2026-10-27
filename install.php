@@ -1086,40 +1086,40 @@ opcache.enable = 1</pre>
 
                     <div class="grid-2">
                         <div class="form-group">
-                            <label for="site_name">Website- / Atelier-Name *</label>
-                            <input type="text" id="site_name" name="site_name" class="form-control" value="Atelier Musterfrau" placeholder="z. B. Atelier Flechtwerk" required>
+                            <label for="site_name">Website- / Projekt-Name *</label>
+                            <input type="text" id="site_name" name="site_name" class="form-control" value="WeaveCMS" placeholder="z. B. Meine Website oder Firmenname" required>
                         </div>
                         <div class="form-group">
                             <label for="site_slogan">Slogan / Untertitel</label>
-                            <input type="text" id="site_slogan" name="site_slogan" class="form-control" value="Handgefertigte Unikate &amp; Kreativ-Workshops" placeholder="z. B. Zeitloses Handwerk &amp; Kurse">
+                            <input type="text" id="site_slogan" name="site_slogan" class="form-control" value="Modulares &amp; leichtgewichtiges CMS" placeholder="z. B. Dein Slogan / Untertitel">
                         </div>
                     </div>
 
                     <div class="grid-2">
                         <div class="form-group">
                             <label for="owner_name">Inhaber / Betreiber Name *</label>
-                            <input type="text" id="owner_name" name="owner_name" class="form-control" value="Maxima Musterfrau" placeholder="Vor- und Nachname" required>
+                            <input type="text" id="owner_name" name="owner_name" class="form-control" value="" placeholder="Vor- und Nachname" required>
                         </div>
                         <div class="form-group">
                             <label for="contact_email">E-Mail-Adresse für Kontakt *</label>
-                            <input type="email" id="contact_email" name="contact_email" class="form-control" value="kontakt@maxima-musterfrau.de" placeholder="info@meine-domain.de" required>
+                            <input type="email" id="contact_email" name="contact_email" class="form-control" value="" placeholder="info@meine-domain.de" required>
                         </div>
                     </div>
 
                     <div class="grid-2">
                         <div class="form-group">
                             <label for="contact_street">Straße &amp; Hausnummer (optional)</label>
-                            <input type="text" id="contact_street" name="contact_street" class="form-control" value="Musterstraße 12" placeholder="z. B. Lindenweg 4">
+                            <input type="text" id="contact_street" name="contact_street" class="form-control" value="" placeholder="z. B. Lindenweg 4">
                         </div>
                         <div class="form-group">
                             <label for="contact_city">PLZ &amp; Ort (optional)</label>
-                            <input type="text" id="contact_city" name="contact_city" class="form-control" value="12345 Musterstadt" placeholder="z. B. 10115 Berlin">
+                            <input type="text" id="contact_city" name="contact_city" class="form-control" value="" placeholder="z. B. 10115 Berlin">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="contact_phone">Telefonnummer (optional)</label>
-                        <input type="text" id="contact_phone" name="contact_phone" class="form-control" value="+49 123 4567890" placeholder="+49 170 1234567">
+                        <input type="text" id="contact_phone" name="contact_phone" class="form-control" value="" placeholder="+49 170 1234567">
                     </div>
 
                     <!-- Phase 8: Mehrsprachigkeit & Primärsprache -->

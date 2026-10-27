@@ -52,13 +52,27 @@ if (!empty($_SESSION['admin_logged_in'])) {
                 exit;
             }
 
-            // Speicher-Migration (JSON ➔ SQLite / SQLite ➔ JSON)
+            // Speicher-Migration (JSON ➔ MySQL / JSON ➔ SQLite / SQLite/MySQL ➔ JSON)
             if ($action === 'forum_migrate_storage') {
                 $target = trim($_POST['target_driver'] ?? 'json');
                 global $data;
                 $config = PluginManager::getPluginConfig('weave-forum-users', $data);
 
-                if ($target === 'sqlite') {
+                if ($target === 'mysql') {
+                    $res = ForumUserManager::migrateToJsonToMysql();
+                    if ($res['success']) {
+                        $config['storage_driver'] = 'mysql';
+                        PluginManager::savePluginConfig('weave-forum-users', $config, $data);
+                        save_data(dirname(__DIR__, 2) . '/data.json', $data);
+                        $count = (int)($res['count'] ?? 0);
+                        header("Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=migrated_mysql&fuser_count={$count}#tab-plugins");
+                        exit;
+                    } else {
+                        $err = urlencode($res['message'] ?? 'Migration nach MySQL fehlgeschlagen.');
+                        header("Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_err={$err}#tab-plugins");
+                        exit;
+                    }
+                } elseif ($target === 'sqlite') {
                     $res = ForumUserManager::migrateToJsonToSqlite();
                     if ($res['success']) {
                         $config['storage_driver'] = 'sqlite';
@@ -73,7 +87,8 @@ if (!empty($_SESSION['admin_logged_in'])) {
                         exit;
                     }
                 } else {
-                    $res = ForumUserManager::migrateSqliteToJson();
+                    $driver = ForumUserManager::getStorageDriver();
+                    $res = ($driver === 'mysql') ? ForumUserManager::migrateMysqlToJson() : ForumUserManager::migrateSqliteToJson();
                     if ($res['success']) {
                         $config['storage_driver'] = 'json';
                         PluginManager::savePluginConfig('weave-forum-users', $config, $data);

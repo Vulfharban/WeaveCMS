@@ -121,7 +121,7 @@ class LogoRenderer {
     public static function renderLogoLink(array $data, string $href = '#', string $extraClass = ''): string {
         $type = self::getLogoType($data);
         $settings = $data['settings'] ?? [];
-        $title = !empty($settings['site_title']) ? $settings['site_title'] : ($data['texts']['contact_name'] ?? 'Atelier Musterfrau');
+        $title = !empty($settings['site_title']) ? $settings['site_title'] : ($data['texts']['hero_title'] ?? ($data['texts']['contact_name'] ?? 'WeaveCMS'));
         $logoImg = $settings['logo_image'] ?? '';
         $maxHeight = max(24, min(120, (int)($settings['logo_max_height'] ?? 44)));
         $logoPos = $settings['logo_position'] ?? 'header_before';

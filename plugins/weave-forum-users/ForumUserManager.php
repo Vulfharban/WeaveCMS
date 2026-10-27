@@ -28,6 +28,8 @@ class ForumUserManager {
         return dirname(__DIR__, 2) . '/data/forum_users.json';
     }
 
+    protected static ?PDO $dbPdo = null;
+
     /**
      * Ermittelt den Speicherpfad zur SQLite-Datei.
      */
@@ -36,19 +38,41 @@ class ForumUserManager {
     }
 
     /**
-     * Ermittelt den konfigurierten Speichertreiber ('json' oder 'sqlite').
+     * Ermittelt den konfigurierten Speichertreiber ('mysql', 'sqlite' oder 'json').
      */
     public static function getStorageDriver(): string {
         if (class_exists('PluginManager')) {
             $data = $GLOBALS['data'] ?? [];
             if (!empty($data)) {
                 $cfg = PluginManager::getPluginConfig('weave-forum-users', $data);
-                if (!empty($cfg['storage_driver']) && $cfg['storage_driver'] === 'sqlite') {
-                    return self::isSqliteSupported() ? 'sqlite' : 'json';
+                $driver = $cfg['storage_driver'] ?? '';
+                if (empty($driver)) {
+                    $forumCfg = PluginManager::getPluginConfig('weave-forum', $data);
+                    $driver = $forumCfg['storage_driver'] ?? 'json';
+                }
+                if ($driver === 'mysql' && self::isMysqlSupported()) {
+                    return 'mysql';
+                }
+                if ($driver === 'sqlite' && self::isSqliteSupported()) {
+                    return 'sqlite';
                 }
             }
         }
         return 'json';
+    }
+
+    /**
+     * Prüft, ob ein relationaler Datenbanktreiber aktiv ist.
+     */
+    public static function isDatabase(): bool {
+        return in_array(self::getStorageDriver(), ['mysql', 'sqlite'], true);
+    }
+
+    /**
+     * Prüft, ob die MySQL-Erweiterung in PHP geladen ist.
+     */
+    public static function isMysqlSupported(): bool {
+        return extension_loaded('pdo_mysql');
     }
 
     /**
@@ -59,9 +83,79 @@ class ForumUserManager {
     }
 
     /**
+     * Liefert die aktive PDO-Verbindung.
+     */
+    public static function getPdo(): PDO {
+        if (self::$dbPdo !== null) {
+            return self::$dbPdo;
+        }
+
+        $driver = self::getStorageDriver();
+        if ($driver === 'mysql') {
+            self::$dbPdo = self::getMysqlPdo();
+        } else {
+            self::$dbPdo = self::getSqlitePdo();
+        }
+        return self::$dbPdo;
+    }
+
+    /**
+     * Stellt eine MySQL-Verbindung her und initialisiert die Benutzertabelle.
+     */
+    public static function getMysqlPdo(): PDO {
+        if (!self::isMysqlSupported()) {
+            throw new RuntimeException('Die PHP-Erweiterung pdo_mysql ist auf diesem Server nicht aktiviert.');
+        }
+
+        $cfg = [];
+        if (class_exists('PluginManager') && !empty($GLOBALS['data'])) {
+            $cfg = PluginManager::getPluginConfig('weave-forum', $GLOBALS['data']);
+        }
+
+        $host = $cfg['mysql_host'] ?? '127.0.0.1';
+        $port = (int)($cfg['mysql_port'] ?? 3306);
+        $dbname = $cfg['mysql_database'] ?? 'WeaveCMS';
+        $user = $cfg['mysql_user'] ?? 'root';
+        $pass = $cfg['mysql_password'] ?? '';
+        $charset = $cfg['mysql_charset'] ?? 'utf8mb4';
+
+        $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset={$charset}";
+        $pdo = new PDO($dsn, $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ]);
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS weave_forum_users (
+                id VARCHAR(64) PRIMARY KEY,
+                username VARCHAR(64) UNIQUE NOT NULL,
+                email VARCHAR(191) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                role VARCHAR(32) NOT NULL DEFAULT 'forum_user',
+                status VARCHAR(32) NOT NULL DEFAULT 'active',
+                avatar VARCHAR(255) DEFAULT '',
+                signature TEXT,
+                bio TEXT,
+                created_at VARCHAR(32) NOT NULL,
+                last_login VARCHAR(32) DEFAULT '',
+                post_count INT DEFAULT 0,
+                topic_count INT DEFAULT 0,
+                banned_until VARCHAR(32) DEFAULT NULL,
+                ban_reason TEXT,
+                notification_email TINYINT(1) DEFAULT 1
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        ");
+
+        return $pdo;
+    }
+
+    /**
      * Stellt eine SQLite-Verbindung her und initialisiert die Tabelle.
      */
     public static function getSqlitePdo(): PDO {
+        if (self::getStorageDriver() === 'mysql') {
+            return self::getPdo();
+        }
         if (self::$sqlitePdo !== null) {
             return self::$sqlitePdo;
         }
@@ -121,7 +215,7 @@ class ForumUserManager {
      * Liefert alle Forum-Benutzer als assoziatives Array.
      */
     public static function getAllUsers(): array {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->query("SELECT * FROM weave_forum_users ORDER BY created_at DESC");
                 $users = $stmt->fetchAll();
@@ -170,7 +264,7 @@ class ForumUserManager {
     public static function getUserById(string $id): ?array {
         if (empty($id)) return null;
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("SELECT * FROM weave_forum_users WHERE id = ? LIMIT 1");
                 $stmt->execute([$id]);
@@ -203,7 +297,7 @@ class ForumUserManager {
         $loginLower = mb_strtolower(trim($login));
         if (empty($loginLower)) return null;
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("
                     SELECT * FROM weave_forum_users 
@@ -239,32 +333,17 @@ class ForumUserManager {
     public static function saveUser(array $user): bool {
         if (empty($user['id'])) return false;
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $pdo = self::getSqlitePdo();
                 $stmt = $pdo->prepare("
-                    INSERT INTO weave_forum_users (
+                    REPLACE INTO weave_forum_users (
                         id, username, email, password_hash, role, status, avatar, signature,
                         bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email
                     ) VALUES (
                         :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
                         :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email
                     )
-                    ON CONFLICT(id) DO UPDATE SET
-                        username = excluded.username,
-                        email = excluded.email,
-                        password_hash = excluded.password_hash,
-                        role = excluded.role,
-                        status = excluded.status,
-                        avatar = excluded.avatar,
-                        signature = excluded.signature,
-                        bio = excluded.bio,
-                        last_login = excluded.last_login,
-                        post_count = excluded.post_count,
-                        topic_count = excluded.topic_count,
-                        banned_until = excluded.banned_until,
-                        ban_reason = excluded.ban_reason,
-                        notification_email = excluded.notification_email
                 ");
                 return $stmt->execute([
                     ':id' => $user['id'],
@@ -309,7 +388,7 @@ class ForumUserManager {
      * Löscht einen Benutzer.
      */
     public static function deleteUser(string $id): bool {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("DELETE FROM weave_forum_users WHERE id = ?");
                 return $stmt->execute([$id]);
@@ -669,11 +748,86 @@ class ForumUserManager {
     }
 
     /**
-     * Migriert alle Foren-Benutzer von SQLite nach JSON.
+     * Migriert alle Foren-Benutzer von JSON nach MySQL.
      */
-    public static function migrateSqliteToJson(): array {
+    public static function migrateToJsonToMysql(): array {
+        if (!self::isMysqlSupported()) {
+            return [
+                'success' => false,
+                'message' => 'Die PHP-Erweiterung pdo_mysql ist auf diesem Server nicht geladen.'
+            ];
+        }
+
         try {
-            $pdo = self::getSqlitePdo();
+            $pdo = self::getMysqlPdo();
+            $jsonFile = self::getJsonFilePath();
+            $users = [];
+
+            if (file_exists($jsonFile)) {
+                $raw = @file_get_contents($jsonFile);
+                $decoded = json_decode((string)$raw, true);
+                if (is_array($decoded)) {
+                    $users = $decoded;
+                }
+            }
+
+            $count = 0;
+            if (!empty($users)) {
+                $pdo->beginTransaction();
+                $stmt = $pdo->prepare("
+                    REPLACE INTO weave_forum_users (
+                        id, username, email, password_hash, role, status, avatar, signature,
+                        bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email
+                    ) VALUES (
+                        :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
+                        :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email
+                    )
+                ");
+
+                foreach ($users as $u) {
+                    if (empty($u['id'])) continue;
+                    $stmt->execute([
+                        ':id' => $u['id'],
+                        ':username' => $u['username'],
+                        ':email' => mb_strtolower($u['email']),
+                        ':password_hash' => $u['password_hash'] ?? '',
+                        ':role' => $u['role'] ?? self::ROLE_USER,
+                        ':status' => $u['status'] ?? self::STATUS_ACTIVE,
+                        ':avatar' => $u['avatar'] ?? '',
+                        ':signature' => $u['signature'] ?? '',
+                        ':bio' => $u['bio'] ?? '',
+                        ':created_at' => $u['created_at'] ?? date('Y-m-d H:i:s'),
+                        ':last_login' => $u['last_login'] ?? '',
+                        ':post_count' => (int)($u['post_count'] ?? 0),
+                        ':topic_count' => (int)($u['topic_count'] ?? 0),
+                        ':banned_until' => $u['banned_until'] ?? null,
+                        ':ban_reason' => $u['ban_reason'] ?? '',
+                        ':notification_email' => !empty($u['notification_email']) ? 1 : 0
+                    ]);
+                    $count++;
+                }
+                $pdo->commit();
+            }
+
+            return [
+                'success' => true,
+                'count' => $count,
+                'message' => "MySQL-Benutzertabelle erfolgreich initialisiert!"
+            ];
+        } catch (Exception $e) {
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Migriert alle Foren-Benutzer von MySQL nach JSON.
+     */
+    public static function migrateMysqlToJson(): array {
+        try {
+            $pdo = self::getMysqlPdo();
             $stmt = $pdo->query("SELECT * FROM weave_forum_users ORDER BY created_at DESC");
             $users = $stmt->fetchAll();
 
@@ -690,7 +844,7 @@ class ForumUserManager {
             return [
                 'success' => true,
                 'count' => count($users),
-                'message' => "Erfolgreich " . count($users) . " Benutzer von SQLite nach data/forum_users.json migriert!"
+                'message' => "Erfolgreich " . count($users) . " Benutzer von MySQL nach data/forum_users.json exportiert!"
             ];
         } catch (Exception $e) {
             return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];

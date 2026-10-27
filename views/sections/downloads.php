@@ -179,6 +179,56 @@ foreach ($downloads as $d) {
         </div>
     <?php endif; ?>
 
+    <!-- ──────────────── FRÜHERE VERSIONEN & ARCHIV ──────────────── -->
+    <div style="max-width: 1100px; margin: 3rem auto 0 auto; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 2rem; box-shadow: 0 4px 18px rgba(0,0,0,0.03);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="material-icons" style="color: var(--accent); font-size: 24px;">history</span>
+                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">Ältere Versionen &amp; Release-Archiv</h3>
+            </div>
+            <a href="https://github.com/Vulfharban/WeaveCMS/releases" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 0.84rem; padding: 6px 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="material-icons" style="font-size: 16px;">launch</span> Alle Releases auf GitHub
+            </a>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">
+            Hier findest du die vorigen Versionen von WeaveCMS als Quellcode- und Release-Archive direkt über unser GitHub-Repository.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Version 1.2.0 -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 12px 16px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid var(--border-color);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-weight: 700; font-size: 0.85rem; color: #2c3e50; background: rgba(0,0,0,0.06); padding: 4px 10px; border-radius: 6px;">v1.2.0</span>
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 0.95rem;">WeaveCMS Version 1.2.0</strong>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary);">Erweiterte Mehrsprachigkeit (11 Sprachen), Universal-Integrations &amp; verbesserte Caching-Engine</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <a href="https://github.com/Vulfharban/WeaveCMS/releases/tag/v1.2.0" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.82rem; padding: 6px 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                        <span class="material-icons" style="font-size: 15px;">open_in_new</span> GitHub Release
+                    </a>
+                </div>
+            </div>
+
+            <!-- Version 1.1.0 -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 12px 16px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid var(--border-color);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-weight: 700; font-size: 0.85rem; color: #2c3e50; background: rgba(0,0,0,0.06); padding: 4px 10px; border-radius: 6px;">v1.1.0</span>
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 0.95rem;">WeaveCMS Version 1.1.0</strong>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary);">Modulares Sektions-Routing, Revisions-Engine &amp; SQLite/MySQL-Treiberunterstützung</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <a href="https://github.com/Vulfharban/WeaveCMS/releases/tag/v1.1.0" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.82rem; padding: 6px 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                        <span class="material-icons" style="font-size: 15px;">open_in_new</span> GitHub Release
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ──────────────── CHANGELOG MODAL ──────────────── -->
     <div id="changelog-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 99999; align-items: center; justify-content: center; padding: 1.5rem;" onclick="if(event.target === this) closeChangelogModal();">
         <div class="card" style="background: var(--bg-card); max-width: 640px; width: 100%; max-height: 85vh; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 20px 45px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; animation: fadeInModal 0.25s ease;">

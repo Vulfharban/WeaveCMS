@@ -596,12 +596,14 @@ class Installer {
             $base_data = [
                 'settings' => [],
                 'seo' => [],
-                'categories' => ['Wohnaccessoires', 'Gartendeko', 'Auftragsarbeiten', 'Kurse'],
+                'categories' => ['CMS Core', 'Plugins', 'Themes', 'Dokumentation'],
                 'texts' => [],
                 'gallery' => [],
                 'courses' => [],
                 'past_courses' => [],
-                'blog' => []
+                'blog' => [],
+                'team' => [],
+                'pricing' => []
             ];
         }
 
@@ -611,6 +613,8 @@ class Installer {
             $base_data['courses'] = [];
             $base_data['past_courses'] = [];
             $base_data['blog'] = [];
+            $base_data['team'] = [];
+            $base_data['pricing'] = [];
         }
 
         // Hashes erzeugen
@@ -671,7 +675,7 @@ class Installer {
             $base_data['texts'] = [];
         }
         $base_data['texts']['hero_title'] = $site_name;
-        $base_data['texts']['hero_subtitle'] = !empty($site_slogan) ? $site_slogan : 'Traditionelles Handwerk, moderne Unikate und kreative Kurse.';
+        $base_data['texts']['hero_subtitle'] = !empty($site_slogan) ? $site_slogan : 'Willkommen auf der offiziellen Website von ' . $site_name . '.';
         $base_data['texts']['contact_name'] = $owner_name;
         $base_data['texts']['contact_email'] = $contact_email;
         $base_data['texts']['contact_street'] = trim($params['contact_street'] ?? ($base_data['texts']['contact_street'] ?? ''));
@@ -703,10 +707,27 @@ class Installer {
         if (!isset($base_data['seo']) || !is_array($base_data['seo'])) {
             $base_data['seo'] = [];
         }
-        $base_data['seo']['meta_title'] = $site_name . ($site_slogan ? ' | ' . $site_slogan : '');
-        $base_data['seo']['meta_description'] = $site_slogan ? $site_slogan : 'Willkommen auf der offiziellen Website von ' . $site_name . '.';
-        $base_data['seo']['meta_keywords'] = $site_name . ', Handwerk, Unikate, Workshops, Atelier, Design';
+        $final_meta_title = $site_name . ($site_slogan ? ' | ' . $site_slogan : '');
+        $final_meta_desc = $site_slogan ? $site_slogan : 'Willkommen auf der offiziellen Website von ' . $site_name . '.';
+        $base_data['seo']['meta_title'] = $final_meta_title;
+        $base_data['seo']['meta_description'] = $final_meta_desc;
+        $base_data['seo']['meta_keywords'] = $site_name . ', WeaveCMS, PHP, Content Management, Modular';
         $base_data['seo']['robots'] = 'index, follow';
+
+        // Mehrsprachige Texte & SEO (texts_i18n) direkt mit dem neuen Projektnamen und Slogan initialisieren
+        if (!empty($base_data['texts_i18n']) && is_array($base_data['texts_i18n'])) {
+            foreach ($base_data['texts_i18n'] as $langKey => &$tlang) {
+                if (is_array($tlang)) {
+                    $tlang['hero_title'] = $site_name;
+                    $tlang['meta_title'] = $final_meta_title;
+                    if (!empty($site_slogan)) {
+                        $tlang['hero_subtitle'] = $site_slogan;
+                        $tlang['meta_description'] = $site_slogan;
+                    }
+                }
+            }
+            unset($tlang);
+        }
 
         // Verzeichnisse schützen
         self::secureDirectories();

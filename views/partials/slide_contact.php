@@ -105,7 +105,7 @@
             <!-- Interactive Request form inside sidebar -->
             <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
                 <h4 style="color: var(--text-primary); margin-bottom: 1rem;"><?php echo htmlspecialchars(__('contact.write_message', 'Nachricht schreiben')); ?></h4>
-                <form onsubmit="sendRequestEmail(event, '<?php echo CaptchaManager::isContactEmailProtected($data) ? '' : htmlspecialchars($data['texts']['contact_email'] ?? 'kontakt@maxima-musterfrau.de', ENT_QUOTES, 'UTF-8'); ?>')">
+                <form onsubmit="sendRequestEmail(event, '<?php echo CaptchaManager::isContactEmailProtected($data) ? '' : htmlspecialchars($data['texts']['contact_email'] ?? ('info@' . ($_SERVER['SERVER_NAME'] ?? 'example.org')), ENT_QUOTES, 'UTF-8'); ?>')">
                     
                     <!-- Honeypot-Falle für Spam-Roboter (für menschliche Besucher unsichtbar) -->
                     <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">

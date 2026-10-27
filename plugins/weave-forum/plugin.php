@@ -109,17 +109,36 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             exit;
         }
 
-        // Speicher-Migration (JSON ➔ SQLite / SQLite ➔ JSON)
+        // Speicher-Migration (JSON ➔ MySQL / JSON ➔ SQLite / SQLite/MySQL ➔ JSON)
         if ($action === 'forum_migrate_data_storage') {
             $target = trim($_POST['target_driver'] ?? 'json');
             global $data;
             $config = PluginManager::getPluginConfig('weave-forum', $data);
 
-            if ($target === 'sqlite') {
+            if ($target === 'mysql') {
+                $res = ForumManager::migrateToJsonToMysql();
+                if ($res['success']) {
+                    $config['storage_driver'] = 'mysql';
+                    PluginManager::savePluginConfig('weave-forum', $config, $data);
+                    $userCfg = PluginManager::getPluginConfig('weave-forum-users', $data);
+                    $userCfg['storage_driver'] = 'mysql';
+                    PluginManager::savePluginConfig('weave-forum-users', $userCfg, $data);
+                    save_data(dirname(__DIR__, 2) . '/data.json', $data);
+                    header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=migrated_mysql#tab-plugins');
+                    exit;
+                } else {
+                    $err = urlencode($res['message'] ?? 'Migration nach MySQL fehlgeschlagen.');
+                    header("Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_err={$err}#tab-plugins");
+                    exit;
+                }
+            } elseif ($target === 'sqlite') {
                 $res = ForumManager::migrateToJsonToSqlite();
                 if ($res['success']) {
                     $config['storage_driver'] = 'sqlite';
                     PluginManager::savePluginConfig('weave-forum', $config, $data);
+                    $userCfg = PluginManager::getPluginConfig('weave-forum-users', $data);
+                    $userCfg['storage_driver'] = 'sqlite';
+                    PluginManager::savePluginConfig('weave-forum-users', $userCfg, $data);
                     save_data(dirname(__DIR__, 2) . '/data.json', $data);
                     header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=migrated_sqlite#tab-plugins');
                     exit;
@@ -129,10 +148,14 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
                     exit;
                 }
             } else {
-                $res = ForumManager::migrateSqliteToJson();
+                $driver = ForumManager::getStorageDriver();
+                $res = ($driver === 'mysql') ? ForumManager::migrateMysqlToJson() : ForumManager::migrateSqliteToJson();
                 if ($res['success']) {
                     $config['storage_driver'] = 'json';
                     PluginManager::savePluginConfig('weave-forum', $config, $data);
+                    $userCfg = PluginManager::getPluginConfig('weave-forum-users', $data);
+                    $userCfg['storage_driver'] = 'json';
+                    PluginManager::savePluginConfig('weave-forum-users', $userCfg, $data);
                     save_data(dirname(__DIR__, 2) . '/data.json', $data);
                     header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=migrated_json#tab-plugins');
                     exit;

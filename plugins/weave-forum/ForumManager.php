@@ -10,6 +10,7 @@
 
 class ForumManager {
 
+    protected static ?PDO $dbPdo = null;
     protected static ?PDO $sqlitePdo = null;
 
     /**
@@ -27,19 +28,37 @@ class ForumManager {
     }
 
     /**
-     * Ermittelt den konfigurierten Speichertreiber ('json' oder 'sqlite').
+     * Ermittelt den konfigurierten Speichertreiber ('mysql', 'sqlite' oder 'json').
      */
     public static function getStorageDriver(): string {
         if (class_exists('PluginManager')) {
             $data = $GLOBALS['data'] ?? [];
             if (!empty($data)) {
                 $cfg = PluginManager::getPluginConfig('weave-forum', $data);
-                if (!empty($cfg['storage_driver']) && $cfg['storage_driver'] === 'sqlite') {
-                    return self::isSqliteSupported() ? 'sqlite' : 'json';
+                $driver = $cfg['storage_driver'] ?? 'json';
+                if ($driver === 'mysql' && self::isMysqlSupported()) {
+                    return 'mysql';
+                }
+                if ($driver === 'sqlite' && self::isSqliteSupported()) {
+                    return 'sqlite';
                 }
             }
         }
         return 'json';
+    }
+
+    /**
+     * Prüft, ob ein relationaler Datenbanktreiber (MySQL oder SQLite) aktiv ist.
+     */
+    public static function isDatabase(): bool {
+        return in_array(self::getStorageDriver(), ['mysql', 'sqlite'], true);
+    }
+
+    /**
+     * Prüft, ob die MySQL-Erweiterung in PHP geladen ist.
+     */
+    public static function isMysqlSupported(): bool {
+        return extension_loaded('pdo_mysql');
     }
 
     /**
@@ -50,9 +69,154 @@ class ForumManager {
     }
 
     /**
+     * Liefert die aktive PDO-Verbindung (MySQL oder SQLite).
+     */
+    public static function getPdo(): PDO {
+        if (self::$dbPdo !== null) {
+            return self::$dbPdo;
+        }
+
+        $driver = self::getStorageDriver();
+        if ($driver === 'mysql') {
+            self::$dbPdo = self::getMysqlPdo();
+        } else {
+            self::$dbPdo = self::getSqlitePdo();
+        }
+        return self::$dbPdo;
+    }
+
+    /**
+     * Stellt eine MySQL-Verbindung her und initialisiert Tabellen.
+     */
+    public static function getMysqlPdo(): PDO {
+        if (!self::isMysqlSupported()) {
+            throw new RuntimeException('Die PHP-Erweiterung pdo_mysql ist auf diesem Server nicht aktiviert.');
+        }
+
+        $cfg = [];
+        if (class_exists('PluginManager') && !empty($GLOBALS['data'])) {
+            $cfg = PluginManager::getPluginConfig('weave-forum', $GLOBALS['data']);
+        }
+
+        $host = $cfg['mysql_host'] ?? '127.0.0.1';
+        $port = (int)($cfg['mysql_port'] ?? 3306);
+        $dbname = $cfg['mysql_database'] ?? 'WeaveCMS';
+        $user = $cfg['mysql_user'] ?? 'root';
+        $pass = $cfg['mysql_password'] ?? '';
+        $charset = $cfg['mysql_charset'] ?? 'utf8mb4';
+
+        $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset={$charset}";
+        $pdo = new PDO($dsn, $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ]);
+
+        self::initMysqlTables($pdo);
+        return $pdo;
+    }
+
+    /**
+     * Initialisiert alle Forentabellen in der MySQL-Datenbank.
+     */
+    public static function initMysqlTables(PDO $pdo): void {
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS weave_forum_categories (
+                id VARCHAR(64) PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                icon VARCHAR(64) DEFAULT 'folder',
+                sort_order INT DEFAULT 0,
+                min_role VARCHAR(32) DEFAULT 'public'
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS weave_forum_boards (
+                id VARCHAR(64) PRIMARY KEY,
+                category_id VARCHAR(64) NOT NULL,
+                parent_id VARCHAR(64) DEFAULT '',
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                icon VARCHAR(64) DEFAULT 'forum',
+                sort_order INT DEFAULT 0,
+                is_locked TINYINT(1) DEFAULT 0,
+                min_role_read VARCHAR(32) DEFAULT 'public',
+                min_role_write VARCHAR(32) DEFAULT 'forum_user',
+                INDEX idx_fboards_cat (category_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS weave_forum_topics (
+                id VARCHAR(64) PRIMARY KEY,
+                board_id VARCHAR(64) NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                author_id VARCHAR(64) NOT NULL,
+                author_name VARCHAR(128) NOT NULL,
+                created_at VARCHAR(32) NOT NULL,
+                updated_at VARCHAR(32) NOT NULL,
+                views INT DEFAULT 0,
+                is_pinned TINYINT(1) DEFAULT 0,
+                is_locked TINYINT(1) DEFAULT 0,
+                is_solved TINYINT(1) DEFAULT 0,
+                status VARCHAR(32) DEFAULT 'published',
+                last_post_at VARCHAR(32) NOT NULL,
+                last_post_user VARCHAR(128) NOT NULL,
+                INDEX idx_ftopics_board (board_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS weave_forum_posts (
+                id VARCHAR(64) PRIMARY KEY,
+                topic_id VARCHAR(64) NOT NULL,
+                author_id VARCHAR(64) NOT NULL,
+                author_name VARCHAR(128) NOT NULL,
+                content LONGTEXT NOT NULL,
+                created_at VARCHAR(32) NOT NULL,
+                updated_at VARCHAR(32) DEFAULT '',
+                edited_by VARCHAR(128) DEFAULT '',
+                status VARCHAR(32) DEFAULT 'published',
+                INDEX idx_fposts_topic (topic_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS weave_forum_likes (
+                post_id VARCHAR(64) NOT NULL,
+                user_id VARCHAR(64) NOT NULL,
+                PRIMARY KEY (post_id, user_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS weave_forum_reports (
+                id VARCHAR(64) PRIMARY KEY,
+                post_id VARCHAR(64) NOT NULL,
+                reporter_id VARCHAR(64) NOT NULL,
+                reporter_name VARCHAR(128) NOT NULL,
+                reason TEXT NOT NULL,
+                status VARCHAR(32) DEFAULT 'open',
+                created_at VARCHAR(32) NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS weave_forum_subscriptions (
+                user_id VARCHAR(64) NOT NULL,
+                topic_id VARCHAR(64) NOT NULL,
+                PRIMARY KEY (user_id, topic_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS weave_forum_audit_log (
+                id VARCHAR(64) PRIMARY KEY,
+                moderator_id VARCHAR(64) NOT NULL,
+                moderator_name VARCHAR(128) NOT NULL,
+                action VARCHAR(64) NOT NULL,
+                target_type VARCHAR(64) NOT NULL,
+                target_id VARCHAR(64) NOT NULL,
+                reason TEXT,
+                timestamp VARCHAR(32) NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        ");
+    }
+
+    /**
      * Stellt eine SQLite-Verbindung her und initialisiert Tabellen.
      */
     public static function getSqlitePdo(): PDO {
+        if (self::getStorageDriver() === 'mysql') {
+            return self::getPdo();
+        }
+
         if (self::$sqlitePdo !== null) {
             return self::$sqlitePdo;
         }
@@ -359,7 +523,7 @@ class ForumManager {
     // =========================================================================
 
     public static function getCategories(): array {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->query("SELECT * FROM weave_forum_categories ORDER BY sort_order ASC, title ASC");
                 return $stmt->fetchAll();
@@ -387,10 +551,10 @@ class ForumManager {
             $category['id'] = 'cat_' . bin2hex(random_bytes(4));
         }
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("
-                    INSERT OR REPLACE INTO weave_forum_categories (id, title, description, icon, sort_order, min_role)
+                    REPLACE INTO weave_forum_categories (id, title, description, icon, sort_order, min_role)
                     VALUES (:id, :title, :description, :icon, :sort_order, :min_role)
                 ");
                 return $stmt->execute([
@@ -422,7 +586,7 @@ class ForumManager {
     }
 
     public static function deleteCategory(string $id): bool {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $pdo = self::getSqlitePdo();
                 $pdo->prepare("DELETE FROM weave_forum_categories WHERE id = ?")->execute([$id]);
@@ -440,7 +604,7 @@ class ForumManager {
     }
 
     public static function getBoards(?string $categoryId = null): array {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 if ($categoryId) {
                     $stmt = self::getSqlitePdo()->prepare("SELECT * FROM weave_forum_boards WHERE category_id = ? ORDER BY sort_order ASC, title ASC");
@@ -476,10 +640,10 @@ class ForumManager {
             $board['id'] = 'board_' . bin2hex(random_bytes(4));
         }
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("
-                    INSERT OR REPLACE INTO weave_forum_boards (
+                    REPLACE INTO weave_forum_boards (
                         id, category_id, parent_id, title, description, icon, sort_order, is_locked, min_role_read, min_role_write
                     ) VALUES (
                         :id, :category_id, :parent_id, :title, :description, :icon, :sort_order, :is_locked, :min_role_read, :min_role_write
@@ -518,7 +682,7 @@ class ForumManager {
     }
 
     public static function deleteBoard(string $id): bool {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $pdo = self::getSqlitePdo();
                 $pdo->prepare("DELETE FROM weave_forum_boards WHERE id = ?")->execute([$id]);
@@ -538,7 +702,7 @@ class ForumManager {
     // =========================================================================
 
     public static function getTopics(string $boardId, int $page = 1, int $perPage = 25): array {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $offset = ($page - 1) * $perPage;
                 $stmt = self::getSqlitePdo()->prepare("
@@ -569,7 +733,7 @@ class ForumManager {
     }
 
     public static function countTopics(string $boardId): int {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("SELECT COUNT(*) FROM weave_forum_topics WHERE board_id = ? AND status = 'published'");
                 $stmt->execute([$boardId]);
@@ -585,7 +749,7 @@ class ForumManager {
     }
 
     public static function getTopic(string $id): ?array {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("SELECT * FROM weave_forum_topics WHERE id = ? LIMIT 1");
                 $stmt->execute([$id]);
@@ -604,7 +768,7 @@ class ForumManager {
     }
 
     public static function incrementTopicViews(string $id): void {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 self::getSqlitePdo()->prepare("UPDATE weave_forum_topics SET views = views + 1 WHERE id = ?")->execute([$id]);
             } catch (Exception $e) {}
@@ -622,7 +786,7 @@ class ForumManager {
     }
 
     public static function getPosts(string $topicId, int $page = 1, int $perPage = 20): array {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $offset = ($page - 1) * $perPage;
                 $stmt = self::getSqlitePdo()->prepare("
@@ -647,7 +811,7 @@ class ForumManager {
     }
 
     public static function countPosts(string $topicId): int {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("SELECT COUNT(*) FROM weave_forum_posts WHERE topic_id = ? AND status = 'published'");
                 $stmt->execute([$topicId]);
@@ -663,7 +827,7 @@ class ForumManager {
     }
 
     public static function getPost(string $id): ?array {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("SELECT * FROM weave_forum_posts WHERE id = ? LIMIT 1");
                 $stmt->execute([$id]);
@@ -733,7 +897,7 @@ class ForumManager {
             'status' => 'published'
         ];
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $pdo = self::getSqlitePdo();
                 $pdo->beginTransaction();
@@ -825,7 +989,7 @@ class ForumManager {
             'status' => 'published'
         ];
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $pdo = self::getSqlitePdo();
                 $pdo->beginTransaction();
@@ -893,7 +1057,7 @@ class ForumManager {
         $content = self::filterBadWords(trim($content));
         $now = date('Y-m-d H:i:s');
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("
                     UPDATE weave_forum_posts 
@@ -924,7 +1088,7 @@ class ForumManager {
     }
 
     public static function deletePost(string $postId, array $moderator): bool {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("DELETE FROM weave_forum_posts WHERE id = ?");
                 $res = $stmt->execute([$postId]);
@@ -947,7 +1111,7 @@ class ForumManager {
 
     public static function lockTopic(string $topicId, bool $locked, array $moderator): bool {
         $val = $locked ? 1 : 0;
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("UPDATE weave_forum_topics SET is_locked = ? WHERE id = ?");
                 $stmt->execute([$val, $topicId]);
@@ -969,7 +1133,7 @@ class ForumManager {
 
     public static function pinTopic(string $topicId, bool $pinned, array $moderator): bool {
         $val = $pinned ? 1 : 0;
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("UPDATE weave_forum_topics SET is_pinned = ? WHERE id = ?");
                 $stmt->execute([$val, $topicId]);
@@ -990,7 +1154,7 @@ class ForumManager {
     }
 
     public static function moveTopic(string $topicId, string $newBoardId, array $moderator): bool {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("UPDATE weave_forum_topics SET board_id = ? WHERE id = ?");
                 $stmt->execute([$newBoardId, $topicId]);
@@ -1011,7 +1175,7 @@ class ForumManager {
     }
 
     public static function deleteTopic(string $topicId, array $moderator): bool {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $pdo = self::getSqlitePdo();
                 $pdo->prepare("DELETE FROM weave_forum_topics WHERE id = ?")->execute([$topicId]);
@@ -1048,7 +1212,7 @@ class ForumManager {
 
         $newVal = empty($topic['is_solved']) ? 1 : 0;
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("UPDATE weave_forum_topics SET is_solved = ? WHERE id = ?");
                 $stmt->execute([$newVal, $topicId]);
@@ -1082,7 +1246,7 @@ class ForumManager {
     // =========================================================================
 
     public static function getPostLikes(string $postId): array {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("SELECT user_id FROM weave_forum_likes WHERE post_id = ?");
                 $stmt->execute([$postId]);
@@ -1109,7 +1273,7 @@ class ForumManager {
         $likes = self::getPostLikes($postId);
         $hasLiked = in_array($userId, $likes, true);
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $pdo = self::getSqlitePdo();
                 if ($hasLiked) {
@@ -1252,7 +1416,7 @@ class ForumManager {
         $reportId = 'rep_' . bin2hex(random_bytes(6));
         $now = date('Y-m-d H:i:s');
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("
                     INSERT INTO weave_forum_reports (id, post_id, reporter_id, reporter_name, reason, status, created_at)
@@ -1283,7 +1447,7 @@ class ForumManager {
     }
 
     public static function getReports(string $status = 'open'): array {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 if ($status === 'all') {
                     $stmt = self::getSqlitePdo()->query("SELECT * FROM weave_forum_reports ORDER BY created_at DESC");
@@ -1304,7 +1468,7 @@ class ForumManager {
     }
 
     public static function resolveReport(string $reportId, string $status, array $moderator): bool {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("UPDATE weave_forum_reports SET status = ? WHERE id = ?");
                 $stmt->execute([$status, $reportId]);
@@ -1332,7 +1496,7 @@ class ForumManager {
         $id = 'log_' . bin2hex(random_bytes(6));
         $now = date('Y-m-d H:i:s');
 
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("
                     INSERT INTO weave_forum_audit_log (id, moderator_id, moderator_name, action, target_type, target_id, reason, timestamp)
@@ -1372,7 +1536,7 @@ class ForumManager {
     }
 
     public static function getAuditLogs(int $limit = 50): array {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("SELECT * FROM weave_forum_audit_log ORDER BY timestamp DESC LIMIT ?");
                 $stmt->execute([$limit]);
@@ -1391,7 +1555,7 @@ class ForumManager {
     // =========================================================================
 
     public static function isSubscribed(string $userId, string $topicId): bool {
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("SELECT COUNT(*) FROM weave_forum_subscriptions WHERE user_id = ? AND topic_id = ?");
                 $stmt->execute([$userId, $topicId]);
@@ -1410,7 +1574,7 @@ class ForumManager {
 
     public static function toggleSubscription(string $userId, string $topicId): bool {
         $sub = self::isSubscribed($userId, $topicId);
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $pdo = self::getSqlitePdo();
                 if ($sub) {
@@ -1440,7 +1604,7 @@ class ForumManager {
         if (!class_exists('Mailer') || !class_exists('ForumUserManager')) return;
 
         $subscriberIds = [];
-        if (self::getStorageDriver() === 'sqlite') {
+        if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("SELECT user_id FROM weave_forum_subscriptions WHERE topic_id = ?");
                 $stmt->execute([$topicId]);
@@ -1533,7 +1697,7 @@ class ForumManager {
             $pdo->beginTransaction();
 
             // 1. Kategorien
-            $stmtC = $pdo->prepare("INSERT OR REPLACE INTO weave_forum_categories (id, title, description, icon, sort_order, min_role) VALUES (:id, :title, :description, :icon, :sort_order, :min_role)");
+            $stmtC = $pdo->prepare("REPLACE INTO weave_forum_categories (id, title, description, icon, sort_order, min_role) VALUES (:id, :title, :description, :icon, :sort_order, :min_role)");
             foreach ($data['categories'] ?? [] as $c) {
                 $stmtC->execute([
                     ':id' => $c['id'],
@@ -1546,7 +1710,7 @@ class ForumManager {
             }
 
             // 2. Boards
-            $stmtB = $pdo->prepare("INSERT OR REPLACE INTO weave_forum_boards (id, category_id, parent_id, title, description, icon, sort_order, is_locked, min_role_read, min_role_write) VALUES (:id, :category_id, :parent_id, :title, :description, :icon, :sort_order, :is_locked, :min_role_read, :min_role_write)");
+            $stmtB = $pdo->prepare("REPLACE INTO weave_forum_boards (id, category_id, parent_id, title, description, icon, sort_order, is_locked, min_role_read, min_role_write) VALUES (:id, :category_id, :parent_id, :title, :description, :icon, :sort_order, :is_locked, :min_role_read, :min_role_write)");
             foreach ($data['boards'] ?? [] as $b) {
                 $stmtB->execute([
                     ':id' => $b['id'],
@@ -1563,7 +1727,7 @@ class ForumManager {
             }
 
             // 3. Topics
-            $stmtT = $pdo->prepare("INSERT OR REPLACE INTO weave_forum_topics (id, board_id, title, author_id, author_name, created_at, updated_at, views, is_pinned, is_locked, is_solved, status, last_post_at, last_post_user) VALUES (:id, :board_id, :title, :author_id, :author_name, :created_at, :updated_at, :views, :is_pinned, :is_locked, :is_solved, :status, :last_post_at, :last_post_user)");
+            $stmtT = $pdo->prepare("REPLACE INTO weave_forum_topics (id, board_id, title, author_id, author_name, created_at, updated_at, views, is_pinned, is_locked, is_solved, status, last_post_at, last_post_user) VALUES (:id, :board_id, :title, :author_id, :author_name, :created_at, :updated_at, :views, :is_pinned, :is_locked, :is_solved, :status, :last_post_at, :last_post_user)");
             foreach ($data['topics'] ?? [] as $t) {
                 $stmtT->execute([
                     ':id' => $t['id'],
@@ -1584,7 +1748,7 @@ class ForumManager {
             }
 
             // 4. Posts & Likes
-            $stmtP = $pdo->prepare("INSERT OR REPLACE INTO weave_forum_posts (id, topic_id, author_id, author_name, content, created_at, updated_at, edited_by, status) VALUES (:id, :topic_id, :author_id, :author_name, :content, :created_at, :updated_at, :edited_by, :status)");
+            $stmtP = $pdo->prepare("REPLACE INTO weave_forum_posts (id, topic_id, author_id, author_name, content, created_at, updated_at, edited_by, status) VALUES (:id, :topic_id, :author_id, :author_name, :content, :created_at, :updated_at, :edited_by, :status)");
             $stmtL = $pdo->prepare("INSERT OR IGNORE INTO weave_forum_likes (post_id, user_id) VALUES (:post_id, :user_id)");
             foreach ($data['posts'] ?? [] as $p) {
                 $stmtP->execute([
@@ -1614,9 +1778,113 @@ class ForumManager {
         }
     }
 
-    public static function migrateSqliteToJson(): array {
+    public static function migrateToJsonToMysql(): array {
+        if (!self::isMysqlSupported()) {
+            return [
+                'success' => false,
+                'message' => 'Die PHP-Erweiterung pdo_mysql ist auf diesem Server nicht geladen.'
+            ];
+        }
+
+        $data = self::loadJsonData();
         try {
-            $pdo = self::getSqlitePdo();
+            $pdo = self::getMysqlPdo();
+
+            // Falls das Benutzerverwaltungs-Plugin existiert, auch die Benutzertabelle initialisieren & migrieren
+            if (class_exists('ForumUserManager')) {
+                ForumUserManager::getMysqlPdo();
+                if (method_exists('ForumUserManager', 'migrateToJsonToMysql')) {
+                    ForumUserManager::migrateToJsonToMysql();
+                }
+            }
+
+            $pdo->beginTransaction();
+
+            // 1. Kategorien
+            $stmtC = $pdo->prepare("REPLACE INTO weave_forum_categories (id, title, description, icon, sort_order, min_role) VALUES (:id, :title, :description, :icon, :sort_order, :min_role)");
+            foreach ($data['categories'] ?? [] as $c) {
+                $stmtC->execute([
+                    ':id' => $c['id'],
+                    ':title' => $c['title'],
+                    ':description' => $c['description'] ?? '',
+                    ':icon' => $c['icon'] ?? 'folder',
+                    ':sort_order' => (int)($c['sort_order'] ?? 0),
+                    ':min_role' => $c['min_role'] ?? 'public'
+                ]);
+            }
+
+            // 2. Boards
+            $stmtB = $pdo->prepare("REPLACE INTO weave_forum_boards (id, category_id, parent_id, title, description, icon, sort_order, is_locked, min_role_read, min_role_write) VALUES (:id, :category_id, :parent_id, :title, :description, :icon, :sort_order, :is_locked, :min_role_read, :min_role_write)");
+            foreach ($data['boards'] ?? [] as $b) {
+                $stmtB->execute([
+                    ':id' => $b['id'],
+                    ':category_id' => $b['category_id'],
+                    ':parent_id' => $b['parent_id'] ?? '',
+                    ':title' => $b['title'],
+                    ':description' => $b['description'] ?? '',
+                    ':icon' => $b['icon'] ?? 'forum',
+                    ':sort_order' => (int)($b['sort_order'] ?? 0),
+                    ':is_locked' => !empty($b['is_locked']) ? 1 : 0,
+                    ':min_role_read' => $b['min_role_read'] ?? 'public',
+                    ':min_role_write' => $b['min_role_write'] ?? 'forum_user'
+                ]);
+            }
+
+            // 3. Topics
+            $stmtT = $pdo->prepare("REPLACE INTO weave_forum_topics (id, board_id, title, author_id, author_name, created_at, updated_at, views, is_pinned, is_locked, is_solved, status, last_post_at, last_post_user) VALUES (:id, :board_id, :title, :author_id, :author_name, :created_at, :updated_at, :views, :is_pinned, :is_locked, :is_solved, :status, :last_post_at, :last_post_user)");
+            foreach ($data['topics'] ?? [] as $t) {
+                $stmtT->execute([
+                    ':id' => $t['id'],
+                    ':board_id' => $t['board_id'],
+                    ':title' => $t['title'],
+                    ':author_id' => $t['author_id'],
+                    ':author_name' => $t['author_name'],
+                    ':created_at' => $t['created_at'] ?? date('Y-m-d H:i:s'),
+                    ':updated_at' => $t['updated_at'] ?? date('Y-m-d H:i:s'),
+                    ':views' => (int)($t['views'] ?? 0),
+                    ':is_pinned' => !empty($t['is_pinned']) ? 1 : 0,
+                    ':is_locked' => !empty($t['is_locked']) ? 1 : 0,
+                    ':is_solved' => !empty($t['is_solved']) ? 1 : 0,
+                    ':status' => $t['status'] ?? 'published',
+                    ':last_post_at' => $t['last_post_at'] ?? date('Y-m-d H:i:s'),
+                    ':last_post_user' => $t['last_post_user'] ?? ''
+                ]);
+            }
+
+            // 4. Posts & Likes
+            $stmtP = $pdo->prepare("REPLACE INTO weave_forum_posts (id, topic_id, author_id, author_name, content, created_at, updated_at, edited_by, status) VALUES (:id, :topic_id, :author_id, :author_name, :content, :created_at, :updated_at, :edited_by, :status)");
+            $stmtL = $pdo->prepare("INSERT IGNORE INTO weave_forum_likes (post_id, user_id) VALUES (:post_id, :user_id)");
+            foreach ($data['posts'] ?? [] as $p) {
+                $stmtP->execute([
+                    ':id' => $p['id'],
+                    ':topic_id' => $p['topic_id'],
+                    ':author_id' => $p['author_id'],
+                    ':author_name' => $p['author_name'],
+                    ':content' => $p['content'],
+                    ':created_at' => $p['created_at'] ?? date('Y-m-d H:i:s'),
+                    ':updated_at' => $p['updated_at'] ?? '',
+                    ':edited_by' => $p['edited_by'] ?? '',
+                    ':status' => $p['status'] ?? 'published'
+                ]);
+
+                if (!empty($p['likes']) && is_array($p['likes'])) {
+                    foreach ($p['likes'] as $uid) {
+                        $stmtL->execute([':post_id' => $p['id'], ':user_id' => $uid]);
+                    }
+                }
+            }
+
+            $pdo->commit();
+            return ['success' => true, 'message' => 'Foreninhalte (Kategorien, Boards, Themen, Beiträge, Likes) erfolgreich nach MySQL migriert!'];
+        } catch (Exception $e) {
+            if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+            return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
+        }
+    }
+
+    public static function migrateMysqlToJson(): array {
+        try {
+            $pdo = self::getMysqlPdo();
             $posts = $pdo->query("SELECT * FROM weave_forum_posts ORDER BY created_at ASC")->fetchAll();
             $likesMap = [];
             try {
@@ -1644,7 +1912,7 @@ class ForumManager {
                 return ['success' => false, 'message' => 'Fehler beim Schreiben der JSON-Datei data/forum_data.json.'];
             }
 
-            return ['success' => true, 'message' => 'Foreninhalte erfolgreich nach data/forum_data.json migriert!'];
+            return ['success' => true, 'message' => 'Foreninhalte erfolgreich nach data/forum_data.json exportiert!'];
         } catch (Exception $e) {
             return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
         }

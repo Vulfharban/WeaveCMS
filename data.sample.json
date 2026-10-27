@@ -1847,7 +1847,7 @@
     ],
     "texts_i18n": {
         "en": {
-            "hero_title": "Atelier Musterfrau",
+            "hero_title": "WeaveCMS",
             "hero_subtitle": "Handcrafted Unique Pieces & Creative Workshops",
             "about_title": "About My Atelier & Craftsmanship",
             "about_text": "Craftsmanship is a vibrant connection between nature, tradition, and contemporary design. Each piece is carefully handcrafted and tells its own unique story. I exclusively use sustainable, carefully selected natural materials.\r\n\r\nAlongside bespoke home accessories and commissioned pieces for home and garden, I host regular workshops for anyone wanting to learn natural crafting techniques. My workshop is located in Musterstadt, where I dedicate myself passionately to this timeless craft.",
@@ -1868,8 +1868,8 @@
             "downloads_title": "Downloads & Documents",
             "downloads_subtitle": "Download care instructions, workshop schedules, and informational flyers directly.",
             "contact_intro_text": "Do you have questions about our workshops, want to order a voucher, or inquire about a custom-made design?",
-            "meta_title": "Atelier Musterfrau | Handcrafted Unique Pieces & Creative Workshops",
-            "meta_description": "Handcrafted unique pieces, sustainable natural materials, and inspiring workshop courses.",
+            "meta_title": "WeaveCMS | Modern, Lightweight PHP CMS",
+            "meta_description": "WeaveCMS – Modern, lightweight PHP 8+ CMS with dual JSON and SQL storage.",
             "impressum_supervisory": "Chamber of Crafts & Trade Authority",
             "impressum_vat_id": "According to § 19 UStG, no VAT is charged (small business regulation).",
             "impressum_disclaimer": "Despite careful control of the contents, we assume no liability for the content of external links. The operators of linked pages are solely responsible for their content.",
@@ -1878,7 +1878,7 @@
             "privacy_policy_text": "### 1. Privacy at a Glance\r\n\r\nProtecting your personal data is an important priority for us. This policy gives you an overview of how your data is collected and processed.\r\n\r\n### 2. Responsible Entity\r\n\r\nThe entity responsible for data processing on this website is the proprietor named in the Legal Notice.\r\n\r\n### 3. Data Collection on Our Website\r\n\r\n**Server Log Files:**\r\nThe web server automatically collects technical connection data (e.g., anonymized IP address, browser type, requested URL, date and time of access). This data is technically necessary to deliver the website reliably and securely.\r\n\r\n**Contact Form & Email Inquiries:**\r\nWhen you send us inquiries via the contact form or email, your details from the inquiry form, including contact information, are stored for processing your request and answering follow-up questions.\r\n\r\n### 4. No Advertising or Tracking Cookies\r\n\r\nThis website completely abstains from using third-party tracking, analytics, or marketing cookies that require consent."
         },
         "it": {
-            "hero_title": "Atelier Musterfrau",
+            "hero_title": "WeaveCMS",
             "hero_subtitle": "Pezzi unici fatti a mano & Workshop creativi",
             "about_title": "Il mio Atelier & L'arte dell'artigianato",
             "about_text": "Per me l'artigianato è un legame vivo tra natura, tradizione e design contemporaneo. Ogni pezzo è realizzato con cura a mano e racconta la propria storia. Utilizzo esclusivamente materiali naturali sostenibili e accuratamente selezionati.\r\n\r\nOltre a complementi d'arredo personalizzati e creazioni su misura per casa e giardino, tengo regolarmente workshop per tutti coloro che desiderano imparare l'arte dell'intreccio naturale.",
@@ -1899,8 +1899,8 @@
             "downloads_title": "Download & Documenti",
             "downloads_subtitle": "Scarica direttamente guide per la cura, calendari dei corsi e brochure informative.",
             "contact_intro_text": "Hai domande sui nostri corsi, desideri acquistare un buono o richiedere un pezzo su misura?",
-            "meta_title": "Atelier Musterfrau | Pezzi unici fatti a mano & Workshop creativi",
-            "meta_description": "Pezzi unici fatti a mano, materiali naturali sostenibili e workshop creativi stimolanti.",
+            "meta_title": "WeaveCMS | CMS PHP 8+ moderno e modulare",
+            "meta_description": "WeaveCMS – CMS PHP 8+ moderno e modulare con storage duale JSON e SQL.",
             "impressum_supervisory": "Camera dell'Artigianato e del Commercio",
             "impressum_vat_id": "Regime dei piccoli contribuenti: non soggetta ad imposta sul valore aggiunto (§ 19 UStG).",
             "impressum_disclaimer": "Nonostante un attento controllo dei contenuti, non ci assumiamo alcuna responsabilità per i contenuti dei link esterni. I gestori delle pagine collegate sono i soli responsabili dei loro contenuti.",

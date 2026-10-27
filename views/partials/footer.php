@@ -10,7 +10,7 @@
     <!-- Footer -->
     <footer style="margin-top: 5rem; padding: 4rem 0; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
         <div class="container" style="display: flex; flex-direction: column; gap: 1.5rem;">
-            <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars($data['texts']['contact_name'] ?? 'Maxima Musterfrau'); ?>. <?php echo htmlspecialchars(__('footer.all_rights_reserved', 'Alle Rechte vorbehalten.')); ?></p>
+            <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars($data['texts']['contact_name'] ?? 'WeaveCMS'); ?>. <?php echo htmlspecialchars(__('footer.all_rights_reserved', 'Alle Rechte vorbehalten.')); ?></p>
             <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; align-items: center;">
                 <?php 
                     $contact_place = $data['settings']['contact_placement'] ?? 'both';

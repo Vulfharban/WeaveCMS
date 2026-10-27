@@ -269,7 +269,7 @@ $isSqliteSupported = ForumUserManager::isSqliteSupported();
             oder in einer indizierten SQLite-Datenbank (in <code>data/forum.sqlite</code>) zu speichern.
         </p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div class="card p-4 <?= $currentDriver === 'json' ? 'border-primary shadow' : '' ?>">
                 <div class="flex items-center justify-between mb-2">
                     <h4 class="font-bold flex items-center gap-2">
@@ -290,6 +290,34 @@ $isSqliteSupported = ForumUserManager::isSqliteSupported();
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                         <button type="submit" class="btn btn-outline btn-sm w-full">
                             Daten nach JSON migrieren & aktivieren
+                        </button>
+                    </form>
+                <?php endif; ?>
+            </div>
+
+            <div class="card p-4 <?= $currentDriver === 'mysql' ? 'border-primary shadow' : '' ?>">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold flex items-center gap-2">
+                        <span class="material-icons">dns</span> MySQL / MariaDB
+                    </h4>
+                    <?php if ($currentDriver === 'mysql'): ?>
+                        <span class="badge badge-success">Aktiv</span>
+                    <?php elseif (!ForumUserManager::isMysqlSupported()): ?>
+                        <span class="badge badge-warning">PHP pdo_mysql fehlt</span>
+                    <?php endif; ?>
+                </div>
+                <p class="text-xs text-muted mb-3">
+                    DB: <code>WeaveCMS</code> (127.0.0.1:3306)<br>
+                    User: <code>root</code><br>
+                    Status: <?= ForumUserManager::isMysqlSupported() ? 'Bereit & Tabellen aktiv' : 'pdo_mysql aktivieren' ?>
+                </p>
+                <?php if ($currentDriver !== 'mysql'): ?>
+                    <form method="post">
+                        <input type="hidden" name="action" value="forum_migrate_storage">
+                        <input type="hidden" name="target_driver" value="mysql">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                        <button type="submit" class="btn btn-primary btn-sm w-full" <?= !ForumUserManager::isMysqlSupported() ? 'disabled' : '' ?>>
+                            Daten nach MySQL migrieren & aktivieren
                         </button>
                     </form>
                 <?php endif; ?>

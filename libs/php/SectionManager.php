@@ -386,7 +386,7 @@ class SectionManager {
      * @return string
      */
     public static function getSiteArchitecture(array $data): string {
-        $arch = $data['settings']['site_architecture'] ?? ($data['settings']['page_architecture'] ?? self::ARCHITECTURE_ONEPAGE);
+        $arch = $data['settings']['site_architecture'] ?? ($data['settings']['architecture_mode'] ?? ($data['settings']['page_architecture'] ?? self::ARCHITECTURE_ONEPAGE));
         if (!in_array($arch, [self::ARCHITECTURE_ONEPAGE, self::ARCHITECTURE_MULTIPAGE, self::ARCHITECTURE_HYBRID], true)) {
             $arch = self::ARCHITECTURE_ONEPAGE;
         }
@@ -602,18 +602,44 @@ class SectionManager {
     /**
      * Liefert alle Menüeinträge der sichtbaren Sektionen sowie sichtbare Einzelseiten.
      * Passt Links dynamisch an (Anker #id für One-Pager vs. ?page=id für Multi-Page).
+     * Filtert Duplikate zwischen Einzelseiten und Sektionen intelligent heraus.
      * @param array $data
      * @return array
      */
     public static function getNavItems(array $data): array {
         $sections = self::getVisibleSections($data);
-        $items = array_values(array_filter($sections, function($sec) {
-            return !empty($sec['in_nav']) && !empty($sec['nav_label']);
-        }));
-
         $curLang = LanguageManager::detectLanguage($data);
         $primaryLang = LanguageManager::getPrimaryLanguage($data);
         $arch = self::getSiteArchitecture($data);
+
+        // Aktive Custom Subpages erfassen, um redundante Sektionsanker zu vermeiden
+        $activePageSlugs = [];
+        if (!empty($data['pages']) && is_array($data['pages'])) {
+            foreach ($data['pages'] as $p) {
+                if (!empty($p['in_nav']) && RevisionManager::isItemVisible($p)) {
+                    $slug = strtolower(trim((string)($p['slug'] ?? '')));
+                    if ($slug !== '') {
+                        $activePageSlugs[$slug] = true;
+                    }
+                }
+            }
+        }
+
+        $items = array_values(array_filter($sections, function($sec) use ($activePageSlugs) {
+            if (empty($sec['in_nav']) || empty($sec['nav_label'])) {
+                return false;
+            }
+            $secId = strtolower(trim((string)($sec['id'] ?? '')));
+            // Wenn für diesen Slug bereits eine eigene Seite im Menü aktiv ist, Sektion überspringen
+            if (isset($activePageSlugs[$secId])) {
+                return false;
+            }
+            $cleanSecId = str_replace('integration_', '', $secId);
+            if (isset($activePageSlugs[$cleanSecId])) {
+                return false;
+            }
+            return true;
+        }));
 
         // Dynamische Link-Generierung nach Architektur-Modus
         foreach ($items as &$item) {
@@ -684,7 +710,31 @@ class SectionManager {
         }
         unset($item);
 
-        return $items;
+        // Deduplizierung nach Ziel-Slug und bereinigtem Link
+        $deduped = [];
+        $seenTargets = [];
+        foreach ($items as $navItem) {
+            $rawUrl = $navItem['url'] ?? ('#' . ($navItem['id'] ?? ''));
+            $targetSlug = '';
+            if (preg_match('/[?&]page=([^&#]+)/i', $rawUrl, $m)) {
+                $targetSlug = strtolower(urldecode($m[1]));
+            } elseif (str_starts_with($rawUrl, '#')) {
+                $targetSlug = strtolower(ltrim($rawUrl, '#'));
+            } else {
+                $targetSlug = strtolower((string)($navItem['id'] ?? ''));
+            }
+            $targetSlug = str_replace(['page-', 'integration_'], '', $targetSlug);
+            $normalizedLabel = mb_strtolower(trim((string)($navItem['nav_label'] ?? '')));
+
+            $key = $targetSlug !== '' ? $targetSlug : $normalizedLabel;
+            if (isset($seenTargets[$key])) {
+                continue;
+            }
+            $seenTargets[$key] = true;
+            $deduped[] = $navItem;
+        }
+
+        return $deduped;
     }
 
     /**

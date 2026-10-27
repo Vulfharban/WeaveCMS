@@ -1,0 +1,14 @@
+{
+    "id": "github",
+    "name": "GitHub Repository & Quellcode",
+    "category": "developer",
+    "icon": "code",
+    "description": "Verlinke oder binde das WeaveCMS GitHub-Repository mit Vorschaukarte und Statistiken ein.",
+    "target_url": "https://github.com/Vulfharban/WeaveCMS",
+    "url_pattern": "{base}",
+    "default_mode": "preview_card",
+    "default_height": 600,
+    "default_title": "WeaveCMS auf GitHub",
+    "default_subtitle": "Open-Source-Repository, Quellcode, Releases, Issue-Tracker und Mitgestaltung auf GitHub.",
+    "params": {}
+}
