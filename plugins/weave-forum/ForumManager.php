@@ -1398,7 +1398,7 @@ class ForumManager {
     // VOLLTEXT- & SCHNELLSUCHE
     // =========================================================================
 
-    public static function search(string $query, int $limit = 30): array {
+    public static function search(string $query, ?string $boardId = null, string $searchIn = 'all', string $sortBy = 'latest', int $limit = 50): array {
         $q = trim($query);
         if (mb_strlen($q) < 2) {
             return ['topics' => [], 'query' => $q, 'count' => 0];
@@ -1407,25 +1407,43 @@ class ForumManager {
         $driver = self::getStorageDriver();
         $matchedTopicIds = [];
         $snippets = [];
+        $boardFilter = !empty($boardId) ? trim($boardId) : null;
 
-        if ($driver === 'sqlite') {
+        if ($driver === 'sqlite' || $driver === 'mysql') {
             try {
-                $pdo = self::getSqlitePdo();
+                $pdo = self::getPdo();
                 // 1. Suche in Thementiteln
-                $stmtT = $pdo->prepare("SELECT id FROM weave_forum_topics WHERE title LIKE :q AND status = 'published'");
-                $stmtT->execute([':q' => '%' . $q . '%']);
-                foreach ($stmtT->fetchAll(PDO::FETCH_COLUMN) as $tid) {
-                    $matchedTopicIds[$tid] = true;
+                $sqlT = "SELECT id, board_id FROM weave_forum_topics WHERE title LIKE :q AND status = 'published'";
+                if ($boardFilter) {
+                    $sqlT .= " AND board_id = :bid";
+                }
+                $stmtT = $pdo->prepare($sqlT);
+                $paramsT = [':q' => '%' . $q . '%'];
+                if ($boardFilter) $paramsT[':bid'] = $boardFilter;
+                $stmtT->execute($paramsT);
+                foreach ($stmtT->fetchAll() as $row) {
+                    $matchedTopicIds[$row['id']] = true;
                 }
 
                 // 2. Suche in Beiträgen
-                $stmtP = $pdo->prepare("SELECT topic_id, content FROM weave_forum_posts WHERE content LIKE :q AND status = 'published' LIMIT 100");
-                $stmtP->execute([':q' => '%' . $q . '%']);
-                foreach ($stmtP->fetchAll() as $row) {
-                    $tid = $row['topic_id'];
-                    $matchedTopicIds[$tid] = true;
-                    if (!isset($snippets[$tid])) {
-                        $snippets[$tid] = self::extractSnippet($row['content'], $q);
+                if ($searchIn !== 'titles') {
+                    $sqlP = "SELECT p.topic_id, p.content FROM weave_forum_posts p
+                             JOIN weave_forum_topics t ON t.id = p.topic_id
+                             WHERE p.content LIKE :q AND p.status = 'published' AND t.status = 'published'";
+                    if ($boardFilter) {
+                        $sqlP .= " AND t.board_id = :bid";
+                    }
+                    $sqlP .= " LIMIT 150";
+                    $stmtP = $pdo->prepare($sqlP);
+                    $paramsP = [':q' => '%' . $q . '%'];
+                    if ($boardFilter) $paramsP[':bid'] = $boardFilter;
+                    $stmtP->execute($paramsP);
+                    foreach ($stmtP->fetchAll() as $row) {
+                        $tid = $row['topic_id'];
+                        $matchedTopicIds[$tid] = true;
+                        if (!isset($snippets[$tid])) {
+                            $snippets[$tid] = self::extractSnippet($row['content'], $q);
+                        }
                     }
                 }
             } catch (Exception $e) {
@@ -1435,16 +1453,27 @@ class ForumManager {
             $data = self::loadJsonData();
             foreach ($data['topics'] ?? [] as $t) {
                 if (($t['status'] ?? 'published') === 'published' && mb_stripos($t['title'] ?? '', $q) !== false) {
-                    $matchedTopicIds[$t['id']] = true;
+                    if (!$boardFilter || ($t['board_id'] ?? '') === $boardFilter) {
+                        $matchedTopicIds[$t['id']] = true;
+                    }
                 }
             }
 
-            foreach ($data['posts'] ?? [] as $p) {
-                if (($p['status'] ?? 'published') === 'published' && mb_stripos($p['content'] ?? '', $q) !== false) {
-                    $tid = $p['topic_id'];
-                    $matchedTopicIds[$tid] = true;
-                    if (!isset($snippets[$tid])) {
-                        $snippets[$tid] = self::extractSnippet($p['content'], $q);
+            if ($searchIn !== 'titles') {
+                $topicBoards = [];
+                foreach ($data['topics'] ?? [] as $t) {
+                    $topicBoards[$t['id']] = $t['board_id'] ?? '';
+                }
+
+                foreach ($data['posts'] ?? [] as $p) {
+                    if (($p['status'] ?? 'published') === 'published' && mb_stripos($p['content'] ?? '', $q) !== false) {
+                        $tid = $p['topic_id'];
+                        if (!$boardFilter || ($topicBoards[$tid] ?? '') === $boardFilter) {
+                            $matchedTopicIds[$tid] = true;
+                            if (!isset($snippets[$tid])) {
+                                $snippets[$tid] = self::extractSnippet($p['content'], $q);
+                            }
+                        }
                     }
                 }
             }
@@ -1454,19 +1483,34 @@ class ForumManager {
         foreach (array_keys($matchedTopicIds) as $tid) {
             $topic = self::getTopic($tid);
             if ($topic && ($topic['status'] ?? 'published') === 'published') {
+                if ($boardFilter && ($topic['board_id'] ?? '') !== $boardFilter) {
+                    continue;
+                }
                 $board = self::getBoard($topic['board_id']);
                 $topic['board_title'] = $board['title'] ?? 'Forum';
+                $topic['board_icon'] = $board['icon'] ?? 'forum';
                 $topic['reply_count'] = max(0, self::countPosts($tid) - 1);
                 $topic['snippet'] = $snippets[$tid] ?? '';
                 $results[] = $topic;
             }
         }
 
-        usort($results, fn($a, $b) => strcmp($b['last_post_at'] ?? '', $a['last_post_at'] ?? ''));
+        // Sortierung
+        if ($sortBy === 'replies') {
+            usort($results, fn($a, $b) => ($b['reply_count'] ?? 0) <=> ($a['reply_count'] ?? 0));
+        } elseif ($sortBy === 'views') {
+            usort($results, fn($a, $b) => ($b['views'] ?? 0) <=> ($a['views'] ?? 0));
+        } elseif ($sortBy === 'created') {
+            usort($results, fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
+        } else {
+            // default 'latest'
+            usort($results, fn($a, $b) => strcmp($b['last_post_at'] ?? '', $a['last_post_at'] ?? ''));
+        }
 
         return [
             'topics' => array_slice($results, 0, $limit),
             'query' => $q,
+            'board_id' => $boardFilter,
             'count' => count($results)
         ];
     }
@@ -1480,7 +1524,7 @@ class ForumManager {
         $len = mb_strlen($query) + ($radius * 2);
         $snip = mb_substr($content, $start, $len);
         $snip = htmlspecialchars($snip);
-        $snip = preg_replace('/(' . preg_quote(htmlspecialchars($query), '/') . ')/iu', '<mark class="bg-amber-200 dark:bg-amber-900/60 font-bold px-0.5 rounded">$1</mark>', $snip);
+        $snip = preg_replace('/(' . preg_quote(htmlspecialchars($query), '/') . ')/iu', '<mark style="background:#fef08a; color:#854d0e; padding:1px 4px; border-radius:3px; font-weight:700;">$1</mark>', $snip);
         return ($start > 0 ? '...' : '') . $snip . '...';
     }
 

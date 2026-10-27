@@ -385,9 +385,22 @@ $allBoards = ForumManager::getBoards();
             </div>
         </form>
     <?php else: ?>
-        <div class="text-center py-4">
-            <p class="text-sm text-muted mb-3">Du musst angemeldet sein, um in diesem Thema zu antworten.</p>
-            <a href="?page=forum&view=login" class="btn btn-primary btn-sm">Jetzt anmelden</a>
+        <div style="text-align: center; padding: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+            <div style="display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:50%; background:#e0f2fe; color:#0284c7; margin-bottom:10px;">
+                <span class="material-icons" style="font-size:24px;">chat</span>
+            </div>
+            <h4 style="font-weight: 700; font-size: 15px; color: #1e293b; margin: 0 0 6px 0;">Möchtest du mitdiskutieren?</h4>
+            <p style="font-size: 13px; color: #64748b; margin: 0 0 16px 0; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+                Dieses Thema ist für alle Besucher frei lesbar. Um eine Antwort zu verfassen und dich mit der Community auszutauschen, melde dich bitte an oder erstelle dir ein kostenloses Konto.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <a href="?page=forum&view=login" class="kunena-btn-primary" style="padding: 8px 18px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="material-icons" style="font-size: 16px;">login</span> Jetzt anmelden
+                </a>
+                <a href="?page=forum&view=register" class="kunena-btn-secondary" style="padding: 8px 18px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="material-icons" style="font-size: 16px;">person_add</span> Kostenlos registrieren
+                </a>
+            </div>
         </div>
     <?php endif; ?>
 </div>
