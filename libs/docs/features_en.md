@@ -161,10 +161,67 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 | **WERO European Instant Payment** | European Payments Initiative (EPI) payment gateway offering instant account-to-account settlement via dynamic EPC069-12 SEPA-QR codes (GiroCode) scanned in mobile banking apps. | ✅ Integrated (v0.9.0) |
 | **Backend Order Management** | Comprehensive orders table with status workflows (`Paid`, `Processing`, `Shipped`, `Completed`, `Cancelled`), customer data, and revenue stats. | ✅ Integrated (v0.9.0) |
 | **Webtrees Genealogy Integration (Same-Server)** | Embeds Webtrees family trees and genealogy charts directly into WeaveCMS. Enforced same-server policy blocks external remote URLs for privacy and security. | ✅ Integrated (v0.9.0) |
+| **Community Discussion Forum (`weave-forum`)** | Kunena- & Webtrees-inspired responsive community forum with 3-column layout (Forum, Statistics, Latest Post), 1440px wide-screen support, modular categories, sticky topics, solved status, and post reactions (Kudos). | ✅ Integrated (v1.3.1) |
+| **Dual Storage Engine & 1-Click Migration** | Freedom of choice for forum data storage between flat-file JSON (`data/forum_data.json`) and indexed relational databases (SQLite `data/forum.sqlite` / MySQL) with seamless 1-click in-place data migration. | ✅ Integrated (v1.3.1) |
+| **Forum User Management & RBAC (`weave-forum-users`)** | Community member system with roles (`forum_admin`, `moderator`, `expert`, `forum_user`), user profile management, GDPR data export/deletion, 1-click site admin sync, and automatic backend session recognition. | ✅ Integrated (v1.3.1) |
+| **Granular Access & Read Permissions** | Configurable forum access mode (*Public: all content freely readable* vs. *Protected: registration required to read*) with dynamic whitelist for public exceptions (e.g., Announcements, Welcome area). | ✅ Integrated (v1.3.1) |
+| **Frontend Moderation Center** | Dedicated frontend navigation tab *“🛡️ Moderation”* (`?page=forum&view=moderation`) for administrators and moderators featuring reported post queues, quick resolution actions, and audit logs. | ✅ Integrated (v1.3.1) |
+| **Advanced Forum Search with Category Filter** | Fast full-text search with sub-board dropdown selector (with category optgroups), search scope selection (*Posts & Titles* vs. *Titles only*), sorting options, and `<mark>` keyword highlighting. | ✅ Integrated (v1.3.1) |
+| **Forum Markdown & Code Engine** | Comprehensive Markdown parser supporting bold (`**`), italic (`*`), hyperlinks (`[Text](url)`), inline code (`` `code` ``), fenced multi-line code blocks (```` ```php ... ``` ````) with language badges & 1-click copy, as well as Markdown blockquotes and BBCode quotes (`[quote]`) with live preview. | ✅ Integrated (v1.3.1) |
 
 ---
 
 ## 📈 Release History & Milestones
+
+### v1.3.1 (Community Discussion Forum, Access Control, Kunena UI & Markdown Engine)
+
+* **Kunena- & Webtrees-Inspired Discussion Forum (`weave-forum`):**
+  * **3-Column Layout & 1440px Width:** Maximizes widescreen desktop displays (container up to 1440px), color-coded category cards with collapsible sections, dedicated info, statistics, and latest-post columns, plus online users and community statistics widgets at page bottom.
+  * **Dual Storage & 1-Click Migration:** Seamless support for flat-file JSON (`forum_data.json`) and indexed relational databases (SQLite `forum.sqlite` or MySQL) including zero-downtime data migration directly from the backend.
+* **Forum User Management & Permissions (`weave-forum-users`):**
+  * **Role-Based Access Control (RBAC):** Tiered permissions for Administrators, Moderators, Experts, and regular Members with color-coded author badges.
+  * **1-Click Site Admin Synchronization:** Automatic synchronization of WeaveCMS site owner credentials (`contact_name`, `contact_email`) into the forum database as `forum_admin`, along with seamless auto-login for active CMS admin sessions.
+  * **Dedicated Frontend Moderation Center:** New navigation tab *“🛡️ Moderation”* with dynamic badge counter for pending reports, 1-click actions (*Resolve* / *Delete*), and quick overviews of pinned and locked threads.
+* **Granular Access & Read Permissions:**
+  * **Forum Access Modes:** Configurable in the backend between *“🌐 Public: All categories freely readable”* and *“🔒 Protected: Registration required to read”*.
+  * **Dynamic Whitelist for Public Exceptions:** In protected mode, designated sub-boards (such as *Announcements & Releases*, *Welcome & Introductions*) can be toggled via checkboxes to remain permanently open for unauthenticated guests.
+  * **Informative Guest Barriers:** Visitors encountering protected boards are presented with a friendly registration call-to-action; category overviews display a `🔒 Members only` badge while masking sensitive thread content.
+  * **Clear Reply Notice:** Explicit distinction between guest read-only access and write permissions (*“This topic is freely readable by all visitors. To post a reply, please log in...”*).
+* **Advanced Forum Search with Board Filter:**
+  * **Sub-Board Scoping:** Dropdown filter to search within specific forum sections (organized by category optgroups and respecting guest access rights).
+  * **Scope & Sorting Controls:** Toggle between full-text search (*In posts & titles*) and title-only search (*Only in topic titles*); sort by latest activity, creation date, most replies, or most views.
+  * **Visual Keyword Highlighting:** Automatic highlight tags (`<mark>`) around matched keywords in search result snippets.
+* **Rich Markdown, Code & Quote Engine:**
+  * **Rich Text Formatting:** Full support for bold (`**text**`), italic (`*text*`), hyperlinks (`[Text](url)`), and inline code (`` `code` ``).
+  * **Fenced Code Blocks with Badges & Copy Button:** Multi-line syntax-styled code blocks with language badge and 1-click clipboard copy button.
+  * **Blockquotes & BBCode Quotes:** Native support for Markdown blockquotes (`>`) and BBCode quotes (`[quote="Author"]...[/quote]`) with author attribution.
+  * **WYSIWYG Live Preview:** Real-time preview tab in the reply editor rendering all formatting and quotes accurately before posting.
+* **System & Upload Hardening:**
+  * **ImageUploader::upload():** Backwards-compatible parameter signature (`string|array|null $uploadRelDir`) seamlessly accepting both directory string paths and the WeaveCMS `$data` array, eliminating fatal type errors.
+
+---
+
+### v1.3.0 (Central Media Manager, WebP/AVIF Image Pipeline & Content Revisions)
+* **Central Media Manager & Asset Hub (Phase 22):**
+  * New top-level navigation tab *“Media Library”* between *Content & Pages* and *Design*.
+  * Switchable grid and list views for uploaded photos, illustrations, vectors, and documents with file size indicators, MIME-type filters, live search, and sorting.
+  * 1-click copy for image URLs, Markdown tags (`![Alt](url)`), and responsive HTML5 `<picture>` snippets.
+  * Accessibility modal for alt-texts and image titles stored in `data/media_meta.json`.
+* **Modern Image Pipeline with WebP, AVIF & Resizing (Phase 22):**
+  * Automatic generation of compressed WebP and AVIF variants during upload via PHP `gd`.
+  * Automatic generation of standard responsive sizes (`thumb`: 350px, `medium`: 800px, `large`: 1400px).
+  * Smart variant isolation: Child variants do not clutter the main media view and are automatically cleaned up when the master file is deleted.
+* **Drag & Drop Multi-Upload & 7Z Support (Phase 22):**
+  * Concurrent multi-file upload with visual progress bars and filename sanitization.
+  * Strict magic-bytes verification (`37 7A BC AF 27 1C` for 7z) supporting JPG, PNG, WebP, GIF, SVG, PDF, ZIP, and 7Z (excluding proprietary office formats in favor of standardized PDF).
+* **Content Revisions & Draft Mode (Phase 23):**
+  * Automatic snapshot versioning on every save in `data/revisions/` (up to 25 historical versions).
+  * Interactive revision modal with unified diff viewer (`+` / `-`) and 1-click rollback.
+  * Status management (`published`, `draft`, `scheduled`) with scheduled publishing and secure preview tokens (`?preview=...`) with frontend notification banner.
+* **Full Internationalization (i18n):**
+  * All media and revision components fully localized in English and German via `libs/lang/admin/`.
+
+---
 
 ### v1.2.0 (Modernized Sections Kanban, Contact Anti-Scraping & UI Hardening)
 * **Modernized Kanban Board for Active/Inactive Sections (Content & Pages):**

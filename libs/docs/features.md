@@ -170,6 +170,41 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **WERO European Instant Payment** | Das offizielle europäische Banken-Zahlverfahren der European Payments Initiative (EPI). Direkte Konto-zu-Konto Sofortzahlung via dynamic EPC069-12 SEPA-QR-Code (GiroCode) und Banking-App-Freigabe. | ✅ Integriert (v0.9.0) |
 | **Bestellverwaltung im Backend** | Übersicht aller eingegangenen Bestellungen, Kundendaten, Status-Workflow (`Bezahlt`, `In Bearbeitung`, `Versendet`, `Abgeschlossen`, `Storniert`) und Umsatz-Statistiken. | ✅ Integriert (v0.9.0) |
 | **Webtrees Stammbaum-Integration (Same-Server)** | Bindet Webtrees Stammbäume und Genealogie-Diagramme direkt in WeaveCMS ein. Aus Sicherheits- und Datenschutzgründen strikt auf denselben Server beschränkt (externe URLs werden unterbunden). | ✅ Integriert (v0.9.0) |
+| **Community-Diskussionsforum (`weave-forum`)** | Kunena- & Webtrees-inspiriertes, responsives Diskussionsforum mit 3-Spalten-Layout (Forum, Statistiken, Letzter Beitrag), 1440px Breiten-Support, modularen Bereichen, Sticky-Themen, Gelöst-Markierung und Beitragsreaktionen (Kudos). | ✅ Integriert (v1.3.1) |
+| **Dualer Foren-Speicher & Migration** | Wahlfreiheit für Foreninhalte zwischen Flat-File JSON (`data/forum_data.json`) und indizierter relationaler Datenbank (SQLite `data/forum.sqlite` / MySQL) mit integrierter 1-Klick-Datenmigration. | ✅ Integriert (v1.3.1) |
+| **Foren-Benutzerverwaltung & RBAC (`weave-forum-users`)** | Mitgliedersystem mit Rollen (`forum_admin`, `moderator`, `expert`, `forum_user`), Profilverwaltung, DSGVO-Export/Löschung, 1-Klick-Übernahme des WeaveCMS-Admins und automatischer Backend-Session-Erkennung. | ✅ Integriert (v1.3.1) |
+| **Granulare Zugangs- & Lesesteuerung** | Konfigurierbarer Foren-Zugangsmodus (*Öffentlich: alles frei lesbar* vs. *Geschützt: Registrierung zum Lesen erforderlich*) mit dynamischer Whitelist für frei lesbare Ausnahmen (z. B. Ankündigungen, Willkommen). | ✅ Integriert (v1.3.1) |
+| **Frontend-Moderationszentrale** | Eigener Frontend-Reiter *„🛡️ Moderation“* (`?page=forum&view=moderation`) für Administratoren und Moderatoren mit Beitragsmeldungs-Queue, Schnellaktionen und Audit-Log. | ✅ Integriert (v1.3.1) |
+| **Erweiterte Forensuche mit Bereichsfilter** | Schnelle Volltextsuche mit Dropdown-Filterung nach Unterforen (inkl. Optgroups nach Kategorien), Wahl des Suchbereichs (*Beiträge & Titel* vs. *Nur Titel*), Sortierung und `<mark>`-Hervorhebung. | ✅ Integriert (v1.3.1) |
+| **Foren-Markdown- & Code-Engine** | Umfassender Markdown-Parser mit Unterstützung für Fett (`**`), Kursiv (`*`), Hyperlinks (`[Text](url)`), Inline-Code (`code`), mehrzeilige Fenced Code-Blöcke (`php ...`) mit Sprach-Badge & 1-Klick-Kopieren sowie Markdown- und BBCode-Zitate (`[quote]`) inkl. Live-Vorschau. | ✅ Integriert (v1.3.1) |
+
+---
+
+### v1.3.1 (Community-Diskussionsforum, Zugangssteuerung, Kunena-UI & Markdown-Engine)
+
+* **Kunena- & Webtrees-inspiriertes Diskussionsforum (`weave-forum`):**
+  * **3-Spalten-Layout & 1440px-Breite:** Vollständige Ausnutzung breiter Displays (Container bis 1440px), farbcodierte Kategoriekarten mit einklappbaren Bereichen, separate Info-, Statistik- und Letzter-Beitrag-Spalten sowie Online-User- und Foren-Statistik-Widgets am Seitenende.
+  * **Dualer Speicher & 1-Klick-Migration:** Volle Unterstützung von Flat-File JSON (`forum_data.json`) und indizierter relationaler Datenbank (SQLite `forum.sqlite` oder MySQL) inklusive unterbrechungsfreier Datenmigration direkt im Backend.
+* **Foren-Benutzerverwaltung & Berechtigungen (`weave-forum-users`):**
+  * **Rollenbasiertes Rechtesystem:** Differenzierte Rechte für Administratoren, Moderatoren, Experten und reguläre Forenmitglieder mit farbigen Autoren-Badges.
+  * **1-Klick-Übernahme des Seiten-Administrators:** Automatischer Abgleich der WeaveCMS-Inhaberdaten (`contact_name`, `contact_email`) in die Forendatenbank als `forum_admin` plus nahtlose automatische Frontend-Authentifizierung für aktive CMS-Admin-Sessions.
+  * **Dedizierte Frontend-Moderationszentrale:** Neuer Navigations-Reiter *„🛡️ Moderation“* mit dynamischem Zähler-Badge für offene Beitragsmeldungen, 1-Klick-Aktionen (*Erledigen* / *Löschen*) und Schnellübersichten für angepinnte und geschlossene Themen.
+* **Granulare Zugangs- & Lesesteuerung:**
+  * **Foren-Zugangsmodus:** Im Backend wählbar zwischen *„🌐 Öffentlich: Alle Bereiche frei lesbar“* und *„🔒 Geschützt: Registrierung zum Lesen erforderlich“*.
+  * **Dynamische Ausnahme-Whitelist:** Bei geschlossener Community können beliebige Unterforen (z. B. *Ankündigungen & Releases*, *Willkommen & Vorstellung*) per Checkbox-Auswahl für Gäste ohne Registrierung dauerhaft frei lesbar geschaltet werden.
+  * **Informative Gast-Barrieren:** Gäste sehen auf geschützten Bereichen eine freundliche Registrierungs-Aufforderung; in Übersichten werden geschützte Foren mit dem Badge `🔒 Nur für Mitglieder` versehen und sensible Inhalte ausgeblendet.
+  * **Eindeutiger Antwort-Hinweis:** Unmissverständliche Trennung zwischen freiem Leserecht und schreibgeschützter Quick-Reply (*„Dieses Thema ist für alle Besucher frei lesbar. Um eine Antwort zu verfassen...“*).
+* **Erweiterte Forensuche mit Bereichsfilter:**
+  * **Unterforen-Eingrenzung:** Neues Dropdown-Menü zur gezielten Durchsuchung einzelner Forenbereiche (mit optischer Kategorien-Gruppierung und automatischer Berücksichtigung von Gast-Leseberechtigungen).
+  * **Filter & Sortierung:** Umschaltung zwischen Volltextsuche (*In Beiträgen & Titeln*) und Thementitelsuche (*Nur in Thementiteln*); Sortierung nach neuester Aktivität, Erstelldatum, meisten Antworten oder meisten Aufrufen.
+  * **Hervorhebung:** Automatische optische Markierung (`<mark>`) des gesuchten Begriffs in Ergebnis-Snippets.
+* **Vollwertige Markdown-, Code- & Zitat-Engine:**
+  * **Reiche Formatierung:** Vollständige Unterstützung für Fett (`**text**`), Kursiv (`*text*`), Hyperlinks (`[Text](url)`) und Inline-Code (`code`).
+  * **Fenced Code-Blocks mit Sprach-Badge & Kopier-Button:** Mehrzeilige Code-Blöcke mit Monospace-Schriftart, Sprach-Badge und 1-Klick-Kopieren in die Zwischenablage.
+  * **Zitate:** Unterstützung von Markdown-Blockquotes (`>`) und BBCode-Zitaten (`[quote="Autor"]...[/quote]`) mit automatischer Autoren-Kennzeichnung.
+  * **WYSIWYG-Live-Vorschau:** Tab *„Vorschau“* im Editor spiegelt alle Formatierungen und Zitate 1:1 wieder.
+* **System- & Upload-Härtung:**
+  * **ImageUploader::upload():** Abwärtskompatible Parameter-Signatur (`string|array|null $uploadRelDir`), die sowohl relative Pfad-Strings als auch das WeaveCMS `$data`-Array transparent verarbeitet und fatale Typfehler verhindert.
 
 ---
 
