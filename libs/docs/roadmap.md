@@ -32,7 +32,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
-## 🚀 Arbeitsablauf: Der 25-Phasen-Entwicklungsplan
+## 🚀 Arbeitsablauf: Der 26-Phasen-Entwicklungsplan
 
 ```
 [Phase 1: Recht & Texte] ──▶ [Phase 2: Datensicherheit] ──▶ [Phase 3: SEO & Sharing] ──▶ [Phase 4: Anfragen-Log]
@@ -59,8 +59,12 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   (3 Menüstile & Position-Selector)    (Discussions, RBAC & Moderation)      (Externe Apps frei einbinden)
          │
          ▼
-[Phase 22: Medienverwaltung] ──▶ [Phase 23: Revisions & Entwurf] ──▶ [Phase 24: SEO-Autopilot] ──▶ [Phase 25: 1-Klick-Updater]
-  (Media Library & WebP/AVIF)      (Drafts, Diff & Zeitsteuerung)      (XML-Sitemap & Schema.org)    (Automatisierte Core-Updates)
+[Phase 22: Medienverwaltung] ──▶ [Phase 23: Revisions & Entwurf] ──▶ [Phase 24: SEO-Autopilot]
+  (Media Library & WebP/AVIF)      (Drafts, Diff & Zeitsteuerung)      (XML-Sitemap & Schema.org)
+         │
+         ▼
+[Phase 25: 1-Klick-Updater] ───▶ [Phase 26: Schnellzugriff-Hub]
+  (Automatisierte Core-Updates)    (Eigene Quick-Actions wählen)
 ```
 
 ---
@@ -766,4 +770,39 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 - [ ] **25.2 Wartungsmodus & atomarer Austausch:**
   - Aktivierung eines temporären Wartungsmodus (`maintenance.flag`) während des Entpackens.
   - Atomarer Austausch der Kern-Dateien (`libs/`, `admin/`, `config.php`, `index.php`).
-  - Automatischer Aufruf von Datenbank- und Konfigurations-Migrationsroutinen.
+  - Automatischer Aufruf von Datenbank- und Konfigurations-Migrationsroutinen.
+
+---
+
+### Phase 26: Benutzerdefinierte Dashboard-Schnellzugriffe & Quick-Actions (Custom Action-Hub)
+*Ziel: Ein frei anpassbarer Schnellzugriff-Hub im Dashboard, bei dem Administratoren und Redakteure aus einem lückenlosen Gesamtkatalog aller CMS-Aktionen ihre persönlichen Favoriten und Workflows zusammenstellen können.*
+
+- [ ] **26.1 Vollständiger System-Aktionskatalog:**
+  - Strukturierter Registry-Katalog aller im CMS verfügbaren Aktionen und Ansichten, aufgeteilt in thematische Kategorien:
+    - *Inhalte & Redaktion:* Neuer Blogbeitrag, Neue Einzelseite anlegen, Texte bearbeiten, Kurse verwalten, Galerie pflegen, Revisions-Verlauf öffnen.
+    - *Medien & Assets:* Datei-Upload (Bilder/PDF/7z), Mediathek öffnen, Bild-Optimierungen / Varianten prüfen.
+    - *Kommunikation & Postfach:* Posteingang / Kontaktanfragen öffnen, SMTP-/Mail-Einstellungen konfigurieren, Empfänger ändern.
+    - *Design & Layout:* Theme-Farben & Typografie anpassen, Menüstil umschalten, Logo ändern, Sektionen-Reihenfolge anpassen.
+    - *System, Sicherheit & Wartung:* 1-Klick-Backup erstellen, Logfile einsehen, Datenbank-Status prüfen, Sandbox-Modus schalten, Benutzerverwaltung aufrufen.
+    - *Plugins & Integrationen:* Plugin-Manager öffnen, Universal-Integrations verwalten, Forum administrieren.
+  - Jede Aktion besitzt eindeutige ID, Titel, Beschreibung, Icon (FontAwesome / SVG), Ziel-Trigger (Tab-Switch, Modal-Öffner oder interne/externe URL) sowie Rollen-Voraussetzung (RBAC: Admin, Moderator, Content-Editor).
+
+- [ ] **26.2 Interaktives Konfigurations-Modal (`#modal-quickactions-config`):**
+  - Aufrufbar direkt über ein Zahnrad- / Anpassen-Icon („Schnellzugriffe anpassen“) im Dashboard-Widget.
+  - Übersicht aller Kategorien mit Suchleiste/Filter und Checkboxen zur Auswahl.
+  - Drag & Drop oder Pfeil-Buttons zur flexiblen Sortierung der ausgewählten Schnellzugriffe.
+  - Schnellauswahl über vordefinierte Workflow-Profile (Presets):
+    - *Redakteur / Content-Fokus:* Fokus auf Beiträge, Seiten, Medien-Upload und Galerie.
+    - *Administrator / Wartungs-Fokus:* Fokus auf Backups, Logs, User-Management, Sicherheits-Audit und Updates.
+    - *Allrounder / Standard:* Ausgewogene Mischung der wichtigsten täglichen Handgriffe.
+    - *Minimalist:* Nur 3–4 essenzielle Kern-Aktionen für maximale Übersicht.
+  - 1-Klick-Zurücksetzen auf Standard-Aktionen.
+
+- [ ] **26.3 Benutzerbezogene Persistenz & Rollenfilterung:**
+  - Speicherung der gewählten Schnellzugriffe in der Konfiguration (bzw. `$data['settings']['dashboard_quickactions']` oder benutzerspezifische Präferenzen).
+  - Automatische Berechtigungsprüfung (RBAC): Aktionen, für die der aktuell eingeloggte Benutzer keine Rechte besitzt, werden dynamisch ausgeblendet oder im Modal gesperrt.
+
+- [ ] **26.4 Dynamisches Dashboard-Kachel-Widget:**
+  - Modernes, responsives Kachel-Grid im Administrations-Dashboard mit Hover-Effekten, Icons, Beschreibungen und optionalen Badges (z. B. Anzahl ungelesener Nachrichten oder anstehender Entwürfe).
+  - Nahtlose Trigger-Logik: Öffnet direkt den Ziel-Tab, aktiviert Modals oder navigiert mit direktem Fokus.
+
