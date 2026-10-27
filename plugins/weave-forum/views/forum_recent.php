@@ -14,39 +14,43 @@ foreach ($allBoards as $b) {
 }
 ?>
 
-<div class="kunena-recent-wrapper space-y-4">
+<div class="kunena-recent-wrapper">
     <!-- Header Banner -->
-    <div class="kunena-box border rounded-xl overflow-hidden shadow-sm bg-card p-5">
-        <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2 text-foreground">
-            <span class="material-icons text-primary">access_time</span>
-            <span>Aktuelle Themen & Diskussionen</span>
-            <span class="kunena-topic-count text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                <?= count($topics) ?> aktiv
-            </span>
-        </h2>
-        <p class="text-xs text-muted mt-1">
+    <div class="kunena-cat-card" style="margin-bottom: 20px; border-left-color: #3b82f6;">
+        <div class="kunena-cat-header">
+            <div class="kunena-cat-title-group">
+                <span class="material-icons kunena-cat-icon" style="color: #3b82f6;">access_time</span>
+                <h2 class="kunena-cat-title" style="font-size: 1.3rem;">
+                    Aktuelle Themen &amp; Diskussionen
+                </h2>
+                <span class="kunena-cat-badge" style="background:#dbeafe; color:#1d4ed8;">
+                    <?= count($topics) ?> aktiv
+                </span>
+            </div>
+        </div>
+        <div style="padding:12px 22px; font-size:13px; color:#64748b; background:#ffffff;">
             Hier siehst du die zuletzt aktualisierten und diskutierten Forenthemen im gesamten WeaveCMS-Forum.
-        </p>
+        </div>
     </div>
 
     <!-- Topics Table -->
-    <div class="kunena-box border rounded-xl overflow-hidden shadow-sm bg-card mb-6">
-        <div class="kunena-subhead px-5 py-2.5 bg-gray-100/80 dark:bg-gray-800/80 border-b text-[11px] font-bold text-muted uppercase tracking-wider grid grid-cols-12 gap-4 items-center">
-            <div class="col-span-12 md:col-span-7 flex items-center gap-1">
+    <div class="kunena-cat-card">
+        <div class="kunena-subhead">
+            <div style="display:flex; align-items:center; gap:6px;">
                 <span>Thema / Forum</span>
-                <span class="material-icons text-xs opacity-60">arrow_downward</span>
+                <span class="material-icons" style="font-size: 14px; opacity:0.6;">arrow_downward</span>
             </div>
-            <div class="hidden md:block md:col-span-2 text-center">
+            <div class="kunena-subhead-stats">
                 Antworten / Aufrufe
             </div>
-            <div class="hidden md:block md:col-span-3">
+            <div class="kunena-subhead-last">
                 Letzter Beitrag
             </div>
         </div>
 
-        <div class="divide-y divide-border">
+        <div class="kunena-board-list">
             <?php if (empty($topics)): ?>
-                <div class="p-8 text-center text-muted italic text-xs">
+                <div style="padding:2.5rem; text-align:center; color:#64748b; font-style:italic; font-size:13px;">
                     Aktuell sind noch keine Themen vorhanden.
                 </div>
             <?php else: ?>
@@ -67,60 +71,60 @@ foreach ($allBoards as $b) {
                     $relCreated = ForumManager::formatRelativeTime($t['created_at']);
                     $relLastPost = ForumManager::formatRelativeTime($t['last_post_at']);
                     ?>
-                    <div class="kunena-topic-row px-5 py-3.5 grid grid-cols-12 gap-4 items-center hover:bg-gray-50/60 dark:hover:bg-gray-800/40 transition <?= !empty($t['is_pinned']) ? 'bg-amber-50/25 dark:bg-amber-950/15' : '' ?>">
-                        <div class="col-span-12 md:col-span-7 flex items-start gap-3">
-                            <div class="shrink-0 mt-0.5">
+                    <div class="kunena-board-row" style="<?= !empty($t['is_pinned']) ? 'background: #fffdf5;' : '' ?>">
+                        <div class="kunena-board-main">
+                            <div style="margin-top: 2px;">
                                 <?php if (!empty($t['is_pinned'])): ?>
-                                    <span class="material-icons text-amber-500 text-lg">push_pin</span>
+                                    <span class="material-icons" style="color: #f59e0b; font-size: 20px;">push_pin</span>
                                 <?php else: ?>
-                                    <span class="material-icons text-muted/70 text-lg">article</span>
+                                    <span class="material-icons" style="color: #94a3b8; font-size: 20px;">article</span>
                                 <?php endif; ?>
                             </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-1.5 flex-wrap">
+                            <div class="kunena-board-info">
+                                <div class="kunena-board-title-line">
                                     <?php if (!empty($t['is_pinned'])): ?>
                                         <span class="kunena-badge kunena-badge-pinned">Angepinnt</span>
                                     <?php endif; ?>
                                     <?php if (!empty($t['is_solved'])): ?>
                                         <span class="kunena-badge kunena-badge-solved">
-                                            <span class="material-icons text-[10px]">check</span> Gelöst
+                                            <span class="material-icons" style="font-size:11px;">check</span> Gelöst
                                         </span>
                                     <?php endif; ?>
-                                    <a href="?page=forum&view=topic&id=<?= urlencode($t['id']) ?>" class="font-bold text-sm text-foreground hover:text-primary transition hover:underline">
+                                    <a href="?page=forum&view=topic&id=<?= urlencode($t['id']) ?>" class="kunena-board-title">
                                         <?= htmlspecialchars($t['title']) ?>
                                     </a>
                                 </div>
-                                <div class="text-[11px] text-muted mt-1 flex items-center gap-1.5 flex-wrap">
-                                    <span>In <a href="?page=forum&view=board&id=<?= urlencode($t['board_id'] ?? '') ?>" class="text-primary hover:underline font-semibold"><?= htmlspecialchars($boardTitle) ?></a></span>
+                                <div class="kunena-board-desc" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <span>In <a href="?page=forum&view=board&id=<?= urlencode($t['board_id'] ?? '') ?>" style="color:var(--primary, #2e6248); font-weight:700; text-decoration:none;"><?= htmlspecialchars($boardTitle) ?></a></span>
                                     <span>•</span>
-                                    <span>von <span class="font-bold" style="color: <?= $authorRoleColor ?>;"><?= htmlspecialchars($t['author_name']) ?></span></span>
+                                    <span>von <span style="color: <?= $authorRoleColor ?>; font-weight:700;"><?= htmlspecialchars($t['author_name']) ?></span></span>
                                     <span>•</span>
                                     <span><?= htmlspecialchars($relCreated) ?></span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="hidden md:block md:col-span-2 text-center text-xs">
-                            <div class="font-medium text-muted">
-                                Antworten: <strong class="text-foreground"><?= $replyCount ?></strong>
+                        <div class="kunena-board-stats">
+                            <div class="kunena-stat-item">
+                                <span class="kunena-stat-num"><?= $replyCount ?></span>
+                                <span class="kunena-stat-lbl">Antworten</span>
                             </div>
-                            <div class="text-[11px] text-muted opacity-80 mt-0.5">
-                                Aufrufe: <strong class="text-foreground"><?= $views ?></strong>
+                            <div class="kunena-stat-item">
+                                <span class="kunena-stat-num"><?= $views ?></span>
+                                <span class="kunena-stat-lbl">Aufrufe</span>
                             </div>
                         </div>
 
-                        <div class="col-span-12 md:col-span-3 text-xs">
-                            <div class="flex items-center gap-2.5">
-                                <div class="kunena-avatar-mini shrink-0 w-7 h-7 rounded-full bg-primary/15 text-primary font-bold flex items-center justify-center text-xs shadow-inner">
-                                    <?= strtoupper(mb_substr($t['last_post_user'], 0, 1)) ?>
+                        <div class="kunena-board-lastpost">
+                            <div class="kunena-avatar-mini" style="background-color: <?= $lastPostRoleColor ?>18; color: <?= $lastPostRoleColor ?>; border: 1px solid <?= $lastPostRoleColor ?>40;">
+                                <?= strtoupper(mb_substr($t['last_post_user'], 0, 1)) ?>
+                            </div>
+                            <div class="kunena-lastpost-info">
+                                <div style="font-size: 11.5px; color: #475569;">
+                                    Letzter von <span style="color: <?= $lastPostRoleColor ?>; font-weight: 700;"><?= htmlspecialchars($t['last_post_user']) ?></span>
                                 </div>
-                                <div class="min-w-0 flex-1 leading-tight">
-                                    <div class="text-[11px] text-muted">
-                                        Letzter von <span class="font-bold" style="color: <?= $lastPostRoleColor ?>;"><?= htmlspecialchars($t['last_post_user']) ?></span>
-                                    </div>
-                                    <div class="text-[10px] text-muted opacity-80 mt-0.5">
-                                        <?= htmlspecialchars($relLastPost) ?>
-                                    </div>
+                                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                                    <?= htmlspecialchars($relLastPost) ?>
                                 </div>
                             </div>
                         </div>

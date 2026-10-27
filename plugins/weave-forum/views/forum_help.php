@@ -7,58 +7,66 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
 }
 ?>
 
-<div class="kunena-help-wrapper space-y-6">
+<div class="kunena-help-wrapper">
     <!-- Header Banner -->
-    <div class="kunena-box border rounded-xl overflow-hidden shadow-sm bg-card p-6">
-        <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2 text-foreground">
-            <span class="material-icons text-primary">help_outline</span>
-            <span>Hilfe, Forenregeln & Häufige Fragen (FAQ)</span>
-        </h2>
-        <p class="text-xs text-muted mt-1 leading-relaxed">
+    <div class="kunena-cat-card" style="border-left-color: #8b5cf6; margin-bottom: 24px;">
+        <div class="kunena-cat-header">
+            <div class="kunena-cat-title-group">
+                <span class="material-icons kunena-cat-icon" style="color: #8b5cf6;">help_outline</span>
+                <h2 class="kunena-cat-title" style="font-size: 1.3rem;">
+                    Hilfe, Forenregeln &amp; Häufige Fragen (FAQ)
+                </h2>
+            </div>
+        </div>
+        <div style="padding:14px 22px; font-size:13px; color:#64748b; background:#ffffff; line-height:1.5;">
             Willkommen im Hilfe-Bereich des WeaveCMS-Forums. Hier erfährst du alles Wichtige über Benutzerrollen, Textformatierung und Foren-Funktionen.
-        </p>
+        </div>
     </div>
 
     <!-- 1. Wie erstelle ich ein Thema? -->
-    <div class="kunena-box border rounded-xl overflow-hidden shadow-sm bg-card p-6 space-y-4">
-        <h3 class="text-base font-bold text-foreground flex items-center gap-2">
-            <span class="material-icons text-primary text-lg">edit</span>
-            <span>1. Wie kann ich ein Thema erstellen oder antworten?</span>
-        </h3>
-        <div class="text-xs text-muted leading-relaxed space-y-2">
-            <p>
+    <div class="kunena-cat-card" style="margin-bottom: 24px;">
+        <div class="kunena-cat-header">
+            <div class="kunena-cat-title-group">
+                <span class="material-icons kunena-cat-icon">edit</span>
+                <h3 class="kunena-cat-title" style="font-size: 1.1rem;">1. Wie kann ich ein Thema erstellen oder antworten?</h3>
+            </div>
+        </div>
+        <div style="padding:18px 22px; font-size:13px; color:#334155; line-height:1.6; background:#ffffff;">
+            <p style="margin-bottom: 10px;">
                 <strong>Lesen:</strong> Alle Besucher können sämtliche öffentlichen Forenbereiche frei lesen, ohne sich anmelden zu müssen.
             </p>
-            <p>
-                <strong>Schreiben & Diskutieren:</strong> Um ein neues Thema zu erstellen oder auf Beiträge zu antworten, klicke oben rechts auf 
-                <a href="?page=forum&view=register" class="text-primary font-bold hover:underline">Registrieren</a> oder 
-                <a href="?page=forum&view=login" class="text-primary font-bold hover:underline">Anmelden</a>.
+            <p style="margin: 0;">
+                <strong>Schreiben &amp; Diskutieren:</strong> Um ein neues Thema zu erstellen oder auf Beiträge zu antworten, klicke oben rechts auf 
+                <a href="?page=forum&view=register" style="color:var(--primary, #2e6248); font-weight:700; text-decoration:underline;">Registrieren</a> oder 
+                <a href="?page=forum&view=login" style="color:var(--primary, #2e6248); font-weight:700; text-decoration:underline;">Anmelden</a>.
                 Sobald du angemeldet bist, erscheint in jedem offenen Forum der Button <em>„+ Neues Thema erstellen“</em> sowie unter jedem Beitrag der Antwort-Button.
             </p>
         </div>
     </div>
 
     <!-- 2. Textformatierung & Code-Snippets -->
-    <div class="kunena-box border rounded-xl overflow-hidden shadow-sm bg-card p-6 space-y-4">
-        <h3 class="text-base font-bold text-foreground flex items-center gap-2">
-            <span class="material-icons text-primary text-lg">code</span>
-            <span>2. Textformatierung, Zitate & Code-Blöcke</span>
-        </h3>
-        <div class="text-xs text-muted leading-relaxed space-y-3">
-            <p>Das WeaveCMS-Forum unterstützt Markdown und Shortcodes für übersichtliche Beiträge:</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="p-3 rounded-lg border border-border bg-gray-50/70 dark:bg-gray-800/40">
-                    <strong class="text-foreground block mb-1">Markdown-Syntax:</strong>
-                    <ul class="list-disc pl-4 space-y-1">
+    <div class="kunena-cat-card" style="margin-bottom: 24px;">
+        <div class="kunena-cat-header">
+            <div class="kunena-cat-title-group">
+                <span class="material-icons kunena-cat-icon">code</span>
+                <h3 class="kunena-cat-title" style="font-size: 1.1rem;">2. Textformatierung, Zitate &amp; Code-Blöcke</h3>
+            </div>
+        </div>
+        <div style="padding:18px 22px; font-size:13px; color:#334155; line-height:1.6; background:#ffffff;">
+            <p style="margin-bottom: 14px;">Das WeaveCMS-Forum unterstützt Markdown und Shortcodes für übersichtliche Beiträge:</p>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+                <div style="padding:14px; border-radius:10px; border:1px solid #e2e8f0; background:#f8fafc;">
+                    <strong style="display:block; margin-bottom:8px; color:#0f172a;">Markdown-Syntax:</strong>
+                    <ul style="padding-left:20px; margin:0; line-height:1.6;">
                         <li><code>**Fett**</code> für <strong>Fettgedruckten Text</strong></li>
                         <li><code>*Kursiv*</code> für <em>Kursiven Text</em></li>
                         <li><code>[Linktext](https://example.org)</code> für Hyperlinks</li>
                         <li><code>`inline code`</code> für Dateinamen oder Befehle</li>
                     </ul>
                 </div>
-                <div class="p-3 rounded-lg border border-border bg-gray-50/70 dark:bg-gray-800/40">
-                    <strong class="text-foreground block mb-1">Code-Blöcke & Zitate:</strong>
-                    <ul class="list-disc pl-4 space-y-1">
+                <div style="padding:14px; border-radius:10px; border:1px solid #e2e8f0; background:#f8fafc;">
+                    <strong style="display:block; margin-bottom:8px; color:#0f172a;">Code-Blöcke &amp; Zitate:</strong>
+                    <ul style="padding-left:20px; margin:0; line-height:1.6;">
                         <li><code>```php ... ```</code> für mehrzeiligen Quellcode mit Syntax-Hervorhebung</li>
                         <li><code>> Zitat-Text</code> für Zitate von anderen Mitgliedern</li>
                         <li>Klicke bei Beiträgen direkt auf <em>„Zitieren“</em>, um den Text vorzubereiten.</li>
@@ -69,22 +77,24 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
     </div>
 
     <!-- 3. Benutzerrollen & Farbkennzeichnung -->
-    <div class="kunena-box border rounded-xl overflow-hidden shadow-sm bg-card p-6 space-y-4">
-        <h3 class="text-base font-bold text-foreground flex items-center gap-2">
-            <span class="material-icons text-primary text-lg">verified_user</span>
-            <span>3. Benutzerrollen & Farbkennzeichnung</span>
-        </h3>
-        <div class="text-xs text-muted leading-relaxed space-y-2">
-            <p>Zur besseren Übersicht sind Benutzernamen im gesamten Forum farblich gekennzeichnet:</p>
-            <div class="flex items-center gap-4 flex-wrap pt-1">
-                <div class="flex items-center gap-1.5 font-bold text-red-600">
-                    <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span> Site Administrator (Core Team)
+    <div class="kunena-cat-card" style="margin-bottom: 24px;">
+        <div class="kunena-cat-header">
+            <div class="kunena-cat-title-group">
+                <span class="material-icons kunena-cat-icon">verified_user</span>
+                <h3 class="kunena-cat-title" style="font-size: 1.1rem;">3. Benutzerrollen &amp; Farbkennzeichnung</h3>
+            </div>
+        </div>
+        <div style="padding:18px 22px; font-size:13px; color:#334155; line-height:1.6; background:#ffffff;">
+            <p style="margin-bottom: 12px;">Zur besseren Übersicht sind Benutzernamen im gesamten Forum farblich gekennzeichnet:</p>
+            <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+                <div style="display:inline-flex; align-items:center; gap:6px; font-weight:700; color:#dc2626;">
+                    <span style="width:10px; height:10px; border-radius:50%; background:#dc2626; display:inline-block;"></span> Site Administrator (Core Team)
                 </div>
-                <div class="flex items-center gap-1.5 font-bold text-blue-600">
-                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Moderator (Foren-Helfer)
+                <div style="display:inline-flex; align-items:center; gap:6px; font-weight:700; color:#2563eb;">
+                    <span style="width:10px; height:10px; border-radius:50%; background:#2563eb; display:inline-block;"></span> Moderator (Foren-Helfer)
                 </div>
-                <div class="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300">
-                    <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span> Mitglied (Registrierter Nutzer)
+                <div style="display:inline-flex; align-items:center; gap:6px; font-weight:700; color:#475569;">
+                    <span style="width:10px; height:10px; border-radius:50%; background:#475569; display:inline-block;"></span> Mitglied (Registrierter Nutzer)
                 </div>
             </div>
         </div>

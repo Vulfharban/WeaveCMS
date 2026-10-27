@@ -14,9 +14,9 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
 ];
 ?>
 
-<div class="kunena-forum-wrapper space-y-6">
+<div class="kunena-forum-wrapper">
     <?php if (empty($categories)): ?>
-        <div class="card p-8 text-center text-muted border rounded-xl">
+        <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:3rem; text-align:center; color:#64748b;">
             Noch keine Foren-Bereiche eingerichtet.
         </div>
     <?php else: ?>
@@ -27,38 +27,41 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
             $catTopicsCount = ForumManager::countCategoryTopics($cat['id']);
             $catCollapseId = 'cat_collapse_' . preg_replace('/[^a-zA-Z0-9_]/', '_', $cat['id']);
             ?>
-            <div class="kunena-box border rounded-xl overflow-hidden shadow-sm bg-card mb-6">
-                <!-- Kunena Category Header Bar (Screenshot 1) -->
-                <div class="kunena-header px-5 py-3.5 bg-gray-50 dark:bg-gray-800/80 border-b flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <span class="material-icons text-primary text-xl"><?= htmlspecialchars($cat['icon'] ?? 'forum') ?></span>
-                        <h3 class="font-bold text-base text-foreground tracking-tight m-0">
+            <div class="kunena-cat-card">
+                <!-- Kunena Category Header Bar -->
+                <div class="kunena-cat-header">
+                    <div class="kunena-cat-title-group">
+                        <span class="material-icons kunena-cat-icon"><?= htmlspecialchars($cat['icon'] ?? 'forum') ?></span>
+                        <h3 class="kunena-cat-title">
                             <?= htmlspecialchars($cat['title']) ?>
                         </h3>
-                        <span class="kunena-topic-count text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                        <span class="kunena-cat-badge">
                             <?= $catTopicsCount ?> <?= $catTopicsCount === 1 ? 'Thema' : 'Themen' ?>
                         </span>
                     </div>
                     <button type="button" 
-                            class="kunena-collapse-btn text-muted hover:text-foreground text-xs p-1 rounded border border-border transition flex items-center justify-center w-6 h-6"
+                            class="kunena-collapse-btn"
                             onclick="toggleKunenaCategory('<?= $catCollapseId ?>', this)"
                             title="Kategorie einklappen / ausklappen"
                             aria-label="Kategorie umschalten">
-                        <span class="material-icons text-sm">remove</span>
+                        <span class="material-icons" style="font-size: 18px;">remove</span>
                     </button>
                 </div>
 
-                <!-- Sub-header bar: Category / Last Post -->
+                <!-- Sub-header bar & Board Rows -->
                 <div id="<?= $catCollapseId ?>" class="kunena-category-body">
-                    <div class="kunena-subhead px-5 py-2 bg-gray-100/70 dark:bg-gray-900/40 border-b text-[11px] font-bold text-muted uppercase tracking-wider grid grid-cols-1 md:grid-cols-12 gap-4">
-                        <div class="md:col-span-8">Kategorie / Forum</div>
-                        <div class="hidden md:block md:col-span-4">Letzter Beitrag</div>
+                    <div class="kunena-subhead">
+                        <div>Kategorie / Forum</div>
+                        <div class="kunena-subhead-stats">Themen &amp; Beiträge</div>
+                        <div class="kunena-subhead-last">Letzter Beitrag</div>
                     </div>
 
                     <!-- Boards Rows -->
-                    <div class="kunena-board-list divide-y divide-border">
+                    <div class="kunena-board-list">
                         <?php if (empty($boards)): ?>
-                            <div class="p-4 text-xs text-muted italic">In dieser Kategorie wurden noch keine Foren angelegt.</div>
+                            <div style="padding:1rem 1.5rem; font-size:13px; color:#64748b; font-style:italic;">
+                                In dieser Kategorie wurden noch keine Foren angelegt.
+                            </div>
                         <?php else: ?>
                             <?php foreach ($boards as $board): ?>
                                 <?php 
@@ -67,37 +70,43 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                                 $latestTopics = ForumManager::getTopics($board['id'], 1, 1);
                                 $latestTopic = !empty($latestTopics) ? $latestTopics[0] : null;
                                 ?>
-                                <div class="kunena-row px-5 py-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:bg-gray-50/60 dark:hover:bg-gray-800/40 transition">
-                                    <!-- Left Column: Icon, Title + count, Description -->
-                                    <div class="md:col-span-8 flex items-start gap-3.5">
-                                        <div class="kunena-icon-box shrink-0 w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mt-0.5">
-                                            <span class="material-icons text-xl"><?= htmlspecialchars($board['icon'] ?? 'chat_bubble_outline') ?></span>
+                                <div class="kunena-board-row">
+                                    <!-- Left Column: Icon, Title, Description -->
+                                    <div class="kunena-board-main">
+                                        <div class="kunena-board-icon">
+                                            <span class="material-icons"><?= htmlspecialchars($board['icon'] ?? 'chat_bubble_outline') ?></span>
                                         </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div class="flex items-center gap-2 flex-wrap">
-                                                <a href="?page=forum&view=board&id=<?= urlencode($board['id']) ?>" class="font-bold text-base text-foreground hover:text-primary transition hover:underline">
+                                        <div class="kunena-board-info">
+                                            <div class="kunena-board-title-line">
+                                                <a href="?page=forum&view=board&id=<?= urlencode($board['id']) ?>" class="kunena-board-title">
                                                     <?= htmlspecialchars($board['title']) ?>
                                                 </a>
-                                                <span class="text-xs text-muted font-medium">
-                                                    <?= $topicCount ?> <?= $topicCount === 1 ? 'Thema' : 'Themen' ?>
-                                                    <?php if ($postCount > 0): ?>
-                                                        <span class="opacity-75">• <?= $postCount ?> Beiträge</span>
-                                                    <?php endif; ?>
-                                                </span>
                                                 <?php if (!empty($board['is_locked'])): ?>
-                                                    <span class="material-icons text-xs text-amber-500" title="Forum geschlossen">lock</span>
+                                                    <span class="material-icons kunena-lock-icon" title="Forum geschlossen">lock</span>
                                                 <?php endif; ?>
                                             </div>
                                             <?php if (!empty($board['description'])): ?>
-                                                <p class="text-xs text-muted mt-1 leading-relaxed">
+                                                <p class="kunena-board-desc">
                                                     <?= htmlspecialchars($board['description']) ?>
                                                 </p>
                                             <?php endif; ?>
                                         </div>
                                     </div>
 
-                                    <!-- Right Column: Last Post Block (Screenshot 1) -->
-                                    <div class="md:col-span-4 text-xs">
+                                    <!-- Middle Column: Stats (Themen & Beiträge) -->
+                                    <div class="kunena-board-stats">
+                                        <div class="kunena-stat-item">
+                                            <span class="kunena-stat-num"><?= $topicCount ?></span>
+                                            <span class="kunena-stat-lbl"><?= $topicCount === 1 ? 'Thema' : 'Themen' ?></span>
+                                        </div>
+                                        <div class="kunena-stat-item">
+                                            <span class="kunena-stat-num"><?= $postCount ?></span>
+                                            <span class="kunena-stat-lbl"><?= $postCount === 1 ? 'Beitrag' : 'Beiträge' ?></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right Column: Last Post Block -->
+                                    <div class="kunena-board-lastpost">
                                         <?php if ($latestTopic): ?>
                                             <?php 
                                             $authorUser = class_exists('ForumUserManager') ? ForumUserManager::findUser($latestTopic['last_post_user']) : null;
@@ -105,27 +114,23 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                                             $roleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
                                             $relTime = ForumManager::formatRelativeTime($latestTopic['last_post_at']);
                                             ?>
-                                            <div class="flex items-center gap-3">
-                                                <div class="kunena-avatar-mini shrink-0 w-8 h-8 rounded-full bg-primary/15 text-primary font-bold flex items-center justify-center text-xs shadow-inner">
-                                                    <?= strtoupper(mb_substr($latestTopic['last_post_user'], 0, 1)) ?>
+                                            <div class="kunena-avatar-mini" style="background-color: <?= $roleColor ?>18; color: <?= $roleColor ?>; border: 1px solid <?= $roleColor ?>40;">
+                                                <?= strtoupper(mb_substr($latestTopic['last_post_user'], 0, 1)) ?>
+                                            </div>
+                                            <div class="kunena-lastpost-info">
+                                                <div class="kunena-lastpost-title">
+                                                    <a href="?page=forum&view=topic&id=<?= urlencode($latestTopic['id']) ?>" title="<?= htmlspecialchars($latestTopic['title']) ?>">
+                                                        <?= htmlspecialchars($latestTopic['title']) ?>
+                                                    </a>
                                                 </div>
-                                                <div class="min-w-0 flex-1 leading-tight">
-                                                    <div class="font-semibold text-foreground truncate max-w-[240px]">
-                                                        <a href="?page=forum&view=topic&id=<?= urlencode($latestTopic['id']) ?>" class="hover:underline hover:text-primary" title="<?= htmlspecialchars($latestTopic['title']) ?>">
-                                                            <?= htmlspecialchars($latestTopic['title']) ?>
-                                                        </a>
-                                                    </div>
-                                                    <div class="text-[11px] text-muted mt-0.5">
-                                                        von <span class="font-bold" style="color: <?= $roleColor ?>;"><?= htmlspecialchars($latestTopic['last_post_user']) ?></span>
-                                                    </div>
-                                                    <div class="text-[10px] text-muted opacity-80 mt-0.5">
-                                                        <?= htmlspecialchars($relTime) ?>
-                                                    </div>
+                                                <div class="kunena-lastpost-meta">
+                                                    von <span style="color: <?= $roleColor ?>; font-weight: 700;"><?= htmlspecialchars($latestTopic['last_post_user']) ?></span>
+                                                    • <span title="<?= htmlspecialchars($latestTopic['last_post_at']) ?>"><?= $relTime ?></span>
                                                 </div>
                                             </div>
                                         <?php else: ?>
-                                            <div class="text-muted italic flex items-center gap-1.5 opacity-70">
-                                                <span class="material-icons text-sm">hourglass_empty</span>
+                                            <div class="kunena-no-post">
+                                                <span class="material-icons" style="font-size: 16px;">schedule</span>
                                                 <span>Noch keine Beiträge</span>
                                             </div>
                                         <?php endif; ?>
@@ -142,107 +147,109 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
     <!-- ───────────────────────────────────────────────────────────── -->
     <!-- Kunena Bottom Widgets: Members & Statistics (Screenshot 2)    -->
     <!-- ───────────────────────────────────────────────────────────── -->
-    <div class="kunena-footer-widgets space-y-4 mt-8 pt-4">
-        <!-- 1. Members Box (Screenshot 2) -->
-        <div class="kunena-box border rounded-xl overflow-hidden shadow-sm bg-card">
-            <div class="kunena-header px-5 py-3 bg-gray-50 dark:bg-gray-800/80 border-b flex items-center justify-between">
-                <div class="flex items-center gap-2 font-bold text-sm text-foreground">
-                    <span class="material-icons text-primary text-lg">group</span>
-                    <span>Mitglieder</span>
+    <div class="kunena-footer-widgets" style="margin-top: 32px;">
+        <!-- 1. Members Box -->
+        <div class="kunena-widget-card">
+            <div class="kunena-widget-header">
+                <div class="kunena-widget-header-title">
+                    <span class="material-icons" style="font-size: 20px; color: #475569;">group</span>
+                    <span>Wer ist online &amp; Mitglieder</span>
                 </div>
             </div>
-            <div class="p-5 text-xs text-muted space-y-2.5">
-                <div class="text-foreground">
-                    Aktuell online: <strong><?= $onlineStats['member_count'] ?> Mitglieder</strong> und <strong><?= $onlineStats['guest_count'] ?> Gäste</strong> online.
+            <div class="kunena-widget-body">
+                <div>
+                    Aktuell sind <strong><?= $onlineStats['member_count'] ?> Mitglied<?= $onlineStats['member_count'] === 1 ? '' : 'er' ?></strong> und <strong><?= $onlineStats['guest_count'] ?> Gäste</strong> online (Gesamt: <?= $onlineStats['total_online'] ?>).
                 </div>
                 <?php if (!empty($onlineStats['members'])): ?>
-                    <div class="flex items-center gap-2 flex-wrap pt-1">
-                        <span class="text-muted font-semibold">Anwesend:</span>
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px;">
+                        <span style="font-weight:600; color:#64748b;">Anwesende Mitglieder:</span>
                         <?php foreach ($onlineStats['members'] as $m): ?>
-                            <span class="font-bold px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/5" style="color: <?= $m['color'] ?>;">
+                            <span style="display:inline-flex; align-items:center; gap:5px; font-weight:700; padding:2px 8px; border-radius:6px; background:<?= $m['color'] ?>15; color:<?= $m['color'] ?>; border:1px solid <?= $m['color'] ?>35;">
+                                <span class="kunena-legend-dot" style="background-color: <?= $m['color'] ?>;"></span>
                                 <?= htmlspecialchars($m['username']) ?>
                             </span>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
-                <!-- Role Legend (Screenshot 2) -->
-                <div class="pt-2 border-t border-border/60 flex items-center gap-3 flex-wrap text-[11px]">
-                    <span class="font-semibold text-muted">Legende:</span>
-                    <span class="inline-flex items-center gap-1 font-bold text-red-600">
-                        <span class="w-2 h-2 rounded-full bg-red-600 inline-block"></span> Site Administrator
+
+                <!-- Role Legend -->
+                <div class="kunena-legend-row">
+                    <span style="font-weight:700; color:#64748b;">Rollen-Legende:</span>
+                    <span class="kunena-legend-item" style="color: #dc2626;">
+                        <span class="kunena-legend-dot" style="background-color: #dc2626;"></span> Site Administrator
                     </span>
-                    <span class="inline-flex items-center gap-1 font-bold text-blue-600">
-                        <span class="w-2 h-2 rounded-full bg-blue-600 inline-block"></span> Moderator
+                    <span class="kunena-legend-item" style="color: #2563eb;">
+                        <span class="kunena-legend-dot" style="background-color: #2563eb;"></span> Moderator
                     </span>
-                    <span class="inline-flex items-center gap-1 font-bold text-slate-700 dark:text-slate-300">
-                        <span class="w-2 h-2 rounded-full bg-slate-500 inline-block"></span> Mitglied
+                    <span class="kunena-legend-item" style="color: #475569;">
+                        <span class="kunena-legend-dot" style="background-color: #475569;"></span> Mitglied
                     </span>
-                    <span class="inline-flex items-center gap-1 font-semibold text-gray-500">
-                        <span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> Gast
+                    <span class="kunena-legend-item" style="color: #94a3b8; font-weight:600;">
+                        <span class="kunena-legend-dot" style="background-color: #94a3b8;"></span> Gast
                     </span>
                 </div>
             </div>
         </div>
 
-        <!-- 2. Statistics Box (Screenshot 2) -->
-        <div class="kunena-box border rounded-xl overflow-hidden shadow-sm bg-card">
-            <div class="kunena-header px-5 py-3 bg-gray-50 dark:bg-gray-800/80 border-b flex items-center justify-between">
-                <div class="flex items-center gap-2 font-bold text-sm text-foreground">
-                    <span class="material-icons text-primary text-lg">bar_chart</span>
-                    <span>Statistiken</span>
+        <!-- 2. Statistics Box -->
+        <div class="kunena-widget-card stats">
+            <div class="kunena-widget-header">
+                <div class="kunena-widget-header-title">
+                    <span class="material-icons" style="font-size: 20px; color: #2563eb;">bar_chart</span>
+                    <span>Foren-Statistiken</span>
                 </div>
             </div>
-            <div class="p-5 text-xs">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div class="kunena-widget-body">
+                <div class="kunena-stats-grid">
                     <!-- Column 1 -->
-                    <div class="space-y-1.5">
-                        <div class="flex justify-between border-b border-border/40 pb-1">
-                            <span class="text-muted">Beiträge gesamt:</span>
-                            <strong class="text-foreground"><?= $globalStats['total_posts'] ?></strong>
+                    <div class="kunena-stats-col">
+                        <div class="kunena-stats-row">
+                            <span class="kunena-stats-label">Beiträge gesamt:</span>
+                            <span class="kunena-stats-val"><?= $globalStats['total_posts'] ?></span>
                         </div>
-                        <div class="flex justify-between border-b border-border/40 pb-1">
-                            <span class="text-muted">Foren-Bereiche:</span>
-                            <strong class="text-foreground"><?= $globalStats['total_boards'] ?></strong>
+                        <div class="kunena-stats-row">
+                            <span class="kunena-stats-label">Foren-Bereiche:</span>
+                            <span class="kunena-stats-val"><?= $globalStats['total_boards'] ?></span>
                         </div>
-                        <div class="flex justify-between border-b border-border/40 pb-1">
-                            <span class="text-muted">Themen heute:</span>
-                            <strong class="text-foreground"><?= $globalStats['topics_today'] ?></strong>
+                        <div class="kunena-stats-row">
+                            <span class="kunena-stats-label">Themen heute:</span>
+                            <span class="kunena-stats-val"><?= $globalStats['topics_today'] ?></span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-muted">Antworten heute:</span>
-                            <strong class="text-foreground"><?= $globalStats['posts_today'] ?></strong>
+                        <div class="kunena-stats-row">
+                            <span class="kunena-stats-label">Antworten heute:</span>
+                            <span class="kunena-stats-val"><?= $globalStats['posts_today'] ?></span>
                         </div>
                     </div>
 
                     <!-- Column 2 -->
-                    <div class="space-y-1.5">
-                        <div class="flex justify-between border-b border-border/40 pb-1">
-                            <span class="text-muted">Themen gesamt:</span>
-                            <strong class="text-foreground"><?= $globalStats['total_topics'] ?></strong>
+                    <div class="kunena-stats-col">
+                        <div class="kunena-stats-row">
+                            <span class="kunena-stats-label">Themen gesamt:</span>
+                            <span class="kunena-stats-val"><?= $globalStats['total_topics'] ?></span>
                         </div>
-                        <div class="flex justify-between border-b border-border/40 pb-1">
-                            <span class="text-muted">Kategorien:</span>
-                            <strong class="text-foreground"><?= $globalStats['total_categories'] ?></strong>
+                        <div class="kunena-stats-row">
+                            <span class="kunena-stats-label">Haupt-Kategorien:</span>
+                            <span class="kunena-stats-val"><?= $globalStats['total_categories'] ?></span>
                         </div>
-                        <div class="flex justify-between border-b border-border/40 pb-1">
-                            <span class="text-muted">Themen gestern:</span>
-                            <strong class="text-foreground"><?= $globalStats['topics_yesterday'] ?></strong>
+                        <div class="kunena-stats-row">
+                            <span class="kunena-stats-label">Themen gestern:</span>
+                            <span class="kunena-stats-val"><?= $globalStats['topics_yesterday'] ?></span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-muted">Antworten gestern:</span>
-                            <strong class="text-foreground"><?= $globalStats['posts_yesterday'] ?></strong>
+                        <div class="kunena-stats-row">
+                            <span class="kunena-stats-label">Antworten gestern:</span>
+                            <span class="kunena-stats-val"><?= $globalStats['posts_yesterday'] ?></span>
                         </div>
                     </div>
 
                     <!-- Column 3 -->
-                    <div class="space-y-1.5">
-                        <div class="flex justify-between border-b border-border/40 pb-1">
-                            <span class="text-muted">Registrierte Mitglieder:</span>
-                            <strong class="text-foreground"><?= $globalStats['total_members'] ?></strong>
+                    <div class="kunena-stats-col">
+                        <div class="kunena-stats-row">
+                            <span class="kunena-stats-label">Registrierte Mitglieder:</span>
+                            <span class="kunena-stats-val"><?= $globalStats['total_members'] ?></span>
                         </div>
-                        <div class="flex justify-between border-b border-border/40 pb-1">
-                            <span class="text-muted">Neuestes Mitglied:</span>
-                            <strong class="text-primary font-bold"><?= htmlspecialchars($globalStats['latest_member']) ?></strong>
+                        <div class="kunena-stats-row">
+                            <span class="kunena-stats-label">Neuestes Mitglied:</span>
+                            <span class="kunena-stats-val" style="color: var(--primary, #2e6248);"><?= htmlspecialchars($globalStats['latest_member']) ?></span>
                         </div>
                     </div>
                 </div>

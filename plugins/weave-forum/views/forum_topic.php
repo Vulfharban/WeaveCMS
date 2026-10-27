@@ -170,10 +170,10 @@ $allBoards = ForumManager::getBoards();
         $isAuthor = ($currentUser && $currentUser['id'] === $post['author_id']);
         $canEdit = ($isAuthor || $isMod);
         ?>
-        <div id="post-<?= htmlspecialchars($post['id']) ?>" class="card p-0 border shadow-sm overflow-hidden flex flex-col md:flex-row">
+        <div id="post-<?= htmlspecialchars($post['id']) ?>" class="kunena-post-card">
             <!-- Left: Author Card -->
-            <div class="w-full md:w-56 p-4 bg-gray-50 dark:bg-gray-800/60 border-b md:border-b-0 md:border-r flex md:flex-col items-center md:items-center text-center gap-3">
-                <div class="avatar-circle-lg">
+            <div class="kunena-post-author">
+                <div class="kunena-avatar-mini" style="width: 48px; height: 48px; font-size: 18px;">
                     <?= strtoupper(substr($post['author_name'] ?? 'U', 0, 1)) ?>
                 </div>
                 <div>
@@ -181,13 +181,13 @@ $allBoards = ForumManager::getBoards();
                     $authorRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
                     $authorRoleLabel = class_exists('ForumUserManager') ? ForumUserManager::getRoleLabel($authorRole) : 'Mitglied';
                     ?>
-                    <strong class="block font-bold text-sm" style="color: <?= htmlspecialchars($authorRoleColor) ?>"><?= htmlspecialchars($post['author_name']) ?></strong>
-                    <span class="inline-block px-2 py-0.5 mt-1 rounded text-[10px] font-bold" style="background-color: <?= htmlspecialchars($authorRoleColor) ?>18; color: <?= htmlspecialchars($authorRoleColor) ?>; border: 1px solid <?= htmlspecialchars($authorRoleColor) ?>40;">
+                    <strong style="display:block; font-size: 14px; font-weight:700; color: <?= htmlspecialchars($authorRoleColor) ?>"><?= htmlspecialchars($post['author_name']) ?></strong>
+                    <span style="display:inline-block; padding: 2px 8px; margin-top: 4px; border-radius: 6px; font-size: 10px; font-weight: 700; background-color: <?= htmlspecialchars($authorRoleColor) ?>18; color: <?= htmlspecialchars($authorRoleColor) ?>; border: 1px solid <?= htmlspecialchars($authorRoleColor) ?>40;">
                         <?= htmlspecialchars($authorRoleLabel) ?>
                     </span>
                     
                     <?php if ($author): ?>
-                        <div class="text-[11px] text-muted mt-2">
+                        <div style="font-size: 11px; color: #64748b; margin-top: 8px;">
                             <?= (int)($author['post_count'] ?? 0) ?> Beiträge
                         </div>
                     <?php endif; ?>
@@ -195,37 +195,37 @@ $allBoards = ForumManager::getBoards();
             </div>
 
             <!-- Right: Post Body -->
-            <div class="flex-1 p-6 flex flex-col justify-between">
+            <div class="kunena-post-body">
                 <div>
                     <!-- Post Header Bar -->
-                    <div class="flex items-center justify-between text-xs text-muted border-b pb-2 mb-4">
-                        <span class="flex items-center gap-1">
-                            <span class="material-icons text-xs">schedule</span>
-                            <?= ForumManager::formatRelativeTime($post['created_at']) ?> <span class="opacity-60">(<?= htmlspecialchars($post['created_at']) ?>)</span>
+                    <div class="kunena-post-topbar">
+                        <span style="display:flex; align-items:center; gap:4px;">
+                            <span class="material-icons" style="font-size: 14px;">schedule</span>
+                            <?= ForumManager::formatRelativeTime($post['created_at']) ?> <span style="opacity:0.6;">(<?= htmlspecialchars($post['created_at']) ?>)</span>
                         </span>
-                        <div class="flex items-center gap-2">
+                        <div style="display:flex; align-items:center; gap:8px;">
                             <?php if (!empty($post['updated_at'])): ?>
-                                <span class="italic text-[10px]">Bearbeitet am <?= htmlspecialchars(substr($post['updated_at'], 0, 16)) ?></span>
+                                <span style="font-style:italic; font-size: 10.5px;">Bearbeitet am <?= htmlspecialchars(substr($post['updated_at'], 0, 16)) ?></span>
                             <?php endif; ?>
-                            <a href="#post-<?= htmlspecialchars($post['id']) ?>" class="hover:underline">#<?= $idx + 1 ?></a>
+                            <a href="#post-<?= htmlspecialchars($post['id']) ?>" style="color:#64748b; text-decoration:none; font-weight:600;">#<?= $idx + 1 ?></a>
                         </div>
                     </div>
 
                     <!-- Post Content -->
-                    <div class="forum-post-content text-sm leading-relaxed mb-6">
+                    <div class="forum-post-content" style="font-size: 14px; line-height: 1.65; margin-bottom: 20px;">
                         <?= ForumManager::renderFormattedContent($post['content']) ?>
                     </div>
 
                     <!-- User Signature -->
                     <?php if (!empty($author['signature'])): ?>
-                        <div class="border-t pt-3 mt-6 text-xs text-muted italic">
+                        <div style="border-top:1px solid #f1f5f9; padding-top:10px; margin-top:16px; font-size: 12px; color:#64748b; font-style:italic;">
                             <?= nl2br(htmlspecialchars($author['signature'])) ?>
                         </div>
                     <?php endif; ?>
                 </div>
 
                 <!-- Post Actions Bar -->
-                <div class="flex items-center justify-between gap-2 pt-4 border-t text-xs">
+                <div class="kunena-post-actions">
                     <!-- Kudos / Danke Button -->
                     <?php
                     $likes = ForumManager::getPostLikes($post['id']);
