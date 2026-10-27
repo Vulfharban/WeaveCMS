@@ -1778,22 +1778,99 @@ class ForumManager {
     }
 
     /**
-     * Konvertiert Markdown und BBCode-Zitate für die sichere HTML-Ausgabe.
+     * Konvertiert Markdown, mehrzeilige Code-Blöcke und Zitate (Markdown '>' sowie BBCode '[quote]')
+     * in sicheren, validen und ansprechend gestalteten HTML-Code.
      */
     public static function renderFormattedContent(string $raw): string {
-        // BBCode Zitate: [quote="User"]Text[/quote]
-        $content = preg_replace_callback('/\[quote(?:="([^"]*)")?\](.*?)\[\/quote\]/is', function($m) {
-            $author = !empty($m[1]) ? htmlspecialchars($m[1]) : 'Zitat';
-            $quoteText = htmlspecialchars($m[2]);
-            return "<blockquote class=\"forum-quote\"><div class=\"quote-author\"><span class=\"material-icons text-xs\">format_quote</span> <strong>{$author}</strong> schrieb:</div><div class=\"quote-body\">" . nl2br($quoteText) . "</div></blockquote>";
-        }, $raw);
-
-        // WeaveCMS Markdown-Parser nutzen falls verfügbar
-        if (class_exists('MarkdownParser')) {
-            return MarkdownParser::parse($content);
+        if (trim($raw) === '') {
+            return '';
         }
 
-        return nl2br(htmlspecialchars($content));
+        $tokens = [];
+        $tokenIdx = 0;
+
+        // 1. Fenced Code Blocks: ```lang ... ``` VOR ALLEM ANDEREN extrahieren
+        $text = preg_replace_callback('/```([a-zA-Z0-9_\-\+]*)\r?\n([\s\S]*?)```/m', function($m) use (&$tokens, &$tokenIdx) {
+            $lang = !empty(trim($m[1])) ? strtoupper(trim($m[1])) : 'CODE';
+            $code = htmlspecialchars($m[2], ENT_QUOTES, 'UTF-8');
+            $ph = "%%%FORUM_CODE_BLOCK_{$tokenIdx}%%%";
+            $tokens[$ph] = '<div class="forum-code-wrapper">'
+                         . '<div class="forum-code-header">'
+                         . '<span class="forum-code-lang">' . htmlspecialchars($lang) . '</span>'
+                         . '<button type="button" class="forum-code-copy" onclick="copyForumCode(this)">'
+                         . '<span class="material-icons" style="font-size:13px; vertical-align:middle;">content_copy</span> Kopieren'
+                         . '</button>'
+                         . '</div>'
+                         . '<pre class="forum-code-block"><code class="language-' . strtolower($lang) . '">' . $code . '</code></pre>'
+                         . '</div>';
+            $tokenIdx++;
+            return $ph;
+        }, $raw);
+
+        // 2. BBCode-Zitate: [quote="User"]Text[/quote]
+        $text = preg_replace_callback('/\[quote(?:="([^"]*)")?\]([\s\S]*?)\[\/quote\]/i', function($m) use (&$tokens, &$tokenIdx) {
+            $author = !empty($m[1]) ? trim($m[1]) : '';
+            $authorHtml = $author !== '' 
+                ? '<div class="quote-author"><span class="material-icons text-xs" style="font-size:14px; vertical-align:middle;">format_quote</span> <strong>' . htmlspecialchars($author) . '</strong> schrieb:</div>' 
+                : '';
+            $body = self::renderFormattedContent($m[2]);
+            $ph = "%%%FORUM_QUOTE_BLOCK_{$tokenIdx}%%%";
+            $tokens[$ph] = '<blockquote class="forum-quote">' . $authorHtml . '<div class="quote-body">' . $body . '</div></blockquote>';
+            $tokenIdx++;
+            return $ph;
+        }, $text);
+
+        // 3. Markdown-Zitate: > Zitatzeile (Blockquotes)
+        $text = preg_replace_callback('/((?:^|\r?\n)>[^\r\n]*(?:\r?\n>[^\r\n]*)*)/m', function($m) use (&$tokens, &$tokenIdx) {
+            $lines = preg_split('/\r?\n/', trim($m[1]));
+            $cleanLines = [];
+            $author = '';
+            foreach ($lines as $l) {
+                $clean = preg_replace('/^>\s?/', '', $l);
+                if (empty($author) && preg_match('/^\*\*([^*]+)\*\*\s+schrieb:?$/i', trim($clean), $am)) {
+                    $author = $am[1];
+                    continue;
+                }
+                $cleanLines[] = $clean;
+            }
+            $authorHtml = $author !== '' 
+                ? '<div class="quote-author"><span class="material-icons text-xs" style="font-size:14px; vertical-align:middle;">format_quote</span> <strong>' . htmlspecialchars($author) . '</strong> schrieb:</div>' 
+                : '';
+            $bodyText = implode("\n", $cleanLines);
+            $bodyHtml = self::renderFormattedContent($bodyText);
+            $ph = "%%%FORUM_QUOTE_BLOCK_{$tokenIdx}%%%";
+            $tokens[$ph] = '<blockquote class="forum-quote">' . $authorHtml . '<div class="quote-body">' . $bodyHtml . '</div></blockquote>';
+            $tokenIdx++;
+            return $ph;
+        }, $text);
+
+        // 4. HTML maskieren für restlichen Text (XSS Schutz)
+        $safe = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
+
+        // 5. Markdown Links: [Linktext](https://example.org)
+        $safe = preg_replace_callback('/\[([^\]]+)\]\((https?:\/\/[^\s\)\"\']+)(?:\s+"([^"]*)")?\)/i', function($m) {
+            $label = $m[1];
+            $url = $m[2];
+            $title = !empty($m[3]) ? ' title="' . htmlspecialchars($m[3]) . '"' : '';
+            return '<a href="' . $url . '" target="_blank" rel="noopener noreferrer"' . $title . ' style="color:var(--primary, #2e6248); font-weight:600; text-decoration:underline;">' . $label . '</a>';
+        }, $safe);
+
+        // 6. Inline Code: `inline code`
+        $safe = preg_replace('/`([^`]+)`/', '<code style="background:#f1f5f9; color:#0f172a; padding:2px 6px; border-radius:4px; font-size:0.9em; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; border:1px solid #e2e8f0;">$1</code>', $safe);
+
+        // 7. Formatierungen: Fett & Kursiv
+        $safe = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $safe);
+        $safe = preg_replace('/\*([^\*]+)\*/s', '<em>$1</em>', $safe);
+
+        // 8. Zeilenumbrüche
+        $safe = nl2br($safe);
+
+        // 9. Tokens wieder einsetzen
+        if (!empty($tokens)) {
+            $safe = str_replace(array_keys($tokens), array_values($tokens), $safe);
+        }
+
+        return $safe;
     }
 
     // =========================================================================

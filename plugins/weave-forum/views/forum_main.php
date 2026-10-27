@@ -853,5 +853,116 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
         border-top: 1px dashed #f1f5f9;
         padding-top: 10px;
     }
+/* Blockquotes & Zitate */
+.forum-quote,
+.forum-post-content blockquote {
+    margin: 14px 0;
+    padding: 12px 18px;
+    background: #f8fafc;
+    border-left: 4px solid var(--primary, #2e6248);
+    border-radius: 0 10px 10px 0;
+    font-size: 13.5px;
+    color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+.forum-quote .quote-author {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary, #2e6248);
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.forum-quote .quote-body {
+    font-style: italic;
+    line-height: 1.6;
+}
+
+/* Inline Code */
+.forum-post-content code:not(pre code) {
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    border: 1px solid #e2e8f0;
+}
+
+/* Fenced Code Blocks */
+.forum-code-wrapper {
+    margin: 16px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.forum-code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+    font-size: 11px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.forum-code-copy {
+    background: transparent;
+    border: 1px solid #475569;
+    border-radius: 4px;
+    color: #cbd5e1;
+    font-size: 11px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.forum-code-copy:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-color: #94a3b8;
+}
+.forum-code-block {
+    margin: 0;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #f8fafc;
+    background: #0f172a;
+}
+.forum-code-block code {
+    background: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    color: inherit;
+    font-family: inherit;
+}
 }
 </style>
+
+<script>
+function copyForumCode(btn) {
+    const wrapper = btn.closest('.forum-code-wrapper');
+    if (!wrapper) return;
+    const codeEl = wrapper.querySelector('pre code') || wrapper.querySelector('pre');
+    if (!codeEl) return;
+    navigator.clipboard.writeText(codeEl.innerText).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<span class="material-icons" style="font-size:13px; vertical-align:middle;">check</span> Kopiert! ✓';
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
+    });
+}
+</script>

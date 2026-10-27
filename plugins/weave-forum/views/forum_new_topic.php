@@ -85,15 +85,70 @@ function renderMarkdownPreview(raw, targetEl) {
         targetEl.innerHTML = '<span class="text-muted italic">Keine Vorschau verfügbar (noch nichts geschrieben)...</span>';
         return;
     }
-    let s = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    s = s.replace(/\[quote(?:="([^"]*)")?\]([\s\S]*?)\[\/quote\]/gi, function(_, author, body) {
-        author = author ? author : 'Zitat';
-        return '<blockquote class="forum-quote"><div class="quote-author"><span class="material-icons text-xs">format_quote</span> <strong>' + author + '</strong> schrieb:</div><div class="quote-body">' + body.replace(/\n/g, '<br>') + '</div></blockquote>';
+
+    const codeTokens = [];
+    // 1. Fenced Code Blocks: ```lang ... ```
+    let s = raw.replace(/```([a-zA-Z0-9_\-\+]*)\r?\n([\s\S]*?)```/g, function(_, lang, code) {
+        const cleanLang = (lang || 'CODE').toUpperCase();
+        const safeCode = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const ph = `%%%FORUM_PREVIEW_CODE_${codeTokens.length}%%%`;
+        codeTokens.push(
+            `<div class="forum-code-wrapper">` +
+            `<div class="forum-code-header"><span class="forum-code-lang">${cleanLang}</span></div>` +
+            `<pre class="forum-code-block"><code class="language-${cleanLang.toLowerCase()}">${safeCode}</code></pre>` +
+            `</div>`
+        );
+        return ph;
     });
+
+    // 2. Escape HTML
+    s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // 3. BBCode Quotes: [quote="User"]Text[/quote]
+    s = s.replace(/\[quote(?:="([^"]*)")?\]([\s\S]*?)\[\/quote\]/gi, function(_, author, body) {
+        const authorHtml = author ? `<div class="quote-author"><span class="material-icons text-xs" style="font-size:14px; vertical-align:middle;">format_quote</span> <strong>${author}</strong> schrieb:</div>` : '';
+        return `<blockquote class="forum-quote">${authorHtml}<div class="quote-body">${body.replace(/\n/g, '<br>')}</div></blockquote>`;
+    });
+
+    // 4. Markdown Quotes: > Zitatzeile
+    s = s.replace(/((?:^|\n)&gt;[^\n]*(?:\n&gt;[^\n]*)*)/g, function(match) {
+        const lines = match.trim().split('\n');
+        let author = '';
+        const cleanLines = [];
+        lines.forEach(l => {
+            const clean = l.replace(/^&gt;\s?/, '');
+            const authorMatch = clean.match(/^\*\*([^*]+)\*\*\s+schrieb:?$/i);
+            if (!author && authorMatch) {
+                author = authorMatch[1];
+            } else {
+                cleanLines.push(clean);
+            }
+        });
+        const authorHtml = author ? `<div class="quote-author"><span class="material-icons text-xs" style="font-size:14px; vertical-align:middle;">format_quote</span> <strong>${author}</strong> schrieb:</div>` : '';
+        return `<blockquote class="forum-quote">${authorHtml}<div class="quote-body">${cleanLines.join('<br>')}</div></blockquote>`;
+    });
+
+    // 5. Links: [text](url)
+    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)\"\']+)(?:\s+"([^"]*)")?\)/g, function(_, label, url, title) {
+        const titleAttr = title ? ` title="${title}"` : '';
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer"${titleAttr} style="color:var(--primary); font-weight:600; text-decoration:underline;">${label}</a>`;
+    });
+
+    // 6. Inline Code: `code`
+    s = s.replace(/`([^`]+)`/g, '<code style="background:#f1f5f9; color:#0f172a; padding:2px 6px; border-radius:4px; font-size:0.9em; font-family:monospace; border:1px solid #e2e8f0;">$1</code>');
+
+    // 7. Bold & Italic
     s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    s = s.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    s = s.replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-xs">$1</code>');
+    s = s.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+
+    // 8. Line breaks
     s = s.replace(/\n/g, '<br>');
+
+    // 9. Restore code tokens
+    codeTokens.forEach((ct, idx) => {
+        s = s.replace(`%%%FORUM_PREVIEW_CODE_${idx}%%%`, ct);
+    });
+
     targetEl.innerHTML = s;
 }
 
