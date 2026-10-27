@@ -74,6 +74,14 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Modul-Pool & Seiten-Aufbau Board (Phase 20)** | Interaktives 2-Zonen Drag & Drop Board (Modul-Pool für inaktive Kategorien vs. Aktive Sektionen) zur intuitiven Strukturierung der Website-Architektur. | ✅ Integriert (v1.0.0) |
 | **Dynamische Inhalts-Subnavigation (Phase 20)** | Backend-Subreiter unter „Inhalte & Seiten“ werden dynamisch gefiltert und erscheinen nur bei aktiven Kategorien. | ✅ Integriert (v1.0.0) |
 | **Responsive Touch-Switcher für Board (Phase 20)** | Optimierte Mobile- & Tablet-Bedienung (<= 900px) mit Schnell-Umschaltung (`view-active` / `view-pool`) und 1-Tap-Aktionen (+ Aktivieren, Verschieben, Settings). | ✅ Integriert (v1.0.0) |
+| **Content-Revisions & Versionierung (Phase 23)** | Automatisches Anlegen von Revisionsständen bei jeder Speicherung (max. 25 Stände je Element in geschütztem `data/revisions/`). | ✅ Integriert (Phase 23) |
+| **Zeilenweiser Diff-Viewer & 1-Klick-Rollback (Phase 23)** | Visuelles Modal mit farblicher Hervorhebung hinzugefügter (`+`) und entfernter (`-`) Textzeilen sowie sichere Wiederherstellung früherer Stände inkl. Notfall-Snapshot. | ✅ Integriert (Phase 23) |
+| **Status-Workflow: Draft, Published & Scheduled (Phase 23)** | Dreistufiges Status-Management (`published`, `draft`, `scheduled`) für Freie Einzelseiten und Blog-Artikel mit Datum/Uhrzeit-Steuerung (`publish_at`). | ✅ Integriert (Phase 23) |
+| **Sicherer Vorschau-Modus & Preview-Tokens (Phase 23)** | Kryptographisch zufällige 32-Zeichen-Tokens (`?preview=...`) für Entwürfe und zeitgesteuerte Inhalte mit sticky Frontend-Hinweisbanner. | ✅ Integriert (Phase 23) |
+| **Zentrale Medienverwaltung & Asset-Manager (Phase 22)** | Neuer Hauptreiter *„Mediathek“* mit Kachel- und Listenansicht, Kennzahlen, Typ-Filterung (Bilder, Dokumente, Vektoren), Suche und Sortierung. | ✅ Integriert (v1.3.0) |
+| **Automatische WebP- & AVIF-Bildpipeline (Phase 22)** | Vollautomatische Konvertierung aller hochgeladenen Bilder via PHP `gd` in komprimierte WebP- und AVIF-Formate sowie Generierung responsiver Größen (`thumb`: 350px, `medium`: 800px, `large`: 1400px). | ✅ Integriert (v1.3.0) |
+| **HTML5 &lt;picture&gt;- &amp; srcset-Helfer (Phase 22)** | Automatische Bereitstellung von performantem `<picture>`-Markup (`MediaManager::renderPictureTag`) mit modernstem Format-Fallback für maximale Ladezeiten. | ✅ Integriert (v1.3.0) |
+| **Multi-Upload &amp; 7Z-Archiv-Unterstützung (Phase 22)** | Drag &amp; Drop Mehrfach-Upload mit Fortschrittsbalken und automatischer Dateinamens-Bereinigung. Unterstützung für JPG, PNG, WebP, GIF, SVG, PDF, ZIP, 7Z (proprietäre Office-Formate zugunsten von sauberem PDF-Export ausgeschlossen). | ✅ Integriert (v1.3.0) |
 
 ---
 
@@ -162,6 +170,28 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **WERO European Instant Payment** | Das offizielle europäische Banken-Zahlverfahren der European Payments Initiative (EPI). Direkte Konto-zu-Konto Sofortzahlung via dynamic EPC069-12 SEPA-QR-Code (GiroCode) und Banking-App-Freigabe. | ✅ Integriert (v0.9.0) |
 | **Bestellverwaltung im Backend** | Übersicht aller eingegangenen Bestellungen, Kundendaten, Status-Workflow (`Bezahlt`, `In Bearbeitung`, `Versendet`, `Abgeschlossen`, `Storniert`) und Umsatz-Statistiken. | ✅ Integriert (v0.9.0) |
 | **Webtrees Stammbaum-Integration (Same-Server)** | Bindet Webtrees Stammbäume und Genealogie-Diagramme direkt in WeaveCMS ein. Aus Sicherheits- und Datenschutzgründen strikt auf denselben Server beschränkt (externe URLs werden unterbunden). | ✅ Integriert (v0.9.0) |
+
+---
+
+### v1.3.0 (Zentrale Medienverwaltung, WebP/AVIF-Bildpipeline & Content-Revisions)
+* **Zentraler Medien-Manager & Asset-Hub (Phase 22):**
+  * Neuer Hauptreiter *„Mediathek“* in der oberen Navigation zwischen *Inhalte & Seiten* und *Darstellung*.
+  * Umschaltbare Kachel- und Listenansicht aller hochgeladenen Bilder, Grafiken, Vektoren und Dokumente mit Dateigrößenanzeige, Filter nach Medientyp, Live-Suche und Sortierung.
+  * 1-Klick-Kopieren von Bild-URLs, Markdown-Tags (`![Alt](url)`) und responsivem HTML5 `<picture>`-Code.
+  * Barrierefreiheits-Modal für Alt-Texte und Bildtitel mit Speicherung in `data/media_meta.json`.
+* **Moderne Bild-Pipeline mit WebP, AVIF & Resizing (Phase 22):**
+  * Automatische Erzeugung komprimierter WebP- und AVIF-Varianten beim Upload via PHP `gd`.
+  * Automatische Generierung von Standardgrößen (`thumb`: 350px, `medium`: 800px, `large`: 1400px).
+  * Smarte Varianten-Isolierung: Kind-Varianten belasten nicht die Hauptübersicht und werden beim Löschen des Masters restlos entfernt.
+* **Drag & Drop Multi-Upload & 7Z-Support (Phase 22):**
+  * Gleichzeitiger Mehrfach-Upload mit visuellem Fortschrittsbalken und Dateinamensbereinigung.
+  * Strikte Magic-Bytes-Prüfung (`37 7A BC AF 27 1C` für 7z) für JPG, PNG, WebP, GIF, SVG, PDF, ZIP und 7Z (Ausschluss proprietärer Office-Formate zugunsten von standardisiertem PDF-Export).
+* **Content-Revisions & Entwurfsmodus (Phase 23):**
+  * Automatisches Versionieren bei jeder Speicherung in `data/revisions/` (bis zu 25 Stände).
+  * Interaktives Revisions-Modal mit Unified-Diff-Viewer (`+` / `-`) und 1-Klick-Rollback.
+  * Status-Management (`published`, `draft`, `scheduled`) mit zeitgesteuerter Veröffentlichung und Preview-Token (`?preview=...`) mit Frontend-Banner.
+* **Vollständige Mehrsprachigkeit (i18n):**
+  * Sämtliche neuen Komponenten sind lückenlos über `libs/lang/admin/` für Deutsch und Englisch übersetzt.
 
 ---
 

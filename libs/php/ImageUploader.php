@@ -31,23 +31,20 @@ class ImageUploader {
     ];
 
     /**
-     * Erlaubte Dateiendungen für Dokumenten-Downloads.
+     * Erlaubte Dateiendungen für Dokumenten-Downloads & Archivdateien.
+     * Hinweis: Office-Dateien (Word, Excel etc.) werden nicht zugelassen, da sie modern nach PDF exportiert werden.
      */
-    public const ALLOWED_DOC_EXTENSIONS = ['pdf', 'zip', 'docx', 'doc', 'odt', 'txt', 'csv', 'xlsx', 'xls'];
+    public const ALLOWED_DOC_EXTENSIONS = ['pdf', 'zip', '7z', 'txt', 'csv'];
 
     /**
      * Erlaubte MIME-Types für Dokumente (Magic Bytes Prüfung).
      */
     public const ALLOWED_DOC_MIMES = [
-        'pdf'  => ['application/pdf'],
-        'zip'  => ['application/zip', 'application/x-zip-compressed', 'multipart/x-zip'],
-        'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip'],
-        'doc'  => ['application/msword'],
-        'odt'  => ['application/vnd.oasis.opendocument.text'],
-        'txt'  => ['text/plain'],
-        'csv'  => ['text/plain', 'text/csv', 'application/csv'],
-        'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/zip'],
-        'xls'  => ['application/vnd.ms-excel']
+        'pdf' => ['application/pdf'],
+        'zip' => ['application/zip', 'application/x-zip-compressed', 'multipart/x-zip'],
+        '7z'  => ['application/x-7z-compressed', 'application/octet-stream'],
+        'txt' => ['text/plain'],
+        'csv' => ['text/plain', 'text/csv', 'application/csv']
     ];
 
     /**
@@ -98,7 +95,21 @@ class ImageUploader {
             return false;
         }
 
-        return in_array(strtolower((string)$mime), $allowedMimes, true);
+        $detected = strtolower((string)$mime);
+        if ($detected === 'application/octet-stream') {
+            // Falls 7z geprüft wird, spezifische Magic Bytes verifizieren (37 7A BC AF 27 1C)
+            if (in_array('application/x-7z-compressed', $allowedMimes, true) || in_array('application/octet-stream', $allowedMimes, true)) {
+                $handle = @fopen($filePath, 'rb');
+                if ($handle) {
+                    $header = fread($handle, 6);
+                    fclose($handle);
+                    return ($header === "\x37\x7A\xBC\xAF\x27\x1C");
+                }
+            }
+            return false;
+        }
+
+        return in_array($detected, $allowedMimes, true);
     }
 
     /**

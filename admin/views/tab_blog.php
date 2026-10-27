@@ -103,10 +103,15 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                         </div>
                         <div class="form-group">
                             <label for="blog_status" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Sichtbarkeit / Status</label>
-                            <select id="blog_status" name="status" class="form-control">
+                            <select id="blog_status" name="status" class="form-control" onchange="toggleBlogScheduledBox(this.value)">
                                 <option value="published">🟢 Veröffentlicht (Sofort sichtbar)</option>
-                                <option value="draft">🟡 Entwurf (Nur im Adminbereich)</option>
+                                <option value="draft">🟡 Entwurf (Nur per Token / Admin)</option>
+                                <option value="scheduled">⏱️ Zeitgesteuert (Geplant)</option>
                             </select>
+                            <div id="blog_scheduled_box" style="display:none; margin-top:8px;">
+                                <label for="blog_publish_at" style="font-size:0.78rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Veröffentlichungszeitpunkt</label>
+                                <input type="datetime-local" id="blog_publish_at" name="publish_at" class="form-control" style="font-size:0.85rem; padding:4px 8px;">
+                            </div>
                         </div>
                     </div>
 
@@ -146,6 +151,13 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                         <textarea id="blog_content" name="content" class="form-control" rows="10" placeholder="Schreibe hier deinen Artikel...&#10;&#10;## Eine neue Etappe&#10;In den vergangenen Wochen ist viel passiert...&#10;&#10;- Punkt eins&#10;- Punkt zwei"></textarea>
                     </div>
 
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label for="blog_revision_note" style="font-weight:600; font-size:0.85rem; color:var(--text-secondary); display:block; margin-bottom:0.25rem;">
+                            <span class="material-icons" style="font-size:15px; vertical-align:middle;">history_edu</span> Revisions-Notiz (optional):
+                        </label>
+                        <input type="text" id="blog_revision_note" name="revision_note" class="form-control" placeholder="z. B. Rechtschreibung korrigiert oder neuen Abschnitt ergänzt" style="font-size:0.85rem;">
+                    </div>
+
                     <div style="display:flex; align-items:center; gap:12px;">
                         <button type="submit" class="btn btn-primary">
                             <span class="material-icons" style="font-size:18px;">save</span> Artikel speichern
@@ -178,7 +190,10 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                             $p_slug = htmlspecialchars($post['slug'] ?? '');
                             $p_date = htmlspecialchars($post['date'] ?? '');
                             $p_author = htmlspecialchars($post['author'] ?? '');
-                            $p_status = ($post['status'] ?? 'published') === 'published';
+                            $raw_status = $post['status'] ?? 'published';
+                            $p_publish_at = $post['publish_at'] ?? '';
+                            $p_token = $post['preview_token'] ?? '';
+                            $preview_url = '../?blog=' . urlencode($post['slug'] ?? '') . ($p_token ? '&preview=' . urlencode($p_token) : '');
                             $p_img = !empty($post['image']) ? '../' . ltrim($post['image'], '/') : '';
                             $p_tags = $post['tags'] ?? [];
                         ?>
@@ -196,9 +211,19 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                                         <h4 style="margin:0; font-size:1.05rem; color:var(--text-primary); font-weight:700;">
                                             <?php echo $p_title; ?>
                                         </h4>
-                                        <span style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px; <?php echo $p_status ? 'background:rgba(16,185,129,0.15); color:#10b981;' : 'background:rgba(245,158,11,0.15); color:#f59e0b;'; ?>">
-                                            <?php echo $p_status ? 'Veröffentlicht' : 'Entwurf'; ?>
-                                        </span>
+                                        <?php if ($raw_status === 'published'): ?>
+                                            <span style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(16,185,129,0.15); color:#10b981;">
+                                                Veröffentlicht
+                                            </span>
+                                        <?php elseif ($raw_status === 'scheduled'): ?>
+                                            <span style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(59,130,246,0.15); color:#3b82f6;" title="Geplant für: <?php echo htmlspecialchars($p_publish_at); ?>">
+                                                ⏱️ Geplant (<?php echo date('d.m.Y H:i', strtotime($p_publish_at ?: 'now')); ?>)
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(245,158,11,0.15); color:#f59e0b;">
+                                                Entwurf
+                                            </span>
+                                        <?php endif; ?>
                                     </div>
                                     <div style="font-size:0.83rem; color:var(--text-secondary); display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
                                         <span><span class="material-icons" style="font-size:14px; vertical-align:middle;">event</span> <?php echo $p_date; ?></span>
@@ -216,9 +241,13 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                             </div>
 
                             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                <a href="../?blog=<?php echo $p_slug; ?>" target="_blank" class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem;" title="Im Frontend ansehen">
-                                    <span class="material-icons" style="font-size:16px;">open_in_new</span> Ansehen
+                                <a href="<?php echo htmlspecialchars($preview_url); ?>" target="_blank" class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem;" title="Vorschau inklusive sicherem Token im Frontend ansehen">
+                                    <span class="material-icons" style="font-size:16px;">visibility</span> Vorschau
                                 </a>
+
+                                <button type="button" class="btn btn-secondary" onclick="openRevisionsModal('blog', '<?php echo htmlspecialchars($post['id'] ?? '', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($post['title'] ?? '', ENT_QUOTES); ?>')" style="padding:6px 12px; font-size:0.82rem;" title="Revisionshistorie &amp; Rollback ansehen">
+                                    <span class="material-icons" style="font-size:16px;">history</span> Revisions
+                                </button>
 
                                 <button type="button" class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem;" onclick="editBlogPost(<?php echo htmlspecialchars(json_encode($post), ENT_QUOTES, 'UTF-8'); ?>)">
                                     <span class="material-icons" style="font-size:16px;">edit</span> Bearbeiten
@@ -249,6 +278,13 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
         </div>
 
         <script>
+            function toggleBlogScheduledBox(status) {
+                const box = document.getElementById('blog_scheduled_box');
+                if (box) {
+                    box.style.display = (status === 'scheduled') ? 'block' : 'none';
+                }
+            }
+
             function openBlogEditor() {
                 document.getElementById('blog_form_action').value = 'add_blog_post';
                 document.getElementById('blog_post_id').value = '';
@@ -258,6 +294,9 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                 document.getElementById('blog_date').value = new Date().toISOString().split('T')[0];
                 document.getElementById('blog_author').value = <?php echo json_encode($author_default); ?>;
                 document.getElementById('blog_status').value = 'published';
+                if (document.getElementById('blog_publish_at')) document.getElementById('blog_publish_at').value = '';
+                if (document.getElementById('blog_revision_note')) document.getElementById('blog_revision_note').value = '';
+                toggleBlogScheduledBox('published');
                 document.getElementById('blog_tags').value = '';
                 document.getElementById('blog_teaser').value = '';
                 document.getElementById('blog_content').value = '';
@@ -277,7 +316,11 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                 document.getElementById('blog_slug').value = post.slug || '';
                 document.getElementById('blog_date').value = post.date || new Date().toISOString().split('T')[0];
                 document.getElementById('blog_author').value = post.author || '';
-                document.getElementById('blog_status').value = post.status || 'published';
+                const bStatus = post.status || 'published';
+                document.getElementById('blog_status').value = bStatus;
+                if (document.getElementById('blog_publish_at')) document.getElementById('blog_publish_at').value = post.publish_at || '';
+                if (document.getElementById('blog_revision_note')) document.getElementById('blog_revision_note').value = '';
+                toggleBlogScheduledBox(bStatus);
                 document.getElementById('blog_tags').value = Array.isArray(post.tags) ? post.tags.join(', ') : (post.tags || '');
                 document.getElementById('blog_teaser').value = post.teaser || '';
                 document.getElementById('blog_content').value = post.content || '';

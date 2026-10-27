@@ -22,12 +22,32 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **21-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 
-## Releases & Downloads (v1.2.5)
+## Releases & Downloads (v1.3.0)
 
-- 📦 **[WeaveCMS v1.2.5 Full Package](releases/weavecms-v1.2.5.zip)** (`releases/weavecms-v1.2.5.zip`, 11.94 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.2.5 Update Package](releases/update-v1.2.5.zip)** (`releases/update-v1.2.5.zip`, 0.52 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.0 Full Package](releases/weavecms-v1.3.0.zip)** (`releases/weavecms-v1.3.0.zip`, 12.02 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.0 Update Package](releases/update-v1.3.0.zip)** (`releases/update-v1.3.0.zip`, 0.59 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.0 (27. Oktober 2026)
+
+- 🖼️ **Zentrale Medienverwaltung & Asset-Manager (Phase 22):**
+  - **Neuer Hauptreiter „Mediathek“:** Schneller Zugriff im Admin-Panel auf alle hochgeladenen Bilder, Grafiken, Vektoren und Dokumente mit dynamischen Kennzahlen für Dateianzahl, Speicherplatzbelegung und Formatanteile.
+  - **Umschaltbare Kachel- & Listenansicht:** Interaktive Asset-Cards mit 1-Klick-Kopieren für Web-URLs, Markdown-Tags (`![Alt](url)`) und HTML5 `<picture>`-Code sowie detaillierte Tabellenansicht mit Filterung (Bilder, Dokumente, Vektoren), Live-Suche und Sortierung.
+  - **Detail- & Barrierefreiheits-Modal:** Pflege von Alt-Texten und Titeln für verbesserte Zugänglichkeit (Screenreader) und Google-Bildersuche, gespeichert in `data/media_meta.json`.
+- ⚡ **Moderne Bild-Pipeline mit WebP & AVIF:**
+  - **Automatische Next-Gen-Konvertierung:** Erzeugt beim Upload via PHP `gd` komprimierte WebP- und AVIF-Versionen für maximale Ladezeiten und beste Google PageSpeed-Werte.
+  - **Responsive Standardgrößen:** Automatische Generierung von skalierten Varianten (`thumb`: 350px, `medium`: 800px, `large`: 1400px) mit voller Alpha-Transparenzerhaltung.
+  - **HTML5 `<picture>`-Helfer:** `MediaManager::renderPictureTag()` für standardkonformes, adaptives Laden mit modernstem Format-Fallback.
+  - **Smarte Varianten-Isolierung:** Abgeleitete Formate bleiben als Varianten des Master-Bildes organisiert und werden beim Löschen des Originals rückstandslos mit entfernt.
+- 📤 **Drag & Drop Mehrfach-Upload & 7Z-Archivunterstützung:**
+  - Komfortabler Multi-Upload mit visuellem Fortschrittsbalken und automatischer Dateinamensbereinigung.
+  - **Dateiformat-Strategie:** Unterstützung für `JPG, PNG, WebP, GIF, SVG, PDF, ZIP, 7Z` mit strikter Magic-Bytes-Prüfung (inkl. 7z-Signatur `37 7A BC AF 27 1C`); proprietäre Office-Formate zugunsten von sauberem PDF-Export konsequent ausgeschlossen.
+- 🕒 **Content-Revisions & Entwurfsmodus (Phase 23):**
+  - **Revisions-Historie & Unified Diff-Viewer:** Bis zu 25 Snapshots je Einzelseite und Blogartikel in `data/revisions/` mit farblich visualisiertem Zeilenvergleich (`+` hinzugefügt, `-` entfernt).
+  - **1-Klick-Rollback:** Beliebigen früheren Stand mit einem Klick wiederherstellen inkl. automatischem Sicherheits-Snapshot des aktuellen Stands.
+  - **Status-Workflow & Zeitgesteuerte Veröffentlichung:** Unterscheidung zwischen `published`, `draft` und `scheduled` mit sicherem kryptografischem Vorschau-Token (`?preview=...`) und Frontend-Vorschau-Banner.
+- 🌐 **Vollständige Mehrsprachigkeit (i18n) im Backend:** Sämtliche neuen Mediathek- und Revisions-Elemente sind für Deutsch und Englisch übersetzt (`libs/lang/admin/`).
 
 ### v1.2.5 (27. Oktober 2026)
 
@@ -82,7 +102,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.2.5.zip](releases/weavecms-v1.2.5.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.0.zip](releases/weavecms-v1.3.0.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

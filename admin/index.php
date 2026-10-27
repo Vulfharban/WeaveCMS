@@ -117,6 +117,190 @@ if (isset($_GET['action']) && $_GET['action'] === 'test_db_migration') {
     exit;
 }
 
+// 6.1 AJAX Action: Revisions & Entwurfsmodus (Phase 23)
+if (isset($_GET['action']) && $_GET['action'] === 'get_revisions') {
+    header('Content-Type: application/json');
+    $type = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['item_type'] ?? '');
+    $id = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['item_id'] ?? '');
+    $revs = RevisionManager::getRevisions($type, $id);
+    echo json_encode(['success' => true, 'revisions' => $revs]);
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'get_revision_diff') {
+    header('Content-Type: application/json');
+    $type = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['item_type'] ?? '');
+    $id = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['item_id'] ?? '');
+    $revId = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['rev_id'] ?? '');
+
+    $rev = RevisionManager::getRevision($type, $id, $revId);
+    if (!$rev) {
+        echo json_encode(['success' => false, 'error' => 'Revision nicht gefunden']);
+        exit;
+    }
+
+    $targetKey = ($type === 'page') ? 'pages' : (($type === 'blog') ? 'blog' : '');
+    $currentItem = null;
+    if ($targetKey && isset($data[$targetKey])) {
+        foreach ($data[$targetKey] as $entry) {
+            if ((string)($entry['id'] ?? '') === (string)$id) {
+                $currentItem = $entry;
+                break;
+            }
+        }
+    }
+
+    $oldContent = (string)($rev['data']['content'] ?? ($rev['data']['text'] ?? json_encode($rev['data'], JSON_PRETTY_PRINT)));
+    $currentContent = (string)($currentItem['content'] ?? ($currentItem['text'] ?? json_encode($currentItem, JSON_PRETTY_PRINT)));
+    $diff = RevisionManager::computeDiff($oldContent, $currentContent);
+    $diffHtml = RevisionManager::renderDiffHtml($diff);
+
+    echo json_encode([
+        'success' => true,
+        'revision' => $rev,
+        'diffHtml' => $diffHtml
+    ]);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'rollback_revision') {
+    header('Content-Type: application/json');
+    $submitted_csrf = $_POST['csrf_token'] ?? '';
+    if (!AuthManager::verifyCsrfToken($submitted_csrf)) {
+        echo json_encode(['success' => false, 'message' => 'CSRF Token ungültig']);
+        exit;
+    }
+    $type = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_POST['item_type'] ?? '');
+    $id = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_POST['item_id'] ?? '');
+    $revId = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_POST['rev_id'] ?? '');
+    $author = $_SESSION['admin_user'] ?? 'Admin';
+
+    $res = RevisionManager::rollbackRevision($type, $id, $revId, $data, $author);
+    if ($res['success']) {
+        save_data($data_file, $data);
+    }
+    echo json_encode($res);
+    exit;
+}
+
+// 6.2 AJAX Actions: Zentrale Mediathek & Bild-Pipeline (Phase 22)
+if (isset($_GET['action']) && $_GET['action'] === 'get_media') {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!UserManager::canAccessTab('tab-media')) {
+        echo json_encode(['success' => false, 'message' => 'Zugriff verweigert']);
+        exit;
+    }
+    $filter = $_GET['filter'] ?? 'all';
+    $sort = $_GET['sort'] ?? 'date_desc';
+    $search = $_GET['search'] ?? null;
+    $items = MediaManager::scanMedia($filter, $search);
+
+    usort($items, function($a, $b) use ($sort) {
+        if ($sort === 'date_asc') return $a['mtime'] <=> $b['mtime'];
+        if ($sort === 'name_asc') return strcasecmp($a['filename'], $b['filename']);
+        if ($sort === 'size_desc') return $b['size_bytes'] <=> $a['size_bytes'];
+        return $b['mtime'] <=> $a['mtime'];
+    });
+
+    echo json_encode([
+        'success' => true,
+        'items'   => $items,
+        'files'   => $items
+    ]);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'upload_media') {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!UserManager::canAccessTab('tab-media')) {
+        echo json_encode(['success' => false, 'message' => 'Zugriff verweigert']);
+        exit;
+    }
+    if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        echo json_encode(['success' => false, 'message' => 'CSRF Token ungültig']);
+        exit;
+    }
+
+    $uploaded = [];
+    $errors = [];
+
+    if (!empty($_FILES['files']['name']) && is_array($_FILES['files']['name'])) {
+        $count = count($_FILES['files']['name']);
+        for ($i = 0; $i < $count; $i++) {
+            if (empty($_FILES['files']['name'][$i])) continue;
+            $f = [
+                'name'     => $_FILES['files']['name'][$i],
+                'type'     => $_FILES['files']['type'][$i] ?? '',
+                'tmp_name' => $_FILES['files']['tmp_name'][$i] ?? '',
+                'error'    => $_FILES['files']['error'][$i] ?? UPLOAD_ERR_NO_FILE,
+                'size'     => $_FILES['files']['size'][$i] ?? 0,
+            ];
+            $res = MediaManager::upload($f);
+            if ($res['success']) {
+                $uploaded[] = $res['item'];
+            } else {
+                $errors[] = ($_FILES['files']['name'][$i] ?? 'Datei') . ': ' . ($res['error'] ?? 'Fehler');
+            }
+        }
+    } elseif (!empty($_FILES['file'])) {
+        $res = MediaManager::upload($_FILES['file']);
+        if ($res['success']) {
+            $uploaded[] = $res['item'];
+        } else {
+            $errors[] = $res['error'] ?? 'Fehler';
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Keine Dateien empfangen']);
+        exit;
+    }
+
+    $isOk = count($uploaded) > 0;
+    echo json_encode([
+        'success'  => $isOk,
+        'uploaded' => $uploaded,
+        'files'    => $uploaded,
+        'errors'   => $errors,
+        'message'  => $isOk
+            ? count($uploaded) . ' Datei(en) erfolgreich verarbeitet.' . (count($errors) > 0 ? ' (' . implode(', ', $errors) . ')' : '')
+            : (count($errors) > 0 ? implode(', ', $errors) : 'Upload fehlgeschlagen.')
+    ]);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_media') {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!UserManager::canAccessTab('tab-media')) {
+        echo json_encode(['success' => false, 'message' => 'Zugriff verweigert']);
+        exit;
+    }
+    if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        echo json_encode(['success' => false, 'message' => 'CSRF Token ungültig']);
+        exit;
+    }
+    $filename = basename($_POST['filename'] ?? '');
+    $res = MediaManager::delete($filename);
+    echo json_encode($res);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_media_meta') {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!UserManager::canAccessTab('tab-media')) {
+        echo json_encode(['success' => false, 'message' => 'Zugriff verweigert']);
+        exit;
+    }
+    if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        echo json_encode(['success' => false, 'message' => 'CSRF Token ungültig']);
+        exit;
+    }
+    $filename = basename($_POST['filename'] ?? '');
+    $alt = trim($_POST['alt'] ?? '');
+    $title = trim($_POST['title'] ?? '');
+    $ok = MediaManager::updateMeta($filename, ['alt' => $alt, 'title' => $title]);
+    echo json_encode(['success' => $ok]);
+    exit;
+}
+
 // 7. CSRF-Token für Sitzung generieren oder abrufen
 $csrf_token = AuthManager::getCsrfToken();
 
@@ -227,6 +411,11 @@ if (UserManager::canAccessTab('tab-content', $cur_user['role'])) {
     require __DIR__ . '/views/tab_gallery.php';
     require __DIR__ . '/views/tab_past.php';
     require __DIR__ . '/views/tab_courses.php';
+}
+
+// Mediathek (Phase 22 - für alle redaktionellen Rollen)
+if (UserManager::canAccessTab('tab-media', $cur_user['role'])) {
+    require __DIR__ . '/views/tab_media.php';
 }
 
 // Postfach (für Moderator und Administrator)

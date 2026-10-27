@@ -13,7 +13,7 @@ SecurityManager::applySecurityHeaders();
 SecurityManager::initSecureSession();
 
 // 2. Standard-Fallback-Zugangsdaten, Version & Tokens
-define('WEAVE_VERSION', '1.2.5');
+define('WEAVE_VERSION', '1.3.0');
 define('DEFAULT_ADMIN_PASSWORD', 'admin123123');
 define('DEFAULT_ADMIN_PIN', '1977');
 define('ADMIN_TOKEN', 'xyz123'); // Beibehalten für direkten Zugriff via URL-Token falls benötigt
@@ -42,6 +42,8 @@ require_once __DIR__ . '/libs/php/LanguageManager.php';
 require_once __DIR__ . '/libs/php/ThemeManager.php';
 require_once __DIR__ . '/libs/php/FrontendController.php';
 require_once __DIR__ . '/libs/php/UpdateManager.php';
+require_once __DIR__ . '/libs/php/RevisionManager.php';
+require_once __DIR__ . '/libs/php/MediaManager.php';
 
 // Phase 15 & Plugin-Frühinitialisierung: Sandbox-Plugin einbinden, falls vorhanden
 if (file_exists(__DIR__ . '/plugins/interactive-sandbox/SandboxManager.php')) {

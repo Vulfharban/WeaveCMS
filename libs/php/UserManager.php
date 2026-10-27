@@ -237,8 +237,8 @@ class UserManager {
             return true;
         }
 
-        // Dashboard und Inhalte für alle angemeldeten Rollen
-        if ($tabId === 'tab-dashboard' || $tabId === 'tab-content') {
+        // Dashboard, Inhalte und Mediathek für alle angemeldeten Rollen
+        if ($tabId === 'tab-dashboard' || $tabId === 'tab-content' || $tabId === 'tab-media') {
             return true;
         }
 
@@ -276,6 +276,7 @@ class UserManager {
             'add_download', 'edit_download', 'update_download', 'delete_download', 'reset_download_counter',
             'add_pricing_plan', 'update_pricing_plan', 'delete_pricing_plan',
             'add_blog_post', 'update_blog_post', 'delete_blog_post',
+            'upload_media', 'delete_media', 'update_media_meta',
             'update_profile_password'
         ];
 

@@ -115,10 +115,15 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                         </div>
                         <div class="form-group">
                             <label for="page_status" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Status</label>
-                            <select id="page_status" name="status" class="form-control">
+                            <select id="page_status" name="status" class="form-control" onchange="togglePageScheduledBox(this.value)">
                                 <option value="published">Öffentlich (Veröffentlicht)</option>
-                                <option value="draft">Entwurf (Nur im Admin sichtbar)</option>
+                                <option value="draft">Entwurf (Nur im Admin / per Token sichtbar)</option>
+                                <option value="scheduled">⏱️ Zeitgesteuert (Geplant)</option>
                             </select>
+                            <div id="page_scheduled_box" style="display:none; margin-top:8px;">
+                                <label for="page_publish_at" style="font-size:0.78rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Veröffentlichungszeitpunkt</label>
+                                <input type="datetime-local" id="page_publish_at" name="publish_at" class="form-control" style="font-size:0.85rem; padding:4px 8px;">
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="page_icon" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
@@ -289,6 +294,13 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                         </div>
                     <?php endforeach; ?>
 
+                    <div class="form-group" style="margin-bottom: 1.25rem; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); padding:0.75rem 1rem; border-radius:10px;">
+                        <label for="page_revision_note" style="font-weight:600; font-size:0.85rem; color:var(--text-secondary); display:block; margin-bottom:0.25rem;">
+                            <span class="material-icons" style="font-size:15px; vertical-align:middle;">history_edu</span> Revisions-Notiz (optional):
+                        </label>
+                        <input type="text" id="page_revision_note" name="revision_note" class="form-control" placeholder="z. B. Neuer Abschnitt ergänzt, Kontaktdaten aktualisiert" style="font-size:0.85rem;">
+                    </div>
+
                     <div style="display:flex; justify-content:flex-end; gap:12px;">
                         <button type="button" class="btn btn-secondary" onclick="closePageEditor()">Abbrechen</button>
                         <button type="submit" class="btn btn-primary" id="page-submit-btn">
@@ -312,9 +324,12 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                 <div style="display:flex; flex-direction:column; gap:0.75rem;">
                     <?php foreach ($pages as $p): ?>
                         <?php 
-                            $is_published = ($p['status'] ?? 'published') === 'published';
+                            $p_status = $p['status'] ?? 'published';
+                            $p_publish_at = $p['publish_at'] ?? '';
+                            $p_token = $p['preview_token'] ?? '';
                             $p_slug = $p['slug'] ?? '';
                             $p_url = '../?page=' . urlencode($p_slug);
+                            $p_preview_url = '../?page=' . urlencode($p_slug) . ($p_token ? '&preview=' . urlencode($p_token) : '');
                             $p_nav = !empty($p['nav_label']) ? $p['nav_label'] : ($p['title'] ?? '');
                         ?>
                         <div class="card" style="padding:1.25rem 1.5rem; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
@@ -338,8 +353,12 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                                                 Standard-Inhalt
                                             </span>
                                         <?php endif; ?>
-                                        <?php if ($is_published): ?>
+                                        <?php if ($p_status === 'published'): ?>
                                             <span style="font-size:0.7rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.1); padding:2px 8px; border-radius:999px;">Veröffentlicht</span>
+                                        <?php elseif ($p_status === 'scheduled'): ?>
+                                            <span style="font-size:0.7rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:2px 8px; border-radius:999px;" title="Geplant für: <?php echo htmlspecialchars($p_publish_at); ?>">
+                                                ⏱️ Geplant (<?php echo date('d.m.Y H:i', strtotime($p_publish_at ?: 'now')); ?>)
+                                            </span>
                                         <?php else: ?>
                                             <span style="font-size:0.7rem; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.1); padding:2px 8px; border-radius:999px;">Entwurf</span>
                                         <?php endif; ?>
@@ -375,9 +394,12 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                             </div>
 
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <a href="<?php echo htmlspecialchars($p_url); ?>" target="_blank" class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem; text-decoration:none;" title="Seite in neuem Tab ansehen">
-                                    <span class="material-icons" style="font-size:16px;">visibility</span> Ansehen
+                                <a href="<?php echo htmlspecialchars($p_preview_url); ?>" target="_blank" class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem; text-decoration:none;" title="Vorschau inklusive sicherem Token in neuem Tab ansehen">
+                                    <span class="material-icons" style="font-size:16px;">visibility</span> Vorschau
                                 </a>
+                                <button type="button" class="btn btn-secondary" onclick="openRevisionsModal('page', '<?php echo htmlspecialchars($p['id'] ?? '', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($p['title'] ?? '', ENT_QUOTES); ?>')" style="padding:6px 12px; font-size:0.82rem;" title="Revisionshistorie &amp; Rollback ansehen">
+                                    <span class="material-icons" style="font-size:16px;">history</span> Revisions
+                                </button>
                                 <button type="button" class="btn btn-secondary" onclick="editPage(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" style="padding:6px 12px; font-size:0.82rem;">
                                     <span class="material-icons" style="font-size:16px;">edit</span> Bearbeiten
                                 </button>
@@ -426,6 +448,13 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             }
         }
 
+        function togglePageScheduledBox(status) {
+            const box = document.getElementById('page_scheduled_box');
+            if (box) {
+                box.style.display = (status === 'scheduled') ? 'block' : 'none';
+            }
+        }
+
         function openPageEditor() {
             document.getElementById('page-editor-box').style.display = 'block';
             document.getElementById('page-editor-title').innerHTML = '<span class="material-icons">add_circle</span> Neue Einzelseite anlegen';
@@ -438,6 +467,9 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             updatePageIconPreview('article');
             document.getElementById('page_nav_label').value = '';
             document.getElementById('page_status').value = 'published';
+            if (document.getElementById('page_publish_at')) document.getElementById('page_publish_at').value = '';
+            if (document.getElementById('page_revision_note')) document.getElementById('page_revision_note').value = '';
+            togglePageScheduledBox('published');
             document.getElementById('page_in_nav').checked = false;
             document.getElementById('page_meta_desc').value = '';
             document.getElementById('page_content').value = '';
@@ -487,7 +519,11 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             document.getElementById('page_icon').value = pageData.icon || 'article';
             updatePageIconPreview(pageData.icon || 'article');
             document.getElementById('page_nav_label').value = pageData.nav_label || '';
-            document.getElementById('page_status').value = pageData.status || 'published';
+            const pStatus = pageData.status || 'published';
+            document.getElementById('page_status').value = pStatus;
+            if (document.getElementById('page_publish_at')) document.getElementById('page_publish_at').value = pageData.publish_at || '';
+            if (document.getElementById('page_revision_note')) document.getElementById('page_revision_note').value = '';
+            togglePageScheduledBox(pStatus);
             document.getElementById('page_in_nav').checked = !!pageData.in_nav;
             document.getElementById('page_meta_desc').value = pageData.meta_description || '';
             document.getElementById('page_content').value = pageData.content || '';

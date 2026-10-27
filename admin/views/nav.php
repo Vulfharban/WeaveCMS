@@ -51,6 +51,9 @@
             <button class="admin-nav-link" id="main-nav-content" onclick="switchTab('tab-content')">
                 <span class="material-icons" style="font-size:18px;">folder_special</span> <?php echo __a('admin.nav.content', 'Inhalte &amp; Seiten'); ?>
             </button>
+            <button class="admin-nav-link" id="main-nav-media" onclick="switchTab('tab-media')">
+                <span class="material-icons" style="font-size:18px;">perm_media</span> <?php echo __a('admin.nav.media', 'Mediathek'); ?>
+            </button>
             <?php if ($nav_role === UserManager::ROLE_ADMIN): ?>
                 <button class="admin-nav-link" id="main-nav-display" onclick="switchTab('tab-display')">
                     <span class="material-icons" style="font-size:18px;">visibility</span> <?php echo __a('admin.nav.display', 'Darstellung'); ?></button>
