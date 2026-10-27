@@ -2754,7 +2754,15 @@ class AdminController {
             save_data($dataFile, $data);
             $presets = SectionManager::getPresets();
             $pName = $presets[$presetKey]['name'] ?? $presetKey;
-            $success_msg = "Projekt-Profil „{$pName}“ erfolgreich aktiviert! Die sichtbaren Sektionen und die Menüführung wurden angepasst.";
+            
+            $missing = class_exists('PluginManager') ? PluginManager::getAllMissingSettings($data) : [];
+            $missingCount = count($missing);
+            if ($missingCount > 0) {
+                $missingNames = array_map(fn($m) => $m['plugin_name'], $missing);
+                $success_msg = "Projekt-Profil „{$pName}“ erfolgreich aktiviert! Die sichtbaren Module und Menüs wurden angepasst. Hinweis: Bei " . implode(', ', $missingNames) . " fehlen noch erforderliche Einstellungen (siehe Hinweis unten).";
+            } else {
+                $success_msg = "Projekt-Profil „{$pName}“ erfolgreich aktiviert! Die sichtbaren Sektionen und Module wurden angepasst.";
+            }
         } else {
             $error_msg = 'Das ausgewählte Profil konnte nicht angewendet werden.';
         }

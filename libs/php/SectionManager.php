@@ -86,51 +86,99 @@ class SectionManager {
      * Verfügbare Projekt-Starter-Profile (Presets).
      * @return array<string, array>
      */
+    /**
+     * Verfügbare Projekt-Starter-Profile (Presets).
+     * @return array<string, array>
+     */
     public static function getPresets(): array {
         return [
             'portfolio' => [
                 'name' => 'Portfolio & Galerie',
                 'description' => 'Ideal für Fotografen, Handwerker, Designer und Künstler. Fokus auf Bildpräsentation und Werkstücke.',
                 'icon' => 'photo_library',
-                'active_sections' => ['hero', 'gallery', 'about']
+                'active_sections' => ['hero', 'gallery', 'about'],
+                'active_plugins' => []
             ],
             'business' => [
                 'name' => 'Unternehmen & Service',
                 'description' => 'Für Betriebe, Dienstleister und Kanzleien. Vorstellung des Teams, FAQs, Preise und Leistungen.',
                 'icon' => 'business',
-                'active_sections' => ['hero', 'pricing', 'faq', 'team', 'about']
+                'active_sections' => ['hero', 'pricing', 'faq', 'team', 'about'],
+                'active_plugins' => []
             ],
             'blog' => [
                 'name' => 'Blog & Magazin',
                 'description' => 'Für Autoren, News und Content Creator mit Blog-Artikeln und Über-mich-Bereich.',
                 'icon' => 'newspaper',
-                'active_sections' => ['hero', 'blog', 'about']
+                'active_sections' => ['hero', 'blog', 'about'],
+                'active_plugins' => []
             ],
             'workshops' => [
                 'name' => 'Workshops & Events',
                 'description' => 'Für Kursanbieter, Dozenten und Kreativ-Workshops mit Terminbuchung und Impressionen.',
                 'icon' => 'event',
-                'active_sections' => ['hero', 'courses', 'past_courses', 'faq', 'about']
+                'active_sections' => ['hero', 'courses', 'past_courses', 'faq', 'about'],
+                'active_plugins' => ['weave-workshops']
+            ],
+            'shop' => [
+                'name' => 'Online-Shop & Verkauf',
+                'description' => 'Für Händler, Manufakturen und Kunsthandwerker: Produktkatalog, Warenkorb, Kasse und Galerie.',
+                'icon' => 'shopping_cart',
+                'active_sections' => ['hero', 'shop', 'gallery', 'about'],
+                'active_plugins' => ['shop', 'inventory']
             ],
             'minimal' => [
                 'name' => 'Minimaler One-Pager',
                 'description' => 'Schlanke digitale Visitenkarte oder Landing-Page mit Hauptüberschrift und Einleitung.',
                 'icon' => 'web',
-                'active_sections' => ['hero', 'about']
+                'active_sections' => ['hero', 'about'],
+                'active_plugins' => []
             ],
             'all' => [
                 'name' => 'Vollständig (Alle Module)',
                 'description' => 'Alle Sektionen und Module sind aktiv für maximale Gestaltungsfreiheit.',
                 'icon' => 'view_quilt',
-                'active_sections' => ['hero', 'gallery', 'courses', 'past_courses', 'blog', 'pricing', 'faq', 'team', 'downloads', 'about', 'custom_text']
+                'active_sections' => ['hero', 'gallery', 'courses', 'past_courses', 'blog', 'pricing', 'faq', 'team', 'downloads', 'shop', 'about', 'custom_text'],
+                'active_plugins' => ['shop', 'inventory', 'weave-workshops', 'weave-downloads']
             ]
         ];
     }
 
     /**
-     * Wendet ein Projekt-Starter-Profil an.
+     * Liefert den lesbaren Namen / Titel einer Sektion anhand ihrer ID bzw. ihres Typs.
+     * @param string $typeOrId
+     * @return string
+     */
+    public static function getSectionTitle(string $typeOrId): string {
+        $titles = [
+            'hero'         => 'Hero',
+            'gallery'      => 'Galerie',
+            'courses'      => 'Workshops',
+            'past_courses' => 'Impressionen',
+            'blog'         => 'Blog',
+            'pricing'      => 'Preise',
+            'faq'          => 'FAQ',
+            'team'         => 'Team',
+            'downloads'    => 'Downloads',
+            'shop'         => 'Shop',
+            'about'        => 'Über uns',
+            'custom_text'  => 'Freitext',
+            'contact'      => 'Kontakt',
+            'impressum'    => 'Impressum'
+        ];
+        if (isset($titles[$typeOrId])) {
+            return $titles[$typeOrId];
+        }
+        if (isset(self::$customSectionTypes[$typeOrId]['title'])) {
+            return self::$customSectionTypes[$typeOrId]['title'];
+        }
+        return ucfirst(str_replace('_', ' ', $typeOrId));
+    }
+
+    /**
+     * Wendet ein Projekt-Starter-Profil an und aktiviert die zugehörigen Module & Plugins.
      *
-     * @param string $presetKey Profil-Schlüssel (portfolio, business, blog, workshops, minimal, all)
+     * @param string $presetKey Profil-Schlüssel (portfolio, business, blog, workshops, shop, minimal, all)
      * @param array $data Gesamtdatenstruktur (wird per Referenz angepasst)
      * @return bool True bei Erfolg
      */
@@ -140,16 +188,52 @@ class SectionManager {
             return false;
         }
 
-        self::ensureSections($data);
-        $activeList = $presets[$presetKey]['active_sections'];
+        $preset = $presets[$presetKey];
+        $activeList = $preset['active_sections'];
 
+        // 1. Zugehörige Plugins in $data['plugins']['active'] aktivieren
+        if (!empty($preset['active_plugins']) && is_array($preset['active_plugins'])) {
+            if (!isset($data['plugins']) || !is_array($data['plugins'])) {
+                $data['plugins'] = ['active' => [], 'configs' => []];
+            }
+            if (!isset($data['plugins']['active']) || !is_array($data['plugins']['active'])) {
+                $data['plugins']['active'] = [];
+            }
+            foreach ($preset['active_plugins'] as $pSlug) {
+                if (!in_array($pSlug, $data['plugins']['active'], true)) {
+                    $data['plugins']['active'][] = $pSlug;
+                }
+            }
+        }
+
+        // Falls Shop im Profil aktiviert werden soll, im Plugin section_enabled aktivieren
+        if (in_array('shop', $activeList, true) || $presetKey === 'all') {
+            if (!isset($data['plugins']['configs']['shop']) || !is_array($data['plugins']['configs']['shop'])) {
+                $data['plugins']['configs']['shop'] = [];
+            }
+            $data['plugins']['configs']['shop']['section_enabled'] = true;
+        }
+
+        // Aktive Plugins im aktuellen PHP-Kontext nachladen
+        if (class_exists('PluginManager')) {
+            PluginManager::loadActivePlugins($data, 'admin');
+        }
+
+        // 2. Sektionen sicherstellen (inkl. Plugin-Filter der neu aktivierten Plugins)
+        self::ensureSections($data);
+
+        // 3. Sichtbarkeit der Sektionen setzen
         foreach ($data['sections'] as &$sec) {
             $secType = $sec['type'] ?? $sec['id'];
-            $sec['visible'] = in_array($secType, $activeList, true);
+            if ($presetKey === 'all') {
+                $sec['visible'] = true;
+            } else {
+                $sec['visible'] = in_array($secType, $activeList, true);
+            }
         }
         unset($sec);
 
-        if (!isset($data['settings'])) {
+        if (!isset($data['settings']) || !is_array($data['settings'])) {
             $data['settings'] = [];
         }
         $data['settings']['project_preset'] = $presetKey;

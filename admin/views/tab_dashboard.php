@@ -192,6 +192,7 @@
                 $project_presets = SectionManager::getPresets();
                 $active_preset_key = $data['settings']['project_preset'] ?? 'all';
                 $is_admin = ($cur_user['role'] ?? '') === UserManager::ROLE_ADMIN;
+                $active_plugin_issues = class_exists('PluginManager') ? PluginManager::getAllMissingSettings($data) : [];
             ?>
             <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; margin-bottom: 2.25rem;">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom: 1.25rem;">
@@ -210,9 +211,47 @@
                     </div>
                 </div>
 
+                <?php if (!empty($active_plugin_issues)): ?>
+                    <!-- Warnhinweis: Fehlende oder unvollständige Plugin-Konfigurationen -->
+                    <div style="background: #fffbeb; border: 1px solid #fcd34d; border-left: 4px solid #f59e0b; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+                        <div style="display:flex; align-items:flex-start; gap:12px;">
+                            <span class="material-icons" style="color:#d97706; font-size:24px; flex-shrink:0; margin-top:2px;">warning_amber</span>
+                            <div style="flex-grow:1;">
+                                <div style="font-weight:700; color:#92400e; font-size:0.92rem; margin-bottom:4px;">
+                                    Erforderliche Plugin-Einstellungen fehlen oder sind unvollständig:
+                                </div>
+                                <div style="font-size:0.85rem; color:#78350f; display:flex; flex-direction:column; gap:6px;">
+                                    <?php foreach ($active_plugin_issues as $pSlug => $pIssue): ?>
+                                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; background:rgba(255,255,255,0.7); border:1px solid rgba(245,158,11,0.25); padding:6px 10px; border-radius:8px;">
+                                            <div>
+                                                <strong><?php echo htmlspecialchars($pIssue['plugin_name']); ?>:</strong>
+                                                <span><?php echo htmlspecialchars(implode(' • ', $pIssue['issues'])); ?></span>
+                                            </div>
+                                            <a href="?tab=tab-plugins&plugin_settings=<?php echo urlencode($pSlug); ?>#tab-plugins" class="btn btn-outline" style="font-size:0.75rem; padding:3px 8px; border-color:#d97706; color:#92400e; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                                                <span class="material-icons" style="font-size:14px;">tune</span> Einstellungen öffnen
+                                            </a>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                     <?php foreach ($project_presets as $pKey => $pDef): 
                         $isActive = ($pKey === $active_preset_key);
+                        
+                        // Fehlende Einstellungen für Plugins dieses Presets ermitteln
+                        $presetPluginIssues = [];
+                        if (!empty($pDef['active_plugins'])) {
+                            foreach ($pDef['active_plugins'] as $pSlug) {
+                                $issues = class_exists('PluginManager') ? PluginManager::getMissingSettings($pSlug, $data) : [];
+                                if (!empty($issues)) {
+                                    $presetPluginIssues[$pSlug] = $issues;
+                                }
+                            }
+                        }
                     ?>
                         <div style="border: 2px solid <?php echo $isActive ? 'var(--primary)' : 'var(--border-color)'; ?>; background: <?php echo $isActive ? 'rgba(46,98,72,0.04)' : 'var(--card-bg, #fff)'; ?>; border-radius: 14px; padding: 1.25rem; display:flex; flex-direction:column; justify-content:space-between; transition: all 0.2s ease; box-shadow: <?php echo $isActive ? '0 4px 12px rgba(46,98,72,0.1)' : 'none'; ?>;">
                             <div>
@@ -233,12 +272,30 @@
                             </div>
 
                             <div>
-                                <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.75rem; display:flex; flex-wrap:wrap; gap:4px;">
+                                <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.75rem; display:flex; flex-wrap:wrap; gap:4px; align-items:center;">
                                     <span style="font-weight:600; width:100%; margin-bottom:2px;">Module:</span>
                                     <?php foreach ($pDef['active_sections'] as $secKey): ?>
-                                        <span style="background:rgba(0,0,0,0.05); padding:2px 6px; border-radius:6px; font-size:0.72rem;"><?php echo htmlspecialchars($secKey); ?></span>
+                                        <span title="<?php echo htmlspecialchars($secKey); ?>" style="background:rgba(0,0,0,0.05); padding:2px 7px; border-radius:6px; font-size:0.72rem; display:inline-flex; align-items:center; gap:3px;">
+                                            <span class="material-icons" style="font-size:12px; opacity:0.7;"><?php echo htmlspecialchars(SectionManager::getDefaultIcon($secKey)); ?></span>
+                                            <?php echo htmlspecialchars(SectionManager::getSectionTitle($secKey)); ?>
+                                        </span>
                                     <?php endforeach; ?>
+                                    <?php if (!empty($pDef['active_plugins'])): ?>
+                                        <?php foreach ($pDef['active_plugins'] as $pSlug): ?>
+                                            <span title="Erweiterungs-Plugin: <?php echo htmlspecialchars($pSlug); ?>" style="background:rgba(46,98,72,0.1); color:var(--primary); font-weight:600; padding:2px 7px; border-radius:6px; font-size:0.72rem; display:inline-flex; align-items:center; gap:3px;">
+                                                <span class="material-icons" style="font-size:12px;">extension</span>
+                                                <?php echo htmlspecialchars($pSlug); ?>
+                                            </span>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </div>
+
+                                <?php if (!empty($presetPluginIssues)): ?>
+                                    <div style="margin-bottom:0.75rem; font-size:0.72rem; color:#b45309; background:#fffbeb; border:1px solid #fcd34d; padding:4px 8px; border-radius:6px; display:flex; align-items:center; gap:5px;">
+                                        <span class="material-icons" style="font-size:14px; color:#d97706; flex-shrink:0;">warning</span>
+                                        <span>Erfordert Konfiguration im Plugin</span>
+                                    </div>
+                                <?php endif; ?>
 
                                 <?php if ($is_admin): ?>
                                     <?php if ($isActive): ?>

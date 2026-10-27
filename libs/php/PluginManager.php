@@ -511,4 +511,102 @@ class PluginManager {
         $cur = $configs[$slug] ?? [];
         return array_merge($defaults, is_array($cur) ? $cur : []);
     }
+
+    /**
+     * Prüft, ob für ein bestimmtes Plugin erforderliche Einstellungen fehlen oder unvollständig sind.
+     *
+     * @param string $slug Eindeutiger Plugin-Slug
+     * @param array $data Gesamtdatenstruktur
+     * @return array Array von Fehlermeldungen/Hinweisen zu fehlenden Einstellungen
+     */
+    public static function getMissingSettings(string $slug, array $data): array {
+        $issues = [];
+        $config = self::getPluginConfig($slug, $data);
+        $plugin = self::getPlugin($slug);
+        if (!$plugin) {
+            return [];
+        }
+
+        switch ($slug) {
+            case 'shop':
+                $hasPayment = false;
+                if (!empty($config['payment_credit_card']['enabled'])) {
+                    $hasPayment = true;
+                }
+                if (!empty($config['payment_paypal']['enabled'])) {
+                    $hasPayment = true;
+                    if (empty(trim((string)($config['payment_paypal']['client_id'] ?? '')))) {
+                        $issues[] = 'PayPal Client-ID fehlt';
+                    }
+                }
+                if (!empty($config['payment_wero']['enabled'])) {
+                    $hasPayment = true;
+                    if (empty(trim((string)($config['payment_wero']['iban'] ?? '')))) {
+                        $issues[] = 'WERO Empfänger-IBAN fehlt';
+                    }
+                }
+                if (!empty($config['payment_bank_transfer']['enabled'])) {
+                    $hasPayment = true;
+                    if (empty(trim((string)($config['payment_bank_transfer']['iban'] ?? '')))) {
+                        $issues[] = 'Bankverbindung / IBAN für Vorkasse fehlt';
+                    }
+                }
+                if (!$hasPayment) {
+                    $issues[] = 'Keine aktive Zahlungsart eingerichtet (Kreditkarte, PayPal, WERO oder Vorkasse aktivieren)';
+                }
+                break;
+
+            case 'universal-integrations':
+                $integrations = $data['integrations'] ?? [];
+                if (empty($integrations)) {
+                    $issues[] = 'Noch keine externen Integrationen oder Web-Apps angelegt';
+                }
+                break;
+
+            case 'webtrees-genealogy':
+                if (empty(trim((string)($config['base_url'] ?? '')))) {
+                    $issues[] = 'Webtrees Basis-URL fehlt';
+                }
+                break;
+
+            case 'weave-forum':
+                if (!self::isPluginActive('weave-forum-users', $data)) {
+                    $issues[] = 'Erfordert aktives Benutzer-Plugin \'weave-forum-users\'';
+                }
+                break;
+        }
+
+        // Plugin-spezifische Filter-Hooks für Drittanbieter-Erweiterungen
+        $issues = self::applyFilters("plugin_check_missing_settings_{$slug}", $issues, $config, $data);
+        $issues = self::applyFilters('plugin_check_missing_settings', $issues, $slug, $config, $data);
+
+        return $issues;
+    }
+
+    /**
+     * Ermittelt alle fehlenden Einstellungen für alle aktuell aktiven Plugins.
+     *
+     * @param array $data Gesamtdatenstruktur
+     * @return array [ slug => [ 'slug' => string, 'plugin_name' => string, 'issues' => array ], ... ]
+     */
+    public static function getAllMissingSettings(array $data): array {
+        $result = [];
+        $activeSlugs = self::getActiveSlugs($data);
+        $discovered = self::discover();
+
+        foreach ($activeSlugs as $slug) {
+            $issues = self::getMissingSettings($slug, $data);
+            if (!empty($issues)) {
+                $name = $discovered[$slug]['name'] ?? ucfirst($slug);
+                $result[$slug] = [
+                    'slug' => $slug,
+                    'plugin_name' => $name,
+                    'issues' => $issues
+                ];
+            }
+        }
+
+        return $result;
+    }
 }
+
