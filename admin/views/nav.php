@@ -118,6 +118,21 @@
             <button class="admin-subnav-link" data-sec-type="past_courses" onclick="switchTab('tab-past')" style="<?php echo in_array('past_courses', $active_sec_types, true) ? '' : 'display:none;'; ?>">
                 <span class="material-icons" style="font-size:17px;">photo_camera</span> Kursimpressionen
             </button>
+            <?php 
+                // Dynamisch registrierte Subnav-Einträge von Plugins (Phase 21)
+                $custom_section_types = SectionManager::getRegisteredSectionTypes();
+                foreach ($custom_section_types as $cType => $cDef):
+                    if (in_array($cType, ['courses', 'past_courses', 'downloads'], true)) {
+                        continue; // Bereits oben im Kernmenü vorhanden
+                    }
+                    if (empty($cDef['admin_tab']) || !in_array($cType, $active_sec_types, true)) {
+                        continue;
+                    }
+            ?>
+                <button class="admin-subnav-link" data-sec-type="<?php echo htmlspecialchars($cType); ?>" onclick="switchTab('<?php echo htmlspecialchars($cDef['admin_tab']); ?>')">
+                    <span class="material-icons" style="font-size:17px;"><?php echo htmlspecialchars($cDef['icon'] ?? 'extension'); ?></span> <?php echo htmlspecialchars($cDef['title'] ?? ucfirst($cType)); ?>
+                </button>
+            <?php endforeach; ?>
             <button class="admin-subnav-link" onclick="switchTab('tab-impressum')">
                 <span class="material-icons" style="font-size:17px;">policy</span> Impressum &amp; Rechtliches
             </button>

@@ -772,8 +772,11 @@ function syncAndSavePool() {
 function initAdminListeners() {
     let targetTab = '';
 
-    // 1. URL-Hash #tab-... priorisieren (falls vorhanden)
-    if (location.hash && location.hash.length > 1) {
+    // 0. Falls gerade eine Server-Meldung (Erfolg/Fehler) vorliegt, serverseitigen Tab priorisieren
+    if (typeof serverHasMessage !== 'undefined' && serverHasMessage && typeof serverActiveTab !== 'undefined' && serverActiveTab && document.getElementById(serverActiveTab)) {
+        targetTab = serverActiveTab;
+    } else if (location.hash && location.hash.length > 1) {
+        // 1. URL-Hash #tab-... priorisieren (falls vorhanden)
         const hashTab = location.hash.substring(1);
         if (hashTab && document.getElementById(hashTab)) {
             targetTab = hashTab;

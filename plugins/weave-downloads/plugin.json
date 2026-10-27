@@ -1,0 +1,11 @@
+{
+    "name": "Download-Center & Dokumente",
+    "slug": "weave-downloads",
+    "version": "1.0.0",
+    "author": "WeaveCMS Core Team",
+    "description": "Verwaltung von Download-Dateien, Handbüchern und Katalogen mit Kategorien, Schutzstatus, Berechtigungen und Download-Zählern.",
+    "category": "media",
+    "icon": "file_download",
+    "entry_file": "plugin.php",
+    "requires_core": ">=1.0.0"
+}

@@ -46,11 +46,126 @@ class SectionManager {
     const PLACEMENT_PAGE = 'page';
 
     /**
+     * Registrierte externe/Plugin-Sektionstypen.
+     * @var array<string, array>
+     */
+    protected static array $customSectionTypes = [];
+
+    /**
+     * Registriert einen neuen Sektionstyp dynamisch (z. B. durch ein Plugin).
+     *
+     * @param string $type Eindeutiger Typ-Bezeichner (z. B. 'courses', 'downloads')
+     * @param array $definition Sektions-Definition (title, nav_label, icon, render_callback, etc.)
+     * @return void
+     */
+    public static function registerSectionType(string $type, array $definition): void {
+        self::$customSectionTypes[$type] = array_merge([
+            'id' => $type,
+            'type' => $type,
+            'title' => ucfirst($type),
+            'nav_label' => ucfirst($type),
+            'icon' => 'extension',
+            'visible' => true,
+            'in_nav' => true,
+            'can_delete' => true,
+            'placement' => self::PLACEMENT_BOTH,
+            'admin_tab' => null,
+            'render_callback' => null
+        ], $definition);
+    }
+
+    /**
+     * Gibt alle registrierten benutzerdefinierten Sektionstypen zurück.
+     * @return array<string, array>
+     */
+    public static function getRegisteredSectionTypes(): array {
+        return self::$customSectionTypes;
+    }
+
+    /**
+     * Verfügbare Projekt-Starter-Profile (Presets).
+     * @return array<string, array>
+     */
+    public static function getPresets(): array {
+        return [
+            'portfolio' => [
+                'name' => 'Portfolio & Galerie',
+                'description' => 'Ideal für Fotografen, Handwerker, Designer und Künstler. Fokus auf Bildpräsentation und Werkstücke.',
+                'icon' => 'photo_library',
+                'active_sections' => ['hero', 'gallery', 'about']
+            ],
+            'business' => [
+                'name' => 'Unternehmen & Service',
+                'description' => 'Für Betriebe, Dienstleister und Kanzleien. Vorstellung des Teams, FAQs, Preise und Leistungen.',
+                'icon' => 'business',
+                'active_sections' => ['hero', 'pricing', 'faq', 'team', 'about']
+            ],
+            'blog' => [
+                'name' => 'Blog & Magazin',
+                'description' => 'Für Autoren, News und Content Creator mit Blog-Artikeln und Über-mich-Bereich.',
+                'icon' => 'newspaper',
+                'active_sections' => ['hero', 'blog', 'about']
+            ],
+            'workshops' => [
+                'name' => 'Workshops & Events',
+                'description' => 'Für Kursanbieter, Dozenten und Kreativ-Workshops mit Terminbuchung und Impressionen.',
+                'icon' => 'event',
+                'active_sections' => ['hero', 'courses', 'past_courses', 'faq', 'about']
+            ],
+            'minimal' => [
+                'name' => 'Minimaler One-Pager',
+                'description' => 'Schlanke digitale Visitenkarte oder Landing-Page mit Hauptüberschrift und Einleitung.',
+                'icon' => 'web',
+                'active_sections' => ['hero', 'about']
+            ],
+            'all' => [
+                'name' => 'Vollständig (Alle Module)',
+                'description' => 'Alle Sektionen und Module sind aktiv für maximale Gestaltungsfreiheit.',
+                'icon' => 'view_quilt',
+                'active_sections' => ['hero', 'gallery', 'courses', 'past_courses', 'blog', 'pricing', 'faq', 'team', 'downloads', 'about', 'custom_text']
+            ]
+        ];
+    }
+
+    /**
+     * Wendet ein Projekt-Starter-Profil an.
+     *
+     * @param string $presetKey Profil-Schlüssel (portfolio, business, blog, workshops, minimal, all)
+     * @param array $data Gesamtdatenstruktur (wird per Referenz angepasst)
+     * @return bool True bei Erfolg
+     */
+    public static function applyPreset(string $presetKey, array &$data): bool {
+        $presets = self::getPresets();
+        if (!isset($presets[$presetKey])) {
+            return false;
+        }
+
+        self::ensureSections($data);
+        $activeList = $presets[$presetKey]['active_sections'];
+
+        foreach ($data['sections'] as &$sec) {
+            $secType = $sec['type'] ?? $sec['id'];
+            $sec['visible'] = in_array($secType, $activeList, true);
+        }
+        unset($sec);
+
+        if (!isset($data['settings'])) {
+            $data['settings'] = [];
+        }
+        $data['settings']['project_preset'] = $presetKey;
+
+        return true;
+    }
+
+    /**
      * Liefert das Standard-Material-Icon für einen Sektionstyp oder ein Element (Phase 19).
      * @param string $typeOrId
      * @return string
      */
     public static function getDefaultIcon(string $typeOrId): string {
+        if (isset(self::$customSectionTypes[$typeOrId]['icon'])) {
+            return self::$customSectionTypes[$typeOrId]['icon'];
+        }
         $map = [
             'hero' => 'flag',
             'gallery' => 'photo_library',
@@ -240,6 +355,28 @@ class SectionManager {
                         }
                         $data['sections'][] = $pSec;
                     }
+                }
+            }
+        }
+
+        // Dynamisch registrierte Sektionstypen (z. B. via SectionManager::registerSectionType) einbinden
+        if (!empty(self::$customSectionTypes)) {
+            $existing_ids = [];
+            foreach ($data['sections'] as $s) {
+                $existing_ids[] = $s['id'] ?? ($s['type'] ?? '');
+            }
+            foreach (self::$customSectionTypes as $cType => $cDef) {
+                if (!in_array($cType, $existing_ids, true)) {
+                    $data['sections'][] = [
+                        'id' => $cDef['id'] ?? $cType,
+                        'type' => $cType,
+                        'title' => $cDef['title'] ?? ucfirst($cType),
+                        'nav_label' => $cDef['nav_label'] ?? ucfirst($cType),
+                        'visible' => $cDef['visible'] ?? true,
+                        'in_nav' => $cDef['in_nav'] ?? true,
+                        'can_delete' => $cDef['can_delete'] ?? true,
+                        'placement' => $cDef['placement'] ?? self::PLACEMENT_BOTH
+                    ];
                 }
             }
         }

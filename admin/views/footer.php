@@ -10,6 +10,7 @@
 
     <script>
         const serverActiveTab = <?php echo json_encode($active_tab); ?>;
+        const serverHasMessage = <?php echo (!empty($success_msg) || !empty($error_msg)) ? 'true' : 'false'; ?>;
         const DEFAULT_PRIVACY_POLICY = <?php echo json_encode(get_default_privacy_policy_text($data)); ?>;
         function loadDefaultPrivacyPolicy() {
             if (confirm('Möchtest du die rechtssichere DSGVO-Standardvorlage in das Textfeld einfügen? Vorhandener Text wird dabei ersetzt.')) {
