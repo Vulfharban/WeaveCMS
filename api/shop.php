@@ -177,8 +177,140 @@ switch ($action) {
         echo json_encode(['success' => true, 'order' => $order], JSON_UNESCAPED_UNICODE);
         exit;
 
+    // -------------------------------------------------------------------------
+    // 5. REST API: Artikel- & Produktverwaltung (Token-authentifiziert)
+    // -------------------------------------------------------------------------
+    case 'api_list_products':
+    case 'list_products':
+        requireShopApiAuth($shopConfig);
+        $products = ShopManager::getProducts();
+        $category = trim($_GET['category'] ?? '');
+        if (!empty($category)) {
+            $products = array_values(array_filter($products, fn($p) => ($p['category'] ?? '') === $category));
+        }
+        echo json_encode([
+            'success'  => true,
+            'count'    => count($products),
+            'products' => $products
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+
+    case 'api_get_product':
+    case 'get_product':
+        requireShopApiAuth($shopConfig);
+        $id = trim($_GET['id'] ?? $jsonInput['id'] ?? '');
+        $sku = trim($_GET['sku'] ?? $jsonInput['sku'] ?? '');
+        $product = null;
+        if (!empty($id)) {
+            $product = ShopManager::getProduct($id);
+        } elseif (!empty($sku)) {
+            foreach (ShopManager::getProducts() as $p) {
+                if (strcasecmp($p['sku'] ?? '', $sku) === 0) {
+                    $product = $p;
+                    break;
+                }
+            }
+        }
+        if (!$product) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Produkt nicht gefunden.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        echo json_encode(['success' => true, 'product' => $product], JSON_UNESCAPED_UNICODE);
+        exit;
+
+    case 'api_save_product':
+    case 'save_product':
+        requireShopApiAuth($shopConfig);
+        $input = !empty($jsonInput) ? $jsonInput : array_merge($_GET, $_POST);
+        $id = trim($input['id'] ?? $input['product_id'] ?? '');
+        try {
+            if (!empty($id) && ShopManager::getProduct($id)) {
+                $res = ShopManager::updateProduct($id, $input);
+                echo json_encode(['success' => true, 'message' => 'Produkt aktualisiert.', 'product' => $res], JSON_UNESCAPED_UNICODE);
+            } else {
+                $res = ShopManager::addProduct($input);
+                echo json_encode(['success' => true, 'message' => 'Produkt angelegt.', 'product' => $res], JSON_UNESCAPED_UNICODE);
+            }
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Fehler beim Speichern: ' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        }
+        exit;
+
+    case 'api_delete_product':
+    case 'delete_product':
+        requireShopApiAuth($shopConfig);
+        $input = !empty($jsonInput) ? $jsonInput : array_merge($_GET, $_POST);
+        $id = trim($_GET['id'] ?? $input['id'] ?? $input['product_id'] ?? '');
+        if (empty($id)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Produkt-ID fehlt.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $ok = ShopManager::deleteProduct($id);
+        echo json_encode(['success' => $ok, 'message' => $ok ? 'Produkt gelöscht.' : 'Produkt nicht gefunden.'], JSON_UNESCAPED_UNICODE);
+        exit;
+
+    // -------------------------------------------------------------------------
+    // 6. REST API: Bestellungsverwaltung (WaWi / Buchhaltungs-Sync)
+    // -------------------------------------------------------------------------
+    case 'api_list_orders':
+    case 'list_orders':
+        requireShopApiAuth($shopConfig);
+        $orders = ShopManager::getOrders();
+        $statusFilter = trim($_GET['status'] ?? '');
+        if (!empty($statusFilter)) {
+            $orders = array_values(array_filter($orders, fn($o) => ($o['status'] ?? '') === $statusFilter));
+        }
+        echo json_encode([
+            'success' => true,
+            'count'   => count($orders),
+            'orders'  => $orders
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+
+    case 'api_update_order_status':
+    case 'update_order_status':
+        requireShopApiAuth($shopConfig);
+        $input = !empty($jsonInput) ? $jsonInput : array_merge($_GET, $_POST);
+        $orderId = trim($input['order_id'] ?? $input['id'] ?? '');
+        $newStatus = trim($input['status'] ?? '');
+        if (empty($orderId) || empty($newStatus)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'order_id und status sind erforderlich.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $ok = ShopManager::updateOrderStatus($orderId, $newStatus);
+        echo json_encode(['success' => $ok, 'message' => $ok ? "Status auf '{$newStatus}' aktualisiert." : 'Bestellung nicht gefunden.'], JSON_UNESCAPED_UNICODE);
+        exit;
+
+    // -------------------------------------------------------------------------
+    // 7. REST API: JSON Im- und Export
+    // -------------------------------------------------------------------------
+    case 'api_export_products':
+    case 'export_products':
+        requireShopApiAuth($shopConfig);
+        echo ShopManager::exportProductsJson();
+        exit;
+
+    case 'api_export_orders':
+    case 'export_orders':
+        requireShopApiAuth($shopConfig);
+        echo ShopManager::exportOrdersJson();
+        exit;
+
+    case 'api_import_products':
+    case 'import_products':
+        requireShopApiAuth($shopConfig);
+        $raw = !empty($rawBody) ? $rawBody : ($_POST['json_data'] ?? '');
+        $mode = in_array($_POST['mode'] ?? ($jsonInput['mode'] ?? 'merge'), ['merge', 'replace'], true) ? ($_POST['mode'] ?? ($jsonInput['mode'] ?? 'merge')) : 'merge';
+        $res = ShopManager::importProductsJson($raw, $mode);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        exit;
+
     default:
-        // Filter-Hook für Addon-Plugins, um eigene API-Aktionen bereitzustellen (z. B. Gutscheincode prüfen, Sendungsverfolgung)
+        // Filter-Hook für Addon-Plugins, um eigene API-Aktionen bereitzustellen
         if (class_exists('PluginManager')) {
             $handled = PluginManager::applyFilters('shop_api_action', false, $action, $jsonInput, $shopConfig);
             if ($handled) {
@@ -188,3 +320,42 @@ switch ($action) {
         echo json_encode(['success' => false, 'message' => 'Ungültige Shop-Aktion.']);
         exit;
 }
+
+/**
+ * Validiert den API-Zugriff für geschützte Shop-Endpunkte.
+ */
+function requireShopApiAuth(array $shopConfig): void {
+    $token = '';
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? ($_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '');
+    if (empty($authHeader) && function_exists('getallheaders')) {
+        $allHeaders = getallheaders();
+        foreach ($allHeaders as $hKey => $hVal) {
+            if (strcasecmp($hKey, 'Authorization') === 0) {
+                $authHeader = $hVal;
+            } elseif (strcasecmp($hKey, 'X-API-KEY') === 0 && empty($_SERVER['HTTP_X_API_KEY'])) {
+                $_SERVER['HTTP_X_API_KEY'] = $hVal;
+            }
+        }
+    }
+    if (preg_match('/Bearer\s+(\S+)/i', $authHeader, $matches)) {
+        $token = $matches[1];
+    } elseif (!empty($_SERVER['HTTP_X_API_KEY'])) {
+        $token = trim($_SERVER['HTTP_X_API_KEY']);
+    } elseif (!empty($_REQUEST['api_key'])) {
+        $token = trim((string)$_REQUEST['api_key']);
+    }
+
+    $isAdminSession = !empty($_SESSION['admin_logged_in']);
+    $isValidApiKey = !empty($shopConfig['api_enabled']) && ShopManager::verifyApiKey($token, $shopConfig);
+
+    if (!$isAdminSession && !$isValidApiKey) {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'error'   => 'Unauthorized',
+            'message' => 'Ungültiger oder fehlender API-Schlüssel für den Webshop.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+

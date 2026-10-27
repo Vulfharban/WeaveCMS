@@ -350,6 +350,13 @@ class InventoryManager {
     }
 
     /**
+     * Alias für getLog (Export & API Konsistenz).
+     */
+    public static function getMovements(int $limit = 150, ?string $articleId = null, ?string $type = null): array {
+        return self::getLog($limit, $articleId, $type);
+    }
+
+    /**
      * Schreibt einen Eintrag in das Lagerbewegungsprotokoll (data/inventory_log.json).
      */
     public static function logMovement(string $articleId, string $type, int $qtyDelta, string $ref = '', string $note = '', string $user = 'admin', ?int $before = null, ?int $after = null): array {
@@ -486,8 +493,13 @@ class InventoryManager {
 
         // Plugin-Konfiguration prüfen
         $invConfig = [];
+        $d = [];
+        $dataFile = dirname(__DIR__, 2) . '/data.json';
+        if (file_exists($dataFile)) {
+            $d = function_exists('load_data') ? load_data($dataFile) : (json_decode((string)@file_get_contents($dataFile), true) ?: []);
+        }
         if (class_exists('PluginManager')) {
-            $invConfig = PluginManager::getPluginConfig('inventory');
+            $invConfig = PluginManager::getPluginConfig('inventory', $d);
         }
         $notifyEnabled = isset($invConfig['notify_low_stock']) ? !empty($invConfig['notify_low_stock']) : true;
         if (!$notifyEnabled) {
@@ -496,9 +508,11 @@ class InventoryManager {
 
         // Empfänger-E-Mail ermitteln
         $toEmail = trim($invConfig['notify_email'] ?? '');
-        if (empty($toEmail) && class_exists('StorageManager')) {
-            $globalSettings = StorageManager::getGlobalSettings();
-            $toEmail = trim($globalSettings['contact_email'] ?? ($globalSettings['admin_email'] ?? ''));
+        if (empty($toEmail) && !empty($d['settings']['admin_email'])) {
+            $toEmail = trim($d['settings']['admin_email']);
+        }
+        if (empty($toEmail) && !empty($d['users'][0]['email'])) {
+            $toEmail = trim($d['users'][0]['email']);
         }
         if (empty($toEmail) && !empty($_SESSION['admin_email'])) {
             $toEmail = trim($_SESSION['admin_email']);
@@ -556,7 +570,13 @@ class InventoryManager {
         }
 
         if (class_exists('SimpleMailer')) {
-            return SimpleMailer::send($toEmail, $subject, $htmlBody, $plainBody);
+            try {
+                $smtpConfig = $d['settings']['smtp'] ?? null;
+                $mailRes = SimpleMailer::send($toEmail, $subject, $htmlBody, $plainBody, '', '', $smtpConfig);
+                return is_array($mailRes) ? !empty($mailRes['success']) : (bool)$mailRes;
+            } catch (\Throwable $e) {
+                return false;
+            }
         }
 
         return false;
@@ -601,5 +621,204 @@ class InventoryManager {
         }
 
         return $output;
+    }
+
+    // =========================================================================
+    // JSON-IMPORT / EXPORT & REST-API SCHNITTSTELLEN
+    // =========================================================================
+
+    /**
+     * Erstellt einen strukturierten JSON-Export aller Lagerartikel inkl. Kalkulationsdaten.
+     */
+    public static function exportArticlesJson(): string {
+        $articles = self::getArticles();
+        $payload = [
+            'schema_version' => '1.0',
+            'exported_at'    => date('c'),
+            'type'           => 'inventory_articles',
+            'count'          => count($articles),
+            'articles'       => $articles
+        ];
+        return json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Erstellt einen JSON-Export des revisionssicheren Lagerbewegungsprotokolls (Audit Log).
+     */
+    public static function exportMovementsJson(): string {
+        $movements = self::getMovements(500);
+        $payload = [
+            'schema_version' => '1.0',
+            'exported_at'    => date('c'),
+            'type'           => 'inventory_movements',
+            'count'          => count($movements),
+            'movements'      => $movements
+        ];
+        return json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Importiert Artikel- und Lagerbestände aus einem JSON-String.
+     *
+     * @param string $jsonString Roher JSON-String
+     * @param string $mode 'merge' (bestehende Artikel aktualisieren, neue anfügen) oder 'replace' (vollständig ersetzen)
+     * @param string $user Benutzer oder System, das den Import ausführt
+     * @return array ['success' => bool, 'imported' => int, 'updated' => int, 'stock_changes' => int, 'total' => int, 'errors' => array]
+     */
+    public static function importArticlesJson(string $jsonString, string $mode = 'merge', string $user = 'system'): array {
+        $decoded = json_decode($jsonString, true);
+        if (!is_array($decoded)) {
+            return ['success' => false, 'message' => 'Ungültiges JSON-Format übergeben.', 'errors' => ['JSON Parse Error']];
+        }
+
+        $incoming = isset($decoded['articles']) && is_array($decoded['articles']) 
+            ? $decoded['articles'] 
+            : (isset($decoded['products']) && is_array($decoded['products']) ? $decoded['products'] : (isset($decoded[0]) ? $decoded : []));
+
+        if (empty($incoming)) {
+            return ['success' => false, 'message' => 'Keine Artikel-Einträge im JSON gefunden.', 'errors' => ['No articles found']];
+        }
+
+        $currentArticles = ($mode === 'replace') ? [] : self::getArticles();
+        $indexed = [];
+        foreach ($currentArticles as $a) {
+            $key = !empty($a['sku']) ? 'sku:' . strtolower(trim($a['sku'])) : ('id:' . ($a['id'] ?? ''));
+            $indexed[$key] = $a;
+        }
+
+        $importedCount = 0;
+        $updatedCount = 0;
+        $stockChangesCount = 0;
+        $errors = [];
+
+        foreach ($incoming as $idx => $in) {
+            if (!is_array($in)) {
+                $errors[] = "Eintrag #{$idx} ist kein valides Objekt.";
+                continue;
+            }
+
+            $title = trim($in['title'] ?? '');
+            if (empty($title)) {
+                $errors[] = "Eintrag #{$idx}: Titel fehlt.";
+                continue;
+            }
+
+            $id = trim($in['id'] ?? '');
+            if (empty($id)) {
+                $id = 'art_' . bin2hex(random_bytes(4));
+            }
+            $sku = trim($in['sku'] ?? strtoupper('ART-' . substr(preg_replace('/[^a-zA-Z0-9]/', '', $id), -6)));
+
+            $targetStock = max(0, (int)($in['stock'] ?? 0));
+            $cleanArticle = [
+                'id'           => $id,
+                'title'        => $title,
+                'sku'          => $sku,
+                'category'     => trim($in['category'] ?? 'Lagerartikel'),
+                'description'  => trim($in['description'] ?? ''),
+                'price'        => max(0.0, round((float)str_replace(',', '.', (string)($in['price'] ?? 0)), 2)),
+                'cost_price'   => max(0.0, round((float)str_replace(',', '.', (string)($in['cost_price'] ?? 0)), 2)),
+                'tax_rate'     => in_array((int)($in['tax_rate'] ?? 19), [0, 7, 19], true) ? (int)($in['tax_rate'] ?? 19) : 19,
+                'stock'        => $targetStock,
+                'min_stock'    => isset($in['min_stock']) ? max(0, (int)$in['min_stock']) : 3,
+                'location'     => trim($in['location'] ?? 'Hauptlager A'),
+                'supplier'     => trim($in['supplier'] ?? 'Eigenfertigung'),
+                'supplier_sku' => trim($in['supplier_sku'] ?? ''),
+                'unit'         => trim($in['unit'] ?? 'Stück'),
+                'barcode'      => trim($in['barcode'] ?? ''),
+                'unlimited'    => !empty($in['unlimited']),
+                'image'        => trim($in['image'] ?? ''),
+                'active'       => !isset($in['active']) || !empty($in['active']),
+                'created_at'   => $in['created_at'] ?? date('Y-m-d H:i:s'),
+                'updated_at'   => date('Y-m-d H:i:s')
+            ];
+
+            $matchKey = !empty($sku) ? 'sku:' . strtolower($sku) : ('id:' . $id);
+            if (isset($indexed[$matchKey])) {
+                $oldStock = (int)($indexed[$matchKey]['stock'] ?? 0);
+                $cleanArticle['id'] = $indexed[$matchKey]['id']; // Interne ID beibehalten
+                $indexed[$matchKey] = array_merge($indexed[$matchKey], $cleanArticle);
+                $updatedCount++;
+
+                // Bei Bestandsänderung Bewegung protokollieren
+                if ($oldStock !== $targetStock) {
+                    $diff = $targetStock - $oldStock;
+                    self::logMovement(
+                        $cleanArticle['id'],
+                        'import_sync',
+                        $diff,
+                        'JSON-IMPORT',
+                        "Bestandsabgleich via JSON-Import (von {$oldStock} auf {$targetStock})",
+                        $user
+                    );
+                    $stockChangesCount++;
+                }
+            } else {
+                $indexed[$matchKey] = $cleanArticle;
+                $importedCount++;
+                if ($targetStock > 0) {
+                    self::logMovement(
+                        $cleanArticle['id'],
+                        'import_new',
+                        $targetStock,
+                        'JSON-IMPORT',
+                        "Neuer Artikel via JSON-Import eingebucht",
+                        $user
+                    );
+                    $stockChangesCount++;
+                }
+            }
+        }
+
+        $finalArticles = array_values($indexed);
+        $saved = self::saveAllArticles($finalArticles);
+
+        return [
+            'success'       => $saved,
+            'imported'      => $importedCount,
+            'updated'       => $updatedCount,
+            'stock_changes' => $stockChangesCount,
+            'total'         => count($finalArticles),
+            'errors'        => $errors
+        ];
+    }
+
+    /**
+     * Prüft oder liefert den REST-API Schlüssel für die Lagerverwaltung.
+     */
+    public static function getApiKey(?array $config = null): string {
+        if ($config !== null && !empty($config['api_key'])) {
+            return (string)$config['api_key'];
+        }
+        $dataFile = dirname(__DIR__, 2) . '/data.json';
+        if (file_exists($dataFile) && class_exists('PluginManager')) {
+            $data = load_data($dataFile);
+            $curConfig = PluginManager::getPluginConfig('inventory', $data);
+            if (!empty($curConfig['api_key'])) {
+                return (string)$curConfig['api_key'];
+            }
+        }
+        return '';
+    }
+
+    /**
+     * Generiert einen neuen, kryptografisch sicheren API-Schlüssel.
+     */
+    public static function generateApiKey(): string {
+        return 'wciv_' . bin2hex(random_bytes(20));
+    }
+
+    /**
+     * Validiert einen eingehenden API-Token gegen die Lager-Konfiguration.
+     */
+    public static function verifyApiKey(?string $token, ?array $config = null): bool {
+        if (empty($token)) {
+            return false;
+        }
+        $validKey = self::getApiKey($config);
+        if (empty($validKey)) {
+            return false;
+        }
+        return hash_equals($validKey, trim($token));
     }
 }

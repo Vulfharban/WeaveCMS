@@ -32,8 +32,9 @@ logs/
 images/uploads/*
 !images/uploads/.gitkeep
 
-# Scratch test files
+# Scratch & Temporary test files
 scratch/
+tmp/
 
 # Build releases & Cache
 releases/*

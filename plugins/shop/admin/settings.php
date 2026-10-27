@@ -86,10 +86,11 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
     <!-- Sub-Navigation -->
     <?php
     $shopSubTabs = [
-        'products' => ['title' => 'Produkte (' . count($products) . ')', 'icon' => 'inventory_2'],
-        'orders'   => ['title' => 'Bestellungen (' . count($orders) . ')', 'icon' => 'receipt_long'],
-        'payments' => ['title' => 'Zahlungsarten (Vorkasse, CC, PayPal, WERO)', 'icon' => 'payments'],
-        'settings' => ['title' => 'Shop-Einstellungen', 'icon' => 'tune'],
+        'products'   => ['title' => 'Produkte (' . count($products) . ')', 'icon' => 'inventory_2'],
+        'orders'     => ['title' => 'Bestellungen (' . count($orders) . ')', 'icon' => 'receipt_long'],
+        'payments'   => ['title' => 'Zahlungsarten (Vorkasse, CC, PayPal, WERO)', 'icon' => 'payments'],
+        'settings'   => ['title' => 'Shop-Einstellungen', 'icon' => 'tune'],
+        'interfaces' => ['title' => 'Schnittstellen & Im/Export', 'icon' => 'sync_alt'],
     ];
 
     if (class_exists('PluginManager')) {
@@ -506,6 +507,195 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                 <span class="material-icons">save</span> Shop-Einstellungen speichern
             </button>
         </form>
+
+    <!-- ===================================================================== -->
+    <!-- SUBTAB 5: SCHNITTSTELLEN & IM/EXPORT                                  -->
+    <!-- ===================================================================== -->
+    <?php elseif ($activeSubTab === 'interfaces'): ?>
+        <?php 
+            $apiKey = ShopManager::getApiKey($config);
+            $apiEnabled = !empty($config['api_enabled']);
+            $msg = $_GET['msg'] ?? '';
+            $importedCount = (int)($_GET['imported'] ?? 0);
+            $updatedCount = (int)($_GET['updated'] ?? 0);
+
+            $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $apiBaseUrl = $proto . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '', 2), '/\\') . '/api/shop.php';
+        ?>
+
+        <?php if ($msg === 'products_imported'): ?>
+            <div style="background: rgba(16,185,129,0.12); border: 1px solid #10b981; color: #047857; padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                <span class="material-icons" style="font-size:22px;">check_circle</span>
+                <div>
+                    <strong>JSON-Import erfolgreich abgeschlossen!</strong> 
+                    <?php echo $importedCount; ?> neue(s) Produkt(e) angelegt, <?php echo $updatedCount; ?> bestehende(s) Produkt(e) aktualisiert.
+                </div>
+            </div>
+        <?php elseif ($msg === 'api_key_generated'): ?>
+            <div style="background: rgba(16,185,129,0.12); border: 1px solid #10b981; color: #047857; padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                <span class="material-icons" style="font-size:22px;">vpn_key</span>
+                <div>
+                    <strong>Neuer API-Schlüssel wurde generiert und gespeichert!</strong>
+                </div>
+            </div>
+        <?php elseif ($msg === 'import_error'): ?>
+            <div style="background: rgba(239,68,68,0.12); border: 1px solid #ef4444; color: #b91c1c; padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                <span class="material-icons" style="font-size:22px;">error</span>
+                <div>
+                    <strong>Fehler beim Importieren:</strong> Bitte stelle sicher, dass eine valide JSON-Datei übergeben wurde.
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+            
+            <!-- Karte 1: JSON-Export -->
+            <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+                        <span class="material-icons" style="color:var(--primary); font-size:26px;">file_download</span>
+                        <h4 style="margin:0; font-size:1.15rem; font-weight:700;">Daten-Export (JSON)</h4>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.45; margin: 0 0 1.25rem;">
+                        Sichere deinen gesamten Webshop-Katalog oder alle bisher eingegangenen Bestellungen im offenen JSON-Standard für Backups, Excel-Tools oder Migrationen.
+                    </p>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <a href="?action=shop_export_products_json" class="btn btn-primary" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; font-weight: 700;">
+                        <span class="material-icons" style="font-size:18px;">download</span> Produkte exportieren (.json)
+                    </a>
+                    <a href="?action=shop_export_orders_json" class="btn btn-outline" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; font-weight: 700;">
+                        <span class="material-icons" style="font-size:18px;">receipt_long</span> Bestellungen exportieren (.json)
+                    </a>
+                </div>
+            </div>
+
+            <!-- Karte 2: JSON-Import -->
+            <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+                    <span class="material-icons" style="color:var(--primary); font-size:26px;">file_upload</span>
+                    <h4 style="margin:0; font-size:1.15rem; font-weight:700;">Produkte importieren (JSON)</h4>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.45; margin: 0 0 1rem;">
+                    Lade eine exportierte JSON-Datei hoch, um neue Artikel hinzuzufügen oder bestehende Daten per SKU abzugleichen.
+                </p>
+
+                <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=interfaces#tab-plugins" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                    <input type="hidden" name="action" value="shop_import_products_json">
+                    <input type="hidden" name="target_tab" value="tab-plugins">
+
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">JSON-Datei auswählen:</label>
+                        <input type="file" name="import_file" accept=".json,application/json" class="form-control" required style="padding: 6px;">
+                    </div>
+
+                    <div style="margin-bottom: 14px;">
+                        <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Import-Modus:</label>
+                        <select name="import_mode" class="form-control">
+                            <option value="merge" selected>Zusammenführen (Bestehende anhand SKU/ID aktualisieren &amp; neue anfügen)</option>
+                            <option value="replace">Katalog ersetzen (Alle vorhandenen Produkte durch Importdatei austauschen)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; font-weight: 700;">
+                        <span class="material-icons" style="font-size:18px;">publish</span> Import starten
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Karte 3: REST-API & WaWi-Schnittstelle -->
+        <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:1.25rem;">
+                <div>
+                    <h4 style="margin:0 0 0.25rem 0; font-size:1.2rem; font-weight:700; display:flex; align-items:center; gap:8px;">
+                        <span class="material-icons" style="color:var(--primary); font-size:24px;">api</span> REST-API Schnittstelle &amp; Token
+                    </h4>
+                    <p style="margin:0; font-size:0.88rem; color:var(--text-secondary);">
+                        Ermöglicht externen Systemen (Warenwirtschaft, ERP, POS-Kassen, Barcode-Apps) den automatisierten Lese- und Schreibzugriff.
+                    </p>
+                </div>
+                <div>
+                    <span style="font-size:0.8rem; background:<?php echo $apiEnabled ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'; ?>; color:<?php echo $apiEnabled ? '#047857' : '#b91c1c'; ?>; border:1px solid <?php echo $apiEnabled ? '#10b981' : '#ef4444'; ?>; border-radius:20px; padding:4px 12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size:14px;"><?php echo $apiEnabled ? 'check_circle' : 'block'; ?></span>
+                        <?php echo $apiEnabled ? 'API Aktiv' : 'API Deaktiviert'; ?>
+                    </span>
+                </div>
+            </div>
+
+            <!-- API-Konfiguration speichern -->
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=interfaces#tab-plugins" style="margin-bottom: 1.5rem;">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="action" value="save_plugin_settings">
+                <input type="hidden" name="plugin_slug" value="shop">
+                <input type="hidden" name="plugin_settings" value="shop">
+                <input type="hidden" name="target_tab" value="tab-plugins">
+                <input type="hidden" name="active_subtab" value="interfaces">
+
+                <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                    <label style="display:flex; align-items:center; gap: 8px; font-weight: 700; font-size: 0.92rem; cursor:pointer; margin-bottom: 12px;">
+                        <input type="hidden" name="api_enabled" value="0">
+                        <input type="checkbox" name="api_enabled" value="1" <?php echo $apiEnabled ? 'checked' : ''; ?>>
+                        <span>REST-API für diesen Webshop aktivieren</span>
+                    </label>
+
+                    <div style="margin-bottom: 8px;">
+                        <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Aktiver API-Schlüssel (Bearer Token):</label>
+                        <div style="display:flex; gap: 8px;">
+                            <input type="text" name="api_key" id="shop-api-key-display" class="form-control" value="<?php echo htmlspecialchars($apiKey ?: 'Noch kein Schlüssel generiert'); ?>" readonly style="font-family: monospace; font-size: 0.9rem; background: #f8fafc;">
+                            <button type="button" class="btn btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('shop-api-key-display').value); if(typeof showToast==='function') showToast('API-Key kopiert!'); else alert('API-Key kopiert!');" title="In die Zwischenablage kopieren">
+                                <span class="material-icons" style="font-size:16px;">content_copy</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap: 10px; flex-wrap:wrap;">
+                    <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; font-weight: 700;">
+                        <span class="material-icons" style="font-size:16px;">save</span> API-Status speichern
+                    </button>
+                </div>
+            </form>
+
+            <!-- Separater Button für Token-Generierung -->
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=interfaces#tab-plugins" style="margin-bottom: 1.5rem;" onsubmit="return confirm('Möchtest du wirklich einen neuen API-Schlüssel generieren? Externe Verbindungen mit dem alten Schlüssel müssen danach aktualisiert werden.');">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="action" value="shop_generate_api_key">
+                <input type="hidden" name="target_tab" value="tab-plugins">
+                <button type="submit" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-size:0.85rem;">
+                    <span class="material-icons" style="font-size:16px; color:var(--primary);">autorenew</span> Neuen API-Schlüssel generieren
+                </button>
+            </form>
+
+            <!-- API Dokumentation / cURL Beispiele -->
+            <div style="background: #1e293b; color: #f8fafc; border-radius: 12px; padding: 1.25rem; font-size: 0.84rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
+                    <strong style="color: #38bdf8; display:flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size:16px;">terminal</span> API-Endpunkt &amp; Abfragebeispiele
+                    </strong>
+                    <code style="background: rgba(255,255,255,0.1); color: #fff; padding: 2px 8px; border-radius: 6px;"><?php echo htmlspecialchars($apiBaseUrl); ?></code>
+                </div>
+
+                <div style="margin-bottom: 0.75rem;">
+                    <span style="color: #94a3b8;"># 1. Alle Produkte abrufen (GET):</span><br>
+                    <code>curl -H "Authorization: Bearer <?php echo htmlspecialchars($apiKey ?: 'DEIN_KEY'); ?>" "<?php echo htmlspecialchars($apiBaseUrl); ?>?action=list_products"</code>
+                </div>
+
+                <div style="margin-bottom: 0.75rem;">
+                    <span style="color: #94a3b8;"># 2. Bestellungen abrufen (GET):</span><br>
+                    <code>curl -H "Authorization: Bearer <?php echo htmlspecialchars($apiKey ?: 'DEIN_KEY'); ?>" "<?php echo htmlspecialchars($apiBaseUrl); ?>?action=list_orders&status=paid"</code>
+                </div>
+
+                <div>
+                    <span style="color: #94a3b8;"># 3. Produkt anlegen / aktualisieren (POST mit JSON):</span><br>
+                    <code>curl -X POST -H "Authorization: Bearer <?php echo htmlspecialchars($apiKey ?: 'DEIN_KEY'); ?>" -H "Content-Type: application/json" -d '{"title":"Neuer Korb","sku":"ART-99","price":49.00,"stock":15}' "<?php echo htmlspecialchars($apiBaseUrl); ?>?action=save_product"</code>
+                </div>
+            </div>
+
+        </div>
+
     <?php else: ?>
         <?php
         // Action-Hook für Dritt-Plugins, um eigene Subtab-Inhalte im Shop-Admin zu rendern

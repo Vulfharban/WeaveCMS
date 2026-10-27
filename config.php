@@ -233,6 +233,20 @@ function __(string $key, string $default = '', ?string $lang = null): string {
 }
 
 /**
+ * Übersetzt einen Textschlüssel für das Administrations-Backend.
+ * Proxy zu LanguageManager::adminT(). Fallback ist standardmäßig Englisch ('en').
+ *
+ * @param string $key Übersetzungsschlüssel (z. B. 'admin.nav.dashboard')
+ * @param string $default Fallback-Text
+ * @param string|null $lang Optional abweichende Sprache ('de' oder 'en')
+ * @param array $params Optionale Platzhalter [:key => wert]
+ * @return string
+ */
+function __a(string $key, string $default = '', ?string $lang = null, array $params = []): string {
+    return LanguageManager::adminT($key, $default, $lang, $params);
+}
+
+/**
  * Alias für __().
  *
  * @param string $key
@@ -243,3 +257,4 @@ function __(string $key, string $default = '', ?string $lang = null): string {
 function _t(string $key, string $default = '', ?string $lang = null): string {
     return LanguageManager::t($key, $default, $lang);
 }
+

@@ -865,8 +865,12 @@ class ShopManager {
             $replyToEmail = !empty($shopOwnerEmail) ? $shopOwnerEmail : '';
             $replyToName = !empty($shopOwnerName) ? $shopOwnerName : '';
 
-            $resCustomer = SimpleMailer::send($customerEmail, $subjectCustomer, $htmlCustomer, $textCustomer, $replyToEmail, $replyToName, $smtpConfig);
-            $result['customer'] = !empty($resCustomer['success']);
+            try {
+                $resCustomer = SimpleMailer::send($customerEmail, $subjectCustomer, $htmlCustomer, $textCustomer, $replyToEmail, $replyToName, $smtpConfig);
+                $result['customer'] = !empty($resCustomer['success']);
+            } catch (\Throwable $e) {
+                $result['customer'] = false;
+            }
         }
 
         // 2. Benachrichtigungs-E-Mail an den SHOP-BETREIBER (Admin)
@@ -909,8 +913,12 @@ class ShopManager {
                 $textAdmin = PluginManager::applyFilters('shop_order_admin_email_text', $textAdmin, $order);
             }
 
-            $resAdmin = SimpleMailer::send($shopOwnerEmail, $subjectAdmin, $htmlAdmin, $textAdmin, $customerEmail, $customerName, $smtpConfig);
-            $result['admin'] = !empty($resAdmin['success']);
+            try {
+                $resAdmin = SimpleMailer::send($shopOwnerEmail, $subjectAdmin, $htmlAdmin, $textAdmin, $customerEmail, $customerName, $smtpConfig);
+                $result['admin'] = !empty($resAdmin['success']);
+            } catch (\Throwable $e) {
+                $result['admin'] = false;
+            }
         }
 
         return $result;
@@ -1001,5 +1009,174 @@ class ShopManager {
                 'created_at'  => date('Y-m-d H:i:s')
             ]
         ];
+    }
+
+    // =========================================================================
+    // JSON-IMPORT / EXPORT & REST-API SCHNITTSTELLEN
+    // =========================================================================
+
+    /**
+     * Erstellt einen strukturierten JSON-Export aller Produkte.
+     */
+    public static function exportProductsJson(): string {
+        $products = self::getProducts();
+        $payload = [
+            'schema_version' => '1.0',
+            'exported_at'    => date('c'),
+            'type'           => 'shop_products',
+            'count'          => count($products),
+            'products'       => $products
+        ];
+        return json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Erstellt einen strukturierten JSON-Export aller Bestellungen.
+     */
+    public static function exportOrdersJson(): string {
+        $orders = self::getOrders();
+        $payload = [
+            'schema_version' => '1.0',
+            'exported_at'    => date('c'),
+            'type'           => 'shop_orders',
+            'count'          => count($orders),
+            'orders'         => $orders
+        ];
+        return json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Importiert Produkte aus einem JSON-String.
+     *
+     * @param string $jsonString Roher JSON-String
+     * @param string $mode 'merge' (bestehende aktualisieren, neue anfügen) oder 'replace' (Katalog ersetzen)
+     * @return array ['success' => bool, 'imported' => int, 'updated' => int, 'total' => int, 'errors' => array]
+     */
+    public static function importProductsJson(string $jsonString, string $mode = 'merge'): array {
+        $decoded = json_decode($jsonString, true);
+        if (!is_array($decoded)) {
+            return ['success' => false, 'message' => 'Ungültiges JSON-Format übergeben.', 'errors' => ['JSON Parse Error']];
+        }
+
+        // Unterstützt sowohl Root-Array als auch Struktur mit ['products' => [...]]
+        $incomingProducts = isset($decoded['products']) && is_array($decoded['products']) 
+            ? $decoded['products'] 
+            : (isset($decoded[0]) ? $decoded : []);
+
+        if (empty($incomingProducts)) {
+            return ['success' => false, 'message' => 'Keine Produkt-Einträge im JSON gefunden.', 'errors' => ['No products found']];
+        }
+
+        $currentProducts = ($mode === 'replace') ? [] : self::getProducts();
+        $indexed = [];
+        foreach ($currentProducts as $p) {
+            $key = !empty($p['sku']) ? 'sku:' . strtolower(trim($p['sku'])) : ('id:' . ($p['id'] ?? ''));
+            $indexed[$key] = $p;
+        }
+
+        $importedCount = 0;
+        $updatedCount = 0;
+        $errors = [];
+
+        foreach ($incomingProducts as $idx => $in) {
+            if (!is_array($in)) {
+                $errors[] = "Eintrag #{$idx} ist kein valides Objekt.";
+                continue;
+            }
+
+            $title = trim($in['title'] ?? '');
+            if (empty($title)) {
+                $errors[] = "Eintrag #{$idx}: Titel fehlt.";
+                continue;
+            }
+
+            $id = trim($in['id'] ?? '');
+            if (empty($id)) {
+                $id = 'prod_' . bin2hex(random_bytes(4));
+            }
+            $sku = trim($in['sku'] ?? strtoupper('ART-' . substr(preg_replace('/[^a-zA-Z0-9]/', '', $id), -6)));
+
+            $cleanProduct = [
+                'id'          => $id,
+                'title'       => $title,
+                'sku'         => $sku,
+                'category'    => trim($in['category'] ?? 'Allgemein'),
+                'description' => trim($in['description'] ?? ''),
+                'price'       => max(0.0, round((float)str_replace(',', '.', (string)($in['price'] ?? 0)), 2)),
+                'tax_rate'    => in_array((int)($in['tax_rate'] ?? 19), [0, 7, 19], true) ? (int)($in['tax_rate'] ?? 19) : 19,
+                'stock'       => max(0, (int)($in['stock'] ?? 0)),
+                'unlimited'   => !empty($in['unlimited']),
+                'image'       => trim($in['image'] ?? ''),
+                'active'      => !isset($in['active']) || !empty($in['active']),
+                'created_at'  => $in['created_at'] ?? date('Y-m-d H:i:s'),
+                'updated_at'  => date('Y-m-d H:i:s')
+            ];
+
+            if (isset($in['cost_price'])) $cleanProduct['cost_price'] = round((float)$in['cost_price'], 2);
+            if (isset($in['location']))   $cleanProduct['location'] = trim($in['location']);
+            if (isset($in['min_stock']))  $cleanProduct['min_stock'] = (int)$in['min_stock'];
+            if (isset($in['supplier']))   $cleanProduct['supplier'] = trim($in['supplier']);
+            if (isset($in['barcode']))    $cleanProduct['barcode'] = trim($in['barcode']);
+
+            $matchKey = !empty($sku) ? 'sku:' . strtolower($sku) : ('id:' . $id);
+            if (isset($indexed[$matchKey])) {
+                $cleanProduct['id'] = $indexed[$matchKey]['id'];
+                $indexed[$matchKey] = array_merge($indexed[$matchKey], $cleanProduct);
+                $updatedCount++;
+            } else {
+                $indexed[$matchKey] = $cleanProduct;
+                $importedCount++;
+            }
+        }
+
+        $finalProducts = array_values($indexed);
+        $saved = self::saveProducts($finalProducts);
+
+        return [
+            'success'  => $saved,
+            'imported' => $importedCount,
+            'updated'  => $updatedCount,
+            'total'    => count($finalProducts),
+            'errors'   => $errors
+        ];
+    }
+
+    /**
+     * Prüft oder liefert den REST-API Schlüssel für den Webshop.
+     */
+    public static function getApiKey(?array $config = null): string {
+        if ($config !== null && !empty($config['api_key'])) {
+            return (string)$config['api_key'];
+        }
+        $dataFile = dirname(__DIR__, 2) . '/data.json';
+        if (file_exists($dataFile) && class_exists('PluginManager')) {
+            $data = load_data($dataFile);
+            $curConfig = PluginManager::getPluginConfig('shop', $data);
+            if (!empty($curConfig['api_key'])) {
+                return (string)$curConfig['api_key'];
+            }
+        }
+        return '';
+    }
+
+    /**
+     * Generiert einen neuen, kryptografisch sicheren API-Schlüssel.
+     */
+    public static function generateApiKey(): string {
+        return 'wcsv_' . bin2hex(random_bytes(20));
+    }
+
+    /**
+     * Validiert einen eingehenden API-Token gegen die Shop-Konfiguration.
+     */
+    public static function verifyApiKey(?string $token, ?array $config = null): bool {
+        if (empty($token)) {
+            return false;
+        }
+        $validKey = self::getApiKey($config);
+        if (empty($validKey)) {
+            return false;
+        }
+        return hash_equals($validKey, trim($token));
     }
 }

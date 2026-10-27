@@ -19,6 +19,10 @@
 
 require_once '../config.php';
 
+if (!defined('WEAVE_IN_ADMIN')) {
+    define('WEAVE_IN_ADMIN', true);
+}
+
 // 1. Zentrale Datenbasis (data.json oder SQL) laden
 $data_file = '../data.json';
 $data = load_data($data_file, [
@@ -32,6 +36,10 @@ $data = load_data($data_file, [
     'courses' => [],
     'past_courses' => []
 ]);
+
+// 1.1 Aktive Backend-Sprache initialisieren (DE & EN, strikter Fallback EN)
+$admin_lang = LanguageManager::detectAdminLanguage($data);
+
 
 // Benutzer-Datenmodell initialisieren (Superadmin-Seeding bei Bedarf)
 UserManager::ensureInitialized($data);

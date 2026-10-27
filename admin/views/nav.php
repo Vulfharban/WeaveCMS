@@ -17,7 +17,7 @@
  */
 ?>
         <!-- Toast Feedback -->
-        <div id="toast"><span class="material-icons" style="font-size:18px;">check</span> <span id="toast-text">Link kopiert!</span></div>
+        <div id="toast"><span class="material-icons" style="font-size:18px;">check</span> <span id="toast-text"><?php echo __a('admin.msg.link_copied', 'Link kopiert!'); ?></span></div>
 
         <!-- Success & Error Messages -->
         <?php if (!empty($success_msg)): ?>
@@ -46,32 +46,32 @@
         ?>
         <div class="admin-nav">
             <button class="admin-nav-link active" id="main-nav-dashboard" onclick="switchTab('tab-dashboard')">
-                <span class="material-icons" style="font-size:18px;">dashboard</span> Dashboard
+                <span class="material-icons" style="font-size:18px;">dashboard</span> <?php echo __a('admin.nav.dashboard', 'Dashboard'); ?>
             </button>
             <button class="admin-nav-link" id="main-nav-content" onclick="switchTab('tab-content')">
-                <span class="material-icons" style="font-size:18px;">folder_special</span> Inhalte &amp; Seiten
+                <span class="material-icons" style="font-size:18px;">folder_special</span> <?php echo __a('admin.nav.content', 'Inhalte &amp; Seiten'); ?>
             </button>
             <?php if ($nav_role === UserManager::ROLE_ADMIN): ?>
                 <button class="admin-nav-link" id="main-nav-display" onclick="switchTab('tab-display')">
-                    <span class="material-icons" style="font-size:18px;">visibility</span> Darstellung</button>
+                    <span class="material-icons" style="font-size:18px;">visibility</span> <?php echo __a('admin.nav.display', 'Darstellung'); ?></button>
                 <button class="admin-nav-link" id="main-nav-design" onclick="switchTab('tab-design')">
-                    <span class="material-icons" style="font-size:18px;">brush</span> Design</button>
+                    <span class="material-icons" style="font-size:18px;">brush</span> <?php echo __a('admin.nav.design', 'Design'); ?></button>
                 <button class="admin-nav-link" onclick="switchTab('tab-users')">
-                    <span class="material-icons" style="font-size:18px;">group</span> Benutzer
+                    <span class="material-icons" style="font-size:18px;">group</span> <?php echo __a('admin.nav.users', 'Benutzer'); ?>
                 </button>
                 <button class="admin-nav-link" onclick="switchTab('tab-plugins')">
-                    <span class="material-icons" style="font-size:18px;">extension</span> Plugins
+                    <span class="material-icons" style="font-size:18px;">extension</span> <?php echo __a('admin.nav.plugins', 'Plugins'); ?>
                 </button>
                 <button class="admin-nav-link" onclick="switchTab('tab-seo')">
-                    <span class="material-icons" style="font-size:18px;">travel_explore</span> SEO &amp; Sharing
+                    <span class="material-icons" style="font-size:18px;">travel_explore</span> <?php echo __a('admin.nav.seo', 'SEO &amp; Sharing'); ?>
                 </button>
                 <button class="admin-nav-link" onclick="switchTab('tab-security')">
-                    <span class="material-icons" style="font-size:18px;">security</span> Sicherheit &amp; System
+                    <span class="material-icons" style="font-size:18px;">security</span> <?php echo __a('admin.nav.security', 'Sicherheit &amp; System'); ?>
                 </button>
             <?php endif; ?>
             <?php if (UserManager::canAccessTab('tab-inbox', $nav_role)): ?>
                 <button class="admin-nav-link" onclick="switchTab('tab-inbox')">
-                    <span class="material-icons" style="font-size:18px;">inbox</span> Kontaktanfragen<?php if ($inbox_new_count > 0): ?> <span style="background:#ef4444; color:#fff; border-radius:999px; padding:1px 8px; font-size:0.72rem; font-weight:700; margin-left:4px;"><?php echo (int)$inbox_new_count; ?></span><?php endif; ?>
+                    <span class="material-icons" style="font-size:18px;">inbox</span> <?php echo __a('admin.nav.inbox', 'Kontaktanfragen'); ?><?php if ($inbox_new_count > 0): ?> <span style="background:#ef4444; color:#fff; border-radius:999px; padding:1px 8px; font-size:0.72rem; font-weight:700; margin-left:4px;"><?php echo (int)$inbox_new_count; ?></span><?php endif; ?>
                 </button>
             <?php endif; ?>
         </div>
@@ -87,36 +87,36 @@
         ?>
         <!-- Sub-Navigation für Inhalte & Seiten (dynamisch gefiltert nach aktiven Modulen) -->
         <div class="admin-subnav" id="admin-content-subnav" style="display:none;">
-            <span class="admin-subnav-label"><span class="material-icons" style="font-size:16px;">tune</span> Bereich:</span>
+            <span class="admin-subnav-label"><span class="material-icons" style="font-size:16px;">tune</span> <?php echo __a('admin.subnav.label', 'Bereich:'); ?></span>
             <button class="admin-subnav-link active" onclick="switchTab('tab-texts')">
-                <span class="material-icons" style="font-size:17px;">dashboard_customize</span> Startseite &amp; Modul-Pool
+                <span class="material-icons" style="font-size:17px;">dashboard_customize</span> <?php echo __a('admin.subnav.home_pool', 'Startseite &amp; Modul-Pool'); ?>
             </button>
             <button class="admin-subnav-link" onclick="switchTab('tab-pages')">
-                <span class="material-icons" style="font-size:17px;">article</span> Einzelseiten
+                <span class="material-icons" style="font-size:17px;">article</span> <?php echo __a('admin.subnav.pages', 'Einzelseiten'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="blog" onclick="switchTab('tab-blog')" style="<?php echo in_array('blog', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">newspaper</span> Blog &amp; Aktuelles
+                <span class="material-icons" style="font-size:17px;">newspaper</span> <?php echo __a('admin.subnav.blog', 'Blog &amp; Aktuelles'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="faq" onclick="switchTab('tab-faqs')" style="<?php echo in_array('faq', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">quiz</span> FAQs
+                <span class="material-icons" style="font-size:17px;">quiz</span> <?php echo __a('admin.subnav.faq', 'FAQs'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="team" onclick="switchTab('tab-team')" style="<?php echo in_array('team', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">badge</span> Team
+                <span class="material-icons" style="font-size:17px;">badge</span> <?php echo __a('admin.subnav.team', 'Team'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="pricing" onclick="switchTab('tab-pricing')" style="<?php echo in_array('pricing', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">sell</span> Preise &amp; Pakete
+                <span class="material-icons" style="font-size:17px;">sell</span> <?php echo __a('admin.subnav.pricing', 'Preise &amp; Pakete'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="downloads" onclick="switchTab('tab-downloads')" style="<?php echo in_array('downloads', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">folder_zip</span> Downloads
+                <span class="material-icons" style="font-size:17px;">folder_zip</span> <?php echo __a('admin.subnav.downloads', 'Downloads'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="gallery" onclick="switchTab('tab-gallery')" style="<?php echo in_array('gallery', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">photo_library</span> Galerie &amp; Werkstücke
+                <span class="material-icons" style="font-size:17px;">photo_library</span> <?php echo __a('admin.subnav.gallery', 'Galerie &amp; Werkstücke'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="courses" onclick="switchTab('tab-courses')" style="<?php echo in_array('courses', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">event</span> Workshops &amp; Kurse
+                <span class="material-icons" style="font-size:17px;">event</span> <?php echo __a('admin.subnav.courses', 'Workshops &amp; Kurse'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="past_courses" onclick="switchTab('tab-past')" style="<?php echo in_array('past_courses', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">photo_camera</span> Kursimpressionen
+                <span class="material-icons" style="font-size:17px;">photo_camera</span> <?php echo __a('admin.subnav.past_courses', 'Kursimpressionen'); ?>
             </button>
             <?php 
                 // Dynamisch registrierte Subnav-Einträge von Plugins (Phase 21)
@@ -134,6 +134,6 @@
                 </button>
             <?php endforeach; ?>
             <button class="admin-subnav-link" onclick="switchTab('tab-impressum')">
-                <span class="material-icons" style="font-size:17px;">policy</span> Impressum &amp; Rechtliches
+                <span class="material-icons" style="font-size:17px;">policy</span> <?php echo __a('admin.subnav.impressum', 'Impressum &amp; Rechtliches'); ?>
             </button>
         </div>

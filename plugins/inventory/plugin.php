@@ -30,8 +30,63 @@ if (!empty($_SESSION['admin_logged_in'])) {
         exit;
     }
 
+    // JSON-Export Lagerbestand
+    if (isset($_GET['action']) && $_GET['action'] === 'inv_export_json') {
+        $json = InventoryManager::exportArticlesJson();
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="weavecms_lagerbestand_' . date('Y-m-d') . '.json"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        echo $json;
+        exit;
+    }
+
+    // JSON-Export Lagerbewegungs-Protokoll (Audit Log)
+    if (isset($_GET['action']) && $_GET['action'] === 'inv_export_movements_json') {
+        $json = InventoryManager::exportMovementsJson();
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="weavecms_lagerbewegungen_' . date('Y-m-d') . '.json"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        echo $json;
+        exit;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
+
+        // JSON-Import für Artikel & Bestände
+        if ($action === 'inv_import_json') {
+            if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+                $rawJson = '';
+                if (!empty($_FILES['import_file']['tmp_name']) && is_uploaded_file($_FILES['import_file']['tmp_name'])) {
+                    $rawJson = (string)@file_get_contents($_FILES['import_file']['tmp_name']);
+                } elseif (!empty($_POST['json_text'])) {
+                    $rawJson = trim($_POST['json_text']);
+                }
+                $mode = ($_POST['import_mode'] ?? 'merge') === 'replace' ? 'replace' : 'merge';
+                $user = $_SESSION['admin_username'] ?? 'admin';
+                $res = InventoryManager::importArticlesJson($rawJson, $mode, $user);
+                $msg = $res['success'] ? 'inventory_imported' : 'import_error';
+                header("Location: ?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings&msg={$msg}&imported=" . (int)$res['imported'] . "&updated=" . (int)$res['updated'] . "#tab-plugins");
+                exit;
+            }
+        }
+
+        // API-Key für Lagerverwaltung neu generieren
+        if ($action === 'inv_generate_api_key') {
+            if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+                $dataFile = dirname(__DIR__, 2) . '/data.json';
+                $d = load_data($dataFile);
+                $c = PluginManager::getPluginConfig('inventory', $d);
+                $c['api_key'] = InventoryManager::generateApiKey();
+                $c['api_enabled'] = true;
+                PluginManager::savePluginConfig('inventory', $c, $d);
+                save_data($dataFile, $d);
+                header('Location: ?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings&msg=api_key_generated#tab-plugins');
+                exit;
+            }
+        }
 
         // A: Artikel anlegen oder aktualisieren
         if ($action === 'inv_save_article') {
@@ -177,6 +232,16 @@ PluginManager::addFilter('plugin_validate_config_inventory', function($submitted
     $cleaned['notify_low_stock'] = !empty($submitted['notify_low_stock']);
     if (isset($submitted['notify_email'])) {
         $cleaned['notify_email'] = trim($submitted['notify_email']);
+    }
+    if (isset($submitted['api_enabled'])) {
+        $cleaned['api_enabled'] = !empty($submitted['api_enabled']);
+    }
+    if (!empty($submitted['api_key']) && !str_starts_with(trim($submitted['api_key']), 'Noch kein')) {
+        $cleaned['api_key'] = trim($submitted['api_key']);
+    } elseif (!empty($existing['api_key']) && !str_starts_with(trim($existing['api_key']), 'Noch kein')) {
+        $cleaned['api_key'] = $existing['api_key'];
+    } elseif (!empty($cleaned['api_enabled'])) {
+        $cleaned['api_key'] = InventoryManager::generateApiKey();
     }
 
     return $cleaned;
