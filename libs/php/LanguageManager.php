@@ -415,4 +415,162 @@ class LanguageManager {
 
         return $items;
     }
+
+    /**
+     * Rendert das HTML für die Sprachauswahl.
+     * Bei bis zu 3 Sprachen werden die Sprachen als direkte Links nebeneinander/untereinander gerendert.
+     * Bei mehr als 3 Sprachen (inkl. DE) wird die Auswahl zu einem Dropdown, das die aktive Sprache anzeigt.
+     *
+     * @param array<int, array> $items Liste der Sprachumschalter-Elemente
+     * @param string $context 'header' (waagerecht), 'sidebar' (Sidebar) oder 'mobile' (Slide-in)
+     * @return string Generiertes HTML
+     */
+    public static function renderLanguageSwitcher(array $items, string $context = 'header'): string {
+        if (empty($items) || count($items) <= 1) {
+            return '';
+        }
+
+        $activeItem = null;
+        foreach ($items as $it) {
+            if (!empty($it['active'])) {
+                $activeItem = $it;
+                break;
+            }
+        }
+        if (!$activeItem) {
+            $activeItem = $items[0];
+        }
+
+        $totalCount = count($items);
+        $isDropdown = ($totalCount > 3);
+
+        ob_start();
+
+        if ($isDropdown) {
+            // Dropdown-Variante für mehr als 3 Sprachen
+            if ($context === 'mobile') {
+                ?>
+                <div class="mobile-lang-switch">
+                    <span class="mobile-lang-title"><?php echo htmlspecialchars(function_exists('__') ? __('nav.language', 'Sprache') : 'Sprache'); ?></span>
+                    <div class="lang-dropdown lang-dropdown-mobile">
+                        <button type="button" class="lang-dropdown-btn" onclick="toggleWeaveLangDropdown(this, event)" aria-haspopup="true" aria-expanded="false">
+                            <span class="lang-dropdown-flag"><?php echo $activeItem['flag'] ?? ''; ?></span>
+                            <span class="lang-dropdown-name"><?php echo htmlspecialchars($activeItem['native'] ?? ($activeItem['name'] ?? $activeItem['code'])); ?></span>
+                            <span class="lang-dropdown-code"><?php echo strtoupper(htmlspecialchars($activeItem['code'] ?? '')); ?></span>
+                            <span class="material-icons lang-dropdown-caret">expand_more</span>
+                        </button>
+                        <div class="lang-dropdown-menu">
+                            <?php foreach ($items as $l): ?>
+                                <a href="<?php echo htmlspecialchars($l['url'] ?? '#'); ?>" class="lang-dropdown-item <?php echo (!empty($l['active'])) ? 'active' : ''; ?>">
+                                    <span class="lang-dropdown-flag"><?php echo $l['flag'] ?? ''; ?></span>
+                                    <span class="lang-dropdown-name"><?php echo htmlspecialchars($l['native'] ?? ($l['name'] ?? $l['code'])); ?></span>
+                                    <span class="lang-dropdown-code"><?php echo strtoupper(htmlspecialchars($l['code'] ?? '')); ?></span>
+                                    <?php if (!empty($l['active'])): ?>
+                                        <span class="material-icons lang-dropdown-check">check</span>
+                                    <?php endif; ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php
+            } elseif ($context === 'sidebar') {
+                ?>
+                <div class="sidebar-lang-switch lang-dropdown-wrap">
+                    <div class="lang-dropdown lang-dropdown-sidebar">
+                        <button type="button" class="lang-dropdown-btn" onclick="toggleWeaveLangDropdown(this, event)" aria-haspopup="true" aria-expanded="false" title="<?php echo htmlspecialchars($activeItem['name'] ?? ''); ?>">
+                            <span class="lang-dropdown-flag"><?php echo $activeItem['flag'] ?? ''; ?></span>
+                            <span class="lang-dropdown-cur"><?php echo strtoupper(htmlspecialchars($activeItem['code'] ?? '')); ?></span>
+                            <span class="material-icons lang-dropdown-caret">expand_more</span>
+                        </button>
+                        <div class="lang-dropdown-menu">
+                            <?php foreach ($items as $l): ?>
+                                <a href="<?php echo htmlspecialchars($l['url'] ?? '#'); ?>" class="lang-dropdown-item <?php echo (!empty($l['active'])) ? 'active' : ''; ?>" title="<?php echo htmlspecialchars($l['name'] ?? ''); ?>">
+                                    <span class="lang-dropdown-flag"><?php echo $l['flag'] ?? ''; ?></span>
+                                    <span class="lang-dropdown-name"><?php echo htmlspecialchars($l['native'] ?? ($l['name'] ?? $l['code'])); ?></span>
+                                    <span class="lang-dropdown-code"><?php echo strtoupper(htmlspecialchars($l['code'] ?? '')); ?></span>
+                                    <?php if (!empty($l['active'])): ?>
+                                        <span class="material-icons lang-dropdown-check">check</span>
+                                    <?php endif; ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php
+            } else {
+                // Header (waagerecht)
+                ?>
+                <div class="header-lang-switch lang-dropdown-wrap">
+                    <div class="lang-dropdown lang-dropdown-header">
+                        <button type="button" class="lang-dropdown-btn" onclick="toggleWeaveLangDropdown(this, event)" aria-haspopup="true" aria-expanded="false" title="<?php echo htmlspecialchars($activeItem['name'] ?? ''); ?>">
+                            <span class="lang-dropdown-flag"><?php echo $activeItem['flag'] ?? ''; ?></span>
+                            <span class="lang-dropdown-cur"><?php echo strtoupper(htmlspecialchars($activeItem['code'] ?? '')); ?></span>
+                            <span class="material-icons lang-dropdown-caret">expand_more</span>
+                        </button>
+                        <div class="lang-dropdown-menu">
+                            <?php foreach ($items as $l): ?>
+                                <a href="<?php echo htmlspecialchars($l['url'] ?? '#'); ?>" class="lang-dropdown-item <?php echo (!empty($l['active'])) ? 'active' : ''; ?>" title="<?php echo htmlspecialchars($l['name'] ?? ''); ?>">
+                                    <span class="lang-dropdown-flag"><?php echo $l['flag'] ?? ''; ?></span>
+                                    <span class="lang-dropdown-name"><?php echo htmlspecialchars($l['native'] ?? ($l['name'] ?? $l['code'])); ?></span>
+                                    <span class="lang-dropdown-code"><?php echo strtoupper(htmlspecialchars($l['code'] ?? '')); ?></span>
+                                    <?php if (!empty($l['active'])): ?>
+                                        <span class="material-icons lang-dropdown-check">check</span>
+                                    <?php endif; ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php
+            }
+        } else {
+            // Inline-Variante für bis zu 3 Sprachen
+            if ($context === 'mobile') {
+                ?>
+                <div class="mobile-lang-switch">
+                    <span class="mobile-lang-title"><?php echo htmlspecialchars(function_exists('__') ? __('nav.language', 'Sprache') : 'Sprache'); ?></span>
+                    <div class="mobile-lang-list">
+                        <?php foreach ($items as $l): ?>
+                            <a href="<?php echo htmlspecialchars($l['url'] ?? '#'); ?>" class="mobile-lang-item <?php echo (!empty($l['active'])) ? 'active' : ''; ?>">
+                                <span class="mobile-lang-flag"><?php echo $l['flag'] ?? ''; ?></span>
+                                <span><?php echo htmlspecialchars($l['native'] ?? ($l['name'] ?? $l['code'])); ?></span>
+                                <?php if (!empty($l['active'])): ?>
+                                    <span class="material-icons mobile-lang-check">check</span>
+                                <?php endif; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php
+            } elseif ($context === 'sidebar') {
+                ?>
+                <div class="sidebar-lang-switch">
+                    <?php foreach ($items as $l): ?>
+                        <?php if (!empty($l['active'])): ?>
+                            <span class="sidebar-lang-badge active" title="<?php echo htmlspecialchars($l['name'] ?? ''); ?>"><?php echo strtoupper(htmlspecialchars($l['code'] ?? '')); ?></span>
+                        <?php else: ?>
+                            <a href="<?php echo htmlspecialchars($l['url'] ?? '#'); ?>" class="sidebar-lang-badge" title="<?php echo htmlspecialchars($l['name'] ?? ''); ?>"><?php echo strtoupper(htmlspecialchars($l['code'] ?? '')); ?></a>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+                <?php
+            } else {
+                // Header (waagerecht)
+                ?>
+                <div class="header-lang-switch">
+                    <?php foreach ($items as $l): ?>
+                        <?php if (!empty($l['active'])): ?>
+                            <span class="header-lang-badge active" title="<?php echo htmlspecialchars($l['name'] ?? ''); ?>"><?php echo strtoupper(htmlspecialchars($l['code'] ?? '')); ?></span>
+                        <?php else: ?>
+                            <a href="<?php echo htmlspecialchars($l['url'] ?? '#'); ?>" class="header-lang-badge" title="<?php echo htmlspecialchars($l['name'] ?? ''); ?>"><?php echo strtoupper(htmlspecialchars($l['code'] ?? '')); ?></a>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+                <?php
+            }
+        }
+
+        return ob_get_clean();
+    }
 }

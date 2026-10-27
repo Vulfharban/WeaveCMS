@@ -22,12 +22,25 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **21-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 
-## Releases & Downloads (v1.2.4)
+## Releases & Downloads (v1.2.5)
 
-- 📦 **[WeaveCMS v1.2.4 Full Package](releases/weavecms-v1.2.4.zip)** (`releases/weavecms-v1.2.4.zip`, 11.93 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.2.4 Update Package](releases/update-v1.2.4.zip)** (`releases/update-v1.2.4.zip`, 0.52 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.2.5 Full Package](releases/weavecms-v1.2.5.zip)** (`releases/weavecms-v1.2.5.zip`, 11.94 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.2.5 Update Package](releases/update-v1.2.5.zip)** (`releases/update-v1.2.5.zip`, 0.52 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.2.5 (27. Oktober 2026)
+
+- 🌙 **Dunkelmodus-Überarbeitung & Kontrastoptimierung:** 
+  - **Hintergrund-Abdunkelung:** Farbsystem um ein sattes Kohleschwarz (`--bg-dark: #0f0d0b`, `--bg-card: rgba(22, 19, 17, 0.95)`) ergänzt für ein harmonisches und blendfreies Leseerlebnis.
+  - **Barrierefreie Überschriften & Akzente:** Dynamischer Wechsel der primären Akzentfarbe im Dunkelmodus auf leuchtendes Smaragdgrün (`--primary: #4ade80`, 11:1 Kontrastverhältnis) und warmes Pfirsich-Bernstein (`--accent: #f09a5c`), sodass Überschriften (`h1`–`h4`), Icons und Navigationstexte auf dunklem Grund nicht mehr verschwinden oder schwer lesbar sind.
+  - **Vollständige Dark-Mode-Unterstützung aller Bereiche:** Optimierte dunkle Farbgebung für Navigationen (`header-nav`, `sidebar-nav`), Menü-Drawers (Mobil-, Kontakt- und Impressum-Slide-in), Hero-Karten, Galerie-Filterbuttons, FAQ-Akkordeons, Formularelemente und Spamschutz-Buttons.
+- 🌐 **Intelligenter Sprachumschalter (Inline & Dropdown):**
+  - **Kompakte Direktansicht:** Bei bis zu 3 konfigurierten Sprachen (z. B. DE, EN, IT) werden die Sprachen platzsparend nebeneinander als direkte Badges angezeigt.
+  - **Automatisches Dropdown bei > 3 Sprachen:** Sobald mehr als 3 Sprachen aktiv sind, transformiert sich die Sprachauswahl automatisch in ein interaktives Dropdown-Menü im Header, in der Sidebar und im Mobilmenü.
+  - **Status-Anzeige:** Der Button zeigt stets die aktuell ausgewählte Sprache mit Landesflagge und Sprachcode (z. B. `🇩🇪 DE ▾`); das Aufklappmenü listet alle aktiven Sprachen mit nativer Bezeichnung und visuellem Häkchen für die aktive Auswahl.
+  - **Klick-Erkennung & Barrierefreiheit:** Leichtgängiges Auf- und Zuklappen via ARIA-Attributen und automatischem Schließen beim Klick außerhalb.
+
 
 ### v1.2.4 (26. Oktober 2026)
 
@@ -69,7 +82,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.2.4.zip](releases/weavecms-v1.2.4.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.2.5.zip](releases/weavecms-v1.2.5.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

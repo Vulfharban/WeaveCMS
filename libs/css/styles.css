@@ -1,11 +1,11 @@
 /* ==========================================================================
-   Master Stylesheet: WeaveCMS
+   Master Stylesheet: WeaveCMS (v1.2.5 Dark Mode & Navigation Updates)
    Modulare Einbindung aller spezialisierten Stylesheets
    ========================================================================== */
 
-@import url('base.css');
-@import url('header.css');
-@import url('hero.css');
-@import url('gallery.css');
-@import url('courses.css');
-@import url('admin.css');
+@import url('base.css?v=1.2.5');
+@import url('header.css?v=1.2.5');
+@import url('hero.css?v=1.2.5');
+@import url('gallery.css?v=1.2.5');
+@import url('courses.css?v=1.2.5');
+@import url('admin.css?v=1.2.5');

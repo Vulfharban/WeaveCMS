@@ -66,20 +66,5 @@
                 </div>
             </div>
         <?php endif; ?>
-        <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>
-            <div class="mobile-lang-switch" style="<?php echo empty($data['settings']['accessibility_bar_enabled']) ? 'margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-color);' : 'margin-top:1.25rem; padding-top:1.25rem; border-top:1px dashed var(--border-color);'; ?>">
-                <span style="display:block; font-size:0.85rem; color:var(--text-secondary); margin-bottom:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:1px;"><?php echo htmlspecialchars(__('nav.language', 'Sprache')); ?></span>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <?php foreach ($lang_switch_items as $l): ?>
-                        <a href="<?php echo htmlspecialchars($l['url']); ?>" style="display:flex; align-items:center; gap:10px; font-size:1.05rem; padding:6px 0; text-decoration:none; color:<?php echo $l['active'] ? 'var(--primary)' : 'var(--text-primary)'; ?>; font-weight:<?php echo $l['active'] ? '700' : '400'; ?>;">
-                            <span style="font-size:1.3rem;"><?php echo $l['flag']; ?></span>
-                            <span><?php echo htmlspecialchars($l['native']); ?></span>
-                            <?php if ($l['active']): ?>
-                                <span class="material-icons" style="font-size:18px; margin-left:auto; color:var(--primary);">check</span>
-                            <?php endif; ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php echo LanguageManager::renderLanguageSwitcher($lang_switch_items ?? [], 'mobile'); ?>
     </div>
