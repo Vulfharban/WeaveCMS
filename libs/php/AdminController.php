@@ -22,6 +22,7 @@ require_once __DIR__ . '/Mailer.php';
 require_once __DIR__ . '/BackupManager.php';
 require_once __DIR__ . '/SectionManager.php';
 require_once __DIR__ . '/storage/StorageManager.php';
+require_once __DIR__ . '/RevisionManager.php';
 
 class AdminController {
 
@@ -1804,7 +1805,9 @@ class AdminController {
             $author = trim($_POST['author'] ?? ($data['texts']['contact_name'] ?? 'Redaktion'));
             $teaser = trim($_POST['teaser'] ?? '');
             $content = trim($_POST['content'] ?? '');
-            $status = in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published';
+            $status = in_array($_POST['status'] ?? '', ['published', 'draft', 'scheduled'], true) ? $_POST['status'] : 'published';
+            $publish_at = trim($_POST['publish_at'] ?? '');
+            $preview_token = RevisionManager::generatePreviewToken();
             $tags_raw = trim($_POST['tags'] ?? '');
             $tags = !empty($tags_raw) ? array_map('trim', explode(',', $tags_raw)) : [];
 
@@ -1818,6 +1821,8 @@ class AdminController {
                 'teaser' => $teaser,
                 'content' => $content,
                 'status' => $status,
+                'publish_at' => $publish_at,
+                'preview_token' => $preview_token,
                 'tags' => $tags,
                 'created_at' => date('Y-m-d H:i:s')
             ];
@@ -1825,6 +1830,8 @@ class AdminController {
             array_unshift($data['blog'], $new_post);
 
             if (save_data($dataFile, $data)) {
+                $userAuthor = $_SESSION['admin_user'] ?? 'Redaktion';
+                RevisionManager::createRevision('blog', $new_post['id'], $new_post, $userAuthor, 'Blog-Artikel neu angelegt');
                 $success_msg = 'Blog-Artikel „' . htmlspecialchars($title) . '“ erfolgreich erstellt!';
             } else {
                 $error_msg = 'Fehler beim Speichern des Artikels.';
@@ -1881,7 +1888,9 @@ class AdminController {
             $author = trim($_POST['author'] ?? $data['blog'][$found_idx]['author']);
             $teaser = trim($_POST['teaser'] ?? '');
             $content = trim($_POST['content'] ?? '');
-            $status = in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published';
+            $status = in_array($_POST['status'] ?? '', ['published', 'draft', 'scheduled'], true) ? $_POST['status'] : 'published';
+            $publish_at = trim($_POST['publish_at'] ?? '');
+            $preview_token = !empty($data['blog'][$found_idx]['preview_token']) ? $data['blog'][$found_idx]['preview_token'] : RevisionManager::generatePreviewToken();
             $tags_raw = trim($_POST['tags'] ?? '');
             $tags = !empty($tags_raw) ? array_map('trim', explode(',', $tags_raw)) : [];
 
@@ -1893,10 +1902,15 @@ class AdminController {
             $data['blog'][$found_idx]['teaser'] = $teaser;
             $data['blog'][$found_idx]['content'] = $content;
             $data['blog'][$found_idx]['status'] = $status;
+            $data['blog'][$found_idx]['publish_at'] = $publish_at;
+            $data['blog'][$found_idx]['preview_token'] = $preview_token;
             $data['blog'][$found_idx]['tags'] = $tags;
             $data['blog'][$found_idx]['updated_at'] = date('Y-m-d H:i:s');
 
             if (save_data($dataFile, $data)) {
+                $userAuthor = $_SESSION['admin_user'] ?? 'Redaktion';
+                $revNote = trim($_POST['revision_note'] ?? 'Blog-Artikel aktualisiert');
+                RevisionManager::createRevision('blog', $post_id, $data['blog'][$found_idx], $userAuthor, $revNote);
                 $success_msg = 'Blog-Artikel „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
             } else {
                 $error_msg = 'Fehler beim Speichern der Änderungen.';
@@ -1995,7 +2009,9 @@ class AdminController {
                 'page_sections' => $page_sections,
                 'nav_label' => trim($_POST['nav_label'] ?? ''),
                 'icon' => trim($_POST['icon'] ?? ''),
-                'status' => in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published',
+                'status' => in_array($_POST['status'] ?? '', ['published', 'draft', 'scheduled'], true) ? $_POST['status'] : 'published',
+                'publish_at' => trim($_POST['publish_at'] ?? ''),
+                'preview_token' => RevisionManager::generatePreviewToken(),
                 'in_nav' => !empty($_POST['in_nav']),
                 'meta_description' => trim($_POST['meta_description'] ?? ''),
                 'content' => trim($_POST['content'] ?? ''),
@@ -2006,6 +2022,8 @@ class AdminController {
 
             $data['pages'][] = $newPage;
             if (save_data($dataFile, $data)) {
+                $userAuthor = $_SESSION['admin_user'] ?? 'Admin';
+                RevisionManager::createRevision('page', $newPage['id'], $newPage, $userAuthor, 'Einzelseite neu angelegt');
                 $success_msg = 'Einzelseite „' . htmlspecialchars($title) . '“ erfolgreich erstellt!';
             } else {
                 $error_msg = 'Fehler beim Speichern der Einzelseite.';
@@ -2068,13 +2086,19 @@ class AdminController {
                 $page_sections = array_values(array_filter($_POST['page_sections'], 'is_string'));
             }
 
+            $status = in_array($_POST['status'] ?? '', ['published', 'draft', 'scheduled'], true) ? $_POST['status'] : 'published';
+            $publish_at = trim($_POST['publish_at'] ?? '');
+            $preview_token = !empty($data['pages'][$found_idx]['preview_token']) ? $data['pages'][$found_idx]['preview_token'] : RevisionManager::generatePreviewToken();
+
             $data['pages'][$found_idx]['title'] = $title;
             $data['pages'][$found_idx]['slug'] = $slug;
             $data['pages'][$found_idx]['page_type'] = $page_type;
             $data['pages'][$found_idx]['page_sections'] = $page_sections;
             $data['pages'][$found_idx]['nav_label'] = trim($_POST['nav_label'] ?? '');
             $data['pages'][$found_idx]['icon'] = trim($_POST['icon'] ?? '');
-            $data['pages'][$found_idx]['status'] = in_array($_POST['status'] ?? '', ['published', 'draft'], true) ? $_POST['status'] : 'published';
+            $data['pages'][$found_idx]['status'] = $status;
+            $data['pages'][$found_idx]['publish_at'] = $publish_at;
+            $data['pages'][$found_idx]['preview_token'] = $preview_token;
             $data['pages'][$found_idx]['in_nav'] = !empty($_POST['in_nav']);
             $data['pages'][$found_idx]['meta_description'] = trim($_POST['meta_description'] ?? '');
             $data['pages'][$found_idx]['content'] = trim($_POST['content'] ?? '');
@@ -2082,6 +2106,9 @@ class AdminController {
             $data['pages'][$found_idx]['updated_at'] = date('Y-m-d H:i:s');
 
             if (save_data($dataFile, $data)) {
+                $userAuthor = $_SESSION['admin_user'] ?? 'Admin';
+                $revNote = trim($_POST['revision_note'] ?? 'Einzelseite aktualisiert');
+                RevisionManager::createRevision('page', $page_id, $data['pages'][$found_idx], $userAuthor, $revNote);
                 $success_msg = 'Einzelseite „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
             } else {
                 $error_msg = 'Fehler beim Speichern der Einzelseite.';

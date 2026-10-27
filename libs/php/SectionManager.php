@@ -561,7 +561,7 @@ class SectionManager {
         // Auch sichtbare Einzelseiten (Custom Subpages & Modulare Seiten) ins Menü aufnehmen
         if (!empty($data['pages']) && is_array($data['pages'])) {
             foreach ($data['pages'] as $page) {
-                if (!empty($page['in_nav']) && ($page['status'] ?? 'published') === 'published') {
+                if (!empty($page['in_nav']) && RevisionManager::isItemVisible($page)) {
                     $pageNavLabel = !empty($page['nav_label']) ? $page['nav_label'] : ($page['title'] ?? 'Seite');
                     if ($curLang !== $primaryLang && !empty($page['translations'][$curLang]['nav_label'])) {
                         $pageNavLabel = $page['translations'][$curLang]['nav_label'];

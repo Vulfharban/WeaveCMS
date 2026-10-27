@@ -32,7 +32,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
-## 🚀 Arbeitsablauf: Der 21-Phasen-Entwicklungsplan
+## 🚀 Arbeitsablauf: Der 25-Phasen-Entwicklungsplan
 
 ```
 [Phase 1: Recht & Texte] ──▶ [Phase 2: Datensicherheit] ──▶ [Phase 3: SEO & Sharing] ──▶ [Phase 4: Anfragen-Log]
@@ -57,6 +57,10 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
          ▼
 [Phase 19: Menü- & Theme-Hooks] ───▶ [Phase 20: Forum & User] ───────────▶ [Phase 21: Universal-Integrations]
   (3 Menüstile & Position-Selector)    (Discussions, RBAC & Moderation)      (Externe Apps frei einbinden)
+         │
+         ▼
+[Phase 22: Medienverwaltung] ──▶ [Phase 23: Revisions & Entwurf] ──▶ [Phase 24: SEO-Autopilot] ──▶ [Phase 25: 1-Klick-Updater]
+  (Media Library & WebP/AVIF)      (Drafts, Diff & Zeitsteuerung)      (XML-Sitemap & Schema.org)    (Automatisierte Core-Updates)
 ```
 
 ---
@@ -696,3 +700,70 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Alle Einbettungsmodi (iframe, seamless, preview card, link, inline) geprüft und getestet.
   - Sicherheitsprüfungen (SSRF, Schemata, Path-Traversal) erfolgreich validiert.
   - Bestehende Webtrees-Integration funktioniert nach der Migration nahtlos weiter.
+
+---
+
+### Phase 22: Zentrale Medienverwaltung & Bild-Pipeline (Media Library & WebP/AVIF)
+*Ziel: Ein zentraler Asset-Manager für Bilder, Dokumente und Medien mit automatischer WebP-Konvertierung, responsiven Vorschaubildern und moderner Kachelverwaltung.*
+
+- [x] **22.1 Zentraler Medien-Manager (Admin-Tab `tab-media`):**
+  - Übersicht aller hochgeladenen Dateien mit Kachel- und Listenansicht.
+  - Filter nach Dateityp (Bilder, PDFs, Dokumente), Suchleiste und Dateigrößenanzeige.
+  - 1-Klick-Kopieren von Bild-URLs und Markdown-Tags (`![Alt](url)`).
+  - Modal für Bild-Details, Metadaten (Alt-Text & Titel) und HTML5 `<picture>`-Code-Snippet.
+- [x] **22.2 Moderne Bild-Pipeline (WebP / AVIF & Resizing):**
+  - Automatische Erzeugung komprimierter WebP- und AVIF-Varianten beim Upload via PHP `gd`.
+  - Automatische Generierung von Standard-Bildgrößen (`thumb`: 350px, `medium`: 800px, `large`: 1400px).
+  - Bereitstellung von `<picture>`- und `srcset`-Helfern (`MediaManager::renderPictureTag`) für maximale Ladegeschwindigkeit.
+- [x] **22.3 Drag & Drop Multi-Upload:**
+  - Komfortabler Mehrfach-Upload mit Fortschrittsbalken und automatischer Dateinamensbereinigung (JPG, PNG, WebP, GIF, SVG, PDF, ZIP, 7Z; Office-Formate zugunsten von sauberem PDF-Export ausgeschlossen).
+  - Sichere Magic-Bytes-Validierung (inkl. 7z-Header `37 7A BC AF 27 1C`) und Isolierung abgeleiteter Varianten in der Mediathek.
+
+---
+
+### Phase 23: Content-Revisions & Entwurfsmodus (Workspaces & Zeitsteuerung)
+*Ziel: Sicheres Veröffentlichen von Inhalten mit Entwurfsstatus, Revisions-Historie (Diff-Vergleich und Rollback), Vorschau-Links und zeitgesteuerter Veröffentlichung.*
+
+- [x] **23.1 Status-Management (`draft`, `published`, `scheduled`):**
+  - Einstellbarer Veröffentlichungsstatus für Einzelseiten und Blog-Beiträge (`published`, `draft`, `scheduled`).
+  - Visuelle Status-Badges im Backend (grün für Veröffentlicht, gelb für Entwurf, blau für zeitgesteuert geplant).
+  - Sichere Frontend-Filterung: Entwürfe und noch nicht fällige Zeitveröffentlichungen sind für reguläre Besucher unsichtbar.
+- [x] **23.2 Sicherer Vorschau-Modus (Preview Token):**
+  - Generierung kryptografisch sicherer Vorschau-Tokens (`?preview=...`) für jedes Element, um Entwürfe vorab zu prüfen oder mit Dritten abzustimmen.
+  - Sticky Vorschau-Hinweisbanner im Frontend bei aktiver Vorschau (`FrontendController::renderPreviewBanner`).
+- [x] **23.3 Revisions-Historie & Rollback:**
+  - Automatisches Anlegen von Revisions-Snapshots bei jedem Speichervorgang in `data/revisions/{type}_{id}.json` (max. 25 Stände, durch `.htaccess` geschützt).
+  - Übersicht vergangener Stände mit Zeitstempel, Autor und optionaler Änderungsnotiz.
+  - Interaktives Admin-Modal (`#modal-revisions`) mit zeilenweisem Unified-Diff-Viewer (`+` hinzugefügt, `-` entfernt).
+  - 1-Klick-Rollback auf einen beliebigen früheren Revisionsstand inklusive automatischem Vorab-Sicherheits-Snapshot.
+- [x] **23.4 Zeitgesteuertes Veröffentlichen (Scheduled Publishing):**
+  - Datum & Uhrzeit für zukünftige Freischaltung definieren (`publish_at`).
+  - Automatische Live-Schaltung im Frontend (`RevisionManager::isItemVisible`), sobald `time() >= strtotime(publish_at)`.
+
+---
+
+### Phase 24: SEO-Autopilot & Schema.org (XML-Sitemap & Rich Snippets)
+*Ziel: Maximale Sichtbarkeit in Suchmaschinen durch automatische Generierung von XML-Sitemaps, robots.txt und strukturierten Daten (JSON-LD).*
+
+- [ ] **24.1 Dynamische XML-Sitemap (`/sitemap.xml`):**
+  - Dynamischer Controller zur Generierung einer validen `sitemap.xml` unter Berücksichtigung aller aktiven Einzelseiten, Sektionen, Sprachen (`hreflang`) und Blogbeiträge.
+  - Ausschluss von Entwürfen (`draft`) und internen Seiten.
+- [ ] **24.2 Strukturierte Daten (Schema.org / JSON-LD):**
+  - Automatischer JSON-LD-Block im `<head>` für `LocalBusiness` / `Craftsman` (aus Inhaber- & Impressumsdaten).
+  - Schema `Product` für Webshop-Artikel und `Event` / `Course` für Kursangebote zur Anzeige von Google Rich Snippets.
+- [ ] **24.3 SEO-Live-Analyse im Backend:**
+  - Vorschau-Snippet für Google-Suchergebnisse (Title, Meta-Description, URL-Slug) mit Zeichenzähler und Ampel-Bewertung.
+
+---
+
+### Phase 25: 1-Klick-Core-Updater & System-Maintenance
+*Ziel: Vollautomatische, sichere Aktualisierung des WeaveCMS-Kerns direkt aus dem Administrationsbereich inklusive Rollback-Schutz.*
+
+- [ ] **25.1 1-Klick-Update-Prozess im Adminbereich:**
+  - Schaltfläche „Jetzt auf Version X.Y.Z aktualisieren“ im Tab System / Dashboard.
+  - Automatischer Download des offiziellen Update-ZIPs vom Update-Server mit SHA-256-Prüfsummen-Verifikation.
+  - Automatisches System-Backup (`backups/pre_update_...zip`) vor Beginn des Dateiaustauschs.
+- [ ] **25.2 Wartungsmodus & atomarer Austausch:**
+  - Aktivierung eines temporären Wartungsmodus (`maintenance.flag`) während des Entpackens.
+  - Atomarer Austausch der Kern-Dateien (`libs/`, `admin/`, `config.php`, `index.php`).
+  - Automatischer Aufruf von Datenbank- und Konfigurations-Migrationsroutinen.

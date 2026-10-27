@@ -258,13 +258,14 @@ class FrontendController {
         StatsManager::recordHit();
         PluginManager::loadActivePlugins($data, 'frontend');
         $vm = self::prepareViewModel($data);
+        $preview_token = trim((string)($_GET['preview'] ?? ''));
 
         // Prüfung auf Einzelartikel-Aufruf: ?blog=slug
         $requested_slug = trim($_GET['blog'] ?? '');
         $active_post = null;
         if (!empty($requested_slug) && !empty($data['blog'])) {
             foreach ($data['blog'] as $p) {
-                if (($p['slug'] ?? '') === $requested_slug && (($p['status'] ?? 'published') === 'published' || isset($_SESSION['admin_logged_in']))) {
+                if (($p['slug'] ?? '') === $requested_slug && RevisionManager::isItemVisible($p, $preview_token)) {
                     $active_post = $p;
                     break;
                 }
@@ -272,6 +273,11 @@ class FrontendController {
         }
 
         if ($active_post) {
+            $is_preview = RevisionManager::isPreviewMode($active_post, $preview_token);
+            $vm['is_preview_mode'] = $is_preview;
+            $vm['preview_status'] = $active_post['status'] ?? 'published';
+            $vm['publish_at'] = $active_post['publish_at'] ?? '';
+
             // Spezifische SEO-Metadaten für den Artikel überschreiben
             $vm['meta_title'] = htmlspecialchars($active_post['title']) . ' | ' . ($data['texts']['contact_name'] ?? 'WeaveCMS');
             if (!empty($active_post['teaser'])) {
@@ -285,6 +291,7 @@ class FrontendController {
             $vm['active_post'] = $active_post;
 
             self::renderPartial('head', $vm);
+            self::renderPreviewBanner($vm);
             self::renderPartial('header_nav', $vm);
             self::renderPartial('blog_single', $vm);
             self::renderPartial('footer', $vm);
@@ -300,7 +307,7 @@ class FrontendController {
         $active_page = null;
         if (!empty($requested_page_slug) && !empty($data['pages'])) {
             foreach ($data['pages'] as $pg) {
-                if (($pg['slug'] ?? '') === $requested_page_slug && (($pg['status'] ?? 'published') === 'published' || isset($_SESSION['admin_logged_in']))) {
+                if (($pg['slug'] ?? '') === $requested_page_slug && RevisionManager::isItemVisible($pg, $preview_token)) {
                     $active_page = $pg;
                     break;
                 }
@@ -308,6 +315,11 @@ class FrontendController {
         }
 
         if ($active_page) {
+            $is_preview = RevisionManager::isPreviewMode($active_page, $preview_token);
+            $vm['is_preview_mode'] = $is_preview;
+            $vm['preview_status'] = $active_page['status'] ?? 'published';
+            $vm['publish_at'] = $active_page['publish_at'] ?? '';
+
             $cur_lang = $vm['cur_lang'] ?? LanguageManager::detectLanguage($data);
             $primary_lang = LanguageManager::getPrimaryLanguage($data);
             if ($cur_lang !== $primary_lang && !empty($active_page['translations'][$cur_lang]) && is_array($active_page['translations'][$cur_lang])) {
@@ -333,6 +345,7 @@ class FrontendController {
             $vm['active_page'] = $active_page;
 
             self::renderPartial('head', $vm);
+            self::renderPreviewBanner($vm);
             self::renderPartial('header_nav', $vm);
             
             // Phase 18.2: Modulare Sektions-Landingpage vs. Standard-Content-Seite
@@ -388,5 +401,35 @@ class FrontendController {
         self::renderPartial('slide_impressum', $vm);
         self::renderPartial('slide_mobile_nav', $vm);
         self::renderPartial('scripts', $vm);
+    }
+
+    /**
+     * Rendert ein diskretes Vorschau-Banner am oberen Seitenrand, falls ein Entwurf betrachtet wird.
+     *
+     * @param array $vm
+     * @return void
+     */
+    public static function renderPreviewBanner(array $vm): void {
+        if (empty($vm['is_preview_mode'])) {
+            return;
+        }
+        $status = $vm['preview_status'] ?? 'draft';
+        $statusLabel = ($status === 'scheduled') 
+            ? '⏱️ Geplant für ' . htmlspecialchars($vm['publish_at'] ?? '')
+            : '🟡 Entwurf (Nicht öffentlich)';
+        ?>
+        <div class="weave-preview-banner" style="background:#0f172a; color:#f8fafc; padding:9px 18px; font-size:0.85rem; font-weight:600; display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eab308; position:sticky; top:0; z-index:99999; box-shadow:0 4px 14px rgba(0,0,0,0.25);">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span class="material-icons" style="font-size:18px; color:#eab308;">visibility</span>
+                <span>Vorschau-Modus: <strong style="color:#fde047;"><?php echo $statusLabel; ?></strong></span>
+                <span style="font-size:0.75rem; color:#94a3b8; margin-left:8px;">(Diese Seite ist für reguläre Besucher ausgeblendet)</span>
+            </div>
+            <div>
+                <?php if (!empty($_SESSION['admin_logged_in'])): ?>
+                    <a href="./admin/" style="color:#60a5fa; text-decoration:none; font-size:0.8rem; background:rgba(255,255,255,0.08); padding:4px 12px; border-radius:12px; transition:background 0.2s;">&larr; Zurück zur Administration</a>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
     }
 }

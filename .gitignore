@@ -26,6 +26,8 @@ data/forum_*.json
 data/forum*.sqlite
 data/integrations.json
 data/sandbox/
+data/revisions/*.json
+data/media_meta.json
 logs/
 
 # Uploads

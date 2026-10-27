@@ -125,3 +125,193 @@
         }
         </script>
         <?php endif; ?>
+
+        <!-- ======================================================================
+             MODAL: REVISIONSHISTORIE, DIFF & ROLLBACK (PHASE 23)
+             ====================================================================== -->
+        <div id="modal-revisions" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:3200; align-items:center; justify-content:center; backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px);" onclick="if(event.target===this) closeRevisionsModal();">
+            <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:18px; max-width:850px; width:calc(100% - 2rem); max-height:90vh; display:flex; flex-direction:column; box-shadow:0 25px 60px rgba(0,0,0,0.45); overflow:hidden;">
+                <!-- Header -->
+                <div style="padding:1.25rem 1.75rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02);">
+                    <h3 style="margin:0; color:var(--primary); font-size:1.2rem; display:flex; align-items:center; gap:8px;">
+                        <span class="material-icons" style="font-size:24px;">history</span>
+                        <span><?php echo __a('admin.revisions.title', 'Revisionshistorie'); ?>: <span id="rev-modal-item-title" style="color:var(--text-primary); font-weight:700;"></span></span>
+                    </h3>
+                    <button type="button" class="btn btn-secondary" onclick="closeRevisionsModal()" style="padding:4px 10px; font-size:0.8rem;">
+                        <span class="material-icons" style="font-size:16px;">close</span>
+                    </button>
+                </div>
+
+                <!-- Body (Scrollable) -->
+                <div style="padding:1.5rem 1.75rem; overflow-y:auto; flex:1;">
+                    <p style="color:var(--text-secondary); font-size:0.88rem; margin:0 0 1.25rem 0;">
+                        <?php echo __a('admin.revisions.desc', 'Hier findest du alle automatisch gespeicherten Versionen dieses Inhalts. Vergleiche Änderungen per Diff-Ansicht oder setze frühere Stände mit einem Klick zurück.'); ?>
+                    </p>
+
+                    <!-- Revisions-Liste -->
+                    <div id="rev-modal-list-box" style="margin-bottom:1.5rem;">
+                        <div id="rev-modal-loading" style="text-align:center; padding:2rem; color:var(--text-secondary);">
+                            <span class="material-icons" style="font-size:28px; animation:spin 1s linear infinite;">sync</span>
+                            <div style="margin-top:6px; font-size:0.9rem;"><?php echo __a('admin.revisions.loading', 'Revisionen werden geladen...'); ?></div>
+                        </div>
+                        <div id="rev-modal-list" style="display:none; display:flex; flex-direction:column; gap:10px;"></div>
+                    </div>
+
+                    <!-- Diff-Ansicht Box -->
+                    <div id="rev-modal-diff-box" style="display:none; border-top:1px solid var(--border-color); padding-top:1.25rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                            <h4 style="margin:0; font-size:0.95rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                                <span class="material-icons" style="font-size:18px; color:var(--primary);">difference</span>
+                                <span><?php echo __a('admin.revisions.diff_title', 'Änderungsvergleich (Diff gegen aktuellen Stand):'); ?></span>
+                            </h4>
+                            <button type="button" class="btn btn-secondary" onclick="closeRevisionDiff()" style="padding:3px 8px; font-size:0.75rem;">
+                                <?php echo __a('admin.revisions.diff_close', 'Diff schließen'); ?>
+                            </button>
+                        </div>
+                        <div id="rev-modal-diff-container"></div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div style="padding:1rem 1.75rem; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px; background:rgba(255,255,255,0.02);">
+                    <button type="button" class="btn btn-secondary" onclick="closeRevisionsModal()"><?php echo __a('admin.btn.close', 'Schließen'); ?></button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        let REV_CURRENT_TYPE = '';
+        let REV_CURRENT_ID = '';
+
+        function openRevisionsModal(type, id, title) {
+            REV_CURRENT_TYPE = type;
+            REV_CURRENT_ID = id;
+            document.getElementById('rev-modal-item-title').textContent = title || id;
+            document.getElementById('rev-modal-loading').style.display = 'block';
+            document.getElementById('rev-modal-list').style.display = 'none';
+            document.getElementById('rev-modal-diff-box').style.display = 'none';
+
+            const modal = document.getElementById('modal-revisions');
+            modal.style.display = 'flex';
+
+            fetch('index.php?action=get_revisions&item_type=' + encodeURIComponent(type) + '&item_id=' + encodeURIComponent(id))
+                .then(r => r.json())
+                .then(res => {
+                    document.getElementById('rev-modal-loading').style.display = 'none';
+                    const listEl = document.getElementById('rev-modal-list');
+                    listEl.style.display = 'flex';
+                    listEl.innerHTML = '';
+
+                    if (!res.success || !res.revisions || res.revisions.length === 0) {
+                        listEl.innerHTML = '<div style="text-align:center; padding:1.5rem; color:var(--text-secondary); background:rgba(255,255,255,0.02); border-radius:8px;">Noch keine gespeicherten Revisionsstände für dieses Element vorhanden. Revisionen werden automatisch bei jeder Speicherung angelegt.</div>';
+                        return;
+                    }
+
+                    res.revisions.forEach((rev, idx) => {
+                        const isLatest = (idx === 0);
+                        const card = document.createElement('div');
+                        card.style.cssText = 'background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:10px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;';
+
+                        const info = document.createElement('div');
+                        info.style.cssText = 'flex:1; min-width:260px;';
+                        info.innerHTML = `
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                                <strong style="color:var(--text-primary); font-size:0.92rem;">${rev.created_at || 'Unbekannt'}</strong>
+                                ${isLatest ? '<span style="font-size:0.7rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15); padding:1px 6px; border-radius:4px;">Aktuellster Stand</span>' : ''}
+                                <span style="font-size:0.75rem; color:var(--text-secondary); background:rgba(255,255,255,0.06); padding:1px 6px; border-radius:4px;">${rev.status || 'published'}</span>
+                            </div>
+                            <div style="font-size:0.82rem; color:var(--text-secondary); display:flex; gap:12px; align-items:center;">
+                                <span><span class="material-icons" style="font-size:14px; vertical-align:middle;">person</span> ${rev.author || 'System'}</span>
+                                ${rev.note ? `<span><span class="material-icons" style="font-size:14px; vertical-align:middle;">notes</span> <em>${escapeRevHtml(rev.note)}</em></span>` : ''}
+                            </div>
+                        `;
+
+                        const actions = document.createElement('div');
+                        actions.style.cssText = 'display:flex; align-items:center; gap:8px;';
+                        actions.innerHTML = `
+                            <button type="button" class="btn btn-secondary" onclick="viewRevisionDiff('${rev.rev_id}')" style="padding:5px 10px; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;">
+                                <span class="material-icons" style="font-size:15px;">difference</span> Diff
+                            </button>
+                            ${!isLatest ? `
+                            <button type="button" class="btn btn-outline" onclick="performRollback('${rev.rev_id}', '${rev.created_at}')" style="padding:5px 10px; font-size:0.8rem; color:#3b82f6; border-color:rgba(59,130,246,0.3); display:inline-flex; align-items:center; gap:4px;">
+                                <span class="material-icons" style="font-size:15px;">settings_backup_restore</span> Wiederherstellen
+                            </button>` : ''}
+                        `;
+
+                        card.appendChild(info);
+                        card.appendChild(actions);
+                        listEl.appendChild(card);
+                    });
+                })
+                .catch(err => {
+                    document.getElementById('rev-modal-loading').style.display = 'none';
+                    document.getElementById('rev-modal-list').style.display = 'block';
+                    document.getElementById('rev-modal-list').innerHTML = '<div style="color:#ef4444; padding:1rem;">Fehler beim Laden der Revisionen: ' + err + '</div>';
+                });
+        }
+
+        function closeRevisionsModal() {
+            document.getElementById('modal-revisions').style.display = 'none';
+        }
+
+        function viewRevisionDiff(revId) {
+            const diffBox = document.getElementById('rev-modal-diff-box');
+            const diffContainer = document.getElementById('rev-modal-diff-container');
+            diffBox.style.display = 'block';
+            diffContainer.innerHTML = '<div style="text-align:center; padding:1.5rem; color:var(--text-secondary);"><span class="material-icons" style="font-size:24px; animation:spin 1s linear infinite;">sync</span> Berechne Diff...</div>';
+            diffBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            fetch('index.php?action=get_revision_diff&item_type=' + encodeURIComponent(REV_CURRENT_TYPE) + '&item_id=' + encodeURIComponent(REV_CURRENT_ID) + '&rev_id=' + encodeURIComponent(revId))
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success && res.diffHtml) {
+                        diffContainer.innerHTML = res.diffHtml;
+                    } else {
+                        diffContainer.innerHTML = '<div style="color:#ef4444; padding:1rem;">Diff konnte nicht generiert werden: ' + (res.error || 'Unbekannter Fehler') + '</div>';
+                    }
+                })
+                .catch(err => {
+                    diffContainer.innerHTML = '<div style="color:#ef4444; padding:1rem;">Fehler: ' + err + '</div>';
+                });
+        }
+
+        function closeRevisionDiff() {
+            document.getElementById('rev-modal-diff-box').style.display = 'none';
+        }
+
+        function performRollback(revId, createdAt) {
+            if (!confirm('Möchtest du den Revisionsstand vom ' + (createdAt || revId) + ' wirklich wiederherstellen?\n\nDein aktueller Stand wird vorab automatisch als Notfall-Snapshot gesichert.')) {
+                return;
+            }
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'rollback_revision');
+            formData.append('csrf_token', <?php echo json_encode($csrf_token); ?>);
+            formData.append('item_type', REV_CURRENT_TYPE);
+            formData.append('item_id', REV_CURRENT_ID);
+            formData.append('rev_id', revId);
+
+            fetch('index.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    alert('Erfolg: ' + (res.message || 'Stand wiederhergestellt!'));
+                    window.location.reload();
+                } else {
+                    alert('Fehler: ' + (res.message || 'Wiederherstellung fehlgeschlagen'));
+                }
+            })
+            .catch(err => {
+                alert('Netzwerk- oder Serverfehler: ' + err);
+            });
+        }
+
+        function escapeRevHtml(str) {
+            return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        </script>
+

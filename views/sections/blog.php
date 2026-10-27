@@ -10,7 +10,7 @@
 
 $all_posts = $data['blog'] ?? [];
 $published_posts = array_filter($all_posts, function($p) {
-    return ($p['status'] ?? 'published') === 'published';
+    return RevisionManager::isItemVisible($p);
 });
 
 // Nach Datum absteigend sortieren
