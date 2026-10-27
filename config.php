@@ -133,8 +133,8 @@ function get_upload_config(?array $data = null): array {
  * @param string|null $upload_rel_dir Optionaler individueller Zielordner
  * @return string|null Relativer Webpfad zur gespeicherten Datei oder null bei Fehler
  */
-function handle_image_upload(string $file_input_name, ?string $upload_rel_dir = null): ?string {
-    return ImageUploader::upload($file_input_name, $upload_rel_dir);
+function handle_image_upload(string $file_input_name, string|array|null $upload_rel_dir = null, ?array $data = null): ?string {
+    return ImageUploader::upload($file_input_name, $upload_rel_dir, $data);
 }
 
 /**

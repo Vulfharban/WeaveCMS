@@ -169,10 +169,16 @@ class ImageUploader {
     /**
      * Führt einen sicheren Bildupload mit MIME-Type-Prüfung, GD-Bereinigung und Zufallsnamen durch.
      * @param string $fileInputName Name des POST-File-Inputs
-     * @param string|null $uploadRelDir Optionaler individueller Zielordner relativ zum Root
+     * @param string|array|null $uploadRelDir Optionaler individueller Zielordner relativ zum Root oder $data-Array
+     * @param array|null $data Optionales Daten-Array zur Ermittlung des Upload-Ordners
      * @return string|null Relativer Webpfad zur gespeicherten Datei oder null bei Fehler
      */
-    public static function upload(string $fileInputName, ?string $uploadRelDir = null): ?string {
+    public static function upload(string $fileInputName, string|array|null $uploadRelDir = null, ?array $data = null): ?string {
+        if (is_array($uploadRelDir)) {
+            $data = $uploadRelDir;
+            $uploadRelDir = null;
+        }
+
         if (!isset($_FILES[$fileInputName]) || $_FILES[$fileInputName]['error'] !== UPLOAD_ERR_OK) {
             return null;
         }
@@ -205,8 +211,10 @@ class ImageUploader {
         $root = dirname(__DIR__, 2);
 
         if ($uploadRelDir === null) {
-            $dataFile = $root . '/data.json';
-            $data = file_exists($dataFile) ? json_decode((string)file_get_contents($dataFile), true) : null;
+            if ($data === null) {
+                $dataFile = $root . '/data.json';
+                $data = file_exists($dataFile) ? json_decode((string)file_get_contents($dataFile), true) : null;
+            }
             $conf = self::getUploadConfig($data);
             $uploadDir = $conf['abs'];
             $webPrefix = $conf['rel'];
