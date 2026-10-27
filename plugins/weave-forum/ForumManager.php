@@ -1917,4 +1917,225 @@ class ForumManager {
             return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
         }
     }
+
+    /**
+     * Formatiert einen Zeitstempel in eine lesbare relative Zeitangabe (z. B. "vor 3 Stunden").
+     */
+    public static function formatRelativeTime(?string $datetime): string {
+        if (empty($datetime)) return 'nie';
+        $ts = strtotime($datetime);
+        if (!$ts) return (string)$datetime;
+        $diff = time() - $ts;
+        if ($diff < 0) $diff = 0;
+
+        if ($diff < 60) {
+            return 'gerade eben';
+        }
+        if ($diff < 3600) {
+            $mins = max(1, (int)floor($diff / 60));
+            return 'vor ' . $mins . ' Min.';
+        }
+        if ($diff < 86400) {
+            $hrs = (int)floor($diff / 3600);
+            return 'vor ' . $hrs . ' Std.';
+        }
+        if ($diff < 172800) {
+            return 'gestern um ' . date('H:i', $ts);
+        }
+        if ($diff < 604800) {
+            $days = (int)floor($diff / 86400);
+            return 'vor ' . $days . ' Tagen';
+        }
+        if ($diff < 2592000) {
+            $weeks = (int)floor($diff / 604800);
+            return 'vor ' . $weeks . ' ' . ($weeks === 1 ? 'Woche' : 'Wochen');
+        }
+        if ($diff < 31536000) {
+            $months = (int)floor($diff / 2592000);
+            return 'vor ' . $months . ' ' . ($months === 1 ? 'Monat' : 'Monaten');
+        }
+        $years = (int)floor($diff / 31536000);
+        return 'vor ' . $years . ' ' . ($years === 1 ? 'Jahr' : 'Jahren');
+    }
+
+    /**
+     * Zählt alle Beiträge innerhalb eines Boards.
+     */
+    public static function countBoardPosts(string $boardId): int {
+        if (self::isDatabase()) {
+            try {
+                $stmt = self::getSqlitePdo()->prepare("
+                    SELECT COUNT(p.id) 
+                    FROM weave_forum_posts p 
+                    INNER JOIN weave_forum_topics t ON p.topic_id = t.id 
+                    WHERE t.board_id = ? AND p.status = 'published'
+                ");
+                $stmt->execute([$boardId]);
+                return (int)$stmt->fetchColumn();
+            } catch (Exception $e) {
+                return 0;
+            }
+        }
+
+        $data = self::loadJsonData();
+        $boardTopicIds = [];
+        foreach ($data['topics'] ?? [] as $t) {
+            if (($t['board_id'] ?? '') === $boardId && ($t['status'] ?? 'published') === 'published') {
+                $boardTopicIds[$t['id']] = true;
+            }
+        }
+        if (empty($boardTopicIds)) return 0;
+
+        $count = 0;
+        foreach ($data['posts'] ?? [] as $p) {
+            if (isset($boardTopicIds[$p['topic_id'] ?? '']) && ($p['status'] ?? 'published') === 'published') {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    /**
+     * Zählt alle Themen innerhalb einer gesamten Kategorie.
+     */
+    public static function countCategoryTopics(string $categoryId): int {
+        $boards = self::getBoards();
+        $total = 0;
+        foreach ($boards as $b) {
+            if (($b['category_id'] ?? '') === $categoryId) {
+                $total += self::countTopics($b['id']);
+            }
+        }
+        return $total;
+    }
+
+    /**
+     * Zählt alle Beiträge innerhalb einer gesamten Kategorie.
+     */
+    public static function countCategoryPosts(string $categoryId): int {
+        $boards = self::getBoards();
+        $total = 0;
+        foreach ($boards as $b) {
+            if (($b['category_id'] ?? '') === $categoryId) {
+                $total += self::countBoardPosts($b['id']);
+            }
+        }
+        return $total;
+    }
+
+    /**
+     * Liefert die globalen Forenstatistiken für das Statistik-Widget.
+     */
+    public static function getGlobalStats(): array {
+        $todayStart = date('Y-m-d 00:00:00');
+        $yesterdayStart = date('Y-m-d 00:00:00', strtotime('-1 day'));
+        $yesterdayEnd = date('Y-m-d 23:59:59', strtotime('-1 day'));
+
+        $stats = [
+            'total_categories' => count(self::getCategories()),
+            'total_boards'     => count(self::getBoards()),
+            'total_topics'     => 0,
+            'total_posts'      => 0,
+            'topics_today'     => 0,
+            'posts_today'      => 0,
+            'topics_yesterday' => 0,
+            'posts_yesterday'  => 0,
+            'total_members'    => 0,
+            'latest_member'    => 'Keines'
+        ];
+
+        if (self::isDatabase()) {
+            try {
+                $pdo = self::getSqlitePdo();
+                $stats['total_topics'] = (int)$pdo->query("SELECT COUNT(*) FROM weave_forum_topics WHERE status = 'published'")->fetchColumn();
+                $stats['total_posts'] = (int)$pdo->query("SELECT COUNT(*) FROM weave_forum_posts WHERE status = 'published'")->fetchColumn();
+
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM weave_forum_topics WHERE status = 'published' AND created_at >= ?");
+                $stmt->execute([$todayStart]);
+                $stats['topics_today'] = (int)$stmt->fetchColumn();
+
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM weave_forum_posts WHERE status = 'published' AND created_at >= ?");
+                $stmt->execute([$todayStart]);
+                $stats['posts_today'] = (int)$stmt->fetchColumn();
+
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM weave_forum_topics WHERE status = 'published' AND created_at >= ? AND created_at <= ?");
+                $stmt->execute([$yesterdayStart, $yesterdayEnd]);
+                $stats['topics_yesterday'] = (int)$stmt->fetchColumn();
+
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM weave_forum_posts WHERE status = 'published' AND created_at >= ? AND created_at <= ?");
+                $stmt->execute([$yesterdayStart, $yesterdayEnd]);
+                $stats['posts_yesterday'] = (int)$stmt->fetchColumn();
+            } catch (Exception $e) {}
+        } else {
+            $data = self::loadJsonData();
+            $topics = array_filter($data['topics'] ?? [], fn($t) => ($t['status'] ?? 'published') === 'published');
+            $posts = array_filter($data['posts'] ?? [], fn($p) => ($p['status'] ?? 'published') === 'published');
+
+            $stats['total_topics'] = count($topics);
+            $stats['total_posts'] = count($posts);
+
+            foreach ($topics as $t) {
+                $cat = $t['created_at'] ?? '';
+                if ($cat >= $todayStart) {
+                    $stats['topics_today']++;
+                } elseif ($cat >= $yesterdayStart && $cat <= $yesterdayEnd) {
+                    $stats['topics_yesterday']++;
+                }
+            }
+
+            foreach ($posts as $p) {
+                $cat = $p['created_at'] ?? '';
+                if ($cat >= $todayStart) {
+                    $stats['posts_today']++;
+                } elseif ($cat >= $yesterdayStart && $cat <= $yesterdayEnd) {
+                    $stats['posts_yesterday']++;
+                }
+            }
+        }
+
+        if (class_exists('ForumUserManager')) {
+            $users = ForumUserManager::getAllUsers();
+            $stats['total_members'] = count($users);
+            if (!empty($users)) {
+                $sorted = $users;
+                usort($sorted, fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
+                $stats['latest_member'] = $sorted[0]['username'] ?? 'Keines';
+            }
+        }
+
+        return $stats;
+    }
+
+    /**
+     * Liefert die neuesten aktiven Themen für den Reiter "Aktuelle Themen".
+     */
+    public static function getRecentTopics(int $limit = 25): array {
+        if (self::isDatabase()) {
+            try {
+                $stmt = self::getSqlitePdo()->prepare("
+                    SELECT * FROM weave_forum_topics 
+                    WHERE status = 'published' 
+                    ORDER BY is_pinned DESC, last_post_at DESC 
+                    LIMIT ?
+                ");
+                $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+                $stmt->execute();
+                return $stmt->fetchAll();
+            } catch (Exception $e) {
+                return [];
+            }
+        }
+
+        $data = self::loadJsonData();
+        $topics = array_filter($data['topics'] ?? [], fn($t) => ($t['status'] ?? 'published') === 'published');
+        usort($topics, function($a, $b) {
+            $pinnedA = !empty($a['is_pinned']) ? 1 : 0;
+            $pinnedB = !empty($b['is_pinned']) ? 1 : 0;
+            if ($pinnedA !== $pinnedB) {
+                return $pinnedB <=> $pinnedA;
+            }
+            return strcmp($b['last_post_at'] ?? '', $a['last_post_at'] ?? '');
+        });
+        return array_slice($topics, 0, $limit);
+    }
 }

@@ -177,14 +177,14 @@ $allBoards = ForumManager::getBoards();
                     <?= strtoupper(substr($post['author_name'] ?? 'U', 0, 1)) ?>
                 </div>
                 <div>
-                    <strong class="block font-bold text-sm text-foreground"><?= htmlspecialchars($post['author_name']) ?></strong>
-                    <?php if ($authorRole === 'forum_admin'): ?>
-                        <span class="badge badge-primary text-[10px]">Administrator</span>
-                    <?php elseif ($authorRole === 'forum_moderator'): ?>
-                        <span class="badge badge-info text-[10px]">Moderator</span>
-                    <?php else: ?>
-                        <span class="badge badge-secondary text-[10px]">Mitglied</span>
-                    <?php endif; ?>
+                    <?php
+                    $authorRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
+                    $authorRoleLabel = class_exists('ForumUserManager') ? ForumUserManager::getRoleLabel($authorRole) : 'Mitglied';
+                    ?>
+                    <strong class="block font-bold text-sm" style="color: <?= htmlspecialchars($authorRoleColor) ?>"><?= htmlspecialchars($post['author_name']) ?></strong>
+                    <span class="inline-block px-2 py-0.5 mt-1 rounded text-[10px] font-bold" style="background-color: <?= htmlspecialchars($authorRoleColor) ?>18; color: <?= htmlspecialchars($authorRoleColor) ?>; border: 1px solid <?= htmlspecialchars($authorRoleColor) ?>40;">
+                        <?= htmlspecialchars($authorRoleLabel) ?>
+                    </span>
                     
                     <?php if ($author): ?>
                         <div class="text-[11px] text-muted mt-2">
@@ -201,7 +201,7 @@ $allBoards = ForumManager::getBoards();
                     <div class="flex items-center justify-between text-xs text-muted border-b pb-2 mb-4">
                         <span class="flex items-center gap-1">
                             <span class="material-icons text-xs">schedule</span>
-                            <?= htmlspecialchars($post['created_at']) ?>
+                            <?= ForumManager::formatRelativeTime($post['created_at']) ?> <span class="opacity-60">(<?= htmlspecialchars($post['created_at']) ?>)</span>
                         </span>
                         <div class="flex items-center gap-2">
                             <?php if (!empty($post['updated_at'])): ?>

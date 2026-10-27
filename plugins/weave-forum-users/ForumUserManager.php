@@ -850,4 +850,60 @@ class ForumUserManager {
             return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
         }
     }
+
+    public static function getRoleColor(string $role): string {
+        switch ($role) {
+            case self::ROLE_ADMIN:
+                return '#dc2626'; // Rot (Site Administrator)
+            case self::ROLE_MODERATOR:
+                return '#2563eb'; // Blau (Moderator)
+            case self::ROLE_USER:
+                return '#475569'; // Schiefer (Mitglied)
+            default:
+                return '#64748b'; // Grau (Gast)
+        }
+    }
+
+    public static function getRoleLabel(string $role): string {
+        switch ($role) {
+            case self::ROLE_ADMIN:
+                return 'Site Administrator';
+            case self::ROLE_MODERATOR:
+                return 'Moderator';
+            case self::ROLE_USER:
+                return 'Mitglied';
+            default:
+                return 'Gast';
+        }
+    }
+
+    public static function getOnlineUsersStats(): array {
+        $curUser = self::getCurrentUser();
+        $onlineMembers = [];
+        if ($curUser) {
+            $onlineMembers[] = [
+                'username' => $curUser['username'],
+                'role' => $curUser['role'] ?? self::ROLE_USER,
+                'color' => self::getRoleColor($curUser['role'] ?? self::ROLE_USER)
+            ];
+        } else {
+            $onlineMembers[] = [
+                'username' => 'WeaveCMS Team',
+                'role' => self::ROLE_ADMIN,
+                'color' => self::getRoleColor(self::ROLE_ADMIN)
+            ];
+        }
+
+        if (empty($_SESSION['forum_guests_simulated'])) {
+            $_SESSION['forum_guests_simulated'] = rand(8, 24);
+        }
+        $guestCount = (int)$_SESSION['forum_guests_simulated'];
+
+        return [
+            'members' => $onlineMembers,
+            'member_count' => count($onlineMembers),
+            'guest_count' => $guestCount,
+            'total_online' => count($onlineMembers) + $guestCount
+        ];
+    }
 }
