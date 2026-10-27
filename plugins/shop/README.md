@@ -208,7 +208,11 @@ PluginManager::addAction('shop_render_admin_subtab_coupons', function($config, $
 
 ## 9. API-Erweiterung (AJAX / REST)
 
-Der zentrale Shop-Endpunkt `api/shop.php` fängt unbekannte Aktionen ab und übergibt sie an den Filter `shop_api_action`:
+> 📘 **Vollständige REST-API Dokumentation:**  
+> Für die Integration mit externen Warenwirtschaften (ERP), POS-Kassensystemen, Produktabgleichen und JSON-Im/Export siehe die dedizierte Dokumentation:  
+> **👉 [WeaveCMS Shop REST-API & Schnittstellendokumentation (API.md)](API.md)**
+
+Der zentrale Shop-Endpunkt `api/shop.php` fängt darüber hinaus anwendungsspezifische Aktionen ab und übergibt sie an den Filter `shop_api_action`:
 
 ```php
 PluginManager::addFilter('shop_api_action', function($handled, $action, $input, $shopConfig) {

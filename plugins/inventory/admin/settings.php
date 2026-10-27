@@ -442,6 +442,42 @@ $notifyEmail = $config['notify_email'] ?? '';
     <!-- SUBTAB 5: EINSTELLUNGEN & EXPORT                                      -->
     <!-- ===================================================================== -->
     <?php elseif ($activeInvTab === 'settings'): ?>
+        <?php 
+            $invApiKey = InventoryManager::getApiKey($config);
+            $invApiEnabled = !empty($config['api_enabled']);
+            $msg = $_GET['msg'] ?? '';
+            $importedCount = (int)($_GET['imported'] ?? 0);
+            $updatedCount = (int)($_GET['updated'] ?? 0);
+
+            $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $apiBaseUrl = $proto . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '', 2), '/\\') . '/api/inventory.php';
+        ?>
+
+        <?php if ($msg === 'inventory_imported'): ?>
+            <div style="background: rgba(16,185,129,0.12); border: 1px solid #10b981; color: #047857; padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; max-width: 680px;">
+                <span class="material-icons" style="font-size:22px;">check_circle</span>
+                <div>
+                    <strong>JSON-Import erfolgreich abgeschlossen!</strong> 
+                    <?php echo $importedCount; ?> neue(r) Artikel angelegt, <?php echo $updatedCount; ?> bestehende Artikel/Bestände aktualisiert.
+                </div>
+            </div>
+        <?php elseif ($msg === 'api_key_generated'): ?>
+            <div style="background: rgba(16,185,129,0.12); border: 1px solid #10b981; color: #047857; padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; max-width: 680px;">
+                <span class="material-icons" style="font-size:22px;">vpn_key</span>
+                <div>
+                    <strong>Neuer API-Schlüssel für Lagerverwaltung wurde generiert und gespeichert!</strong>
+                </div>
+            </div>
+        <?php elseif ($msg === 'import_error'): ?>
+            <div style="background: rgba(239,68,68,0.12); border: 1px solid #ef4444; color: #b91c1c; padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; max-width: 680px;">
+                <span class="material-icons" style="font-size:22px;">error</span>
+                <div>
+                    <strong>Fehler beim Importieren:</strong> Bitte stelle sicher, dass eine valide JSON-Datei übergeben wurde.
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <!-- 1. PARAMETER FORMULAR -->
         <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings#tab-plugins">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
             <input type="hidden" name="action" value="save_plugin_settings">
@@ -488,14 +524,150 @@ $notifyEmail = $config['notify_email'] ?? '';
             </div>
         </form>
 
-        <div style="background: rgba(30,58,138,0.03); border: 1px solid rgba(30,58,138,0.2); border-radius: 14px; padding: 1.5rem; max-width: 680px;">
-            <h4 style="margin: 0 0 0.5rem; font-size: 1.1rem; font-weight: 700; color: #1e3a8a;">📥 Daten-Export für Buchhaltung</h4>
-            <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0 0 1rem;">
-                Exportiere deinen gesamten Warenbestand inklusive Einkaufspreisen, Verkaufspreisen, Margen und Barcodes als CSV-Datei für Excel oder deinen Steuerberater.
+        <!-- 2. DATEN-EXPORT (CSV & JSON) -->
+        <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; max-width: 680px; margin-bottom: 1.5rem;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+                <span class="material-icons" style="color:#1e3a8a; font-size:26px;">download</span>
+                <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #1e3a8a;">Lager-Export (CSV &amp; JSON)</h4>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0 0 1rem; line-height: 1.45;">
+                Exportiere deinen gesamten Warenbestand inklusive Einkaufspreisen, Verkaufspreisen, Margen und Barcodes für Excel, Steuerberater oder automatisierte Datensicherungen.
             </p>
-            <a href="?action=inv_export_csv" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 9px 20px; font-weight: 700;">
-                <span class="material-icons">download</span> Bestandsliste als CSV herunterladen
-            </a>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="?action=inv_export_csv" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-weight: 700;">
+                    <span class="material-icons" style="font-size:16px;">table_view</span> CSV-Export (Excel)
+                </a>
+                <a href="?action=inv_export_json" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-weight: 700;">
+                    <span class="material-icons" style="font-size:16px;">data_object</span> Bestände als JSON
+                </a>
+                <a href="?action=inv_export_movements_json" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-weight: 700;">
+                    <span class="material-icons" style="font-size:16px;">history</span> Audit-Log als JSON
+                </a>
+            </div>
+        </div>
+
+        <!-- 3. DATEN-IMPORT (JSON) -->
+        <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; max-width: 680px; margin-bottom: 1.5rem;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+                <span class="material-icons" style="color:#1e3a8a; font-size:26px;">upload_file</span>
+                <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #1e3a8a;">Lagerbestand importieren (JSON)</h4>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0 0 1rem; line-height: 1.45;">
+                Lade eine JSON-Datei mit Artikeln hoch. Bestandsänderungen werden automatisch im revisionssicheren Audit-Log protokolliert.
+            </p>
+
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings#tab-plugins" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="action" value="inv_import_json">
+                <input type="hidden" name="target_tab" value="tab-plugins">
+
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">JSON-Datei auswählen:</label>
+                    <input type="file" name="import_file" accept=".json,application/json" class="form-control" required style="padding: 6px;">
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Import-Modus:</label>
+                    <select name="import_mode" class="form-control">
+                        <option value="merge" selected>Zusammenführen (Bestände abgleichen &amp; neue anfügen)</option>
+                        <option value="replace">Vollständig ersetzen (Bestehende Liste überschreiben)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; font-weight: 700; background: #1e3a8a; border-color: #1e3a8a;">
+                    <span class="material-icons" style="font-size:18px;">publish</span> Lagerbestand importieren
+                </button>
+            </form>
+        </div>
+
+        <!-- 4. REST-API & POS/KASSEN-SCHNITTSTELLE -->
+        <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.75rem; max-width: 680px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:1.25rem;">
+                <div>
+                    <h4 style="margin:0 0 0.25rem 0; font-size:1.2rem; font-weight:700; display:flex; align-items:center; gap:8px; color:#1e3a8a;">
+                        <span class="material-icons" style="font-size:24px;">point_of_sale</span> REST-API &amp; Kassensystem (POS)
+                    </h4>
+                    <p style="margin:0; font-size:0.88rem; color:var(--text-secondary);">
+                        Echtzeit-Synchronisierung für Kassen im Atelier, Barcode-Scanner-Apps und Warenwirtschaften.
+                    </p>
+                </div>
+                <div>
+                    <span style="font-size:0.8rem; background:<?php echo $invApiEnabled ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'; ?>; color:<?php echo $invApiEnabled ? '#047857' : '#b91c1c'; ?>; border:1px solid <?php echo $invApiEnabled ? '#10b981' : '#ef4444'; ?>; border-radius:20px; padding:4px 12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size:14px;"><?php echo $invApiEnabled ? 'check_circle' : 'block'; ?></span>
+                        <?php echo $invApiEnabled ? 'API Aktiv' : 'API Deaktiviert'; ?>
+                    </span>
+                </div>
+            </div>
+
+            <!-- API-Konfiguration speichern -->
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings#tab-plugins" style="margin-bottom: 1.25rem;">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="action" value="save_plugin_settings">
+                <input type="hidden" name="plugin_slug" value="inventory">
+                <input type="hidden" name="plugin_settings" value="inventory">
+                <input type="hidden" name="target_tab" value="tab-plugins">
+                <input type="hidden" name="inv_subtab" value="settings">
+
+                <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                    <label style="display:flex; align-items:center; gap: 8px; font-weight: 700; font-size: 0.92rem; cursor:pointer; margin-bottom: 12px;">
+                        <input type="hidden" name="api_enabled" value="0">
+                        <input type="checkbox" name="api_enabled" value="1" <?php echo $invApiEnabled ? 'checked' : ''; ?>>
+                        <span>Lager-REST-API aktivieren</span>
+                    </label>
+
+                    <div style="margin-bottom: 8px;">
+                        <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">API-Schlüssel (Bearer Token):</label>
+                        <div style="display:flex; gap: 8px;">
+                            <input type="text" name="api_key" id="inv-api-key-display" class="form-control" value="<?php echo htmlspecialchars($invApiKey ?: 'Noch kein Schlüssel generiert'); ?>" readonly style="font-family: monospace; font-size: 0.9rem; background: #f8fafc;">
+                            <button type="button" class="btn btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('inv-api-key-display').value); if(typeof showToast==='function') showToast('API-Key kopiert!'); else alert('API-Key kopiert!');" title="In die Zwischenablage kopieren">
+                                <span class="material-icons" style="font-size:16px;">content_copy</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap: 10px; flex-wrap:wrap;">
+                    <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; font-weight: 700; background: #1e3a8a; border-color: #1e3a8a;">
+                        <span class="material-icons" style="font-size:16px;">save</span> API-Status speichern
+                    </button>
+                </div>
+            </form>
+
+            <!-- Separater Button für Token-Generierung -->
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings#tab-plugins" style="margin-bottom: 1.5rem;" onsubmit="return confirm('Möchtest du wirklich einen neuen API-Schlüssel für die Lagerverwaltung generieren?');">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="action" value="inv_generate_api_key">
+                <input type="hidden" name="target_tab" value="tab-plugins">
+                <button type="submit" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-size:0.85rem;">
+                    <span class="material-icons" style="font-size:16px; color:#1e3a8a;">autorenew</span> Neuen API-Schlüssel generieren
+                </button>
+            </form>
+
+            <!-- API Dokumentation / cURL Beispiele -->
+            <div style="background: #1e293b; color: #f8fafc; border-radius: 12px; padding: 1.25rem; font-size: 0.84rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
+                    <strong style="color: #38bdf8; display:flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size:16px;">terminal</span> API-Endpunkt &amp; Kassen-Integration
+                    </strong>
+                    <code style="background: rgba(255,255,255,0.1); color: #fff; padding: 2px 8px; border-radius: 6px;"><?php echo htmlspecialchars($apiBaseUrl); ?></code>
+                </div>
+
+                <div style="margin-bottom: 0.75rem;">
+                    <span style="color: #94a3b8;"># 1. Bestandsabgleich bei Vor-Ort-Verkauf (POST Kasse/POS):</span><br>
+                    <code>curl -X POST -H "Authorization: Bearer <?php echo htmlspecialchars($invApiKey ?: 'DEIN_KEY'); ?>" -H "Content-Type: application/json" -d '{"sku":"ART-01","change":-1,"reason":"Atelier-Kassenverkauf","user":"Kasse 1"}' "<?php echo htmlspecialchars($apiBaseUrl); ?>?action=stock_adjust"</code>
+                </div>
+
+                <div style="margin-bottom: 0.75rem;">
+                    <span style="color: #94a3b8;"># 2. Alle Lagerbestände abfragen (GET):</span><br>
+                    <code>curl -H "Authorization: Bearer <?php echo htmlspecialchars($invApiKey ?: 'DEIN_KEY'); ?>" "<?php echo htmlspecialchars($apiBaseUrl); ?>?action=articles"</code>
+                </div>
+
+                <div>
+                    <span style="color: #94a3b8;"># 3. Artikel unter Mindestbestand abfragen (GET):</span><br>
+                    <code>curl -H "Authorization: Bearer <?php echo htmlspecialchars($invApiKey ?: 'DEIN_KEY'); ?>" "<?php echo htmlspecialchars($apiBaseUrl); ?>?action=low_stock"</code>
+                </div>
+            </div>
+
         </div>
     <?php endif; ?>
 

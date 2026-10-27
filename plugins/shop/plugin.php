@@ -14,19 +14,74 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 require_once __DIR__ . '/ShopManager.php';
 
 // -----------------------------------------------------------------------------
-// 1. Admin POST-Aktionen für Produkte & Bestellungen abfangen
+// 1. Admin Aktionen für Produkte, Bestellungen, Im-/Export & REST-API
 // -----------------------------------------------------------------------------
-if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
+if (!empty($_SESSION['admin_logged_in'])) {
 
-    // Neues Produkt hinzufügen
-    if ($action === 'shop_add_product') {
-        if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
-            ShopManager::addProduct($_POST);
-            header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=products&msg=product_added#tab-plugins');
-            exit;
-        }
+    // JSON-Exporte für Produkte und Bestellungen
+    if (isset($_GET['action']) && $_GET['action'] === 'shop_export_products_json') {
+        $json = ShopManager::exportProductsJson();
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="weavecms_shop_produkte_' . date('Y-m-d') . '.json"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        echo $json;
+        exit;
     }
+
+    if (isset($_GET['action']) && $_GET['action'] === 'shop_export_orders_json') {
+        $json = ShopManager::exportOrdersJson();
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="weavecms_shop_bestellungen_' . date('Y-m-d') . '.json"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        echo $json;
+        exit;
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $action = $_POST['action'] ?? '';
+
+        // JSON-Import für Produkte
+        if ($action === 'shop_import_products_json') {
+            if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+                $rawJson = '';
+                if (!empty($_FILES['import_file']['tmp_name']) && is_uploaded_file($_FILES['import_file']['tmp_name'])) {
+                    $rawJson = (string)@file_get_contents($_FILES['import_file']['tmp_name']);
+                } elseif (!empty($_POST['json_text'])) {
+                    $rawJson = trim($_POST['json_text']);
+                }
+                $mode = ($_POST['import_mode'] ?? 'merge') === 'replace' ? 'replace' : 'merge';
+                $res = ShopManager::importProductsJson($rawJson, $mode);
+                $msg = $res['success'] ? 'products_imported' : 'import_error';
+                header("Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=interfaces&msg={$msg}&imported=" . (int)$res['imported'] . "&updated=" . (int)$res['updated'] . "#tab-plugins");
+                exit;
+            }
+        }
+
+        // API-Key neu generieren
+        if ($action === 'shop_generate_api_key') {
+            if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+                $dataFile = dirname(__DIR__, 2) . '/data.json';
+                $d = load_data($dataFile);
+                $c = PluginManager::getPluginConfig('shop', $d);
+                $c['api_key'] = ShopManager::generateApiKey();
+                $c['api_enabled'] = true;
+                PluginManager::savePluginConfig('shop', $c, $d);
+                save_data($dataFile, $d);
+                header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=interfaces&msg=api_key_generated#tab-plugins');
+                exit;
+            }
+        }
+
+        // Neues Produkt hinzufügen
+        if ($action === 'shop_add_product') {
+            if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+                ShopManager::addProduct($_POST);
+                header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=products&msg=product_added#tab-plugins');
+                exit;
+            }
+        }
 
     // Produkt bearbeiten
     if ($action === 'shop_edit_product') {
@@ -64,6 +119,7 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             exit;
         }
     }
+}
 }
 
 // -----------------------------------------------------------------------------
@@ -154,7 +210,7 @@ PluginManager::addFilter('visible_sections', function($sections, $data) {
     return $sections;
 });
 
-PluginManager::addAction('plugin_config_saved_shop', function($config, &$data) {
+PluginManager::addAction('plugin_config_saved_shop', function($config, $data) {
     if (class_exists('SectionManager')) {
         SectionManager::ensureSections($data);
         $sectionEnabled = !empty($config['section_enabled']);
@@ -258,6 +314,18 @@ PluginManager::addFilter('plugin_validate_config_shop', function($submitted, $da
         }
         if (isset($submitted['section_subtitle'])) {
             $cleaned['section_subtitle'] = trim($submitted['section_subtitle']);
+        }
+    }
+
+    // Schnittstellen & REST-API (Subtab: interfaces)
+    if ($subtab === 'interfaces' || isset($submitted['api_enabled'])) {
+        $cleaned['api_enabled'] = !empty($submitted['api_enabled']);
+        if (!empty($submitted['api_key']) && !str_starts_with(trim($submitted['api_key']), 'Noch kein')) {
+            $cleaned['api_key'] = trim($submitted['api_key']);
+        } elseif (!empty($existing['api_key']) && !str_starts_with(trim($existing['api_key']), 'Noch kein')) {
+            $cleaned['api_key'] = $existing['api_key'];
+        } elseif ($cleaned['api_enabled']) {
+            $cleaned['api_key'] = ShopManager::generateApiKey();
         }
     }
 
