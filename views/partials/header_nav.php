@@ -109,17 +109,7 @@ if (class_exists('PluginManager') && PluginManager::hasAction('frontend_render_n
                         </div>
                     <?php endif; ?>
 
-                    <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>
-                        <div class="sidebar-lang-switch">
-                            <?php foreach ($lang_switch_items as $l): ?>
-                                <?php if ($l['active']): ?>
-                                    <span class="sidebar-lang-badge active" title="<?php echo htmlspecialchars($l['name']); ?>"><?php echo strtoupper(htmlspecialchars($l['code'])); ?></span>
-                                <?php else: ?>
-                                    <a href="<?php echo htmlspecialchars($l['url']); ?>" class="sidebar-lang-badge" title="<?php echo htmlspecialchars($l['name']); ?>"><?php echo strtoupper(htmlspecialchars($l['code'])); ?></a>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
+                    <?php echo LanguageManager::renderLanguageSwitcher($lang_switch_items ?? [], 'sidebar'); ?>
                 </div>
             </div>
         </aside>
@@ -187,17 +177,7 @@ if (class_exists('PluginManager') && PluginManager::hasAction('frontend_render_n
                         </div>
                     <?php endif; ?>
 
-                    <?php if (!empty($lang_switch_items) && count($lang_switch_items) > 1): ?>
-                        <div class="header-lang-switch" style="display:inline-flex; align-items:center; gap:6px; margin-left:12px; padding-left:12px; border-left:1px solid var(--border-color); font-size:0.82rem; font-weight:700;">
-                            <?php foreach ($lang_switch_items as $l): ?>
-                                <?php if ($l['active']): ?>
-                                    <span style="color:var(--primary); border-bottom:2px solid var(--primary); padding-bottom:1px;" title="<?php echo htmlspecialchars($l['name']); ?>"><?php echo strtoupper(htmlspecialchars($l['code'])); ?></span>
-                                <?php else: ?>
-                                    <a href="<?php echo htmlspecialchars($l['url']); ?>" style="color:var(--text-secondary); text-decoration:none; opacity:0.65; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.65'" title="<?php echo htmlspecialchars($l['name']); ?>"><?php echo strtoupper(htmlspecialchars($l['code'])); ?></a>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
+                    <?php echo LanguageManager::renderLanguageSwitcher($lang_switch_items ?? [], 'header'); ?>
                 </nav>
                 <!-- Mobile Menu Trigger (Hamburger) -->
                 <label for="menu-toggle-mobile" class="btn btn-outline" style="display: none; padding: 6px 12px; font-size: 0.85rem; cursor: pointer;" id="mobile-nav-trigger">

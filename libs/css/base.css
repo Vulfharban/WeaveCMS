@@ -223,34 +223,120 @@ textarea.form-control {
    Besucher-Barrierefreiheitsleiste & Dark-Mode Theme (Phase 16)
    ========================================================================== */
 [data-theme="dark"] {
-    --bg-dark: #161311;
-    --bg-card: rgba(32, 27, 24, 0.92);
+    --bg-dark: #0f0d0b;
+    --bg-card: rgba(22, 19, 17, 0.95);
     --border-color: rgba(255, 255, 255, 0.12);
-    --text-primary: #f5eee8;
-    --text-secondary: #beb1a6;
+    --text-primary: #f8f6f4;
+    --text-secondary: #c5b8ac;
+    --primary: #4ade80;
+    --accent: #f09a5c;
+    --header-bg: rgba(15, 13, 11, 0.92);
 }
 
 [data-theme="dark"] body {
     background-color: var(--bg-dark);
     background-image: 
-        radial-gradient(circle at 10% 20%, rgba(46, 98, 72, 0.15) 0%, transparent 60%),
-        radial-gradient(circle at 90% 80%, rgba(178, 108, 57, 0.16) 0%, transparent 50%);
+        radial-gradient(circle at 10% 20%, rgba(74, 222, 128, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 90% 80%, rgba(240, 154, 92, 0.08) 0%, transparent 50%);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] body::before {
+    opacity: 0.025;
+    background-image: 
+        linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(45deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.08) 75%),
+        linear-gradient(-45deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.08) 75%);
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4 {
+    color: var(--text-primary);
 }
 
 [data-theme="dark"] .card,
+[data-theme="dark"] .hero-card,
 [data-theme="dark"] .slide-menu {
     background: var(--bg-card);
     border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .hero-subtitle {
+    background: rgba(16, 14, 12, 0.85);
+    border-top-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .filter-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .filter-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    border-color: var(--primary);
+}
+
+[data-theme="dark"] .filter-btn.active {
+    background: var(--primary);
+    color: #0f0d0b;
+    border-color: var(--primary);
+    box-shadow: 0 4px 14px rgba(74, 222, 128, 0.35);
+}
+
+[data-theme="dark"] .slide-menu h2 {
+    color: var(--primary) !important;
+}
+
+[data-theme="dark"] .slide-menu h4 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .slide-menu .close-menu-btn {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .slide-menu .close-menu-btn:hover {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .slide-menu.mobile-menu .nav-item {
+    color: var(--text-primary);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .slide-menu.mobile-menu .nav-item:hover {
+    color: var(--primary);
+}
+
+[data-theme="dark"] .slide-menu.mobile-menu .nav-item span.material-icons {
+    color: var(--primary);
+}
+
+[data-theme="dark"] .menu-overlay {
+    background: rgba(0, 0, 0, 0.78);
 }
 
 [data-theme="dark"] .form-control {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
     border-color: var(--border-color);
     color: var(--text-primary);
 }
 
 [data-theme="dark"] .form-control:focus {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.45);
 }
 
 [data-theme="dark"] .btn-outline,
@@ -258,6 +344,19 @@ textarea.form-control {
     background: rgba(255, 255, 255, 0.06);
     border-color: var(--border-color);
     color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-outline:hover,
+[data-theme="dark"] .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .contact-info-card,
+[data-theme="dark"] .contact-menu div[style*="background: rgba(255,255,255,0.02)"],
+[data-theme="dark"] .contact-menu div[style*="background:rgba(255,255,255,0.02)"] {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 /* Frontend Navigation Accessibility Controls (Theme & Schriftzoom) */

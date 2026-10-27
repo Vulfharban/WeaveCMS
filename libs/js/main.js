@@ -1011,5 +1011,42 @@ function resetWeaveFontSize() {
     applyWeaveFontSize(100);
 }
 
+/**
+ * ============================================================================
+ * Sprachauswahl Dropdown (Frontend)
+ * ============================================================================
+ */
+function toggleWeaveLangDropdown(btn, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    const dropdown = btn.closest('.lang-dropdown');
+    if (!dropdown) return;
+    const wasOpen = dropdown.classList.contains('is-open');
+
+    // Alle anderen offenen Dropdowns schließen
+    document.querySelectorAll('.lang-dropdown.is-open').forEach(function(d) {
+        d.classList.remove('is-open');
+        const b = d.querySelector('.lang-dropdown-btn');
+        if (b) b.setAttribute('aria-expanded', 'false');
+    });
+
+    if (!wasOpen) {
+        dropdown.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+    }
+}
+
+// Globaler Klick-Listener zum Schließen von Dropdowns bei Klick außerhalb
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.lang-dropdown')) {
+        document.querySelectorAll('.lang-dropdown.is-open').forEach(function(d) {
+            d.classList.remove('is-open');
+            const b = d.querySelector('.lang-dropdown-btn');
+            if (b) b.setAttribute('aria-expanded', 'false');
+        });
+    }
+});
+
 // Event-Listener beim Laden des DOMs ausführen
 window.addEventListener('DOMContentLoaded', initFrontendListeners);

@@ -32,6 +32,25 @@
     box-shadow: 0 4px 12px rgba(46, 98, 72, 0.25);
 }
 
+[data-theme="dark"] .filter-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .filter-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    border-color: var(--primary);
+}
+
+[data-theme="dark"] .filter-btn.active {
+    background: var(--primary);
+    color: #0f0d0b;
+    border-color: var(--primary);
+    box-shadow: 0 4px 14px rgba(74, 222, 128, 0.35);
+}
+
 /* ───── Galerie-Karten & Medien-Container ───── */
 .gallery-card {
     display: flex;

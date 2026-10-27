@@ -75,6 +75,16 @@
             --card-radius: <?php echo htmlspecialchars($card_radius, ENT_QUOTES, 'UTF-8'); ?>;
             --gallery-gap: <?php echo htmlspecialchars($gallery_gap, ENT_QUOTES, 'UTF-8'); ?>;
         }
+        [data-theme="dark"] {
+            --bg-dark: #0f0d0b;
+            --bg-card: rgba(22, 19, 17, 0.95);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --text-primary: #f8f6f4;
+            --text-secondary: #c5b8ac;
+            --primary: #4ade80;
+            --accent: #f09a5c;
+            --header-bg: rgba(15, 13, 11, 0.92);
+        }
     </style>
 
     <!-- Sofortige Wiederherstellung von Besucher-Theme & Schriftzoom (Flash-Prävention) -->
