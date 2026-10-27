@@ -6,7 +6,9 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
     exit;
 }
 
-$topics = ForumManager::getRecentTopics(30);
+$currentUser = class_exists('ForumUserManager') ? ForumUserManager::getCurrentUser() : null;
+$rawTopics = ForumManager::getRecentTopics(50);
+$topics = array_values(array_filter($rawTopics, fn($t) => ForumManager::canUserReadBoard($t['board_id'], $currentUser)));
 $allBoards = ForumManager::getBoards();
 $boardsMap = [];
 foreach ($allBoards as $b) {

@@ -7,7 +7,12 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
 }
 
 $query = trim($_GET['q'] ?? '');
+$currentUser = class_exists('ForumUserManager') ? ForumUserManager::getCurrentUser() : null;
 $results = !empty($query) ? ForumManager::search($query) : ['topics' => [], 'query' => '', 'count' => 0];
+if (!empty($results['topics'])) {
+    $results['topics'] = array_values(array_filter($results['topics'], fn($t) => ForumManager::canUserReadBoard($t['board_id'], $currentUser)));
+    $results['count'] = count($results['topics']);
+}
 ?>
 
 <div class="mb-6">

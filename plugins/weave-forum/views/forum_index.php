@@ -65,9 +65,10 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                         <?php else: ?>
                             <?php foreach ($boards as $board): ?>
                                 <?php 
+                                $canReadBoard = ForumManager::canUserReadBoard($board, $currentUser);
                                 $topicCount = ForumManager::countTopics($board['id']);
                                 $postCount = ForumManager::countBoardPosts($board['id']);
-                                $latestTopics = ForumManager::getTopics($board['id'], 1, 1);
+                                $latestTopics = $canReadBoard ? ForumManager::getTopics($board['id'], 1, 1) : [];
                                 $latestTopic = !empty($latestTopics) ? $latestTopics[0] : null;
                                 ?>
                                 <div class="kunena-board-row">
@@ -81,7 +82,11 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                                                 <a href="?page=forum&view=board&id=<?= urlencode($board['id']) ?>" class="kunena-board-title">
                                                     <?= htmlspecialchars($board['title']) ?>
                                                 </a>
-                                                <?php if (!empty($board['is_locked'])): ?>
+                                                <?php if (!$canReadBoard): ?>
+                                                    <span class="kunena-badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-size:11px; padding:2px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; font-weight:700;">
+                                                        <span class="material-icons" style="font-size:12px;">lock</span> Nur für Mitglieder
+                                                    </span>
+                                                <?php elseif (!empty($board['is_locked'])): ?>
                                                     <span class="material-icons kunena-lock-icon" title="Forum geschlossen">lock</span>
                                                 <?php endif; ?>
                                             </div>
@@ -107,7 +112,12 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
 
                                     <!-- Right Column: Last Post Block -->
                                     <div class="kunena-board-lastpost">
-                                        <?php if ($latestTopic): ?>
+                                        <?php if (!$canReadBoard): ?>
+                                            <div class="kunena-no-post" style="color: #64748b; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                                                <span class="material-icons" style="font-size: 16px; color:#d97706;">lock</span>
+                                                <span>Inhalte geschützt &bull; <a href="?page=forum&view=login" style="color:var(--primary); font-weight:700;">Anmelden</a></span>
+                                            </div>
+                                        <?php elseif ($latestTopic): ?>
                                             <?php 
                                             $authorUser = class_exists('ForumUserManager') ? ForumUserManager::findUser($latestTopic['last_post_user']) : null;
                                             $authorRole = $authorUser['role'] ?? 'forum_user';

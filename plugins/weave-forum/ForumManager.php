@@ -635,6 +635,85 @@ class ForumManager {
         return null;
     }
 
+    /**
+     * Lädt die aktive Forum-Konfiguration aus data.json via PluginManager.
+     */
+    public static function getConfig(): array {
+        $data = $GLOBALS['data'] ?? null;
+        if (!is_array($data) || empty($data)) {
+            $dataPath = dirname(__DIR__, 2) . '/data.json';
+            if (file_exists($dataPath)) {
+                $json = @file_get_contents($dataPath);
+                $data = @json_decode($json, true) ?: [];
+            }
+        }
+        if (is_array($data)) {
+            if (class_exists('PluginManager')) {
+                return PluginManager::getPluginConfig('weave-forum', $data);
+            }
+            $configs = $data['plugins']['configs'] ?? [];
+            return $configs['weave-forum'] ?? [];
+        }
+        return [];
+    }
+
+    /**
+     * Ermittelt den globalen Zugangsmodus: 'public' (alles frei lesbar) oder 'members_only' (Registrierung erforderlich).
+     */
+    public static function getAccessMode(): string {
+        $cfg = self::getConfig();
+        return $cfg['guest_access_mode'] ?? 'public';
+    }
+
+    /**
+     * Liefert die Liste aller Unterforen (Board-IDs), die Gäste auch bei 'members_only' frei lesen dürfen.
+     */
+    public static function getGuestAllowedBoards(): array {
+        $cfg = self::getConfig();
+        $allowed = $cfg['guest_allowed_boards'] ?? [];
+        return is_array($allowed) ? $allowed : [];
+    }
+
+    /**
+     * Prüft, ob ein Benutzer (oder Gast) das angegebene Board lesen darf.
+     */
+    public static function canUserReadBoard($boardOrId, ?array $user = null): bool {
+        if ($user === null && class_exists('ForumUserManager')) {
+            $user = ForumUserManager::getCurrentUser();
+        }
+
+        // Angemeldete, aktive Benutzer dürfen regulär lesen
+        if ($user && ($user['status'] ?? 'active') === 'active') {
+            return true;
+        }
+
+        // Benutzer ist Gast: Modus prüfen
+        $boardId = is_array($boardOrId) ? ($boardOrId['id'] ?? '') : (string)$boardOrId;
+        $accessMode = self::getAccessMode();
+
+        if ($accessMode === 'members_only') {
+            $allowedBoards = self::getGuestAllowedBoards();
+            return in_array($boardId, $allowedBoards, true);
+        }
+
+        // Standard 'public': prüfen, ob das einzelne Board explizit beschränkt ist
+        $board = is_array($boardOrId) ? $boardOrId : self::getBoard($boardId);
+        if ($board && !empty($board['min_role_read']) && $board['min_role_read'] !== 'public') {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Prüft, ob ein Thema für den Benutzer (oder Gast) lesbar ist.
+     */
+    public static function canUserReadTopic($topicOrId, ?array $user = null): bool {
+        $topic = is_array($topicOrId) ? $topicOrId : self::getTopic((string)$topicOrId);
+        if (!$topic) return false;
+        return self::canUserReadBoard($topic['board_id'] ?? '', $user);
+    }
+
     public static function saveBoard(array $board): bool {
         if (empty($board['id'])) {
             $board['id'] = 'board_' . bin2hex(random_bytes(4));

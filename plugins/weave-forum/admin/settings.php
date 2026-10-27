@@ -414,6 +414,95 @@ $isSqliteSupported = ForumManager::isSqliteSupported();
                 </div>
             </div>
 
+            <!-- Zugriffs- & Lesemodus (Öffentlich vs. Registrierungspflicht) -->
+            <div class="card p-4 my-4 bg-gray-50 dark:bg-gray-800 border">
+                <h4 class="font-bold text-sm mb-2 flex items-center gap-2">
+                    <span class="material-icons text-primary text-base">lock_person</span>
+                    Zugriffs- &amp; Leseberechtigung (Foren-Zugangsmodus)
+                </h4>
+                <p class="text-xs text-muted mb-4 leading-relaxed">
+                    Lege fest, ob Besucher das Forum ohne Registrierung frei durchstöbern dürfen oder ob ein Login erforderlich ist.
+                </p>
+
+                <div class="space-y-3">
+                    <label class="flex items-start gap-3 p-3 border rounded-lg cursor-pointer bg-white dark:bg-gray-900 hover:border-primary transition-colors">
+                        <input type="radio" name="guest_access_mode" value="public" 
+                               <?= ($cfg['guest_access_mode'] ?? 'public') !== 'members_only' ? 'checked' : '' ?>
+                               class="mt-1" onchange="toggleGuestExceptions(false)">
+                        <div>
+                            <div class="font-semibold text-sm flex items-center gap-2">
+                                <span>🌐 Öffentlich (Standard)</span>
+                                <span class="badge badge-success text-[10px]">Frei lesbar</span>
+                            </div>
+                            <p class="text-xs text-muted mt-0.5">
+                                Alle Themen und Beiträge sind für Gäste frei lesbar. Zum Schreiben oder Antworten ist ein registriertes Benutzerkonto erforderlich.
+                            </p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 border rounded-lg cursor-pointer bg-white dark:bg-gray-900 hover:border-primary transition-colors">
+                        <input type="radio" name="guest_access_mode" value="members_only" 
+                               <?= ($cfg['guest_access_mode'] ?? 'public') === 'members_only' ? 'checked' : '' ?>
+                               class="mt-1" onchange="toggleGuestExceptions(true)">
+                        <div>
+                            <div class="font-semibold text-sm flex items-center gap-2">
+                                <span>🔒 Geschützt / Registrierungspflicht</span>
+                                <span class="badge badge-warning text-[10px]">Nur angemeldete Mitglieder</span>
+                            </div>
+                            <p class="text-xs text-muted mt-0.5">
+                                Besucher müssen sich registrieren und anmelden, um Forenbeiträge lesen zu können. Nicht freigegebene Bereiche werden gesperrt.
+                            </p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Ausnahmen bei Registrierungspflicht: Frei lesbare Foren für Gäste -->
+                <div id="guest_exceptions_container" class="mt-4 pt-4 border-t" style="<?= ($cfg['guest_access_mode'] ?? 'public') === 'members_only' ? '' : 'display:none;' ?>">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="material-icons text-warning text-sm">visibility</span>
+                        <h5 class="font-bold text-xs">Frei lesbare Ausnahmen für Gäste (Öffentliche Foren):</h5>
+                    </div>
+                    <p class="text-xs text-muted mb-3">
+                        Wähle die Unterforen aus, die Gäste auch bei geschlossener Community <strong>ohne Login oder Registrierung</strong> frei lesen dürfen (z.&nbsp;B. Ankündigungen, Willkommen &amp; Vorstellung, Regeln):
+                    </p>
+
+                    <div class="space-y-3 bg-white dark:bg-gray-900 p-3 border rounded-lg max-h-60 overflow-y-auto">
+                        <?php 
+                        $curAllowed = $cfg['guest_allowed_boards'] ?? [];
+                        if (!is_array($curAllowed)) $curAllowed = [];
+                        ?>
+                        <?php foreach ($categories as $cat): ?>
+                            <?php 
+                            $catBds = array_filter($boards, fn($b) => ($b['category_id'] ?? '') === $cat['id']);
+                            if (empty($catBds)) continue;
+                            ?>
+                            <div class="text-[11px] font-bold text-muted uppercase tracking-wider mb-1 flex items-center gap-1">
+                                <span class="material-icons text-[14px]"><?= htmlspecialchars($cat['icon'] ?? 'folder') ?></span>
+                                <?= htmlspecialchars($cat['title']) ?>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3 pl-2">
+                                <?php foreach ($catBds as $b): ?>
+                                    <label class="flex items-center gap-2 text-xs p-1.5 rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                                        <input type="checkbox" name="guest_allowed_boards[]" value="<?= htmlspecialchars($b['id']) ?>"
+                                               <?= in_array($b['id'], $curAllowed, true) ? 'checked' : '' ?>
+                                               class="rounded text-primary">
+                                        <span class="material-icons text-muted text-sm"><?= htmlspecialchars($b['icon'] ?? 'forum') ?></span>
+                                        <span class="font-medium text-foreground"><?= htmlspecialchars($b['title']) ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            function toggleGuestExceptions(show) {
+                const el = document.getElementById('guest_exceptions_container');
+                if (el) el.style.display = show ? 'block' : 'none';
+            }
+            </script>
+
             <button type="submit" class="btn btn-primary">
                 Einstellungen speichern
             </button>

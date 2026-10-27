@@ -14,13 +14,39 @@ if (!$board) {
     return;
 }
 
+$currentUser = class_exists('ForumUserManager') ? ForumUserManager::getCurrentUser() : null;
+$canReadBoard = ForumManager::canUserReadBoard($board, $currentUser);
+
+if (!$canReadBoard) {
+    ?>
+    <div class="kunena-cat-card" style="text-align: center; padding: 50px 24px; margin: 30px auto; max-width: 680px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border-radius: 14px; border-left: 6px solid #f59e0b;">
+        <div style="width: 64px; height: 64px; margin: 0 auto 16px auto; border-radius: 50%; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center;">
+            <span class="material-icons" style="font-size: 34px;">lock</span>
+        </div>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin-bottom: 8px;">
+            Registrierung erforderlich
+        </h2>
+        <p style="font-size: 14px; color: #64748b; line-height: 1.6; max-width: 520px; margin: 0 auto 24px auto;">
+            Der Bereich <strong>&bdquo;<?= htmlspecialchars($board['title']) ?>&ldquo;</strong> ist nur für registrierte und angemeldete Mitglieder unserer Community zugänglich. Bitte melde dich an oder erstelle ein kostenloses Konto, um alle Themen und Diskussionen lesen zu können.
+        </p>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <a href="?page=forum&view=login" class="kunena-btn-primary" style="padding: 10px 22px; font-size: 14px; display:inline-flex; align-items:center; gap:6px;">
+                <span class="material-icons" style="font-size: 18px;">login</span> Jetzt anmelden
+            </a>
+            <a href="?page=forum&view=register" class="kunena-btn-secondary" style="padding: 10px 22px; font-size: 14px; display:inline-flex; align-items:center; gap:6px;">
+                <span class="material-icons" style="font-size: 18px;">person_add</span> Kostenlos registrieren
+            </a>
+        </div>
+    </div>
+    <?php
+    return;
+}
+
 $page = max(1, (int)($_GET['p'] ?? 1));
 $perPage = 20;
 $totalTopics = ForumManager::countTopics($boardId);
 $topics = ForumManager::getTopics($boardId, $page, $perPage);
 $totalPages = max(1, ceil($totalTopics / $perPage));
-
-$currentUser = class_exists('ForumUserManager') ? ForumUserManager::getCurrentUser() : null;
 $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('create_topic', $currentUser, $board) : false;
 ?>
 

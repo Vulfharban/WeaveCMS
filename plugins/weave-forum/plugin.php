@@ -84,6 +84,15 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             $cfg['announcement_type'] = trim($_POST['announcement_type'] ?? 'info');
             $cfg['announcement_text'] = trim($_POST['announcement_text'] ?? '');
 
+            // Zugriffs- & Lesemodus (Öffentlich vs. Registrierungspflicht)
+            $guestMode = trim($_POST['guest_access_mode'] ?? 'public');
+            $cfg['guest_access_mode'] = in_array($guestMode, ['public', 'members_only'], true) ? $guestMode : 'public';
+            $allowedBoards = $_POST['guest_allowed_boards'] ?? [];
+            if (!is_array($allowedBoards)) {
+                $allowedBoards = [];
+            }
+            $cfg['guest_allowed_boards'] = array_values(array_filter(array_map('trim', $allowedBoards)));
+
             PluginManager::savePluginConfig('weave-forum', $cfg, $data);
             save_data(dirname(__DIR__, 2) . '/data.json', $data);
             header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=settings_saved#tab-plugins');
