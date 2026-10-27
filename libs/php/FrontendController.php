@@ -226,12 +226,25 @@ class FrontendController {
      */
     public static function renderSection(string $sectionId, array $vars = []): void {
         extract($vars, EXTR_SKIP);
+
+        $customTypes = class_exists('SectionManager') ? SectionManager::getRegisteredSectionTypes() : [];
+        if (isset($customTypes[$sectionId]['render_callback']) && is_callable($customTypes[$sectionId]['render_callback'])) {
+            call_user_func($customTypes[$sectionId]['render_callback'], $vars);
+            return;
+        }
+
         $filePath = dirname(__DIR__, 2) . '/views/sections/' . $sectionId . '.php';
         if (file_exists($filePath)) {
             require $filePath;
         } else {
             // Hook für Plugins anbieten, eigene Sektionen zu rendern (Phase 13)
-            PluginManager::doAction('frontend_render_custom_section', $sectionId, $vars['data'] ?? []);
+            if (class_exists('PluginManager')) {
+                if (PluginManager::hasAction('frontend_render_section_' . $sectionId)) {
+                    PluginManager::doAction('frontend_render_section_' . $sectionId, $vars);
+                } else {
+                    PluginManager::doAction('frontend_render_custom_section', $sectionId, $vars['data'] ?? []);
+                }
+            }
         }
     }
 

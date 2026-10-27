@@ -220,6 +220,10 @@ class AdminController {
             case 'delete_pricing_plan':
                 self::handlePricingAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
+
+            case 'apply_project_preset':
+                self::handleApplyPreset($dataFile, $data, $success_msg, $error_msg);
+                break;
         }
 
         return [
@@ -238,6 +242,9 @@ class AdminController {
     public static function determineActiveTab(string $action): string {
         if (!empty($_POST['target_tab']) && is_string($_POST['target_tab'])) {
             return trim($_POST['target_tab']);
+        }
+        if ($action === 'apply_project_preset') {
+            return 'tab-dashboard';
         }
         if (strpos($action, 'shop') !== false || strpos($action, 'webtrees') !== false || strpos($action, 'inventory') !== false || strpos($action, 'inv_') !== false) {
             return 'tab-plugins';
@@ -2703,6 +2710,26 @@ class AdminController {
             } else {
                 $error_msg = 'Preispaket nicht gefunden.';
             }
+        }
+    }
+
+    /**
+     * Wendet ein ausgewähltes Projekt-Starter-Profil an (Phase: Backend-Vereinfachung).
+     */
+    protected static function handleApplyPreset(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        $presetKey = trim($_POST['project_preset'] ?? '');
+        if (empty($presetKey)) {
+            $error_msg = 'Ungültiges Projekt-Profil ausgewählt.';
+            return;
+        }
+
+        if (class_exists('SectionManager') && SectionManager::applyPreset($presetKey, $data)) {
+            save_data($dataFile, $data);
+            $presets = SectionManager::getPresets();
+            $pName = $presets[$presetKey]['name'] ?? $presetKey;
+            $success_msg = "Projekt-Profil „{$pName}“ erfolgreich aktiviert! Die sichtbaren Sektionen und die Menüführung wurden angepasst.";
+        } else {
+            $error_msg = 'Das ausgewählte Profil konnte nicht angewendet werden.';
         }
     }
 }

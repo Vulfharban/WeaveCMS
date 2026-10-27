@@ -1,0 +1,11 @@
+{
+    "name": "Workshops & Kursbuchungen",
+    "slug": "weave-workshops",
+    "version": "1.0.0",
+    "author": "WeaveCMS Core Team",
+    "description": "Modul für Kurs- und Workshop-Anbieter: Terminverwaltung, Teilnehmerlimits, Buchungs-Status, Einladungslinks und Kursimpressionen.",
+    "category": "events",
+    "icon": "event",
+    "entry_file": "plugin.php",
+    "requires_core": ">=1.0.0"
+}

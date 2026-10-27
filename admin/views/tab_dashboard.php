@@ -187,6 +187,82 @@
                 </div>
             </div>
 
+            <!-- 2b. PROJEKT-STARTER: PROFIL- & BRANCHENAUSWAHL (PHASE 21) -->
+            <?php 
+                $project_presets = SectionManager::getPresets();
+                $active_preset_key = $data['settings']['project_preset'] ?? 'all';
+                $is_admin = ($cur_user['role'] ?? '') === UserManager::ROLE_ADMIN;
+            ?>
+            <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; margin-bottom: 2.25rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom: 1.25rem;">
+                    <div>
+                        <h3 style="margin:0 0 0.35rem 0; font-size:1.15rem; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+                            <span class="material-icons" style="font-size:22px; color:var(--primary);">auto_awesome</span> Website-Typ &amp; Schnellstart-Profile
+                        </h3>
+                        <p style="margin:0; font-size:0.88rem; color:var(--text-secondary);">
+                            Passe mit 1 Klick die Menüführung und sichtbaren Module an dein Projekt an. Vorhandene Inhalte und Texte bleiben im Hintergrund sicher erhalten.
+                        </p>
+                    </div>
+                    <div>
+                        <span style="font-size:0.8rem; background:rgba(46,98,72,0.12); color:var(--primary); border:1px solid rgba(46,98,72,0.25); border-radius:20px; padding:4px 12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                            <span class="material-icons" style="font-size:15px;">check_circle</span> Aktives Profil: <?php echo htmlspecialchars($project_presets[$active_preset_key]['name'] ?? 'Benutzerdefiniert'); ?>
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                    <?php foreach ($project_presets as $pKey => $pDef): 
+                        $isActive = ($pKey === $active_preset_key);
+                    ?>
+                        <div style="border: 2px solid <?php echo $isActive ? 'var(--primary)' : 'var(--border-color)'; ?>; background: <?php echo $isActive ? 'rgba(46,98,72,0.04)' : 'var(--card-bg, #fff)'; ?>; border-radius: 14px; padding: 1.25rem; display:flex; flex-direction:column; justify-content:space-between; transition: all 0.2s ease; box-shadow: <?php echo $isActive ? '0 4px 12px rgba(46,98,72,0.1)' : 'none'; ?>;">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <div style="width:38px; height:38px; border-radius:10px; background:<?php echo $isActive ? 'var(--primary)' : 'rgba(0,0,0,0.06)'; ?>; color:<?php echo $isActive ? '#fff' : 'var(--text-primary)'; ?>; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                            <span class="material-icons" style="font-size:20px;"><?php echo htmlspecialchars($pDef['icon']); ?></span>
+                                        </div>
+                                        <strong style="font-size:1rem; color:var(--text-primary);"><?php echo htmlspecialchars($pDef['name']); ?></strong>
+                                    </div>
+                                    <?php if ($isActive): ?>
+                                        <span style="background:var(--primary); color:#fff; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:8px;">Aktiv</span>
+                                    <?php endif; ?>
+                                </div>
+                                <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.45; margin:0 0 1rem 0;">
+                                    <?php echo htmlspecialchars($pDef['description']); ?>
+                                </p>
+                            </div>
+
+                            <div>
+                                <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.75rem; display:flex; flex-wrap:wrap; gap:4px;">
+                                    <span style="font-weight:600; width:100%; margin-bottom:2px;">Module:</span>
+                                    <?php foreach ($pDef['active_sections'] as $secKey): ?>
+                                        <span style="background:rgba(0,0,0,0.05); padding:2px 6px; border-radius:6px; font-size:0.72rem;"><?php echo htmlspecialchars($secKey); ?></span>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <?php if ($is_admin): ?>
+                                    <?php if ($isActive): ?>
+                                        <button type="button" class="btn" style="width:100%; padding:7px 12px; font-size:0.82rem; background:rgba(46,98,72,0.15); color:var(--primary); border:1px solid rgba(46,98,72,0.3); cursor:default; display:flex; align-items:center; justify-content:center; gap:6px;" disabled>
+                                            <span class="material-icons" style="font-size:16px;">task_alt</span> Aktives Profil
+                                        </button>
+                                    <?php else: ?>
+                                        <form method="post" action="?tab=tab-dashboard" style="margin:0;">
+                                            <input type="hidden" name="action" value="apply_project_preset">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                            <input type="hidden" name="project_preset" value="<?php echo htmlspecialchars($pKey); ?>">
+                                            <input type="hidden" name="target_tab" value="tab-dashboard">
+                                            <button type="submit" class="btn btn-outline" style="width:100%; padding:7px 12px; font-size:0.82rem; display:flex; align-items:center; justify-content:center; gap:6px;">
+                                                <span class="material-icons" style="font-size:16px; color:var(--primary);">play_arrow</span> Profil aktivieren
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
             <!-- 3. ZWEI-SPALTEN MONITORING: VERLAUF & SICHERHEIT -->
             <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                 
