@@ -18,6 +18,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ## 📦 Feature Overview by Category
 
 ### 1. Core Architecture & Storage Engines
+
 | Feature | Description | Status |
 | :--- | :--- | :---: |
 | **Flat-File JSON Storage** | Runs out-of-the-box without database configuration (`data.json`). Ideal for small and medium-sized websites. | ✅ Integrated (v0.2.0) |
@@ -30,6 +31,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### 2. Design, Themes & Presentation Engine
+
 | Feature | Description | Status |
 | :--- | :--- | :---: |
 | **Dynamic Theme System** | Fully token-based styling using native CSS variables (`:root`). | ✅ Integrated |
@@ -48,6 +50,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### 3. Content Management & Section Content
+
 | Feature | Description | Status |
 | :--- | :--- | :---: |
 | **100% Content Autonomy** | Edit all headings, sublines, and text blurbs directly through the admin panel. | ✅ Integrated (v0.2.0) |
@@ -78,6 +81,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### 4. Legal Compliance & GDPR / Privacy
+
 | Feature | Description | Status |
 | :--- | :--- | :---: |
 | **GDPR Privacy Policy Editor** | Integrated editor for privacy policies in compliance with Art. 13 GDPR with Markdown support. | ✅ Integrated (v0.2.0) |
@@ -89,6 +93,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### 5. Backup & Disaster Recovery
+
 | Feature | Description | Status |
 | :--- | :--- | :---: |
 | **1-Click Data Backup (JSON)** | Exports all website text, configuration, and courses into a lightweight `.json` archive. | ✅ Integrated (v0.2.0) |
@@ -102,6 +107,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### 6. Communication, Email & Anti-Spam
+
 | Feature | Description | Status |
 | :--- | :--- | :---: |
 | **Authenticated SMTP Delivery** | Reliable email dispatch using PHPMailer over dedicated mail servers (TLS/SSL, ports 587, 465, 25). | ✅ Integrated |
@@ -115,6 +121,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### 7. Security & Administration
+
 | Feature | Description | Status |
 | :--- | :--- | :---: |
 | **Two-Factor Authentication** | Secure login requiring strong master password and 4-to-6 digit master PIN. | ✅ Integrated |
@@ -135,6 +142,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### 8. Installation, Deployment & Updates
+
 | Feature | Description | Status |
 | :--- | :--- | :---: |
 | **Webspace Installer & Pre-Flight Check** | Automatic setup wizard (`install.php`) with 5-part pre-flight audit (PHP environment, write permissions, extensions, web server rewrite, php.ini recommendations) and auto-locking. | ✅ Integrated (v0.9.5) |
@@ -151,6 +159,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### 9. E-Commerce, Shop & Extensions (Plugins)
+
 | Feature | Description | Status |
 | :--- | :--- | :---: |
 | **WeaveCMS Shop Plugin (`shop`)** | Complete e-commerce store with product catalog, off-canvas cart drawer (`#shop-cart-drawer`), floating cart badge, and live inventory validation. | ✅ Integrated (v0.9.0) |
@@ -161,7 +170,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 | **WERO European Instant Payment** | European Payments Initiative (EPI) payment gateway offering instant account-to-account settlement via dynamic EPC069-12 SEPA-QR codes (GiroCode) scanned in mobile banking apps. | ✅ Integrated (v0.9.0) |
 | **Backend Order Management** | Comprehensive orders table with status workflows (`Paid`, `Processing`, `Shipped`, `Completed`, `Cancelled`), customer data, and revenue stats. | ✅ Integrated (v0.9.0) |
 | **Webtrees Genealogy Integration (Same-Server)** | Embeds Webtrees family trees and genealogy charts directly into WeaveCMS. Enforced same-server policy blocks external remote URLs for privacy and security. | ✅ Integrated (v0.9.0) |
-| **Community Discussion Forum (`weave-forum`)** | Kunena- & Webtrees-inspired responsive community forum with 3-column layout (Forum, Statistics, Latest Post), 1440px wide-screen support, modular categories, sticky topics, solved status, and post reactions (Kudos). | ✅ Integrated (v1.3.1) |
+| **Community Discussion Forum (`weave-forum`)** | responsive community forum with 3-column layout (Forum, Statistics, Latest Post), 1440px wide-screen support, modular categories, sticky topics, solved status, and post reactions (Kudos). | ✅ Integrated (v1.3.1) |
 | **Dual Storage Engine & 1-Click Migration** | Freedom of choice for forum data storage between flat-file JSON (`data/forum_data.json`) and indexed relational databases (SQLite `data/forum.sqlite` / MySQL) with seamless 1-click in-place data migration. | ✅ Integrated (v1.3.1) |
 | **Forum User Management & RBAC (`weave-forum-users`)** | Community member system with roles (`forum_admin`, `moderator`, `expert`, `forum_user`), user profile management, GDPR data export/deletion, 1-click site admin sync, and automatic backend session recognition. | ✅ Integrated (v1.3.1) |
 | **Granular Access & Read Permissions** | Configurable forum access mode (*Public: all content freely readable* vs. *Protected: registration required to read*) with dynamic whitelist for public exceptions (e.g., Announcements, Welcome area). | ✅ Integrated (v1.3.1) |
@@ -175,7 +184,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 
 ### v1.3.1 (Community Discussion Forum, Access Control, Kunena UI & Markdown Engine)
 
-* **Kunena- & Webtrees-Inspired Discussion Forum (`weave-forum`):**
+* **Discussion Forum (`weave-forum`):**
   * **3-Column Layout & 1440px Width:** Maximizes widescreen desktop displays (container up to 1440px), color-coded category cards with collapsible sections, dedicated info, statistics, and latest-post columns, plus online users and community statistics widgets at page bottom.
   * **Dual Storage & 1-Click Migration:** Seamless support for flat-file JSON (`forum_data.json`) and indexed relational databases (SQLite `forum.sqlite` or MySQL) including zero-downtime data migration directly from the backend.
 * **Forum User Management & Permissions (`weave-forum-users`):**
@@ -202,6 +211,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### v1.3.0 (Central Media Manager, WebP/AVIF Image Pipeline & Content Revisions)
+
 * **Central Media Manager & Asset Hub (Phase 22):**
   * New top-level navigation tab *“Media Library”* between *Content & Pages* and *Design*.
   * Switchable grid and list views for uploaded photos, illustrations, vectors, and documents with file size indicators, MIME-type filters, live search, and sorting.
@@ -224,6 +234,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### v1.2.0 (Modernized Sections Kanban, Contact Anti-Scraping & UI Hardening)
+
 * **Modernized Kanban Board for Active/Inactive Sections (Content & Pages):**
   * **Intuitive Kanban Architecture:** Active Pages & Sections (Live) are positioned on the left (1.25× width with primary green accent) as the central workspace; the Inactive Module Pool on the right as component reservoir.
   * **Elimination of Wireframe Borders:** Refined glassmorphic surface cards (`border-radius: 14px`) replacing rough dashed outlines, with dynamic dropzone cues during drag-over.
@@ -240,6 +251,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ### v1.1.0 (Live Server Deployment, Production Hardening & Multi-Language Tabs / Phase 17)
+
 * **Live Server Deployment, SSL/HSTS Hardening & Production Security (Phase 17):**
   * **Strict HSTS Policy & SSL Preloading (17.1):** Configurable activation of `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` strictly on confirmed live domains with active SSL certificates.
   * **Hardened Production CSP & Subresource Integrity (17.2):** Tightened HTTP Content Security Policy (`script-src`, `style-src`, `object-src 'none'`, `form-action 'self'`) and SRI tag helper `SecurityManager::renderSriTag`.
@@ -253,6 +265,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
   * **Automatic Frontend Fallback Cascade:** Dynamic text resolution seamlessly falling back to primary language defaults when a translation is missing.
 
 ### v1.0.0 (Official Release 1.0.0 / Phase 20)
+
 * **In-Navbar Accessibility & UX Optimization:**
   * **Direct Menu Integration:** Dark/Light mode switch (🌙/☀️ with dynamic tooltip) and 3-step font size zoom (A- / A / A+) embedded seamlessly into header navigation (`header_nav.php`) and mobile slide-in drawer (`slide_mobile_nav.php`).
   * **Elimination of Redundancy:** Removed standalone 38px top accessibility bar (`accessibility_bar.php`) and avoided duplicate language switchers when accessibility is enabled.
@@ -265,6 +278,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
   * **Asynchronous AJAX Synchronization:** Instant persistence of sort order and visibility without page reloads via `AdminController::sync_sections_pool` with animated toast feedback.
 
 ### v0.9.7
+
 * **Menu Architecture, Design Position Selector & Plugin Hooks (Phase 19):**
   * **Menu Position & Type Selector:** Admin settings under *Design & Appearance* (`tab_settings.php`) with 3 interactive tiles: `Horizontal Minimal (Standard)`, `Horizontal with Icons`, and `Vertical (Sidebar Navigation)`.
   * **Alignment Selector:** Configurable sidebar orientation (fixed `left` or `right` with responsive collapse <= 992px).
@@ -273,6 +287,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
   * **100% Test Coverage:** 28/28 automated tests (`test_phase19.php`) passing.
 
 ### v0.9.6
+
 * **Flexible Website Architecture & Modular Landing Pages (Phase 18):**
   * **Global Architecture Switcher:** Selectable in *Design & Appearance* between `One-Pager`, `Classic Multi-Page Website` (with separate `?page=slug` URLs), and `Individual / Hybrid Mode`.
   * **Modular Section Landing Page Builder:** Extended page management (`tab_pages.php`) with stacked section pages, custom slugs, individual SEO tags, and dedicated template `page_modular.php`.
@@ -280,6 +295,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
   * **Plugin System & Accessibility Hardening:** Resolved closure reference warnings in `PluginManager`, added bidirectional section sync, and fixed captcha icon keys.
 
 ### v0.9.5
+
 * **Branding & Logo Management (Phase 11):**
   * 4 logo styles: Pure text, custom image logo, icon + text combination, and SVG nature emblems (paw prints).
   * Safe file upload with vector sanitization (`ImageUploader::sanitizeSvg`) against XSS scripts and malicious event handlers.
@@ -294,6 +310,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
   * MySQL live privilege test (`CREATE TABLE`, `INSERT`, `SELECT`, `DROP`) with enforced validation before progressing.
 
 ### v0.9.0
+
 * **WeaveCMS Inventory Management Plugin (`plugins/inventory`):**
   * SKU, EAN barcodes, shelf/bin locations, purchasing & retail prices, margin analytics (€ / %), and stock valuation.
   * Reorder alert levels with warning badges (*Low Stock*, *Sold Out*, *Optimal*).
@@ -313,6 +330,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
   * Download cards with platform tags, changelog drawer, and bot-resistant counter proxy.
 
 ### v0.8.5
+
 * **Modular Section & Menu Titles:** Quick-edit bar (`section_nav_bar.php`) for menu label and visibility in all content tabs.
 * **Custom Subpages with Native i18n:** Multi-language tabs in page editor drawer (`tab_pages.php`).
 * **Sticky Header Clearance:** Proper top clearance on standalone subpages and high-contrast back buttons.
@@ -320,30 +338,38 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 * **Full Blog & Magazine Module:** Articles with featured images, Markdown, author tags, and reading views.
 
 ### v0.8.0
+
 * **Multi-Language Architecture (12 European Languages):** DE, EN, FR, IT, NL, ES, PT, EL, DA, NO, SV, FI with `LanguageManager.php`, cookie persistence, and SEO `hreflang` tags.
 * **OOP Refactoring & View Modularization:** Streamlined `admin/index.php` and `index.php` into clean MVC-style partials and dedicated OOP managers.
 * **Hardened Security:** Comprehensive `.htaccess` rules blocking access to configs, logs, sqlite files, and template directories.
 
 ### v0.7.0
+
 * **1-Click Two-Way Data Migration:** Bidirectional converter between Flat-File JSON and MySQL/MariaDB with pre-migration safety snapshots.
 
 ### v0.6.0
+
 * **Modular Sections Engine:** Flexible section order and visibility management via `SectionManager.php` with automatic navigation sync.
 
 ### v0.5.0
+
 * **Dual Storage Driver:** Abstracted persistence layer with atomic `JsonStorageDriver` and transaction-safe `PdoSqlStorageDriver`.
 * **Installer Expansion:** Database configuration step with live connection test.
 
 ### v0.4.0
+
 * **Webspace Installer:** 4-step setup wizard with environment health check and administrative password/PIN initialization.
 
 ### v0.3.0
+
 * **SEO & Social Sharing:** Dedicated SEO tab with live SERP preview, OpenGraph tags, and social card graphics.
 * **Contact Inquiries Mailbox:** Local storage and management of contact form submissions.
 
 ### v0.2.0
+
 * **Backup & Restore System:** 1-click JSON/ZIP export and PIN-protected restoration.
 * **GDPR Legal Management:** Built-in privacy policy editor and legally vetted defaults.
 
 ### v0.1.0-alpha
+
 * **Design & Theme Engine:** Tokenized CSS styles, flexible gallery layouts (Ambient-Blur, Masonry, Editorial, Classic), and SMTP communication.

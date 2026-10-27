@@ -18,6 +18,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ## 📦 Funktions-Übersicht nach Kategorien
 
 ### 1. Kern-Architektur & Speicher-Engines
+
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **Flat-File JSON-Speicher** | Funktioniert out-of-the-box ohne Datenbankeinrichtung (`data.json`). Ideal für kleine und mittlere Websites. | ✅ Integriert (v0.2.0) |
@@ -30,6 +31,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### 2. Design-, Theme- & Darstellungs-Engine
+
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **Dynamisches Theme-System** | Vollständig tokenbasiert über CSS-Variablen (`:root`). | ✅ Integriert |
@@ -48,6 +50,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### 3. Inhaltsverwaltung & Sektionstexte
+
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **100 % Text-Autonomie** | Alle Überschriften, Untertitel und Infotexte aller Sektionen sind direkt im Adminbereich editierbar. | ✅ Integriert (v0.2.0) |
@@ -86,6 +89,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### 4. Rechtssicherheit & DSGVO
+
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **DSGVO-Datenschutzerklärung** | Integrierter Editor für die Datenschutzerklärung nach Art. 13 DSGVO mit Markdown-Formatierung. | ✅ Integriert (v0.2.0) |
@@ -97,6 +101,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### 5. Datensicherung & Wiederherstellung (Backup/Restore)
+
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **1-Klick-Datensicherung (JSON)** | Sichert alle Website-Texte, Einstellungen und Kurse in einer kompakten `.json`-Datei. | ✅ Integriert (v0.2.0) |
@@ -110,6 +115,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### 6. Kommunikation, E-Mail & Spamschutz
+
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **Authentifizierter SMTP-Versand** | Zuverlässiger E-Mail-Versand via PHPMailer über eigene Mailserver (TLS/SSL, Ports 587, 465, 25). | ✅ Integriert |
@@ -123,6 +129,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### 7. Sicherheit & Administration
+
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **Zweistufige Authentifizierung** | Login mit sicherem Passwort plus zusätzlichem 4- bis 6-stelligem PIN-Code. | ✅ Integriert |
@@ -143,6 +150,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### 8. Installation, Rollout & Updates
+
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **Erweiterter Webspace-Installer & Pre-Flight Check** | Automatischer Installations-Assistent (`install.php`) mit 5-teiliger Vorab-Systemprüfung (PHP-Umgebung, Dateirechte, PHP-Module, Webserver & URL-Rewrite, php.ini Empfehlungen) und Auto-Locking. | ✅ Integriert (v0.9.5) |
@@ -160,6 +168,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### 9. E-Commerce, Shop & Erweiterungen (Plugins)
+
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **WeaveCMS Shop-Plugin (`shop`)** | Vollwertiges E-Commerce-System mit Produktkatalog, digitalem Warenkorb-Drawer (`#shop-cart-drawer`), Floating-Cart-Badge und Bestandsprüfung. | ✅ Integriert (v0.9.0) |
@@ -170,7 +179,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **WERO European Instant Payment** | Das offizielle europäische Banken-Zahlverfahren der European Payments Initiative (EPI). Direkte Konto-zu-Konto Sofortzahlung via dynamic EPC069-12 SEPA-QR-Code (GiroCode) und Banking-App-Freigabe. | ✅ Integriert (v0.9.0) |
 | **Bestellverwaltung im Backend** | Übersicht aller eingegangenen Bestellungen, Kundendaten, Status-Workflow (`Bezahlt`, `In Bearbeitung`, `Versendet`, `Abgeschlossen`, `Storniert`) und Umsatz-Statistiken. | ✅ Integriert (v0.9.0) |
 | **Webtrees Stammbaum-Integration (Same-Server)** | Bindet Webtrees Stammbäume und Genealogie-Diagramme direkt in WeaveCMS ein. Aus Sicherheits- und Datenschutzgründen strikt auf denselben Server beschränkt (externe URLs werden unterbunden). | ✅ Integriert (v0.9.0) |
-| **Community-Diskussionsforum (`weave-forum`)** | Kunena- & Webtrees-inspiriertes, responsives Diskussionsforum mit 3-Spalten-Layout (Forum, Statistiken, Letzter Beitrag), 1440px Breiten-Support, modularen Bereichen, Sticky-Themen, Gelöst-Markierung und Beitragsreaktionen (Kudos). | ✅ Integriert (v1.3.1) |
+| **Community-Diskussionsforum (`weave-forum`)** | responsives Diskussionsforum mit 3-Spalten-Layout (Forum, Statistiken, Letzter Beitrag), 1440px Breiten-Support, modularen Bereichen, Sticky-Themen, Gelöst-Markierung und Beitragsreaktionen (Kudos). | ✅ Integriert (v1.3.1) |
 | **Dualer Foren-Speicher & Migration** | Wahlfreiheit für Foreninhalte zwischen Flat-File JSON (`data/forum_data.json`) und indizierter relationaler Datenbank (SQLite `data/forum.sqlite` / MySQL) mit integrierter 1-Klick-Datenmigration. | ✅ Integriert (v1.3.1) |
 | **Foren-Benutzerverwaltung & RBAC (`weave-forum-users`)** | Mitgliedersystem mit Rollen (`forum_admin`, `moderator`, `expert`, `forum_user`), Profilverwaltung, DSGVO-Export/Löschung, 1-Klick-Übernahme des WeaveCMS-Admins und automatischer Backend-Session-Erkennung. | ✅ Integriert (v1.3.1) |
 | **Granulare Zugangs- & Lesesteuerung** | Konfigurierbarer Foren-Zugangsmodus (*Öffentlich: alles frei lesbar* vs. *Geschützt: Registrierung zum Lesen erforderlich*) mit dynamischer Whitelist für frei lesbare Ausnahmen (z. B. Ankündigungen, Willkommen). | ✅ Integriert (v1.3.1) |
@@ -182,7 +191,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ### v1.3.1 (Community-Diskussionsforum, Zugangssteuerung, Kunena-UI & Markdown-Engine)
 
-* **Kunena- & Webtrees-inspiriertes Diskussionsforum (`weave-forum`):**
+* **Diskussionsforum (`weave-forum`):**
   * **3-Spalten-Layout & 1440px-Breite:** Vollständige Ausnutzung breiter Displays (Container bis 1440px), farbcodierte Kategoriekarten mit einklappbaren Bereichen, separate Info-, Statistik- und Letzter-Beitrag-Spalten sowie Online-User- und Foren-Statistik-Widgets am Seitenende.
   * **Dualer Speicher & 1-Klick-Migration:** Volle Unterstützung von Flat-File JSON (`forum_data.json`) und indizierter relationaler Datenbank (SQLite `forum.sqlite` oder MySQL) inklusive unterbrechungsfreier Datenmigration direkt im Backend.
 * **Foren-Benutzerverwaltung & Berechtigungen (`weave-forum-users`):**
@@ -209,6 +218,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### v1.3.0 (Zentrale Medienverwaltung, WebP/AVIF-Bildpipeline & Content-Revisions)
+
 * **Zentraler Medien-Manager & Asset-Hub (Phase 22):**
   * Neuer Hauptreiter *„Mediathek“* in der oberen Navigation zwischen *Inhalte & Seiten* und *Darstellung*.
   * Umschaltbare Kachel- und Listenansicht aller hochgeladenen Bilder, Grafiken, Vektoren und Dokumente mit Dateigrößenanzeige, Filter nach Medientyp, Live-Suche und Sortierung.
@@ -231,6 +241,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### v1.2.0 (Modernes Sektionen-Kanban, Kontakt-Spamschutz & UI-Härtung)
+
 * **Modernisiertes Kanban-Board für Sektionen & Modul-Pool (Inhalte & Seiten):**
   * **Logische Kanban-Architektur:** Aktive Seiten & Sektionen (Live) stehen links (1.25× Breite mit Primärakzent) als Hauptarbeitsbereich; inaktiver Modul-Pool rechts als Baustein-Vorrat.
   * **Entfernung der Wireframe-Rahmen:** Sanfte, abgerundete Oberflächenkarten (`border-radius: 14px`) anstelle unfertiger gestrichelter Linien; dynamische Drop-Indikation bei Drag-Over.
@@ -247,6 +258,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 ---
 
 ### v1.1.0 (Live-Server-Deployment, Produktions-Härtung & Universelle Sprach-Tabs / Phase 17)
+
 * **Live-Server-Deployment, SSL/HSTS-Härtung & Produktions-Sicherheit (Phase 17):**
   * **Strikte HSTS-Policy & SSL-Preloading (17.1):** Konfigurierbare Aktivierung von `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` exklusiv für bestätigte Live-Domains mit aktivem SSL-Zertifikat.
   * **Gehärtete Production-CSP & Subresource Integrity (17.2):** Schärfung der HTTP Content Security Policy (`script-src`, `style-src`, `object-src 'none'`, `form-action 'self'`) sowie SRI-Tag-Generator `SecurityManager::renderSriTag`.
@@ -260,6 +272,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * **Automatische Frontend-Kaskade:** Dynamische Textauflösung mit Fallback auf die Hauptsprache.
 
 ### v1.0.0 (Offizielles Release 1.0.0 / Phase 20)
+
 * **In-Navbar Barrierefreiheit & UX-Bereinigung:**
   * **Direkte Menü-Integration:** Dunkel-/Hell-Modus-Umschalter (🌙/☀️ mit dynamischem Tooltip) und 3-stufiger Basisschriftarten-Zoom (A- / A / A+) nahtlos in die Kopfzeilennavigation (`header_nav.php`) und den mobilen Slide-in-Drawer (`slide_mobile_nav.php`) integriert.
   * **Beseitigung von Redundanzen:** Wegfall der separaten 38px-Top-Bar (`accessibility_bar.php`) und Beseitigung doppelter Sprachwechsler bei aktivierter Barrierefreiheit.
@@ -272,6 +285,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * **Asynchrone AJAX-Synchronisation:** Blitzschnelles Speichern von Reihenfolge und Modul-Sichtbarkeit ohne Seiten-Reload (`AdminController::sync_sections_pool`) inklusive animiertem Toast-Feedback.
 
 ### v0.9.7
+
 * **Menü-Aufbau, Position-Selector im Design-Bereich & Plugin-Theme-Erweiterbarkeit (Phase 19):**
   * **Menü-Position & Typ-Selector im Design-Tab (19.1):**
     * Konfigurationsfeld im Adminbereich unter *„Darstellung & Design“* (`tab_settings.php`) mit interaktiven Kacheln:
@@ -290,6 +304,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * **100 % Testabdeckung:** 28/28 automatisierte Tests (`test_phase19.php`) validieren Menüstil-Umschaltung, Fallbacks, Icon-Resolution und Hook-Ausführung.
 
 ### v0.9.6
+
 * **Flexible Website-Architektur & Modulare Landingpages (Phase 18):**
   * **Globaler Architektur-Wahlschalter (18.1):**
     * Konfigurierbar im Reiter *„Darstellung & Design“* (`tab_settings.php`) mit 3 wählbaren Kacheln:
@@ -312,6 +327,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * **100 % Testabdeckung:** 25/25 Tests für Phase 13 und 7/7 Tests für Phase 18 laufen fehlerfrei durch.
 
 ### v0.9.5
+
 * **Logo- & Branding-Verwaltung (Phase 11):**
   * **4 flexible Logo-Typen:** Wählbar zwischen *Reiner Text* (Typografie aus Einstellungen), *Eigenes Bild-Logo* (vollflächige Header-Grafik), *Icon & Text kombiniert* sowie *SVG-Naturmotiven* (Hundetatzen).
   * **Sicherer Datei-Upload & XSS-Schutz:** Upload von SVG, PNG, WebP und JPG mit automatischer Vektorbereinigung (`ImageUploader::sanitizeSvg`) gegen schädliche Skripte, Event-Handler (`onload=`, `onerror=`) oder Javascript-URIs.
@@ -338,6 +354,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * Behebung des Tab-Redirects beim Ein- und Ausblenden von Seiten (stabiler Verbleib im Inhalts-Tab `tab-pages`).
 
 ### v0.9.0
+
 * **WeaveCMS Lager- & Artikelverwaltung (`plugins/inventory`):**
   * **Zentrale Artikelstammdaten:** Verwaltung von Artikeln mit Artikelnummer (SKU), Barcode/EAN, Kategorie, Einheit (Stück, kg, m, etc.), Lagerort/Regalfach (z. B. Regal A-03), Lieferant und Lieferanten-Artikelnr.
   * **Kalkulation, Margen & Lagerwert:** Erfassung von Netto-Einkaufspreisen (EK) und Verkaufspreisen (VK); automatische Berechnung von Rohgewinn/Marge in Euro und Prozent sowie dynamische Gesamtwert-Ermittlung (Gesamtlagerwert EK, Verkaufswert VK und potenzieller Rohgewinn).
@@ -370,6 +387,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * Zuschaltbare Top-Bar mit Live Dark/Light-Mode (🌙/☀️ via `data-theme="dark"` und `localStorage`), 3-stufigem Basisschriftarten-Zoom (85 % bis 125 %) und integriertem Sprachwechsler.
 
 ### v0.8.5
+
 * **Individuelle Menü- & Sektionstitel für alle Inhaltsarten:**
   * **Modulare Schnell-Leiste (`section_nav_bar.php`):** Direkte Bearbeitung von Titel fürs Menü (`nav_label`), Sektions-Titel (`title`) und Menü-Sichtbarkeit (`in_nav`) direkt im jeweiligen Inhalts-Tab (Galerie, Workshops, Blog, FAQs, Team, Preise, Downloads, Impressionen) ohne Tab-Wechsel.
   * **Zentraler Sektionen-Manager:** Dediziertes Verwaltungsmodal unter *„Texte & Übersetzungen“* (`tab_texts.php`) zur Bearbeitung von Menü-Titeln aller Hauptsektionen inklusive mehrsprachiger Übersetzungen (`translations`) für alle aktiven Sprachen.
@@ -390,6 +408,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * **Freie Trigger-Platzierung:** Flexible Steuerung der Kontakt- und Impressum-Trigger im Frontend unter *„Darstellung & Design“* (`Nur Header`, `Nur Footer`, `Header & Footer (Beides)`).
 
 ### v0.8.0
+
 * **Mehrsprachigkeit & Internationalisierung (Phase 8):**
   * **12 europäische Sprachen out-of-the-box:** Deutsch, Englisch, Französisch, Italienisch, Niederländisch, Spanisch, Portugiesisch, Griechisch, Dänisch, Norwegisch, Schwedisch und Finnisch (West-/Südeuropa & Skandinavien).
   * **Modulare Sprachdateien & i18n-Engine:** Dedizierte `libs/php/LanguageManager.php` mit Cookie-Persistenz (`weave_lang`), GET-Param-Wechsler (`?lang=xx`), Browser-Locale-Erkennung und Fallback-Kaskade (Content-Übersetzung -> Primärsprache -> System-Default).
@@ -404,6 +423,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * **Volle Kompatibilität mit dem Installer:** `install.php` und `Installer.php` bleiben vollständig nahtlos kompatibel mit den neuen Speicher- und View-Strukturen.
 
 ### v0.7.0
+
 * **1-Klick-Daten-Migration & Dualer Speicher-Treiber (Phase 7 vollständig):**
   * Integriertes Migrationswerkzeug im Adminbereich unter *„Sicherheit & System“*.
   * Nahtlose Zwei-Wege-Migration: Flat-File JSON (`data.json`) ⇄ MySQL/MariaDB (`weave_documents`).
@@ -413,6 +433,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * Dynamische Status-Badge-Anzeige (`Aktiv & Bereit` vs. `Notfall-Fallback`).
 
 ### v0.6.0
+
 * **Modulare Sektionen & Universeller Seiten-Manager (Phase 6):**
   * Datenmodell für flexible Sektionen (`sections` in `data.json`) mit `id`, `type`, `title`, `nav_label`, `visible` und `sort_order`.
   * `SectionManager.php` zur automatischen Normalisierung, Sichtbarkeitsprüfung und Bereitstellung dynamischer Navigationspunkte.
@@ -421,6 +442,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * Automatische Synchronisation der Menüeinträge in Desktop- und Mobil-Navigation.
 
 ### v0.5.0
+
 * **Dualer Speicher-Treiber (Phase 7 vorbereitet):**
   * Data Access Layer mit `StorageDriverInterface`, atomarem `JsonStorageDriver` (Schreibschutz via `.tmp` und Rename), transaktionssicherem `PdoSqlStorageDriver` (MySQL/MariaDB via PDO) und `StorageManager` Factory mit automatischem Notfall-Fallback auf JSON.
   * Transparente Weiternutzung von `load_data()` und `save_data()` in [config.php](file:///c:/xampp/htdocs/WeaveCMS/config.php).
@@ -431,6 +453,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 * **Universelle Workshop-Benennung:** Bereinigung veralteter themenspezifischer Bezeichnungen auf *„Kurse & Workshops“* im Frontend, Backend und in den Datenvorlagen.
 
 ### v0.4.0
+
 * **Webspace-Installer & Setup-Assistent (Phase 5):**
   * Geführter 4-Schritte-Assistent in [install.php](file:///c:/xampp/htdocs/WeaveCMS/install.php) mit modernem Step-Progress-Design.
   * Schritt 1 (Health-Check): Automatische Prüfung von PHP-Version (>= 8.0), Schreibrechten für `data/`, `images/uploads/`, `backups/` sowie PHP-Modulen (`pdo`, `pdo_mysql`, `pdo_sqlite`, `gd`, `mbstring`, `json`, `curl`).
@@ -440,16 +463,19 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * Einmaliges interaktives Willkommens-Modal im Adminbereich mit Funktionsüberblick.
 
 ### v0.3.0
+
 * **SEO & Social-Sharing (Phase 3):** Eigener Administrations-Reiter *„SEO & Sharing“* mit Echtzeit-Vorschau (Google SERP Snippet & WhatsApp/Facebook Card), Zeichenzählern (60 / 155 Zeichen), Roboter-Steuerung, Canonical URL und Sharing-Bild Upload.
 * **Dynamische Head-Generierung:** Vollständige Ausgabe von Title, Description, Keywords, Robots, Canonical, OpenGraph (`og:*`) und Twitter Cards (`twitter:*`) im Frontend.
 * **Kontaktanfragen-Postfach (Phase 4):** Lokale Protokollierung von Formularanfragen in `data/contacts.json`, Backend-Reiter *„Kontaktanfragen“* mit Zähler-Badge, Status-Management und Schnellaktionen.
 
 ### v0.2.0
+
 * **Datensicherung & Restore (Phase 2):** Integriertes Backup-System mit 1-Klick JSON/ZIP-Export, PIN-gesichertem Restore und Verzeichnisschutz.
 * **DSGVO & Rechtstexte (Phase 1):** Vollständige Verwaltung der Datenschutzerklärung im Backend mit rechtssicherer Standardvorlage und Markdown-Rendering im Frontend.
 * **Sektionstexte (Phase 1):** 100 % dynamische Titel, Untertitel und Einleitungstexte für alle Hauptsektionen (Hero, Galerie, Kurse, Impressionen, Kontakt).
 
 ### v0.1.0-alpha
+
 * **Design-Engine:** Tokenbasiertes Theme-System mit kuratierten Farbpaletten, flexibler Galerie (Ambient-Blur, Masonry, Editorial, Classic) und Lightbox.
 * **Hybrid-Kommunikation:** SMTP-Versand via PHPMailer, Mailto-Fallback und barrierefreier Symbol-Spamschutz.
 * **Inhaltsmodule:** Kurse, Impressionen, Galerie-Kategorien und responsive Navigation.
