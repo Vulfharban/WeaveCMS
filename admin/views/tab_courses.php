@@ -21,7 +21,7 @@ $all_languages = LanguageManager::getSupportedLanguages();
 ?>
             <!-- Add new Course -->
             <div class="card" style="padding: 2.5rem; margin-bottom: 2.5rem;">
-                <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Neuen Kurs / Workshop planen &amp; Einladungslink generieren</h2>
+                <h2 style="color: var(--primary); margin-bottom: 1.5rem;"><?php echo __a('admin.courses.add_heading', 'Neuen Flechtkurs anlegen'); ?></h2>
                 <form method="POST" action="">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                     <input type="hidden" name="action" value="add_course">
@@ -29,7 +29,7 @@ $all_languages = LanguageManager::getSupportedLanguages();
                     <?php if (count($active_langs) > 1): ?>
                         <!-- Sprach-Tabs Neuer Kurs -->
                         <div style="margin-bottom: 1.25rem;">
-                            <label style="font-weight:700; color:var(--text-primary); font-size:0.9rem; margin-bottom:0.5rem; display:block;">Inhaltssprachen:</label>
+                            <label style="font-weight:700; color:var(--text-primary); font-size:0.9rem; margin-bottom:0.5rem; display:block;"><?php echo __a('admin.courses.lang_content', 'Inhalte auf'); ?>:</label>
                             <div style="display:flex; gap:6px; border-bottom:1px solid var(--border-color); padding-bottom:4px;">
                                 <?php foreach ($active_langs as $idx => $al): 
                                     $is_prim = ($al === $primary_lang);
@@ -41,7 +41,7 @@ $all_languages = LanguageManager::getSupportedLanguages();
                                             onclick="switchCourseLangTab('add_course', '<?php echo $al; ?>')"
                                             style="padding: 5px 12px; font-size: 0.85rem; display:flex; align-items:center; gap:6px;">
                                         <span><?php echo $lang_info['flag']; ?></span>
-                                        <span><?php echo htmlspecialchars($lang_info['name']); ?><?php echo $is_prim ? ' (Hauptsprache)' : ''; ?></span>
+                                        <span><?php echo htmlspecialchars($lang_info['name']); ?><?php echo $is_prim ? ' ' . __a('admin.courses.primary_lang_suffix', '(Hauptsprache)') : ''; ?></span>
                                     </button>
                                 <?php endforeach; ?>
                             </div>
@@ -52,26 +52,26 @@ $all_languages = LanguageManager::getSupportedLanguages();
                     <div id="add_course-lang-content-<?php echo $primary_lang; ?>" class="add_course-lang-content">
                         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
                             <div class="form-group">
-                                <label>Kurstitel * <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span></label>
-                                <input type="text" name="title" class="form-control" placeholder="z. B. Grundkurs Weidenflechten" required>
+                                <label><?php echo __a('admin.courses.field_title', 'Kurstitel:'); ?> * <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span></label>
+                                <input type="text" name="title" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.placeholder_title', 'z. B. Weidenflechten für Einsteiger')); ?>" required>
                             </div>
                             <div class="form-group">
-                                <label>Datum *</label>
-                                <input type="text" name="date_string" class="form-control" placeholder="z. B. Samstag, 15. Oktober 2026" required>
+                                <label><?php echo __a('admin.courses.field_date', 'Datum:'); ?> *</label>
+                                <input type="text" name="date_string" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.placeholder_date', 'z. B. Samstag, 15. November 2026')); ?>" required>
                             </div>
                             <div class="form-group">
-                                <label>Uhrzeit *</label>
-                                <input type="text" name="time" class="form-control" placeholder="z. B. 10:00 - 16:00 Uhr" value="10:00 - 16:00 Uhr" required>
+                                <label><?php echo __a('admin.courses.field_time', 'Uhrzeit:'); ?> *</label>
+                                <input type="text" name="time" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.placeholder_time', 'z. B. 10:00 – 16:00 Uhr')); ?>" value="10:00 – 16:00 Uhr" required>
                             </div>
                             <div class="form-group">
-                                <label>Veranstaltungsort *</label>
-                                <input type="text" name="location" class="form-control" placeholder="z. B. Kraaker Straße 14, 19077 Rastow" value="Werkstatt Kraaker Straße 14, 19077 Rastow" required>
+                                <label><?php echo __a('admin.courses.field_location', 'Ort / Treffpunkt:'); ?> *</label>
+                                <input type="text" name="location" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.placeholder_location', 'z. B. Flechtwerkstatt')); ?>" value="Werkstatt Kraaker Straße 14, 19077 Rastow" required>
                             </div>
                         </div>
 
                         <div class="form-group" style="margin-top: 1rem;">
-                            <label>Kursbeschreibung &amp; Inhalte <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span></label>
-                            <textarea name="description" class="form-control" rows="3" placeholder="Was lernen die Teilnehmer? Welche Materialien und Pausengetränke sind inklusive?"></textarea>
+                            <label><?php echo __a('admin.courses.field_desc', 'Beschreibung:'); ?> <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span></label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="<?php echo htmlspecialchars(__a('admin.courses.placeholder_desc', 'Kurze Übersicht was geflochten wird, Material etc.')); ?>"></textarea>
                         </div>
                     </div>
 
@@ -81,73 +81,74 @@ $all_languages = LanguageManager::getSupportedLanguages();
                         ?>
                         <div id="add_course-lang-content-<?php echo $al; ?>" class="add_course-lang-content" style="display:none;">
                             <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 0.6rem 0.9rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
-                                ℹ️ Übersetze Titel, Datum, Uhrzeit und Beschreibung für Besucher mit Sprache <strong><?php echo $lang_info['flag'] . ' ' . htmlspecialchars($lang_info['name']); ?></strong>. Falls leer, wird die Hauptsprache verwendet.
+                                ℹ️ <?php echo __a('admin.courses.trans_info', 'Übersetzungen für aktivierte Sprachen:'); ?> <strong><?php echo $lang_info['flag'] . ' ' . htmlspecialchars($lang_info['name']); ?></strong>.
                             </div>
                             <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
                                 <div class="form-group">
-                                    <label>Kurstitel (<?php echo htmlspecialchars($lang_info['name']); ?>)</label>
-                                    <input type="text" name="trans_<?php echo $al; ?>_title" class="form-control" placeholder="z. B. Willow Weaving Basics">
+                                    <label><?php echo __a('admin.courses.field_title_trans', 'Kurstitel ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])]); ?></label>
+                                    <input type="text" name="trans_<?php echo $al; ?>_title" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.field_title_trans', 'Kurstitel ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])])); ?>">
                                 </div>
                                 <div class="form-group">
-                                    <label>Datum (<?php echo htmlspecialchars($lang_info['name']); ?>)</label>
-                                    <input type="text" name="trans_<?php echo $al; ?>_date_string" class="form-control" placeholder="z. B. Saturday, October 15, 2026">
+                                    <label><?php echo __a('admin.courses.field_date_trans', 'Datum ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])]); ?></label>
+                                    <input type="text" name="trans_<?php echo $al; ?>_date_string" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.field_date_trans', 'Datum ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])])); ?>">
                                 </div>
                                 <div class="form-group">
-                                    <label>Uhrzeit (<?php echo htmlspecialchars($lang_info['name']); ?>)</label>
-                                    <input type="text" name="trans_<?php echo $al; ?>_time" class="form-control" placeholder="z. B. 10:00 AM - 4:00 PM">
+                                    <label><?php echo __a('admin.courses.field_time_trans', 'Uhrzeit ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])]); ?></label>
+                                    <input type="text" name="trans_<?php echo $al; ?>_time" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.field_time_trans', 'Uhrzeit ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])])); ?>">
                                 </div>
                                 <div class="form-group">
-                                    <label>Veranstaltungsort (<?php echo htmlspecialchars($lang_info['name']); ?>)</label>
-                                    <input type="text" name="trans_<?php echo $al; ?>_location" class="form-control" placeholder="z. B. Workshop Studio Rastow">
+                                    <label><?php echo __a('admin.courses.field_location_trans', 'Ort ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])]); ?></label>
+                                    <input type="text" name="trans_<?php echo $al; ?>_location" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.field_location_trans', 'Ort ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])])); ?>">
                                 </div>
                             </div>
 
                             <div class="form-group" style="margin-top: 1rem;">
-                                <label>Kursbeschreibung (<?php echo htmlspecialchars($lang_info['name']); ?>)</label>
-                                <textarea name="trans_<?php echo $al; ?>_description" class="form-control" rows="3" placeholder="Description in <?php echo htmlspecialchars($lang_info['name']); ?>..."></textarea>
+                                <label><?php echo __a('admin.courses.field_desc_trans', 'Beschreibung ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])]); ?></label>
+                                <textarea name="trans_<?php echo $al; ?>_description" class="form-control" rows="3" placeholder="<?php echo htmlspecialchars(__a('admin.courses.field_desc_trans', 'Beschreibung ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])])); ?>"></textarea>
                             </div>
                         </div>
                     <?php endforeach; ?>
 
                     <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; margin-bottom: 1.5rem; background:rgba(0,0,0,0.02); border:1px solid var(--border-color); border-radius:12px; padding:1rem;">
                         <div class="form-group">
-                            <label>Preis (z. B. 85 €)</label>
-                            <input type="text" name="price" class="form-control" placeholder="85 €" value="85 €">
+                            <label><?php echo __a('admin.courses.field_price', 'Preis (z. B. 85 €):'); ?></label>
+                            <input type="text" name="price" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.placeholder_price', 'z. B. 85 € inkl. Material')); ?>" value="85 €">
                         </div>
                         <div class="form-group">
-                            <label>Max. Teilnehmer</label>
+                            <label><?php echo __a('admin.courses.field_max', 'Max. Plätze:'); ?></label>
                             <input type="number" name="max_participants" class="form-control" value="8" min="1">
                         </div>
                         <div class="form-group">
-                            <label>Bereits gebucht</label>
+                            <label><?php echo __a('admin.courses.field_booked', 'Bereits gebucht:'); ?></label>
                             <input type="number" name="current_participants" class="form-control" value="0" min="0">
                         </div>
                         <div class="form-group" style="display:flex; align-items:center; height:100%; padding-top:1.5rem;">
                             <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                                 <input type="checkbox" name="available" checked style="width:18px; height:18px;">
-                                Kurs ist buchbar (aktiv)
+                                <?php echo __a('admin.courses.active_checkbox', 'Kurs öffentlich auf der Website anzeigen'); ?>
                             </label>
                         </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary">
-                        <span class="material-icons" style="font-size:18px; vertical-align:middle;">event_note</span> Kurs anlegen &amp; Einladungslink erstellen
+                        <span class="material-icons" style="font-size:18px; vertical-align:middle;">event_note</span> <?php echo __a('admin.courses.btn_create', 'Kurs anlegen'); ?>
                     </button>
                 </form>
             </div>
 
             <!-- List, Edit & Delete Courses -->
             <div class="card" style="padding: 2.5rem;">
-                <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Geplante Kurse &amp; Workshops verwalten &amp; teilen</h2>
+                <h2 style="color: var(--primary); margin-bottom: 1.5rem;"><?php echo __a('admin.courses.manage_heading', 'Bestehende Flechtkurse verwalten'); ?></h2>
                 <?php if (empty($data['courses'])): ?>
-                    <p style="color: var(--text-secondary);">Aktuell sind keine Kurse eingetragen.</p>
+                    <p style="color: var(--text-secondary);"><?php echo __a('admin.courses.empty', 'Noch keine Kurse eingetragen.'); ?></p>
                 <?php else: ?>
                     <div style="display:flex; flex-direction:column; gap:2rem;">
                         <?php foreach ($data['courses'] as $c): ?>
                             <?php 
                                 $cid = (int)$c['id'];
                                 $course_link = $site_url . '?course=' . $c['id'];
-                                $wa_text = urlencode("Hallo! Schau dir mal den Kurs \"" . $c['title'] . "\" bei Maxima an: " . $c['date_string'] . " (" . ($c['time'] ?? '') . ") in " . ($c['location'] ?? 'Musterstadt') . " für " . $c['price'] . ". Hier buchen: " . $course_link);
+                                $wa_raw = __a('admin.courses.whatsapp_share', 'Hallo! Schau dir diesen Flechtkurs an: {title} am {date}: {url}', null, ['title' => $c['title'], 'date' => $c['date_string'], 'url' => $course_link]);
+                                $wa_text = urlencode($wa_raw);
                             ?>
                             <div style="background:rgba(255,255,255,0.01); border:1px solid var(--border-color); padding:1.5rem; border-radius:16px;">
                                 <form method="POST" action="" style="margin-bottom:0;">
@@ -187,7 +188,7 @@ $all_languages = LanguageManager::getSupportedLanguages();
                                                             onclick="switchCourseLangTab('edit_course_<?php echo $cid; ?>', '<?php echo $al; ?>')"
                                                             style="padding: 4px 10px; font-size: 0.8rem; display:flex; align-items:center; gap:5px;">
                                                         <span><?php echo $lang_info['flag']; ?></span>
-                                                        <span><?php echo htmlspecialchars($lang_info['name']); ?><?php echo $is_prim ? ' (Hauptsprache)' : ''; ?></span>
+                                                        <span><?php echo htmlspecialchars($lang_info['name']); ?><?php echo $is_prim ? ' ' . __a('admin.courses.primary_lang_suffix', '(Hauptsprache)') : ''; ?></span>
                                                     </button>
                                                 <?php endforeach; ?>
                                             </div>
@@ -198,25 +199,25 @@ $all_languages = LanguageManager::getSupportedLanguages();
                                     <div id="edit_course_<?php echo $cid; ?>-lang-content-<?php echo $primary_lang; ?>" class="edit_course_<?php echo $cid; ?>-lang-content">
                                         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom:1rem;">
                                             <div class="form-group">
-                                                <label>Kurstitel * <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span></label>
+                                                <label><?php echo __a('admin.courses.field_title', 'Kurstitel:'); ?> * <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span></label>
                                                 <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($c['title']); ?>" required>
                                             </div>
                                             <div class="form-group">
-                                                <label>Datum *</label>
+                                                <label><?php echo __a('admin.courses.field_date', 'Datum:'); ?> *</label>
                                                 <input type="text" name="date_string" class="form-control" value="<?php echo htmlspecialchars($c['date_string']); ?>" required>
                                             </div>
                                             <div class="form-group">
-                                                <label>Uhrzeit *</label>
-                                                <input type="text" name="time" class="form-control" value="<?php echo htmlspecialchars($c['time'] ?? '10:00 - 16:00 Uhr'); ?>" required>
+                                                <label><?php echo __a('admin.courses.field_time', 'Uhrzeit:'); ?> *</label>
+                                                <input type="text" name="time" class="form-control" value="<?php echo htmlspecialchars($c['time'] ?? '10:00 – 16:00 Uhr'); ?>" required>
                                             </div>
                                             <div class="form-group">
-                                                <label>Veranstaltungsort *</label>
+                                                <label><?php echo __a('admin.courses.field_location', 'Ort / Treffpunkt:'); ?> *</label>
                                                 <input type="text" name="location" class="form-control" value="<?php echo htmlspecialchars($c['location'] ?? 'Werkstatt Kraaker Straße 14, 19077 Rastow'); ?>" required>
                                             </div>
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Kursbeschreibung <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span></label>
+                                            <label><?php echo __a('admin.courses.field_desc', 'Beschreibung:'); ?> <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(<?php echo $all_languages[$primary_lang]['name'] ?? 'Hauptsprache'; ?>)</span></label>
                                             <textarea name="description" class="form-control" rows="2"><?php echo htmlspecialchars($c['description']); ?></textarea>
                                         </div>
                                     </div>
@@ -229,47 +230,47 @@ $all_languages = LanguageManager::getSupportedLanguages();
                                         <div id="edit_course_<?php echo $cid; ?>-lang-content-<?php echo $al; ?>" class="edit_course_<?php echo $cid; ?>-lang-content" style="display:none;">
                                             <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom:1rem;">
                                                 <div class="form-group">
-                                                    <label>Kurstitel (<?php echo htmlspecialchars($lang_info['name']); ?>)</label>
-                                                    <input type="text" name="trans_<?php echo $al; ?>_title" class="form-control" value="<?php echo htmlspecialchars($tr_c['title'] ?? ''); ?>" placeholder="z. B. Willow Weaving Course">
+                                                    <label><?php echo __a('admin.courses.field_title_trans', 'Kurstitel ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])]); ?></label>
+                                                    <input type="text" name="trans_<?php echo $al; ?>_title" class="form-control" value="<?php echo htmlspecialchars($tr_c['title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars(__a('admin.courses.field_title_trans', 'Kurstitel ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])])); ?>">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label>Datum (<?php echo htmlspecialchars($lang_info['name']); ?>)</label>
-                                                    <input type="text" name="trans_<?php echo $al; ?>_date_string" class="form-control" value="<?php echo htmlspecialchars($tr_c['date_string'] ?? ''); ?>" placeholder="z. B. Saturday, October 15, 2026">
+                                                    <label><?php echo __a('admin.courses.field_date_trans', 'Datum ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])]); ?></label>
+                                                    <input type="text" name="trans_<?php echo $al; ?>_date_string" class="form-control" value="<?php echo htmlspecialchars($tr_c['date_string'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars(__a('admin.courses.field_date_trans', 'Datum ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])])); ?>">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label>Uhrzeit (<?php echo htmlspecialchars($lang_info['name']); ?>)</label>
-                                                    <input type="text" name="trans_<?php echo $al; ?>_time" class="form-control" value="<?php echo htmlspecialchars($tr_c['time'] ?? ''); ?>" placeholder="z. B. 10:00 AM - 4:00 PM">
+                                                    <label><?php echo __a('admin.courses.field_time_trans', 'Uhrzeit ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])]); ?></label>
+                                                    <input type="text" name="trans_<?php echo $al; ?>_time" class="form-control" value="<?php echo htmlspecialchars($tr_c['time'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars(__a('admin.courses.field_time_trans', 'Uhrzeit ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])])); ?>">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label>Veranstaltungsort (<?php echo htmlspecialchars($lang_info['name']); ?>)</label>
-                                                    <input type="text" name="trans_<?php echo $al; ?>_location" class="form-control" value="<?php echo htmlspecialchars($tr_c['location'] ?? ''); ?>" placeholder="z. B. Workshop Studio Rastow">
+                                                    <label><?php echo __a('admin.courses.field_location_trans', 'Ort ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])]); ?></label>
+                                                    <input type="text" name="trans_<?php echo $al; ?>_location" class="form-control" value="<?php echo htmlspecialchars($tr_c['location'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars(__a('admin.courses.field_location_trans', 'Ort ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])])); ?>">
                                                 </div>
                                             </div>
 
                                             <div class="form-group">
-                                                <label>Kursbeschreibung (<?php echo htmlspecialchars($lang_info['name']); ?>)</label>
-                                                <textarea name="trans_<?php echo $al; ?>_description" class="form-control" rows="2" placeholder="Course description in <?php echo htmlspecialchars($lang_info['name']); ?>..."><?php echo htmlspecialchars($tr_c['description'] ?? ''); ?></textarea>
+                                                <label><?php echo __a('admin.courses.field_desc_trans', 'Beschreibung ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])]); ?></label>
+                                                <textarea name="trans_<?php echo $al; ?>_description" class="form-control" rows="2" placeholder="<?php echo htmlspecialchars(__a('admin.courses.field_desc_trans', 'Beschreibung ({lang}):', null, ['lang' => htmlspecialchars($lang_info['name'])])); ?>"><?php echo htmlspecialchars($tr_c['description'] ?? ''); ?></textarea>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
 
                                     <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1.25rem; margin-top:1rem; margin-bottom:1rem;">
                                         <div class="form-group">
-                                            <label>Preis</label>
+                                            <label><?php echo __a('admin.courses.field_price', 'Preis (z. B. 85 €):'); ?></label>
                                             <input type="text" name="price" class="form-control" value="<?php echo htmlspecialchars($c['price']); ?>">
                                         </div>
                                         <div class="form-group">
-                                            <label>Max. Teilnehmer</label>
+                                            <label><?php echo __a('admin.courses.field_max', 'Max. Plätze:'); ?></label>
                                             <input type="number" name="max_participants" class="form-control" value="<?php echo (int)$c['max_participants']; ?>" min="1">
                                         </div>
                                         <div class="form-group">
-                                            <label>Bereits gebucht</label>
+                                            <label><?php echo __a('admin.courses.field_booked', 'Bereits gebucht:'); ?></label>
                                             <input type="number" name="current_participants" class="form-control" value="<?php echo (int)$c['current_participants']; ?>" min="0">
                                         </div>
                                         <div class="form-group" style="display:flex; align-items:center; height:100%; padding-top:1.5rem;">
                                             <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                                                 <input type="checkbox" name="available" <?php echo $c['available'] ? 'checked' : ''; ?> style="width:16px; height:16px;">
-                                                Buchbar (Aktiv)
+                                                <?php echo __a('admin.courses.active_checkbox', 'Kurs öffentlich auf der Website anzeigen'); ?>
                                             </label>
                                         </div>
                                     </div>
@@ -277,29 +278,29 @@ $all_languages = LanguageManager::getSupportedLanguages();
                                     <!-- Einladungslink Box -->
                                     <div class="invite-box">
                                         <div style="display:flex; align-items:center; gap:6px; font-weight:600; font-size:0.85rem; color:var(--primary);">
-                                            <span class="material-icons" style="font-size:18px;">link</span> Einladungslink:
+                                            <span class="material-icons" style="font-size:18px;">link</span> <?php echo __a('admin.courses.invite_label', 'Einladungslink teilen:'); ?>
                                         </div>
                                         <input type="text" readonly class="invite-link-input" id="link-<?php echo $c['id']; ?>" value="<?php echo htmlspecialchars($course_link); ?>">
                                         <div style="display:flex; gap:6px;">
                                             <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem;" onclick="copyLink('<?php echo htmlspecialchars($course_link); ?>')">
-                                                <span class="material-icons" style="font-size:14px; vertical-align:middle;">content_copy</span> Kopieren
+                                                <span class="material-icons" style="font-size:14px; vertical-align:middle;">content_copy</span> <?php echo __a('admin.courses.btn_copy', 'Kopieren'); ?>
                                             </button>
-                                            <a href="https://api.whatsapp.com/send?text=<?php echo $wa_text; ?>" target="_blank" class="btn btn-primary" style="padding:4px 10px; font-size:0.8rem; background:#25D366; border-color:#25D366; color:#fff;" title="Per WhatsApp teilen">
-                                                <span class="material-icons" style="font-size:14px; vertical-align:middle;">share</span> WhatsApp
+                                            <a href="https://api.whatsapp.com/send?text=<?php echo $wa_text; ?>" target="_blank" class="btn btn-primary" style="padding:4px 10px; font-size:0.8rem; background:#25D366; border-color:#25D366; color:#fff;" title="<?php echo htmlspecialchars(__a('admin.courses.btn_whatsapp', 'WhatsApp')); ?>">
+                                                <span class="material-icons" style="font-size:14px; vertical-align:middle;">share</span> <?php echo __a('admin.courses.btn_whatsapp', 'WhatsApp'); ?>
                                             </a>
                                         </div>
                                     </div>
 
                                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; border-top:1px solid var(--border-color); padding-top:1rem;">
                                         <span style="font-size:0.85rem; color:var(--text-secondary);">
-                                             Verfügbare Plätze: <strong><?php echo max(0, $c['max_participants'] - $c['current_participants']); ?></strong> von <?php echo $c['max_participants']; ?>
+                                             <?php echo __a('admin.courses.available_seats', '{free} von {max} Plätzen frei', null, ['free' => '<strong>' . max(0, $c['max_participants'] - $c['current_participants']) . '</strong>', 'max' => $c['max_participants']]); ?>
                                         </span>
                                         <div style="display:flex; gap:10px;">
                                             <button type="submit" class="btn btn-outline" style="padding:6px 12px; font-size:0.85rem;">
-                                                <span class="material-icons" style="font-size:14px; vertical-align:middle;">save</span> Speichern
+                                                <span class="material-icons" style="font-size:14px; vertical-align:middle;">save</span> <?php echo __a('admin.courses.btn_save', 'Speichern'); ?>
                                             </button>
                                             <button type="button" class="btn btn-danger" style="padding:6px 12px; font-size:0.85rem;" onclick="deleteCourse(<?php echo $c['id']; ?>)">
-                                                <span class="material-icons" style="font-size:14px; vertical-align:middle;">delete</span> Kurs Löschen
+                                                <span class="material-icons" style="font-size:14px; vertical-align:middle;">delete</span> <?php echo __a('admin.courses.btn_delete', 'Löschen'); ?>
                                             </button>
                                         </div>
                                     </div>
@@ -317,6 +318,7 @@ $all_languages = LanguageManager::getSupportedLanguages();
                 <?php endif; ?>
             </div>
         </div>
+
 
         <script>
         function switchCourseLangTab(context, lang) {

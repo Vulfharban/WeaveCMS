@@ -5,11 +5,11 @@
  */
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?php echo htmlspecialchars($admin_lang ?? LanguageManager::detectAdminLanguage()); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin-Login | WeaveCMS</title>
+    <title><?php echo htmlspecialchars(__a('admin.login.title_tag', 'Admin-Login | WeaveCMS')); ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="../libs/css/styles.css?v=<?php echo file_exists(dirname(__DIR__, 2) . '/libs/css/styles.css') ? filemtime(dirname(__DIR__, 2) . '/libs/css/styles.css') : time(); ?>" rel="stylesheet">
@@ -32,7 +32,7 @@
                 <p style="color: var(--text-secondary); font-size: 0.95rem;"><?php echo __a('admin.login.subtitle', 'Bitte Passwort und PIN-Code eingeben.'); ?></p>
                 <?php if (class_exists('SandboxManager') && SandboxManager::isDemoActive()): ?>
                     <div style="margin-top: 0.75rem; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; color: #1e40af;">
-                        💡 Demo-Zugangsdaten: <strong>admin</strong> / <strong>demo-weave-2026</strong> (PIN: <strong>0000</strong>)
+                        <?php echo __a('admin.login.demo_badge', '💡 Demo-Zugangsdaten: {user} / {pass} (PIN: {pin})', ['user' => '<strong>admin</strong>', 'pass' => '<strong>demo-weave-2026</strong>', 'pin' => '<strong>0000</strong>']); ?>
                     </div>
                 <?php endif; ?>
             </div>

@@ -19,15 +19,15 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
             <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom: 1.5rem;">
                 <div>
                     <h2 style="color: var(--primary); margin-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
-                        <span class="material-icons" style="font-size:28px;">quiz</span> Häufige Fragen &amp; Antworten (FAQ)
+                        <span class="material-icons" style="font-size:28px;">quiz</span> <?php echo __a('admin.faqs.title', 'Häufige Fragen (FAQ) verwalten'); ?>
                     </h2>
                     <p style="color: var(--text-secondary); font-size: 0.95rem; margin:0;">
-                        Pflege Fragen und Antworten für dein Akkordeon. Google nutzt diese automatisch für Rich-Snippets in den Suchergebnissen.
+                        <?php echo __a('admin.faqs.desc', 'Erstelle und verwalte häufig gestellte Fragen und Antworten für deine Besucher.'); ?>
                     </p>
                 </div>
                 <div style="display:flex; align-items:center; gap:12px;">
                     <button type="button" class="btn btn-primary" onclick="openFaqEditor()">
-                        <span class="material-icons" style="font-size:18px;">add_circle</span> Neue FAQ-Frage
+                        <span class="material-icons" style="font-size:18px;">add_circle</span> <?php echo __a('admin.faqs.btn_new', '+ Neue Frage anlegen'); ?>
                     </button>
                 </div>
             </div>
@@ -35,12 +35,12 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
             <!-- Kennzahlen-Karten -->
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                 <div style="background: rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:12px; padding: 1rem 1.25rem;">
-                    <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Fragen Gesamt</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; font-weight:700;"><?php echo __a('admin.faqs.kpi_total', 'Fragen gesamt'); ?></div>
                     <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-top:4px;"><?php echo $total_faqs; ?></div>
                 </div>
                 <div style="background: rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.3); border-radius:12px; padding: 1rem 1.25rem;">
-                    <div style="font-size: 0.8rem; color: #10b981; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Google Schema.org</div>
-                    <div style="font-size: 1.1rem; font-weight: 700; color: #10b981; margin-top:6px;">Aktiv (FAQPage)</div>
+                    <div style="font-size: 0.8rem; color: #10b981; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;"><?php echo __a('admin.faqs.kpi_schema', 'Schema.org FAQPage'); ?></div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #10b981; margin-top:6px;"><?php echo __a('admin.faqs.kpi_schema_active', 'Aktiv (Google Rich Results)'); ?></div>
                 </div>
             </div>
 
@@ -57,10 +57,10 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
             <div id="faq-editor-box" style="display:none; background:rgba(255,255,255,0.02); border:1px solid var(--primary); border-radius:16px; padding:2rem; margin-bottom:2.5rem; animation: fadeInTab 0.25s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
                     <h3 id="faq-editor-title" style="color:var(--primary); margin:0; display:flex; align-items:center; gap:8px;">
-                        <span class="material-icons">edit_note</span> Neue FAQ-Frage anlegen
+                        <span class="material-icons">edit_note</span> <?php echo __a('admin.faqs.drawer_new', 'Neue FAQ-Frage anlegen'); ?>
                     </h3>
                     <button type="button" class="btn btn-secondary" onclick="closeFaqEditor()" style="padding:4px 10px; font-size:0.8rem;">
-                        <span class="material-icons" style="font-size:16px;">close</span> Schließen
+                        <span class="material-icons" style="font-size:16px;">close</span> <?php echo __a('admin.faqs.drawer_close', 'Schließen'); ?>
                     </button>
                 </div>
 
@@ -73,11 +73,11 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
                     <?php if (count($active_langs) > 1): ?>
                         <div style="display:flex; align-items:center; gap:8px; margin-bottom:1.5rem; flex-wrap:wrap; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-color);">
                             <span style="font-size:0.88rem; font-weight:700; color:var(--text-secondary); margin-right:4px;">
-                                <span class="material-icons" style="font-size:16px; vertical-align:middle;">translate</span> Inhaltssprache:
+                                <span class="material-icons" style="font-size:16px; vertical-align:middle;">translate</span> <?php echo __a('admin.faqs.lang_content', 'Inhalte auf'); ?>:
                             </span>
                             <button type="button" class="btn btn-primary faq-lang-tab-btn" id="btn-faq-lang-<?php echo $primary_lang; ?>" onclick="switchFaqLangTab('<?php echo $primary_lang; ?>')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
                                 <span><?php echo $supported_langs[$primary_lang]['flag']; ?></span>
-                                <span><?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?> (Hauptsprache)</span>
+                                <span><?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?> <?php echo __a('admin.faqs.primary_lang_suffix', '(Hauptsprache)'); ?></span>
                             </button>
                             <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
                                 <button type="button" class="btn btn-outline faq-lang-tab-btn" id="btn-faq-lang-<?php echo $al; ?>" onclick="switchFaqLangTab('<?php echo $al; ?>')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
@@ -91,16 +91,16 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
                     <!-- Panel Hauptsprache -->
                     <div id="faq-lang-panel-<?php echo $primary_lang; ?>" class="faq-lang-panel">
                         <div class="form-group" style="margin-bottom: 1.25rem;">
-                            <label for="faq_question" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Frage *</label>
-                            <input type="text" id="faq_question" name="question" class="form-control" placeholder="z. B. Muss ich Vorkenntnisse für die Kurse mitbringen?" required>
+                            <label for="faq_question" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.faqs.field_question', 'Frage:'); ?></label>
+                            <input type="text" id="faq_question" name="question" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.faqs.placeholder_question', 'z. B. Welche Materialien werden verwendet?')); ?>" required>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 1.5rem;">
                             <label for="faq_answer" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
-                                <span>Antwort (Markdown unterstützt) *</span>
-                                <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">**Fett**, Absätze, Listen, [Links](url)</span>
+                                <span><?php echo __a('admin.faqs.field_answer', 'Antwort:'); ?></span>
+                                <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);"><?php echo __a('admin.faqs.markdown_hint', 'Unterstützt Markdown-Formatierung (**fett**, *kursiv*, Links, Listen etc.)'); ?></span>
                             </label>
-                            <textarea id="faq_answer" name="answer" class="form-control" rows="6" placeholder="Formuliere hier deine klare, freundliche Antwort..." required style="font-size:0.95rem; line-height:1.6;"></textarea>
+                            <textarea id="faq_answer" name="answer" class="form-control" rows="6" placeholder="<?php echo htmlspecialchars(__a('admin.faqs.placeholder_answer', 'Ausführliche und verständliche Antwort...')); ?>" required style="font-size:0.95rem; line-height:1.6;"></textarea>
                         </div>
                     </div>
 
@@ -109,24 +109,24 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
                         <div id="faq-lang-panel-<?php echo $al; ?>" class="faq-lang-panel" style="display:none;">
                             <div style="background:rgba(59, 130, 246, 0.08); border:1px solid #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:1.25rem; font-size:0.88rem; color:#1e40af; display:flex; align-items:center; gap:8px;">
                                 <span class="material-icons" style="font-size:18px; color:#2563eb;">translate</span>
-                                <span>Übersetzung für <strong><?php echo $supported_langs[$al]['flag'] . ' ' . htmlspecialchars($supported_langs[$al]['name']); ?></strong>. Bleibt ein Feld leer, greift automatisch die Hauptsprache.</span>
+                                <span><?php echo __a('admin.faqs.trans_banner', 'Übersetzungen für aktivierte Sprachen:'); ?> <strong><?php echo $supported_langs[$al]['flag'] . ' ' . htmlspecialchars($supported_langs[$al]['name']); ?></strong>.</span>
                             </div>
                             <div class="form-group" style="margin-bottom: 1.25rem;">
-                                <label for="faq_trans_<?php echo $al; ?>_question" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Frage (<?php echo htmlspecialchars($supported_langs[$al]['name']); ?>)</label>
-                                <input type="text" id="faq_trans_<?php echo $al; ?>_question" name="trans_<?php echo $al; ?>_question" class="form-control" placeholder="Frage auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>">
+                                <label for="faq_trans_<?php echo $al; ?>_question" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.faqs.field_question_trans', 'Frage ({lang}):', null, ['lang' => htmlspecialchars($supported_langs[$al]['name'])]); ?></label>
+                                <input type="text" id="faq_trans_<?php echo $al; ?>_question" name="trans_<?php echo $al; ?>_question" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.faqs.field_question_trans', 'Frage ({lang}):', null, ['lang' => htmlspecialchars($supported_langs[$al]['name'])])); ?>">
                             </div>
 
                             <div class="form-group" style="margin-bottom: 1.5rem;">
-                                <label for="faq_trans_<?php echo $al; ?>_answer" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Antwort auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?></label>
-                                <textarea id="faq_trans_<?php echo $al; ?>_answer" name="trans_<?php echo $al; ?>_answer" class="form-control" rows="6" placeholder="Übersetzte Antwort..." style="font-size:0.95rem; line-height:1.6;"></textarea>
+                                <label for="faq_trans_<?php echo $al; ?>_answer" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.faqs.field_answer_trans', 'Antwort ({lang}):', null, ['lang' => htmlspecialchars($supported_langs[$al]['name'])]); ?></label>
+                                <textarea id="faq_trans_<?php echo $al; ?>_answer" name="trans_<?php echo $al; ?>_answer" class="form-control" rows="6" placeholder="<?php echo htmlspecialchars(__a('admin.faqs.field_answer_trans', 'Antwort ({lang}):', null, ['lang' => htmlspecialchars($supported_langs[$al]['name'])])); ?>" style="font-size:0.95rem; line-height:1.6;"></textarea>
                             </div>
                         </div>
                     <?php endforeach; ?>
 
                     <div style="display:flex; justify-content:flex-end; gap:12px;">
-                        <button type="button" class="btn btn-secondary" onclick="closeFaqEditor()">Abbrechen</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeFaqEditor()"><?php echo __a('admin.faqs.btn_cancel', 'Abbrechen'); ?></button>
                         <button type="submit" class="btn btn-primary" id="faq-submit-btn">
-                            <span class="material-icons" style="font-size:18px;">save</span> Frage speichern
+                            <span class="material-icons" style="font-size:18px;">save</span> <?php echo __a('admin.faqs.btn_save_new', 'Frage anlegen'); ?>
                         </button>
                     </div>
                 </form>
@@ -136,10 +136,10 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
             <?php if (empty($faqs)): ?>
                 <div style="text-align:center; padding: 3rem 1.5rem; background:rgba(255,255,255,0.02); border:1px dashed var(--border-color); border-radius:14px;">
                     <span class="material-icons" style="font-size:48px; color:var(--text-secondary); margin-bottom:0.5rem; opacity:0.6;">quiz</span>
-                    <h3 style="margin:0 0 0.5rem 0; color:var(--text-primary);">Noch keine FAQ-Fragen hinterlegt</h3>
-                    <p style="color:var(--text-secondary); font-size:0.95rem; margin-bottom:1.5rem;">Beantworte typische Fragen zu Werkstücken, Anfahrt, Gutscheinen oder Pflege.</p>
+                    <h3 style="margin:0 0 0.5rem 0; color:var(--text-primary);"><?php echo __a('admin.faqs.empty_title', 'Noch keine FAQs angelegt'); ?></h3>
+                    <p style="color:var(--text-secondary); font-size:0.95rem; margin-bottom:1.5rem;"><?php echo __a('admin.faqs.empty_desc', 'Beantworte die wichtigsten Fragen deiner Besucher vorab und verbessere gleichzeitig dein Google-Suchranking mit Rich Results.'); ?></p>
                     <button type="button" class="btn btn-primary" onclick="openFaqEditor()">
-                        <span class="material-icons" style="font-size:18px;">add_circle</span> Erste FAQ-Frage anlegen
+                        <span class="material-icons" style="font-size:18px;">add_circle</span> <?php echo __a('admin.faqs.empty_btn', 'Erste Frage anlegen'); ?>
                     </button>
                 </div>
             <?php else: ?>
@@ -173,13 +173,13 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
 
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <button type="button" class="btn btn-secondary" onclick="editFaq(<?php echo htmlspecialchars(json_encode($f), ENT_QUOTES, 'UTF-8'); ?>)" style="padding:6px 12px; font-size:0.82rem;">
-                                    <span class="material-icons" style="font-size:16px;">edit</span> Bearbeiten
+                                    <span class="material-icons" style="font-size:16px;">edit</span> <?php echo __a('admin.faqs.btn_edit', 'Bearbeiten'); ?>
                                 </button>
-                                <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Möchtest du diese FAQ-Frage wirklich löschen?');">
+                                <form method="POST" action="" style="display:inline;" onsubmit="return confirm('<?php echo htmlspecialchars(__a('admin.faqs.confirm_delete', 'Möchtest du diese Frage wirklich löschen?'), ENT_QUOTES, 'UTF-8'); ?>');">
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                     <input type="hidden" name="action" value="delete_faq">
                                     <input type="hidden" name="id" value="<?php echo htmlspecialchars($f['id'] ?? ''); ?>">
-                                    <button type="submit" class="btn btn-secondary" style="padding:6px 10px; color:#ef4444;" title="Frage löschen">
+                                    <button type="submit" class="btn btn-secondary" style="padding:6px 10px; color:#ef4444;" title="<?php echo htmlspecialchars(__a('admin.faqs.btn_delete_title', 'Frage löschen')); ?>">
                                         <span class="material-icons" style="font-size:16px;">delete</span>
                                     </button>
                                 </form>
@@ -212,7 +212,7 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
 
         function openFaqEditor() {
             document.getElementById('faq-editor-box').style.display = 'block';
-            document.getElementById('faq-editor-title').innerHTML = '<span class="material-icons">add_circle</span> Neue FAQ-Frage anlegen';
+            document.getElementById('faq-editor-title').innerHTML = '<span class="material-icons">add_circle</span> ' + <?php echo json_encode(__a('admin.faqs.drawer_new', 'Neue FAQ-Frage anlegen')); ?>;
             document.getElementById('faq_form_action').value = 'add_faq';
             document.getElementById('faq_id').value = '';
             document.getElementById('faq_question').value = '';
@@ -227,7 +227,7 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
             });
 
             switchFaqLangTab(FAQ_PRIMARY_LANG);
-            document.getElementById('faq-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Frage anlegen';
+            document.getElementById('faq-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> ' + <?php echo json_encode(__a('admin.faqs.btn_save_new', 'Frage anlegen')); ?>;
             document.getElementById('faq_question').focus();
         }
 
@@ -237,7 +237,7 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
 
         function editFaq(faqData) {
             document.getElementById('faq-editor-box').style.display = 'block';
-            document.getElementById('faq-editor-title').innerHTML = '<span class="material-icons">edit</span> FAQ-Frage bearbeiten';
+            document.getElementById('faq-editor-title').innerHTML = '<span class="material-icons">edit</span> ' + <?php echo json_encode(__a('admin.faqs.drawer_edit', 'FAQ-Frage bearbeiten')); ?>;
             document.getElementById('faq_form_action').value = 'edit_faq';
             document.getElementById('faq_id').value = faqData.id || '';
             document.getElementById('faq_question').value = faqData.question || '';
@@ -253,7 +253,8 @@ $faq_subtitle = $data['texts']['faq_subtitle'] ?? 'Hier findest du Antworten auf
             });
 
             switchFaqLangTab(FAQ_PRIMARY_LANG);
-            document.getElementById('faq-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Änderungen speichern';
+            document.getElementById('faq-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> ' + <?php echo json_encode(__a('admin.faqs.btn_save_changes', 'Änderungen speichern')); ?>;
             document.getElementById('faq-editor-box').scrollIntoView({ behavior: 'smooth' });
         }
         </script>
+

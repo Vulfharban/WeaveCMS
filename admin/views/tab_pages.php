@@ -32,15 +32,15 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom: 1.5rem;">
                 <div>
                     <h2 style="color: var(--primary); margin-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
-                        <span class="material-icons" style="font-size:28px;">article</span> Freie Einzelseiten &amp; Unterseiten
+                        <span class="material-icons" style="font-size:28px;">article</span> <?php echo __a('admin.pages.title'); ?>
                     </h2>
                     <p style="color: var(--text-secondary); font-size: 0.95rem; margin:0;">
-                        Erstelle beliebig viele Inhaltsseiten in mehreren Sprachen mit eigenem Link und binde sie optional direkt ins Hauptmenü ein.
+                        <?php echo __a('admin.pages.subtitle'); ?>
                     </p>
                 </div>
                 <div style="display:flex; align-items:center; gap:12px;">
                     <button type="button" class="btn btn-primary" onclick="openPageEditor()">
-                        <span class="material-icons" style="font-size:18px;">add_circle</span> Neue Einzelseite
+                        <span class="material-icons" style="font-size:18px;">add_circle</span> <?php echo __a('admin.pages.btn_new'); ?>
                     </button>
                 </div>
             </div>
@@ -48,15 +48,15 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             <!-- Kennzahlen-Karten -->
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                 <div style="background: rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:12px; padding: 1rem 1.25rem;">
-                    <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Seiten Gesamt</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; font-weight:700;"><?php echo __a('admin.pages.kpi_total'); ?></div>
                     <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-top:4px;"><?php echo $total_pages; ?></div>
                 </div>
                 <div style="background: rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.3); border-radius:12px; padding: 1rem 1.25rem;">
-                    <div style="font-size: 0.8rem; color: #10b981; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Veröffentlicht</div>
+                    <div style="font-size: 0.8rem; color: #10b981; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;"><?php echo __a('admin.pages.kpi_published'); ?></div>
                     <div style="font-size: 1.8rem; font-weight: 800; color: #10b981; margin-top:4px;"><?php echo $published_pages; ?></div>
                 </div>
                 <div style="background: rgba(59, 130, 246, 0.05); border:1px solid rgba(59, 130, 246, 0.3); border-radius:12px; padding: 1rem 1.25rem;">
-                    <div style="font-size: 0.8rem; color: #3b82f6; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Im Hauptmenü verlinkt</div>
+                    <div style="font-size: 0.8rem; color: #3b82f6; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;"><?php echo __a('admin.pages.kpi_in_nav'); ?></div>
                     <div style="font-size: 1.8rem; font-weight: 800; color: #3b82f6; margin-top:4px;"><?php echo $in_nav_count; ?></div>
                 </div>
             </div>
@@ -101,10 +101,10 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             <div id="page-editor-box" style="display:none; scroll-margin-top: 150px; background:rgba(255,255,255,0.02); border:1px solid var(--primary); border-radius:16px; padding:2rem; margin-bottom:2.5rem; animation: fadeInTab 0.25s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
                     <h3 id="page-editor-title" style="color:var(--primary); margin:0; display:flex; align-items:center; gap:8px;">
-                        <span class="material-icons">edit_note</span> Neue Einzelseite anlegen
+                        <span class="material-icons">edit_note</span> <?php echo __a('admin.pages.new_page'); ?>
                     </h3>
                     <button type="button" class="btn btn-secondary" onclick="closePageEditor()" style="padding:4px 10px; font-size:0.8rem;">
-                        <span class="material-icons" style="font-size:16px;">close</span> Schließen
+                        <span class="material-icons" style="font-size:16px;">close</span> <?php echo __a('admin.pages.drawer_close'); ?>
                     </button>
                 </div>
 
@@ -119,9 +119,9 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                         <!-- 1. Seitenwechsler Dropdown -->
                         <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
                             <span class="material-icons" style="font-size:18px; color:var(--primary);">menu_book</span>
-                            <label for="sticky_page_selector" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin:0; text-transform:uppercase; letter-spacing:0.5px;">Seite:</label>
+                            <label for="sticky_page_selector" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin:0; text-transform:uppercase; letter-spacing:0.5px;"><?php echo __a('admin.pages.page_switcher'); ?></label>
                             <select id="sticky_page_selector" onchange="onStickyPageSelect(this.value)" class="form-control" style="font-size:0.85rem; padding:4px 8px; width:auto; max-width:210px; font-weight:600; cursor:pointer; height:auto; border-radius:8px;">
-                                <option value="">➕ Neue Einzelseite anlegen...</option>
+                                <option value=""><?php echo __a('admin.pages.new_page_option'); ?></option>
                                 <?php foreach ($pages as $p): ?>
                                     <option value="<?php echo htmlspecialchars($p['id'] ?? ''); ?>">
                                         <?php echo htmlspecialchars($p['title'] ?? 'Unbenannt'); ?> (<?php echo htmlspecialchars($p['slug'] ?? ''); ?>)
@@ -133,19 +133,19 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                         <!-- 2. Schwebende Sprach-Pills mit Statusanzeige -->
                         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; flex:1; justify-content:center; min-width:220px;">
                             <span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); display:inline-flex; align-items:center; gap:4px; margin-right:4px;">
-                                <span class="material-icons" style="font-size:15px;">translate</span> Sprache:
+                                <span class="material-icons" style="font-size:15px;">translate</span> <?php echo __a('admin.pages.sticky_lang'); ?>
                             </span>
                             <button type="button" class="btn btn-primary sticky-lang-pill" id="sticky-lang-btn-<?php echo $primary_lang; ?>" onclick="switchPageLangTab('<?php echo $primary_lang; ?>')" style="padding:4px 10px; font-size:0.82rem; display:inline-flex; align-items:center; gap:6px; border-radius:20px;">
                                 <span><?php echo $supported_langs[$primary_lang]['flag']; ?></span>
                                 <span><?php echo strtoupper($primary_lang); ?></span>
-                                <span class="sticky-status-dot" id="sticky-dot-<?php echo $primary_lang; ?>" title="Hauptsprache" style="width:7px; height:7px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                                <span class="sticky-status-dot" id="sticky-dot-<?php echo $primary_lang; ?>" title="<?php echo htmlspecialchars(__a('admin.pages.status_dot_ok')); ?>" style="width:7px; height:7px; border-radius:50%; background:#10b981; display:inline-block;"></span>
                             </button>
                             <?php if (count($active_langs) > 1): ?>
                                 <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
                                     <button type="button" class="btn btn-outline sticky-lang-pill" id="sticky-lang-btn-<?php echo $al; ?>" onclick="switchPageLangTab('<?php echo $al; ?>')" style="padding:4px 10px; font-size:0.82rem; display:inline-flex; align-items:center; gap:6px; border-radius:20px;">
                                         <span><?php echo $supported_langs[$al]['flag']; ?></span>
                                         <span><?php echo strtoupper($al); ?></span>
-                                        <span class="sticky-status-dot" id="sticky-dot-<?php echo $al; ?>" title="Übersetzungsstatus" style="width:7px; height:7px; border-radius:50%; background:#94a3b8; display:inline-block;"></span>
+                                        <span class="sticky-status-dot" id="sticky-dot-<?php echo $al; ?>" title="<?php echo htmlspecialchars(__a('admin.pages.status_dot_empty')); ?>" style="width:7px; height:7px; border-radius:50%; background:#94a3b8; display:inline-block;"></span>
                                     </button>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -153,10 +153,10 @@ $supported_langs = LanguageManager::getSupportedLanguages();
 
                         <!-- 3. Schnell-Aktionen (Schnell-Speichern & Schließen) -->
                         <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-                            <button type="button" class="btn btn-primary" onclick="submitPageFormQuick()" style="padding:5px 12px; font-size:0.84rem; display:inline-flex; align-items:center; gap:6px; border-radius:8px;" title="Seite jetzt speichern ohne nach unten scrollen zu müssen">
-                                <span class="material-icons" style="font-size:16px;">save</span> Schnell-Speichern
+                            <button type="button" class="btn btn-primary" onclick="submitPageFormQuick()" style="padding:5px 12px; font-size:0.84rem; display:inline-flex; align-items:center; gap:6px; border-radius:8px;" title="<?php echo htmlspecialchars(__a('admin.pages.sticky_quick_save_title')); ?>">
+                                <span class="material-icons" style="font-size:16px;">save</span> <?php echo __a('admin.pages.quick_save'); ?>
                             </button>
-                            <button type="button" class="btn btn-secondary" onclick="closePageEditor()" style="padding:5px 10px; font-size:0.84rem; display:inline-flex; align-items:center; border-radius:8px;" title="Editor schließen">
+                            <button type="button" class="btn btn-secondary" onclick="closePageEditor()" style="padding:5px 10px; font-size:0.84rem; display:inline-flex; align-items:center; border-radius:8px;" title="<?php echo htmlspecialchars(__a('admin.pages.drawer_close')); ?>">
                                 <span class="material-icons" style="font-size:16px;">close</span>
                             </button>
                         </div>
@@ -166,34 +166,33 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                     <div class="grid-5" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; border:1px solid var(--border-color);">
                         <div class="form-group">
                             <label for="page_slug" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
-                                URL-Slug (Pfad) *
+                                <?php echo __a('admin.pages.field_slug'); ?>
                                 <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(z. B. aktion)</span>
                             </label>
                             <input type="text" id="page_slug" name="slug" class="form-control" placeholder="aktion" required pattern="[a-z0-9_-]+">
                         </div>
                         <div class="form-group">
-                            <label for="page_type" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Seitentyp</label>
+                            <label for="page_type" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.pages.field_type'); ?></label>
                             <select id="page_type" name="page_type" class="form-control" onchange="togglePageTypeMode(this.value)">
-                                <option value="content">Standard-Inhalt (Text/Markdown)</option>
-                                <option value="modular">Modulare Sektions-Landingpage</option>
+                                <option value="content"><?php echo __a('admin.pages.type_content'); ?></option>
+                                <option value="modular"><?php echo __a('admin.pages.type_modular'); ?></option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="page_status" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Status</label>
+                            <label for="page_status" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.pages.field_status'); ?></label>
                             <select id="page_status" name="status" class="form-control" onchange="togglePageScheduledBox(this.value)">
-                                <option value="published">Öffentlich (Veröffentlicht)</option>
-                                <option value="draft">Entwurf (Nur im Admin / per Token sichtbar)</option>
-                                <option value="scheduled">⏱️ Zeitgesteuert (Geplant)</option>
+                                <option value="published"><?php echo __a('admin.pages.status_published'); ?></option>
+                                <option value="draft"><?php echo __a('admin.pages.status_draft'); ?></option>
+                                <option value="scheduled"><?php echo __a('admin.pages.status_scheduled'); ?></option>
                             </select>
                             <div id="page_scheduled_box" style="display:none; margin-top:8px;">
-                                <label for="page_publish_at" style="font-size:0.78rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Veröffentlichungszeitpunkt</label>
+                                <label for="page_publish_at" style="font-size:0.78rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo __a('admin.pages.field_publish_at'); ?></label>
                                 <input type="datetime-local" id="page_publish_at" name="publish_at" class="form-control" style="font-size:0.85rem; padding:4px 8px;">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="page_icon" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
-                                Menü-Icon
-                                <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">(Material-Icon)</span>
+                                <?php echo __a('admin.pages.field_icon'); ?>
                             </label>
                             <div style="display:flex; align-items:center; gap:6px;">
                                 <input type="text" id="page_icon" name="icon" class="form-control" placeholder="article" oninput="updatePageIconPreview(this.value)">
@@ -201,21 +200,21 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                             </div>
                         </div>
                         <div class="form-group" style="display:flex; flex-direction:column; justify-content:center;">
-                            <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Hauptmenü-Einbindung</label>
+                            <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.pages.field_in_nav'); ?></label>
                             <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.95rem; margin-top:6px;">
                                 <input type="checkbox" id="page_in_nav" name="in_nav" value="1">
-                                <span>Im Menü verlinken</span>
+                                <span><?php echo __a('admin.pages.in_nav_checkbox'); ?></span>
                             </label>
                         </div>
                     </div>
 
-                    <!-- Phase 18.2: Modulare Sektionen-Auswahl (Landingpage-Stack) -->
+                    <!-- Modulare Sektionen-Auswahl (Landingpage-Stack) -->
                     <div id="modular-sections-box" style="display:none; background:rgba(46,98,72,0.06); border:1px solid rgba(46,98,72,0.3); border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
                         <h4 style="color:var(--primary); margin:0 0 0.4rem 0; font-size:1.05rem; display:flex; align-items:center; gap:6px;">
-                            <span class="material-icons">view_quilt</span> Sektionen für diese modulare Landingpage zusammenstellen
+                            <span class="material-icons">view_quilt</span> <?php echo __a('admin.pages.modular_heading'); ?>
                         </h4>
                         <p style="color:var(--text-secondary); font-size:0.85rem; margin:0 0 1rem 0;">
-                            Wähle die gewünschten Inhaltsbereiche aus, die auf dieser Seite als fortlaufender Sektionen-Stack gerendert werden:
+                            <?php echo __a('admin.pages.modular_desc'); ?>
                         </p>
                         <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap:10px;">
                             <?php 
@@ -238,45 +237,45 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                         </div>
                     </div>
 
-                    <!-- Panel: Hauptsprache (z. B. Deutsch) -->
+                    <!-- Panel: Hauptsprache -->
                     <div id="page-lang-panel-<?php echo $primary_lang; ?>" class="page-lang-panel">
                         <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
                             <div class="form-group">
                                 <label for="page_title" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
-                                    Seitentitel (<?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?>) *
+                                    <?php echo str_replace('{lang}', htmlspecialchars($supported_langs[$primary_lang]['name']), __a('admin.pages.field_title')); ?> *
                                 </label>
-                                <input type="text" id="page_title" name="title" class="form-control" placeholder="z. B. Nachhaltigkeit &amp; Weidenanbau" required oninput="autoGeneratePageSlug(this.value)">
+                                <input type="text" id="page_title" name="title" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.pages.placeholder_title')); ?>" required oninput="autoGeneratePageSlug(this.value)">
                             </div>
                             <div class="form-group">
                                 <label for="page_nav_label" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
-                                    Titel fürs Menü (Menü-Beschriftung)
+                                    <?php echo __a('admin.pages.field_nav_label'); ?>
                                 </label>
-                                <input type="text" id="page_nav_label" name="nav_label" class="form-control" placeholder="z. B. Nachhaltigkeit (leer = Seitentitel)">
+                                <input type="text" id="page_nav_label" name="nav_label" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.pages.placeholder_nav_label')); ?>">
                             </div>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 1.25rem;">
                             <label for="page_meta_desc" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
-                                Meta-Description für Suchmaschinen (SEO)
+                                <?php echo __a('admin.pages.field_meta_desc'); ?>
                             </label>
-                            <input type="text" id="page_meta_desc" name="meta_description" class="form-control" placeholder="Kurze Beschreibung dieser Seite für Google &amp; Social Media">
+                            <input type="text" id="page_meta_desc" name="meta_description" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.pages.placeholder_meta_desc')); ?>">
                         </div>
 
                         <div class="form-group" style="margin-bottom: 1.5rem;">
                             <label for="page_content" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
-                                <span>Seiteninhalt (Markdown) *</span>
-                                <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">Überschriften mit #, Absätze, **Fett**, [Links](url)</span>
+                                <span><?php echo __a('admin.pages.field_content'); ?> *</span>
+                                <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);"><?php echo __a('admin.pages.content_hint'); ?></span>
                             </label>
 
                             <!-- Design- & Layout-Toolbar für Einzelseiten -->
                             <div class="page-editor-design-toolbar" style="background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:10px; padding:10px 14px; margin-bottom:0.75rem; display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
                                 <span style="font-size:0.85rem; font-weight:700; color:var(--primary); display:inline-flex; align-items:center; gap:5px;">
-                                    <span class="material-icons" style="font-size:18px;">auto_awesome</span> Vorlage einfügen:
+                                    <span class="material-icons" style="font-size:18px;">auto_awesome</span> <?php echo __a('admin.pages.toolbar_template'); ?>
                                 </span>
 
                                 <!-- Überschriften-Stile -->
                                 <select onchange="insertPageSnippet(this, 'heading')" class="form-control" style="width:auto; padding:5px 10px; font-size:0.83rem; border-radius:8px; cursor:pointer;" title="Vordefinierte Überschriftarten">
-                                    <option value="">🏷️ Überschrift-Stil...</option>
+                                    <option value=""><?php echo __a('admin.pages.toolbar_heading_style'); ?></option>
                                     <option value="left_bar">Akzent-Balken links</option>
                                     <option value="underline">Farbverlauf-Unterstrich</option>
                                     <option value="eyebrow">Eyebrow / Kicker-Badge</option>
@@ -287,7 +286,7 @@ $supported_langs = LanguageManager::getSupportedLanguages();
 
                                 <!-- Einfärbbare Div-Boxen -->
                                 <select onchange="insertPageSnippet(this, 'box')" class="form-control" style="width:auto; padding:5px 10px; font-size:0.83rem; border-radius:8px; cursor:pointer;" title="Einfärbbare Boxen & Cards">
-                                    <option value="">📦 Einfärbbare Box...</option>
+                                    <option value=""><?php echo __a('admin.pages.toolbar_box_style'); ?></option>
                                     <option value="soft_primary">Sanfte Primär-Box (Theme)</option>
                                     <option value="soft_success">Sanfte Smaragd/Erfolgs-Box</option>
                                     <option value="soft_amber">Sanfte Bernstein/Warn-Box</option>
@@ -300,12 +299,12 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                                 <!-- Farbwähler für Box-Hintergrund -->
                                 <label title="Wunschfarbe für frei einfärbbare Box wählen" style="display:inline-flex; align-items:center; gap:4px; font-size:0.8rem; color:var(--text-secondary); cursor:pointer;">
                                     <input type="color" id="picker_box_color" value="#e0f2fe" style="width:26px; height:26px; border:none; border-radius:6px; cursor:pointer; padding:0; background:none;">
-                                    <span>Farbe</span>
+                                    <span><?php echo __a('admin.pages.toolbar_color_label'); ?></span>
                                 </label>
 
                                 <!-- Optische Trenner -->
                                 <select onchange="insertPageSnippet(this, 'divider')" class="form-control" style="width:auto; padding:5px 10px; font-size:0.83rem; border-radius:8px; cursor:pointer;" title="Optische Trenner">
-                                    <option value="">✂️ Optischer Trenner...</option>
+                                    <option value=""><?php echo __a('admin.pages.toolbar_divider_style'); ?></option>
                                     <option value="gradient">Farbverlauf-Linie</option>
                                     <option value="icon_leaf">Trennlinie mit Blatt (🌿)</option>
                                     <option value="icon_star">Trennlinie mit Stern (⭐)</option>
@@ -325,19 +324,19 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                         <div id="page-lang-panel-<?php echo $al; ?>" class="page-lang-panel" style="display:none;">
                             <div style="background:rgba(59, 130, 246, 0.08); border:1px solid #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:1.25rem; font-size:0.88rem; color:#93c5fd; display:flex; align-items:center; gap:8px;">
                                 <span class="material-icons" style="font-size:18px; color:#60a5fa;">translate</span>
-                                <span>Übersetzung für <strong><?php echo $supported_langs[$al]['flag'] . ' ' . htmlspecialchars($supported_langs[$al]['name']); ?></strong>. Bleibt ein Feld leer, greift das System automatisch auf die Hauptsprache (<?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?>) zurück.</span>
+                                <span><?php echo str_replace(['{lang}', '{primary}'], ['<strong>' . $supported_langs[$al]['flag'] . ' ' . htmlspecialchars($supported_langs[$al]['name']) . '</strong>', htmlspecialchars($supported_langs[$primary_lang]['name'])], __a('admin.pages.trans_info')); ?></span>
                             </div>
 
                             <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
                                 <div class="form-group">
                                     <label for="trans_<?php echo $al; ?>_title" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
-                                        Seitentitel (<?php echo htmlspecialchars($supported_langs[$al]['name']); ?>)
+                                        <?php echo str_replace('{lang}', htmlspecialchars($supported_langs[$al]['name']), __a('admin.pages.field_title')); ?>
                                     </label>
                                     <input type="text" id="trans_<?php echo $al; ?>_title" name="trans_<?php echo $al; ?>_title" class="form-control" placeholder="Titel auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>">
                                 </div>
                                 <div class="form-group">
                                     <label for="trans_<?php echo $al; ?>_nav_label" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
-                                        Titel fürs Menü auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>
+                                        <?php echo __a('admin.pages.field_nav_label'); ?>
                                     </label>
                                     <input type="text" id="trans_<?php echo $al; ?>_nav_label" name="trans_<?php echo $al; ?>_nav_label" class="form-control" placeholder="Menü-Titel auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>">
                                 </div>
@@ -345,14 +344,14 @@ $supported_langs = LanguageManager::getSupportedLanguages();
 
                             <div class="form-group" style="margin-bottom: 1.25rem;">
                                 <label for="trans_<?php echo $al; ?>_meta_desc" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
-                                    Meta-Description (<?php echo htmlspecialchars($supported_langs[$al]['name']); ?>)
+                                    <?php echo __a('admin.pages.field_meta_desc'); ?>
                                 </label>
                                 <input type="text" id="trans_<?php echo $al; ?>_meta_desc" name="trans_<?php echo $al; ?>_meta_description" class="form-control" placeholder="SEO-Beschreibung auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>">
                             </div>
 
                             <div class="form-group" style="margin-bottom: 1.5rem;">
                                 <label for="trans_<?php echo $al; ?>_content" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
-                                    <span>Seiteninhalt (Markdown auf <?php echo htmlspecialchars($supported_langs[$al]['name']); ?>)</span>
+                                    <span><?php echo __a('admin.pages.field_content'); ?> (<?php echo htmlspecialchars($supported_langs[$al]['name']); ?>)</span>
                                 </label>
                                 <textarea id="trans_<?php echo $al; ?>_content" name="trans_<?php echo $al; ?>_content" class="form-control" rows="12" placeholder="Übersetzter Markdown-Inhalt..." style="font-family: monospace; font-size:0.95rem; line-height:1.6;"></textarea>
                             </div>
@@ -361,15 +360,15 @@ $supported_langs = LanguageManager::getSupportedLanguages();
 
                     <div class="form-group" style="margin-bottom: 1.25rem; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); padding:0.75rem 1rem; border-radius:10px;">
                         <label for="page_revision_note" style="font-weight:600; font-size:0.85rem; color:var(--text-secondary); display:block; margin-bottom:0.25rem;">
-                            <span class="material-icons" style="font-size:15px; vertical-align:middle;">history_edu</span> Revisions-Notiz (optional):
+                            <span class="material-icons" style="font-size:15px; vertical-align:middle;">history_edu</span> <?php echo __a('admin.pages.field_revision_note'); ?>
                         </label>
-                        <input type="text" id="page_revision_note" name="revision_note" class="form-control" placeholder="z. B. Neuer Abschnitt ergänzt, Kontaktdaten aktualisiert" style="font-size:0.85rem;">
+                        <input type="text" id="page_revision_note" name="revision_note" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.pages.placeholder_revision')); ?>" style="font-size:0.85rem;">
                     </div>
 
                     <div style="display:flex; justify-content:flex-end; gap:12px;">
-                        <button type="button" class="btn btn-secondary" onclick="closePageEditor()">Abbrechen</button>
+                        <button type="button" class="btn btn-secondary" onclick="closePageEditor()"><?php echo __a('admin.pages.btn_cancel'); ?></button>
                         <button type="submit" class="btn btn-primary" id="page-submit-btn">
-                            <span class="material-icons" style="font-size:18px;">save</span> Seite speichern
+                            <span class="material-icons" style="font-size:18px;">save</span> <?php echo __a('admin.pages.btn_save'); ?>
                         </button>
                     </div>
                 </form>
@@ -379,10 +378,10 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             <?php if (empty($pages)): ?>
                 <div style="text-align:center; padding: 3rem 1.5rem; background:rgba(255,255,255,0.02); border:1px dashed var(--border-color); border-radius:14px;">
                     <span class="material-icons" style="font-size:48px; color:var(--text-secondary); margin-bottom:0.5rem; opacity:0.6;">article</span>
-                    <h3 style="margin:0 0 0.5rem 0; color:var(--text-primary);">Noch keine freien Einzelseiten angelegt</h3>
-                    <p style="color:var(--text-secondary); font-size:0.95rem; margin-bottom:1.5rem;">Erstelle separate Unterseiten für ausführliche Firmenporträts, Anfahrtspläne oder spezielle Kooperationen.</p>
+                    <h3 style="margin:0 0 0.5rem 0; color:var(--text-primary);"><?php echo __a('admin.pages.empty_title'); ?></h3>
+                    <p style="color:var(--text-secondary); font-size:0.95rem; margin-bottom:1.5rem;"><?php echo __a('admin.pages.empty_desc'); ?></p>
                     <button type="button" class="btn btn-primary" onclick="openPageEditor()">
-                        <span class="material-icons" style="font-size:18px;">add_circle</span> Erste Einzelseite anlegen
+                        <span class="material-icons" style="font-size:18px;">add_circle</span> <?php echo __a('admin.pages.empty_btn'); ?>
                     </button>
                 </div>
             <?php else: ?>
@@ -411,37 +410,37 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                                         ?>
                                         <?php if ($is_modular): ?>
                                             <span style="font-size:0.7rem; font-weight:700; color:#8b5cf6; background:rgba(139,92,246,0.1); padding:2px 8px; border-radius:999px;">
-                                                Modulare Landingpage (<?php echo $sec_count; ?> Sektionen)
+                                                <?php echo str_replace('{count}', $sec_count, __a('admin.pages.badge_modular')); ?>
                                             </span>
                                         <?php else: ?>
                                             <span style="font-size:0.7rem; font-weight:600; color:var(--text-secondary); background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:999px;">
-                                                Standard-Inhalt
+                                                <?php echo __a('admin.pages.badge_standard'); ?>
                                             </span>
                                         <?php endif; ?>
                                         <?php if ($p_status === 'published'): ?>
-                                            <span style="font-size:0.7rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.1); padding:2px 8px; border-radius:999px;">Veröffentlicht</span>
+                                            <span style="font-size:0.7rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.1); padding:2px 8px; border-radius:999px;"><?php echo __a('admin.pages.badge_published'); ?></span>
                                         <?php elseif ($p_status === 'scheduled'): ?>
-                                            <span style="font-size:0.7rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:2px 8px; border-radius:999px;" title="Geplant für: <?php echo htmlspecialchars($p_publish_at); ?>">
-                                                ⏱️ Geplant (<?php echo date('d.m.Y H:i', strtotime($p_publish_at ?: 'now')); ?>)
+                                            <span style="font-size:0.7rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:2px 8px; border-radius:999px;" title="<?php echo htmlspecialchars(str_replace('{date}', $p_publish_at, __a('admin.pages.badge_scheduled'))); ?>">
+                                                ⏱️ <?php echo htmlspecialchars(str_replace('{date}', date('d.m.Y H:i', strtotime($p_publish_at ?: 'now')), __a('admin.pages.badge_scheduled'))); ?>
                                             </span>
                                         <?php else: ?>
-                                            <span style="font-size:0.7rem; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.1); padding:2px 8px; border-radius:999px;">Entwurf</span>
+                                            <span style="font-size:0.7rem; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.1); padding:2px 8px; border-radius:999px;"><?php echo __a('admin.pages.badge_draft'); ?></span>
                                         <?php endif; ?>
                                         <?php if (!empty($p['in_nav'])): ?>
                                             <span style="font-size:0.7rem; font-weight:700; color:#3b82f6; background:rgba(59,130,246,0.1); padding:2px 8px; border-radius:999px;" title="Titel im Menü: <?php echo htmlspecialchars($p_nav); ?>">
-                                                Menü: <strong><?php echo htmlspecialchars($p_nav); ?></strong>
+                                                <?php echo str_replace('{label}', '<strong>' . htmlspecialchars($p_nav) . '</strong>', __a('admin.pages.badge_in_nav')); ?>
                                             </span>
                                         <?php else: ?>
-                                            <span style="font-size:0.7rem; color:var(--text-secondary); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:999px;">Nicht im Menü</span>
+                                            <span style="font-size:0.7rem; color:var(--text-secondary); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:999px;"><?php echo __a('admin.pages.badge_not_in_nav'); ?></span>
                                         <?php endif; ?>
                                     </h4>
                                     
                                     <div style="font-size:0.85rem; color:var(--text-secondary); display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:4px;">
-                                        <span>Pfad: <code>?page=<?php echo htmlspecialchars($p_slug); ?></code></span>
+                                        <span><?php echo __a('admin.pages.path_label'); ?> <code>?page=<?php echo htmlspecialchars($p_slug); ?></code></span>
                                         
                                         <!-- Sprach-Badges (Klickbar für Direktsprung zur Sprache) -->
                                         <span style="display:inline-flex; align-items:center; gap:4px;">
-                                            <span style="font-size:0.75rem; color:var(--text-secondary);">Sprachen:</span>
+                                            <span style="font-size:0.75rem; color:var(--text-secondary);"><?php echo __a('admin.pages.languages_label'); ?></span>
                                             <span onclick="editPage(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, '<?php echo $primary_lang; ?>')" style="font-size:0.72rem; font-weight:700; background:rgba(16,185,129,0.15); color:#10b981; padding:2px 8px; border-radius:4px; cursor:pointer;" title="<?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?> bearbeiten">
                                                 <?php echo $supported_langs[$primary_lang]['flag'] . ' ' . strtoupper($primary_lang); ?>
                                             </span>
@@ -459,21 +458,21 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                             </div>
 
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <a href="<?php echo htmlspecialchars($p_preview_url); ?>" target="_blank" class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem; text-decoration:none;" title="Vorschau inklusive sicherem Token in neuem Tab ansehen">
-                                    <span class="material-icons" style="font-size:16px;">visibility</span> Vorschau
+                                <a href="<?php echo htmlspecialchars($p_preview_url); ?>" target="_blank" class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem; text-decoration:none;" title="<?php echo htmlspecialchars(__a('admin.pages.btn_preview')); ?>">
+                                    <span class="material-icons" style="font-size:16px;">visibility</span> <?php echo __a('admin.pages.btn_preview'); ?>
                                 </a>
-                                <button type="button" class="btn btn-secondary" onclick="openRevisionsModal('page', '<?php echo htmlspecialchars($p['id'] ?? '', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($p['title'] ?? '', ENT_QUOTES); ?>')" style="padding:6px 12px; font-size:0.82rem;" title="Revisionshistorie &amp; Rollback ansehen">
-                                    <span class="material-icons" style="font-size:16px;">history</span> Revisions
+                                <button type="button" class="btn btn-secondary" onclick="openRevisionsModal('page', '<?php echo htmlspecialchars($p['id'] ?? '', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($p['title'] ?? '', ENT_QUOTES); ?>')" style="padding:6px 12px; font-size:0.82rem;" title="<?php echo htmlspecialchars(__a('admin.pages.btn_revisions')); ?>">
+                                    <span class="material-icons" style="font-size:16px;">history</span> <?php echo __a('admin.pages.btn_revisions'); ?>
                                 </button>
                                 <button type="button" class="btn btn-secondary" onclick="editPage(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" style="padding:6px 12px; font-size:0.82rem;">
-                                    <span class="material-icons" style="font-size:16px;">edit</span> Bearbeiten
+                                    <span class="material-icons" style="font-size:16px;">edit</span> <?php echo __a('admin.pages.btn_edit'); ?>
                                 </button>
-                                <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Möchtest du diese Einzelseite wirklich unwiderruflich löschen?');">
+                                <form method="POST" action="" style="display:inline;" onsubmit="return confirm(<?php echo htmlspecialchars(json_encode(__a('admin.pages.confirm_delete'))); ?>);">
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                     <input type="hidden" name="action" value="delete_page">
                                     <input type="hidden" name="target_tab" value="tab-pages">
                                     <input type="hidden" name="id" value="<?php echo htmlspecialchars($p['id'] ?? ''); ?>">
-                                    <button type="submit" class="btn btn-secondary" style="padding:6px 10px; color:#ef4444;" title="Seite löschen">
+                                    <button type="submit" class="btn btn-secondary" style="padding:6px 10px; color:#ef4444;" title="<?php echo htmlspecialchars(__a('admin.pages.btn_delete')); ?>">
                                         <span class="material-icons" style="font-size:16px;">delete</span>
                                     </button>
                                 </form>
@@ -528,10 +527,10 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             if (primDot) {
                 if (primTitle || primContent) {
                     primDot.style.background = '#10b981';
-                    primDot.title = 'Hauptsprache: Inhalt vorhanden';
+                    primDot.title = <?php echo json_encode(__a('admin.pages.status_dot_ok')); ?>;
                 } else {
                     primDot.style.background = '#f59e0b';
-                    primDot.title = 'Hauptsprache: Noch leer';
+                    primDot.title = <?php echo json_encode(__a('admin.pages.status_dot_empty')); ?>;
                 }
             }
 
@@ -547,10 +546,10 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                 if (dot) {
                     if (hasText) {
                         dot.style.background = '#10b981';
-                        dot.title = 'Übersetzung (' + lang.toUpperCase() + ') vorhanden';
+                        dot.title = <?php echo json_encode(__a('admin.pages.status_dot_ok')); ?>;
                     } else {
                         dot.style.background = '#94a3b8';
-                        dot.title = 'Übersetzung (' + lang.toUpperCase() + ') noch nicht angelegt';
+                        dot.title = <?php echo json_encode(__a('admin.pages.status_dot_empty')); ?>;
                     }
                 }
             });
@@ -593,7 +592,7 @@ $supported_langs = LanguageManager::getSupportedLanguages();
 
         function openPageEditor() {
             document.getElementById('page-editor-box').style.display = 'block';
-            document.getElementById('page-editor-title').innerHTML = '<span class="material-icons">add_circle</span> Neue Einzelseite anlegen';
+            document.getElementById('page-editor-title').innerHTML = '<span class="material-icons">add_circle</span> ' + <?php echo json_encode(__a('admin.pages.new_page')); ?>;
             document.getElementById('page_form_action').value = 'add_page';
             document.getElementById('page_id').value = '';
             document.getElementById('page_title').value = '';
@@ -632,7 +631,7 @@ $supported_langs = LanguageManager::getSupportedLanguages();
 
             switchPageLangTab(PAGE_PRIMARY_LANG);
             updateStickyTranslationDots();
-            document.getElementById('page-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Seite anlegen';
+            document.getElementById('page-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> ' + <?php echo json_encode(__a('admin.pages.btn_create')); ?>;
             document.getElementById('page_title').focus();
         }
 
@@ -649,7 +648,7 @@ $supported_langs = LanguageManager::getSupportedLanguages();
 
         function editPage(pageData, targetLang = null) {
             document.getElementById('page-editor-box').style.display = 'block';
-            document.getElementById('page-editor-title').innerHTML = '<span class="material-icons">edit</span> Einzelseite bearbeiten';
+            document.getElementById('page-editor-title').innerHTML = '<span class="material-icons">edit</span> ' + <?php echo json_encode(__a('admin.pages.edit_page')); ?>;
             document.getElementById('page_form_action').value = 'edit_page';
             document.getElementById('page_id').value = pageData.id || '';
             document.getElementById('page_title').value = pageData.title || '';
@@ -694,7 +693,7 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             const switchLang = targetLang && PAGE_ACTIVE_LANGS.includes(targetLang) ? targetLang : PAGE_PRIMARY_LANG;
             switchPageLangTab(switchLang);
             updateStickyTranslationDots();
-            document.getElementById('page-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Änderungen speichern';
+            document.getElementById('page-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> ' + <?php echo json_encode(__a('admin.pages.btn_save')); ?>;
             document.getElementById('page-editor-box').scrollIntoView({ behavior: 'smooth' });
         }
 

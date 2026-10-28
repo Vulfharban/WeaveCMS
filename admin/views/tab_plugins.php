@@ -14,17 +14,17 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap: 1rem; margin-bottom: 2rem;">
         <div>
             <h2 style="color: var(--primary); margin:0 0 0.5rem 0; display:flex; align-items:center; gap: 10px;">
-                <span class="material-icons" style="font-size:32px;">extension</span> Modul- &amp; Plugin-System
+                <span class="material-icons" style="font-size:32px;">extension</span> <?php echo __a('admin.plugins.title', 'Modul- & Plugin-System'); ?>
             </h2>
             <p style="color: var(--text-secondary); margin:0; font-size: 0.95rem;">
-                Erweitere WeaveCMS modular um zusätzliche Funktionen, Drittanbieter-Anbindungen (wie Webtrees Stammbäume) und Inhaltstypen.
+                <?php echo __a('admin.plugins.subtitle', 'Erweitere WeaveCMS modular um zusätzliche Funktionen, Drittanbieter-Anbindungen (wie Webtrees Stammbäume) und Inhaltstypen.'); ?>
             </p>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
             <span style="background: rgba(46,98,72,0.1); color: var(--primary); font-size: 0.85rem; font-weight: 700; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(46,98,72,0.2);">
                 <?php 
                     $active_count = count(array_filter($all_plugins, fn($p) => !empty($p['active'])));
-                    echo "{$active_count} von " . count($all_plugins) . " Plugins aktiv";
+                    echo __a('admin.plugins.badge_active', '{active} von {total} Plugins aktiv', null, ['active' => $active_count, 'total' => count($all_plugins)]);
                 ?>
             </span>
         </div>
@@ -33,9 +33,9 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
     <?php if (empty($all_plugins)): ?>
         <div style="background: rgba(0,0,0,0.02); border: 2px dashed var(--border-color); border-radius: 16px; padding: 3rem 2rem; text-align:center;">
             <span class="material-icons" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 1rem;">extension_off</span>
-            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Keine Plugins gefunden</h3>
+            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;"><?php echo __a('admin.plugins.empty_title', 'Keine Plugins gefunden'); ?></h3>
             <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 520px; margin: 0 auto; line-height: 1.5;">
-                Es wurden bisher keine Erweiterungen im Verzeichnis <code>plugins/</code> hinterlegt. Lege einfach einen Unterordner mit einer <code>plugin.json</code> an, um eine neue Erweiterung zu registrieren.
+                <?php echo __a('admin.plugins.empty_desc', 'Es wurden bisher keine Erweiterungen im Verzeichnis plugins/ hinterlegt. Lege einfach einen Unterordner mit einer plugin.json an, um eine neue Erweiterung zu registrieren.'); ?>
             </p>
         </div>
     <?php else: ?>
@@ -67,7 +67,7 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
                                     <?php endif; ?>
                                     <?php if (!empty($pluginIssues)): ?>
                                         <span style="font-size:0.75rem; font-weight:700; background:#fef3c7; color:#b45309; border:1px solid #f59e0b; padding:2px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:3px;">
-                                            <span class="material-icons" style="font-size:12px;">warning</span> Einstellungen unvollständig
+                                            <span class="material-icons" style="font-size:12px;">warning</span> <?php echo __a('admin.plugins.settings_incomplete', 'Einstellungen unvollständig'); ?>
                                         </span>
                                     <?php endif; ?>
                                     <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; background:rgba(178,108,57,0.1); color:var(--accent); padding:2px 8px; border-radius:6px;">
@@ -75,7 +75,10 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
                                     </span>
                                 </div>
                                 <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 3px;">
-                                    Von <strong><?php echo htmlspecialchars($plugin['author']); ?></strong> &bull; Slug: <code><?php echo htmlspecialchars($slug); ?></code>
+                                    <?php echo __a('admin.plugins.author_info', 'Von {author} • Slug: {slug}', null, [
+                                        'author' => '<strong>' . htmlspecialchars($plugin['author']) . '</strong>',
+                                        'slug' => '<code>' . htmlspecialchars($slug) . '</code>'
+                                    ]); ?>
                                 </div>
                             </div>
                         </div>
@@ -89,19 +92,19 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
                                 <input type="hidden" name="target_state" value="<?php echo $isActive ? '0' : '1'; ?>">
 
                                 <?php if ($isActive): ?>
-                                    <button type="submit" class="btn btn-outline" style="display:inline-flex; align-items:center; gap:6px; font-size:0.88rem; padding: 7px 14px; border-color:#f87171; color:#ef4444;" title="Plugin deaktivieren">
-                                        <span class="material-icons" style="font-size:16px;">power_settings_new</span> Deaktivieren
+                                    <button type="submit" class="btn btn-outline" style="display:inline-flex; align-items:center; gap:6px; font-size:0.88rem; padding: 7px 14px; border-color:#f87171; color:#ef4444;" title="<?php echo htmlspecialchars(__a('admin.plugins.btn_deactivate', 'Deaktivieren')); ?>">
+                                        <span class="material-icons" style="font-size:16px;">power_settings_new</span> <?php echo __a('admin.plugins.btn_deactivate', 'Deaktivieren'); ?>
                                     </button>
                                 <?php else: ?>
-                                    <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px; font-size:0.88rem; padding: 7px 16px;" title="Plugin aktivieren">
-                                        <span class="material-icons" style="font-size:16px;">bolt</span> Aktivieren
+                                    <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px; font-size:0.88rem; padding: 7px 16px;" title="<?php echo htmlspecialchars(__a('admin.plugins.btn_activate', 'Aktivieren')); ?>">
+                                        <span class="material-icons" style="font-size:16px;">bolt</span> <?php echo __a('admin.plugins.btn_activate', 'Aktivieren'); ?>
                                     </button>
                                 <?php endif; ?>
                             </form>
 
                             <?php if ($isActive && $hasSettings): ?>
                                 <button type="button" class="btn btn-secondary" onclick="togglePluginSettings('<?php echo htmlspecialchars($slug); ?>')" style="display:inline-flex; align-items:center; gap:6px; font-size:0.88rem; padding: 7px 14px;">
-                                    <span class="material-icons" style="font-size:16px;">tune</span> Einstellungen
+                                    <span class="material-icons" style="font-size:16px;">tune</span> <?php echo __a('admin.plugins.btn_settings', 'Einstellungen'); ?>
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -111,7 +114,7 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
                         <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 8px 12px; margin-bottom: 1rem; font-size: 0.85rem; color: #92400e; display: flex; align-items: center; gap: 8px;">
                             <span class="material-icons" style="font-size: 18px; color: #d97706; flex-shrink: 0;">warning</span>
                             <div>
-                                <strong>Erforderliche Einstellungen fehlen:</strong>
+                                <strong><?php echo __a('admin.plugins.missing_req_settings', 'Erforderliche Einstellungen fehlen:'); ?></strong>
                                 <span><?php echo htmlspecialchars(implode(' • ', $pluginIssues)); ?></span>
                             </div>
                         </div>
@@ -126,10 +129,10 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
                             <span class="material-icons" style="font-size: 16px; color: <?php echo $isActive ? '#10b981' : '#94a3b8'; ?>;">
                                 <?php echo $isActive ? 'check_circle' : 'radio_button_unchecked'; ?>
                             </span>
-                            <span>Status: <strong><?php echo $isActive ? 'Aktiv' : 'Deaktiviert'; ?></strong></span>
+                            <span><?php echo __a('admin.plugins.status_label', 'Status:'); ?> <strong><?php echo $isActive ? __a('admin.status.active', 'Aktiv') : __a('admin.status.disabled', 'Deaktiviert'); ?></strong></span>
                         </div>
                         <div>
-                            <span>Core-Kompatibilität: <code><?php echo htmlspecialchars($plugin['requires_core']); ?></code></span>
+                            <span><?php echo __a('admin.plugins.compat_label', 'Core-Kompatibilität:'); ?> <code><?php echo htmlspecialchars($plugin['requires_core']); ?></code></span>
                         </div>
                     </div>
 

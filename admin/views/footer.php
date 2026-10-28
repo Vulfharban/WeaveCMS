@@ -13,14 +13,15 @@
         const serverHasMessage = <?php echo (!empty($success_msg) || !empty($error_msg)) ? 'true' : 'false'; ?>;
         const DEFAULT_PRIVACY_POLICY = <?php echo json_encode(get_default_privacy_policy_text($data)); ?>;
         function loadDefaultPrivacyPolicy() {
-            if (confirm('Möchtest du die rechtssichere DSGVO-Standardvorlage in das Textfeld einfügen? Vorhandener Text wird dabei ersetzt.')) {
+            if (confirm(<?php echo json_encode(__a('admin.footer.privacy_confirm', 'Möchtest du die rechtssichere DSGVO-Standardvorlage in das Textfeld einfügen? Vorhandener Text wird dabei ersetzt.')); ?>)) {
                 const ta = document.getElementById('privacy_policy_text');
                 if (ta) {
                     ta.value = DEFAULT_PRIVACY_POLICY;
+                    const insertedMsg = <?php echo json_encode(__a('admin.footer.privacy_inserted', 'Standard-Datenschutzerklärung eingefügt! Bitte vergiss nicht, unten auf "Speichern" zu klicken.')); ?>;
                     if (typeof showToast === 'function') {
-                        showToast('Standard-Datenschutzerklärung eingefügt!');
+                        showToast(insertedMsg);
                     } else {
-                        alert('Standard-Datenschutzerklärung eingefügt! Bitte vergiss nicht, unten auf "Speichern" zu klicken.');
+                        alert(insertedMsg);
                     }
                 }
             }
@@ -54,12 +55,17 @@
             const socialTitle = document.getElementById('social-card-title');
             const socialDesc = document.getElementById('social-card-desc');
 
+            const lblMissing = <?php echo json_encode(__a('admin.footer.seo_missing', 'fehlt')); ?>;
+            const lblTooShort = <?php echo json_encode(__a('admin.footer.seo_too_short', 'zu kurz')); ?>;
+            const lblTooLong = <?php echo json_encode(__a('admin.footer.seo_too_long', 'zu lang – wird gekürzt')); ?>;
+            const lblOptimal = <?php echo json_encode(__a('admin.footer.seo_optimal', 'optimal')); ?>;
+
             // Ampel-Bewertung (Phase 24.3): rot = leer/zu extrem, gelb = suboptimal, grün = optimal
             const seoRating = function(len, min, max) {
-                if (len === 0) return { color: '#ef4444', label: 'fehlt' };
-                if (len < min) return { color: '#f59e0b', label: 'zu kurz' };
-                if (len > max) return { color: '#f59e0b', label: 'zu lang – wird gekürzt' };
-                return { color: '#10b981', label: 'optimal' };
+                if (len === 0) return { color: '#ef4444', label: lblMissing };
+                if (len < min) return { color: '#f59e0b', label: lblTooShort };
+                if (len > max) return { color: '#f59e0b', label: lblTooLong };
+                return { color: '#10b981', label: lblOptimal };
             };
 
             if (titleInput && titleCount) {
@@ -67,7 +73,7 @@
                 titleCount.textContent = len;
                 const tr = seoRating(len, 30, 60);
                 titleCount.style.color = tr.color;
-                titleCount.title = 'Titel: ' + tr.label;
+                titleCount.title = 'Title: ' + tr.label;
                 const fallbackTitle = titleInput.getAttribute('placeholder') || 'WeaveCMS Website';
                 const displayTitle = titleInput.value.trim() || fallbackTitle;
                 if (serpTitle) serpTitle.textContent = displayTitle;
@@ -79,7 +85,7 @@
                 descCount.textContent = len;
                 const dr = seoRating(len, 70, 155);
                 descCount.style.color = dr.color;
-                descCount.title = 'Beschreibung: ' + dr.label;
+                descCount.title = 'Description: ' + dr.label;
                 const fallbackDesc = 'Entdecke handgefertigte Naturgeflechte und Workshops.';
                 const displayDesc = descInput.value.trim() || fallbackDesc;
                 if (serpDesc) serpDesc.textContent = displayDesc;
@@ -100,11 +106,18 @@
 
             if (!btn || !fb) return;
 
+            const lblTesting = <?php echo json_encode(__a('admin.footer.db_testing', 'Teste...')); ?>;
+            const lblChecking = <?php echo json_encode(__a('admin.footer.db_checking', 'Verbindung wird geprüft...')); ?>;
+            const lblTestBtn = <?php echo json_encode(__a('admin.footer.db_test_btn', 'Verbindung testen')); ?>;
+            const lblSuccess = <?php echo json_encode(__a('admin.footer.db_success', 'Verbindung erfolgreich!')); ?>;
+            const lblFailed = <?php echo json_encode(__a('admin.footer.db_failed', 'Verbindung fehlgeschlagen.')); ?>;
+            const lblServerError = <?php echo json_encode(__a('admin.footer.db_server_error', 'Serverfehler beim Verbindungstest.')); ?>;
+
             btn.disabled = true;
-            btn.innerHTML = '<span class="material-icons spin" style="font-size:16px;">autorenew</span> Teste...';
+            btn.innerHTML = '<span class="material-icons spin" style="font-size:16px;">autorenew</span> ' + lblTesting;
             fb.style.display = 'inline-flex';
             fb.style.color = '#94a3b8';
-            fb.innerHTML = 'Verbindung wird geprüft...';
+            fb.innerHTML = lblChecking;
 
             const formData = new URLSearchParams();
             formData.append('host', host);
@@ -122,22 +135,22 @@
             .then(res => res.json())
             .then(data => {
                 btn.disabled = false;
-                btn.innerHTML = '<span class="material-icons" style="font-size:16px;">bolt</span> Verbindung testen';
+                btn.innerHTML = '<span class="material-icons" style="font-size:16px;">bolt</span> ' + lblTestBtn;
                 fb.style.display = 'inline-flex';
                 if (data.success) {
                     fb.style.color = '#10b981';
-                    fb.innerHTML = '<span class="material-icons" style="font-size:16px;">check_circle</span> ' + (data.message || 'Verbindung erfolgreich!');
+                    fb.innerHTML = '<span class="material-icons" style="font-size:16px;">check_circle</span> ' + (data.message || lblSuccess);
                 } else {
                     fb.style.color = '#ef4444';
-                    fb.innerHTML = '<span class="material-icons" style="font-size:16px;">error</span> ' + (data.message || 'Verbindung fehlgeschlagen.');
+                    fb.innerHTML = '<span class="material-icons" style="font-size:16px;">error</span> ' + (data.message || lblFailed);
                 }
             })
             .catch(err => {
                 btn.disabled = false;
-                btn.innerHTML = '<span class="material-icons" style="font-size:16px;">bolt</span> Verbindung testen';
+                btn.innerHTML = '<span class="material-icons" style="font-size:16px;">bolt</span> ' + lblTestBtn;
                 fb.style.display = 'inline-flex';
                 fb.style.color = '#ef4444';
-                fb.innerHTML = '<span class="material-icons" style="font-size:16px;">error</span> Serverfehler beim Verbindungstest.';
+                fb.innerHTML = '<span class="material-icons" style="font-size:16px;">error</span> ' + lblServerError;
             });
         }
 

@@ -20,19 +20,19 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 - **Feature catalog & update portal (Deutsch):** [`libs/docs/features.md`](libs/docs/features.md)
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
-- **21-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
+- **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 
 ## Releases & Downloads (v1.3.1)
 
-- 📦 **[WeaveCMS v1.3.1 Full Package](releases/weavecms-v1.3.1.zip)** (`releases/weavecms-v1.3.1.zip`, 12.11 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.1 Update Package](releases/update-v1.3.1.zip)** (`releases/update-v1.3.1.zip`, 0.66 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.1 Full Package](releases/weavecms-v1.3.1.zip)** (`releases/weavecms-v1.3.1.zip`, 12.15 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.1 Update Package](releases/update-v1.3.1.zip)** (`releases/update-v1.3.1.zip`, 0.71 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
 
 ### v1.3.1 (28. Oktober 2026)
 
 - 🌐 **Vollständige Backend-Mehrsprachigkeit (DE & EN):**
-  - **Umfassende Lokalisierungskataloge:** Lückenlose Übersetzung aller Administrationsbereiche (Header, Login-Screen, Haupt- und Subnavigation, Dashboard-KPIs, Benutzerverwaltung, Schnellzugriffe, Statusmeldungen und Bestätigungsdialoge) in `libs/lang/admin/de.json` und `libs/lang/admin/en.json` mit über 200 synchronisierten Schlüsseln.
+  - **Umfassende Lokalisierungskataloge:** Lückenlose Übersetzung aller Administrationsbereiche (Header, Login-Screen, Haupt- und Subnavigation, Dashboard-KPIs, Benutzerverwaltung, Schnellzugriffe, Statusmeldungen, Sicherheits-Audit, Backup-System und Bestätigungsdialoge) in `libs/lang/admin/de.json` und `libs/lang/admin/en.json` mit über 1.050 synchronisierten Schlüsseln (100 % Parität aller 1.056 Schlüssel).
   - **Login-Sprachumschalter:** Eleganter Sprachschalter auf der Login-Maske mit automatischer Session- und Cookie-Persistenz.
   - **Intelligente Fallback-Engine:** `LanguageManager::adminT()` und `__a()` mit automatischer Browser-Erkennung, Rollen-Fallback und dynamischer Platzhalter-Ersetzung (`{name}`, `{count}`, `{version}`).
 - 👤 **Benutzerdefinierte Default-Sprache im Backend:**

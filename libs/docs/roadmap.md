@@ -32,7 +32,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
-## 🚀 Arbeitsablauf: Der 26-Phasen-Entwicklungsplan
+## 🚀 Arbeitsablauf: Der 31-Phasen-Entwicklungsplan
 
 ```
 [Phase 1: Recht & Texte] ──▶ [Phase 2: Datensicherheit] ──▶ [Phase 3: SEO & Sharing] ──▶ [Phase 4: Anfragen-Log]
@@ -63,8 +63,16 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   (Media Library & WebP/AVIF)      (Drafts, Diff & Zeitsteuerung)      (XML-Sitemap & Schema.org)
          │
          ▼
-[Phase 25: 1-Klick-Updater] ───▶ [Phase 26: Schnellzugriff-Hub]
-  (Automatisierte Core-Updates)    (Eigene Quick-Actions wählen)
+[Phase 25: 1-Klick-Updater] ───▶ [Phase 26: Schnellzugriff-Hub] ──▶ [Phase 27: Grid-Builder (v1.4.0)]
+  (Automatisierte Core-Updates)    (Eigene Quick-Actions wählen)        (CSS-Grid Spalten 50/50, 1/3-2/3)
+         │
+         ▼
+[Phase 28: Taxonomien & Fields (v1.4.5)] ──▶ [Phase 29: 2FA TOTP & Backup (v1.4.5)]
+  (Globales Tagging & Custom Fields)           (RFC 6238 TOTP Authenticator & Notfall-Codes)
+         │
+         ▼
+[Phase 30: Fokuspunkt-Selector (v1.5.0)] ──▶ [Phase 31: REST-API & Webhooks (v1.5.0)]
+  (object-position X% Y% Mobile Crop)          (JSON Headless Endpunkte & Event-Hooks)
 ```
 
 ---
@@ -805,4 +813,82 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 - [x] **26.4 Dynamisches Dashboard-Kachel-Widget:**
   - Modernes, responsives Kachel-Grid im Administrations-Dashboard mit Hover-Effekten, Icons, Beschreibungen und optionalen Badges (z. B. Anzahl ungelesener Nachrichten oder anstehender Entwürfe).
   - Nahtlose Trigger-Logik: Öffnet direkt den Ziel-Tab, aktiviert Modals oder navigiert mit direktem Fokus.
+
+---
+
+### Phase 27: Visueller Spalten- & Grid-Builder (v1.4.0)
+*Ziel: Modulare Mehrspaltigkeit (50/50, 3-Spalten, 1/3-2/3) auf Basis reiner, schlanker CSS-Grids ohne externe Frameworks.*
+
+- [ ] **27.1 Grid-Layout-Komponente im Einzelseiten-Editor:**
+  - Auswahl von 1- bis 3-spaltigen Layouts per Klick (z. B. 50/50, 33/33/33, 1/3 zu 2/3, Bild links / Text rechts).
+  - Saubere HTML/CSS-Struktur ohne Bootstrap oder Tailwind (`<div class="weave-grid weave-grid-2">`).
+  - Native visuelle Spalten-Trenner und Größenanpassung im Editor.
+- [ ] **27.2 Vordefinierte Block-Vorlagen (Presets):**
+  - Schnellauswahl vorgefertigter Content-Blöcke (Hero-Teaser, Testimonial-Card, Call-to-Action Box, Feature-Spalten).
+  - Nahtlose Markdown- und WYSIWYG-Integration innerhalb der einzelnen Spalten.
+- [ ] **27.3 Responsive Breakpoint-Vorschau:**
+  - Umschaltung der Live-Vorschau direkt im Editor auf Desktop (1200 px), Tablet (768 px) und Smartphone (375 px).
+  - Automatisches Stacking (Umbrechen) der Spalten auf mobilen Viewports.
+
+---
+
+### Phase 28: Globale Taxonomien & Custom Fields (v1.4.5)
+*Ziel: Sektionsübergreifendes Tagging und frei definierbare Zusatzfelder für Seiten und Produkte.*
+
+- [ ] **28.1 Sektionsübergreifendes Tagging- & Taxonomie-System:**
+  - Zentrale Schlagwortverwaltung für Blogartikel, Seiten, Portfolio-Arbeiten und Shop-Produkte.
+  - Globale Filterung und Taxonomie-Archivseiten im Frontend (`/tag/{slug}`).
+  - Tag-Cloud- und Autovervollständigungs-Widget im Backend.
+- [ ] **28.2 Custom Fields Manager:**
+  - Frei definierbare Zusatzfelder pro Inhaltsmodul (z. B. Seiten, Produkte, Kurse).
+  - Unterstützte Feldtypen: Textzeile, Textbereich, Zahl, Checkbox/Bool, Hyperlink, Datumsfeld, Datei-/PDF-Anhang.
+  - Validierungsregeln (Pflichtfeld, Regex, Min/Max).
+- [ ] **28.3 Dynamische Frontend-Ausgabe & Templating:**
+  - Automatisches Rendern der Custom Fields in Sektionen oder Abruf via Helfer-Funktion `get_custom_field($item, 'field_key')`.
+  - Schema.org-Attribut-Mapping für benutzerdefinierte Datenfelder.
+
+---
+
+### Phase 29: Zwei-Faktor-Authentifizierung (2FA via TOTP / App) (v1.4.5)
+*Ziel: Standardkonformer RFC 6238 TOTP-Generator für Authenticator-Apps (Google Authenticator, Bitwarden, 1Password) mit Backup-Wiederherstellungscodes.*
+
+- [ ] **29.1 RFC 6238 TOTP-Engine (Zero External Bloat):**
+  - Nativer PHP-Algorithmus zur Erzeugung und Verifikation zeitbasierter Einmalpasswörter (TOTP) ohne externe Composer-Pakete.
+  - Kompatibel mit allen Standard-Apps (Google Authenticator, Bitwarden, 1Password, Microsoft Authenticator, Aegis).
+- [ ] **29.2 2FA-Einrichtungs-Assistent im Admin-Profil:**
+  - Generierung des Secret-Keys und Darstellung als QR-Code (SVG/Canvas) sowie manueller Textschlüssel.
+  - Bestätigungsprüfung vor der Aktivierung zur Vermeidung versehentlicher Aussperrungen.
+  - 2FA-Status-Badges in der Benutzerverwaltung.
+- [ ] **29.3 Notfall-Wiederherstellungscodes (Backup-Codes):**
+  - Generierung von 8 kryptografisch sicheren Einmal-Wiederherstellungscodes bei Aktivierung.
+  - Notfall-Login-Pfad bei Smartphone-Verlust mit automatischer Entwertung genutzter Codes.
+
+---
+
+### Phase 30: Interaktiver Fokuspunkt-Selector für Medien (v1.5.0)
+*Ziel: Klick-Fokuspunkt im Mediathek-Modal (object-position: X% Y%) zur Optimierung von Bildausschnitten auf Smartphones.*
+
+- [ ] **30.1 Visueller Klick-Fokuspunkt im Mediathek-Detailmodal:**
+  - Interaktiver Bildwähler: Per Klick wird das visuelle Zentrum (z. B. Gesicht, Motiv, Produkt) im Bild markiert.
+  - Speicherung der Fokus-Koordinaten (`focus_x` und `focus_y` in Prozent 0–100 %) in `data/media_meta.json`.
+- [ ] **30.2 CSS `object-position` Rendering in Bildkomponenten:**
+  - Automatisches Injizieren von `style="object-position: {x}% {y}%;"` in Hero-, Galerie- und Teaser-Bildern.
+  - Garantiert optimale Bildausschnitte bei responsivem Beschnitt (`object-fit: cover`) auf allen Smartphone-Bildschirmen.
+- [ ] **30.3 Live-Vorschau in verschiedenen Seitenverhältnissen:**
+  - Sofortige Vorschau im Mediathek-Modal in den Formaten 16:9 (Desktop), 1:1 (Kachel/Instagram) und 9:16 (Mobile Story).
+
+---
+
+### Phase 31: Headless REST-API Endpunkte & Webhooks (v1.5.0)
+*Ziel: Strukturierte Lese-Endpunkte und Event-Webhooks für Drittanbindungen und mobile Clients.*
+
+- [ ] **31.1 Token-authentifizierte REST-Read-Endpunkte (`/api/v1/`):**
+  - JSON-Endpunkte für Seiten (`/api/v1/pages`), Blogartikel (`/api/v1/posts`), Produkte (`/api/v1/products`) und Termine (`/api/v1/courses`).
+  - Sichere Authentifizierung über API-Bearer-Tokens mit konfigurierbaren Rechten im Backend.
+- [ ] **31.2 Event-Webhook-Dispatcher:**
+  - Konfigurierbare Webhook-URLs im Administrationsbereich mit HMAC-Signatur (`X-Weave-Signature`).
+  - Automatische Auslösung bei Kern-Events: `contact.received` (Kontaktformular), `order.created` (Shop), `post.published` (Blog), `backup.created`.
+- [ ] **31.3 Webhook-Log & Wiederholungsversuche:**
+  - Protokollierung ausgehender Webhook-Aufrufe (HTTP-Statuscode, Payload, Antwortzeit) im Adminbereich mit manuellem Re-Trigger.
+
 

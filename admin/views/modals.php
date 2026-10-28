@@ -12,11 +12,10 @@
         <div id="restore-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:3000; align-items:center; justify-content:center; backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px);" onclick="if(event.target===this) closeRestoreModal();">
             <div style="background:var(--bg-color); border:1px solid var(--border-color); border-radius:18px; max-width:480px; width:calc(100% - 2rem); padding:2rem; box-shadow:0 25px 60px rgba(0,0,0,0.35); position:relative;">
                 <h3 style="margin:0 0 0.75rem 0; color:var(--primary); display:flex; align-items:center; gap:8px;">
-                    <span class="material-icons" style="font-size:24px;">settings_backup_restore</span> Sicherung wiederherstellen
+                    <span class="material-icons" style="font-size:24px;">settings_backup_restore</span> <?php echo __a('admin.restore.title', 'Sicherung wiederherstellen'); ?>
                 </h3>
                 <p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.5; margin-bottom:1.25rem;">
-                    Möchtest du die Sicherung <strong id="modal-backup-filename" style="color:var(--text-primary); font-family:monospace; word-break:break-all;"></strong> wirklich einspielen?<br>
-                    Alle aktuellen Website-Daten werden durch den Stand dieser Sicherung ersetzt. Zur Sicherheit legt das System vorab automatisch einen Notfall-Snapshot an.
+                    <?php echo __a('admin.restore.confirm_desc', 'Möchtest du die Sicherung {filename} wirklich einspielen? Alle aktuellen Website-Daten werden durch den Stand dieser Sicherung ersetzt. Zur Sicherheit legt das System vorab automatisch einen Notfall-Snapshot an.', null, ['filename' => '<strong id="modal-backup-filename" style="color:var(--text-primary); font-family:monospace; word-break:break-all;"></strong>']); ?>
                 </p>
 
                 <form method="POST" action="">
@@ -26,18 +25,18 @@
 
                     <div class="form-group" style="margin-bottom:1.5rem;">
                         <label style="font-weight:700; color:var(--text-primary); display:block; margin-bottom:0.4rem; font-size:0.9rem;">
-                            Administrator-PIN zur Autorisierung <span style="color:#ef4444;">*</span>
+                            <?php echo __a('admin.restore.pin_label', 'Administrator-PIN zur Autorisierung'); ?> <span style="color:#ef4444;">*</span>
                         </label>
                         <div style="position:relative;">
-                            <input type="password" id="modal-restore-pin" name="restore_pin" class="form-control" placeholder="Aktuelle PIN eingeben" maxlength="10" required style="padding-right:40px; letter-spacing:2px;">
+                            <input type="password" id="modal-restore-pin" name="restore_pin" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.restore.pin_placeholder', 'Aktuelle PIN eingeben')); ?>" maxlength="10" required style="padding-right:40px; letter-spacing:2px;">
                             <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); cursor:pointer; font-size:18px;" onclick="toggleVisibility('modal-restore-pin')">visibility</span>
                         </div>
                     </div>
 
                     <div style="display:flex; justify-content:flex-end; gap:10px;">
-                        <button type="button" class="btn btn-outline" onclick="closeRestoreModal()">Abbrechen</button>
+                        <button type="button" class="btn btn-outline" onclick="closeRestoreModal()"><?php echo __a('admin.btn.cancel', 'Abbrechen'); ?></button>
                         <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px;">
-                            <span class="material-icons" style="font-size:16px;">check_circle</span> Jetzt wiederherstellen
+                            <span class="material-icons" style="font-size:16px;">check_circle</span> <?php echo __a('admin.restore.submit_btn', 'Jetzt wiederherstellen'); ?>
                         </button>
                     </div>
                 </form>
@@ -58,49 +57,49 @@
                         🌿
                     </div>
                     <div>
-                        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin:0;">Herzlich willkommen bei WeaveCMS!</h2>
-                        <p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 2px;">Dein Website-System ist erfolgreich eingerichtet und bereit für deine Inhalte.</p>
+                        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin:0;"><?php echo __a('admin.welcome.title', 'Herzlich willkommen bei WeaveCMS!'); ?></h2>
+                        <p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 2px;"><?php echo __a('admin.welcome.subtitle', 'Dein Website-System ist erfolgreich eingerichtet und bereit für deine Inhalte.'); ?></p>
                     </div>
                 </div>
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem;">
                     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 12px 14px; border-radius: 12px;">
                         <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary); display:flex; align-items:center; gap:6px; margin-bottom: 4px;">
-                            <span class="material-icons" style="font-size: 18px;">edit_note</span> 1. Texte &amp; Über mich
+                            <span class="material-icons" style="font-size: 18px;">edit_note</span> <?php echo __a('admin.welcome.card1_title', '1. Texte & Über mich'); ?>
                         </div>
                         <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
-                            Passe Titel, Slogans und deinen persönlichen Biografie-Text an.
+                            <?php echo __a('admin.welcome.card1_desc', 'Passe Titel, Slogans und deinen persönlichen Biografie-Text an.'); ?>
                         </div>
                     </div>
                     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 12px 14px; border-radius: 12px;">
                         <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary); display:flex; align-items:center; gap:6px; margin-bottom: 4px;">
-                            <span class="material-icons" style="font-size: 18px;">palette</span> 2. Farben &amp; Themes
+                            <span class="material-icons" style="font-size: 18px;">palette</span> <?php echo __a('admin.welcome.card2_title', '2. Farben & Themes'); ?>
                         </div>
                         <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
-                            Wähle aus 4 kuratierten Natur-Farbthemen und Galerie-Layouts.
+                            <?php echo __a('admin.welcome.card2_desc', 'Wähle aus 4 kuratierten Natur-Farbthemen und Galerie-Layouts.'); ?>
                         </div>
                     </div>
                     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 12px 14px; border-radius: 12px;">
                         <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary); display:flex; align-items:center; gap:6px; margin-bottom: 4px;">
-                            <span class="material-icons" style="font-size: 18px;">photo_library</span> 3. Galerie &amp; Workshops
+                            <span class="material-icons" style="font-size: 18px;">photo_library</span> <?php echo __a('admin.welcome.card3_title', '3. Galerie & Workshops'); ?>
                         </div>
                         <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
-                            Lade Fotos hoch, vergebe Kategorien und trage Kurstermine ein.
+                            <?php echo __a('admin.welcome.card3_desc', 'Lade Fotos hoch, vergebe Kategorien und trage Kurstermine ein.'); ?>
                         </div>
                     </div>
                     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 12px 14px; border-radius: 12px;">
                         <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary); display:flex; align-items:center; gap:6px; margin-bottom: 4px;">
-                            <span class="material-icons" style="font-size: 18px;">security</span> 4. Schutz &amp; Backups
+                            <span class="material-icons" style="font-size: 18px;">security</span> <?php echo __a('admin.welcome.card4_title', '4. Schutz & Backups'); ?>
                         </div>
                         <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
-                            Setup ist gesperrt (<code style="font-family:monospace; color:#34d399;">installed.lock</code>). Lege hier 1-Klick-Sicherungen an.
+                            <?php echo __a('admin.welcome.card4_desc', 'Setup ist gesperrt (installed.lock). Lege hier 1-Klick-Sicherungen an.'); ?>
                         </div>
                     </div>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap: 12px; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
                     <button type="button" class="btn btn-primary" style="padding: 10px 22px; font-weight: 600; display:inline-flex; align-items:center; gap:8px;" onclick="dismissWelcomeModal()">
-                        <span class="material-icons" style="font-size: 18px;">check</span> Loslegen &amp; Administrationsbereich erkunden
+                        <span class="material-icons" style="font-size: 18px;">check</span> <?php echo __a('admin.welcome.explore_btn', 'Loslegen & Administrationsbereich erkunden'); ?>
                     </button>
                 </div>
             </div>
@@ -203,7 +202,7 @@
                     listEl.innerHTML = '';
 
                     if (!res.success || !res.revisions || res.revisions.length === 0) {
-                        listEl.innerHTML = '<div style="text-align:center; padding:1.5rem; color:var(--text-secondary); background:rgba(255,255,255,0.02); border-radius:8px;">Noch keine gespeicherten Revisionsstände für dieses Element vorhanden. Revisionen werden automatisch bei jeder Speicherung angelegt.</div>';
+                        listEl.innerHTML = '<div style="text-align:center; padding:1.5rem; color:var(--text-secondary); background:rgba(255,255,255,0.02); border-radius:8px;"><?php echo addslashes(__a('admin.revisions.no_revisions', 'Keine früheren Revisionen für diesen Inhalt vorhanden.')); ?></div>';
                         return;
                     }
 
@@ -217,7 +216,7 @@
                         info.innerHTML = `
                             <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
                                 <strong style="color:var(--text-primary); font-size:0.92rem;">${rev.created_at || 'Unbekannt'}</strong>
-                                ${isLatest ? '<span style="font-size:0.7rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15); padding:1px 6px; border-radius:4px;">Aktuellster Stand</span>' : ''}
+                                ${isLatest ? '<span style="font-size:0.7rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15); padding:1px 6px; border-radius:4px;"><?php echo addslashes(__a('admin.revisions.latest_badge', 'Aktuellster Stand')); ?></span>' : ''}
                                 <span style="font-size:0.75rem; color:var(--text-secondary); background:rgba(255,255,255,0.06); padding:1px 6px; border-radius:4px;">${rev.status || 'published'}</span>
                             </div>
                             <div style="font-size:0.82rem; color:var(--text-secondary); display:flex; gap:12px; align-items:center;">
@@ -230,11 +229,11 @@
                         actions.style.cssText = 'display:flex; align-items:center; gap:8px;';
                         actions.innerHTML = `
                             <button type="button" class="btn btn-secondary" onclick="viewRevisionDiff('${rev.rev_id}')" style="padding:5px 10px; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;">
-                                <span class="material-icons" style="font-size:15px;">difference</span> Diff
+                                <span class="material-icons" style="font-size:15px;">difference</span> <?php echo addslashes(__a('admin.revisions.diff_btn', 'Diff ansehen')); ?>
                             </button>
                             ${!isLatest ? `
                             <button type="button" class="btn btn-outline" onclick="performRollback('${rev.rev_id}', '${rev.created_at}')" style="padding:5px 10px; font-size:0.8rem; color:#3b82f6; border-color:rgba(59,130,246,0.3); display:inline-flex; align-items:center; gap:4px;">
-                                <span class="material-icons" style="font-size:15px;">settings_backup_restore</span> Wiederherstellen
+                                <span class="material-icons" style="font-size:15px;">settings_backup_restore</span> <?php echo addslashes(__a('admin.revisions.restore_btn', 'Wiederherstellen')); ?>
                             </button>` : ''}
                         `;
 
@@ -246,7 +245,7 @@
                 .catch(err => {
                     document.getElementById('rev-modal-loading').style.display = 'none';
                     document.getElementById('rev-modal-list').style.display = 'block';
-                    document.getElementById('rev-modal-list').innerHTML = '<div style="color:#ef4444; padding:1rem;">Fehler beim Laden der Revisionen: ' + err + '</div>';
+                    document.getElementById('rev-modal-list').innerHTML = '<div style="color:#ef4444; padding:1rem;"><?php echo addslashes(__a('admin.revisions.load_error', 'Fehler beim Laden der Revisionen: {error}', null, ['error' => ''])); ?>' + err + '</div>';
                 });
         }
 
@@ -258,7 +257,7 @@
             const diffBox = document.getElementById('rev-modal-diff-box');
             const diffContainer = document.getElementById('rev-modal-diff-container');
             diffBox.style.display = 'block';
-            diffContainer.innerHTML = '<div style="text-align:center; padding:1.5rem; color:var(--text-secondary);"><span class="material-icons" style="font-size:24px; animation:spin 1s linear infinite;">sync</span> Berechne Diff...</div>';
+            diffContainer.innerHTML = '<div style="text-align:center; padding:1.5rem; color:var(--text-secondary);"><span class="material-icons" style="font-size:24px; animation:spin 1s linear infinite;">sync</span> <?php echo addslashes(__a('admin.revisions.diff_calculating', 'Berechne Diff...')); ?></div>';
             diffBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
             fetch('index.php?action=get_revision_diff&item_type=' + encodeURIComponent(REV_CURRENT_TYPE) + '&item_id=' + encodeURIComponent(REV_CURRENT_ID) + '&rev_id=' + encodeURIComponent(revId))
@@ -267,7 +266,7 @@
                     if (res.success && res.diffHtml) {
                         diffContainer.innerHTML = res.diffHtml;
                     } else {
-                        diffContainer.innerHTML = '<div style="color:#ef4444; padding:1rem;">Diff konnte nicht generiert werden: ' + (res.error || 'Unbekannter Fehler') + '</div>';
+                        diffContainer.innerHTML = '<div style="color:#ef4444; padding:1rem;"><?php echo addslashes(__a('admin.revisions.diff_error', 'Diff konnte nicht generiert werden: {error}', null, ['error' => ''])); ?>' + (res.error || 'Unbekannter Fehler') + '</div>';
                     }
                 })
                 .catch(err => {
@@ -280,7 +279,8 @@
         }
 
         function performRollback(revId, createdAt) {
-            if (!confirm('Möchtest du den Revisionsstand vom ' + (createdAt || revId) + ' wirklich wiederherstellen?\n\nDein aktueller Stand wird vorab automatisch als Notfall-Snapshot gesichert.')) {
+            const confirmMsg = <?php echo json_encode(__a('admin.revisions.rollback_confirm', "Möchtest du den Revisionsstand vom {date} wirklich wiederherstellen?\n\nDein aktueller Stand wird vorab automatisch als Notfall-Snapshot gesichert.")); ?>.replace('{date}', createdAt || revId);
+            if (!confirm(confirmMsg)) {
                 return;
             }
 
@@ -299,14 +299,14 @@
             .then(r => r.json())
             .then(res => {
                 if (res.success) {
-                    alert('Erfolg: ' + (res.message || 'Stand wiederhergestellt!'));
+                    alert(res.message || <?php echo json_encode(__a('admin.revisions.rollback_success', 'Stand wiederhergestellt!')); ?>);
                     window.location.reload();
                 } else {
-                    alert('Fehler: ' + (res.message || 'Wiederherstellung fehlgeschlagen'));
+                    alert(res.message || <?php echo json_encode(__a('admin.revisions.rollback_failed', 'Wiederherstellung fehlgeschlagen')); ?>);
                 }
             })
             .catch(err => {
-                alert('Netzwerk- oder Serverfehler: ' + err);
+                alert(err);
             });
         }
 

@@ -27,15 +27,15 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
             <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom: 1.5rem;">
                 <div>
                     <h2 style="color: var(--primary); margin-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
-                        <span class="material-icons" style="font-size:28px;">newspaper</span> Blog &amp; Aktuelles
+                        <span class="material-icons" style="font-size:28px;">newspaper</span> <?php echo __a('admin.blog.title'); ?>
                     </h2>
                     <p style="color: var(--text-secondary); font-size: 0.95rem; margin:0;">
-                        Verfasse Werkstattberichte, Neuigkeiten und Ankündigungen für deine Besucher.
+                        <?php echo __a('admin.blog.desc'); ?>
                     </p>
                 </div>
                 <div style="display:flex; align-items:center; gap:12px;">
                     <button type="button" class="btn btn-primary" onclick="openBlogEditor()">
-                        <span class="material-icons" style="font-size:18px;">add_circle</span> Neuer Artikel
+                        <span class="material-icons" style="font-size:18px;">add_circle</span> <?php echo __a('admin.blog.btn_new'); ?>
                     </button>
                 </div>
             </div>
@@ -43,15 +43,15 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
             <!-- Kennzahlen-Karten -->
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                 <div style="background: rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:12px; padding: 1rem 1.25rem;">
-                    <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Artikel Gesamt</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; font-weight:700;"><?php echo __a('admin.blog.kpi_total'); ?></div>
                     <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-top:4px;"><?php echo $total_posts; ?></div>
                 </div>
                 <div style="background: rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.3); border-radius:12px; padding: 1rem 1.25rem;">
-                    <div style="font-size: 0.8rem; color: #10b981; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Veröffentlicht</div>
+                    <div style="font-size: 0.8rem; color: #10b981; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;"><?php echo __a('admin.blog.kpi_published'); ?></div>
                     <div style="font-size: 1.8rem; font-weight: 800; color: #10b981; margin-top:4px;"><?php echo $published_posts; ?></div>
                 </div>
                 <div style="background: rgba(245, 158, 11, 0.05); border:1px solid rgba(245, 158, 11, 0.3); border-radius:12px; padding: 1rem 1.25rem;">
-                    <div style="font-size: 0.8rem; color: #f59e0b; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Entwürfe (Privat)</div>
+                    <div style="font-size: 0.8rem; color: #f59e0b; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;"><?php echo __a('admin.blog.kpi_drafts'); ?></div>
                     <div style="font-size: 1.8rem; font-weight: 800; color: #f59e0b; margin-top:4px;"><?php echo $draft_posts; ?></div>
                 </div>
             </div>
@@ -66,10 +66,10 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
             <div id="blog-editor-box" style="display:none; background:rgba(255,255,255,0.02); border:1px solid var(--primary); border-radius:16px; padding:2rem; margin-bottom:2.5rem; animation: fadeInTab 0.25s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
                     <h3 id="blog-editor-title" style="color:var(--primary); margin:0; display:flex; align-items:center; gap:8px;">
-                        <span class="material-icons">edit_note</span> Neuer Blog-Artikel
+                        <span class="material-icons">edit_note</span> <?php echo __a('admin.blog.drawer_new'); ?>
                     </h3>
                     <button type="button" class="btn btn-secondary" onclick="closeBlogEditor()" style="padding:4px 10px; font-size:0.8rem;">
-                        <span class="material-icons" style="font-size:16px;">close</span> Schließen
+                        <span class="material-icons" style="font-size:16px;">close</span> <?php echo __a('admin.blog.drawer_close'); ?>
                     </button>
                 </div>
 
@@ -80,11 +80,11 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
 
                     <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
                         <div class="form-group">
-                            <label for="blog_title" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Artikel-Titel *</label>
-                            <input type="text" id="blog_title" name="title" class="form-control" placeholder="z. B. Neuer Brennofen &amp; Herbst-Kollektion" required oninput="autoGenerateBlogSlug(this.value)">
+                            <label for="blog_title" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.blog.field_title'); ?> *</label>
+                            <input type="text" id="blog_title" name="title" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.blog.placeholder_title')); ?>" required oninput="autoGenerateBlogSlug(this.value)">
                         </div>
                         <div class="form-group">
-                            <label for="blog_slug" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">URL-Slug (Webadresse) *</label>
+                            <label for="blog_slug" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.blog.field_slug'); ?> *</label>
                             <div style="display:flex; align-items:center; gap:6px;">
                                 <span style="color:var(--text-secondary); font-size:0.85rem;">?blog=</span>
                                 <input type="text" id="blog_slug" name="slug" class="form-control" placeholder="neuer-brennofen-herbst-kollektion" required>
@@ -94,22 +94,22 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
 
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
                         <div class="form-group">
-                            <label for="blog_date" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Veröffentlichungsdatum</label>
+                            <label for="blog_date" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.blog.field_date'); ?></label>
                             <input type="date" id="blog_date" name="date" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
                         </div>
                         <div class="form-group">
-                            <label for="blog_author" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Autor / Verfasser</label>
+                            <label for="blog_author" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.blog.field_author'); ?></label>
                             <input type="text" id="blog_author" name="author" class="form-control" value="<?php echo htmlspecialchars($author_default); ?>">
                         </div>
                         <div class="form-group">
-                            <label for="blog_status" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Sichtbarkeit / Status</label>
+                            <label for="blog_status" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.blog.field_status'); ?></label>
                             <select id="blog_status" name="status" class="form-control" onchange="toggleBlogScheduledBox(this.value)">
-                                <option value="published">🟢 Veröffentlicht (Sofort sichtbar)</option>
-                                <option value="draft">🟡 Entwurf (Nur per Token / Admin)</option>
-                                <option value="scheduled">⏱️ Zeitgesteuert (Geplant)</option>
+                                <option value="published"><?php echo __a('admin.blog.status_published'); ?></option>
+                                <option value="draft"><?php echo __a('admin.blog.status_draft'); ?></option>
+                                <option value="scheduled"><?php echo __a('admin.blog.status_scheduled'); ?></option>
                             </select>
                             <div id="blog_scheduled_box" style="display:none; margin-top:8px;">
-                                <label for="blog_publish_at" style="font-size:0.78rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;">Veröffentlichungszeitpunkt</label>
+                                <label for="blog_publish_at" style="font-size:0.78rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo __a('admin.blog.field_publish_at'); ?></label>
                                 <input type="datetime-local" id="blog_publish_at" name="publish_at" class="form-control" style="font-size:0.85rem; padding:4px 8px;">
                             </div>
                         </div>
@@ -117,35 +117,35 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
 
                     <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
                         <div class="form-group">
-                            <label for="blog_image" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Beitragsbild (Foto/Titelbild)</label>
+                            <label for="blog_image" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.blog.field_image'); ?></label>
                             <input type="file" id="blog_image" name="image" accept="image/*" class="form-control" style="padding:7px;">
                             <div id="blog_current_image_preview" style="display:none; margin-top:8px; align-items:center; gap:10px;">
                                 <img id="blog_preview_img" src="" style="width:64px; height:44px; object-fit:cover; border-radius:6px; border:1px solid var(--border-color);">
                                 <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; color:var(--text-secondary); cursor:pointer;">
-                                    <input type="checkbox" name="remove_image" value="1" id="blog_remove_image"> Bild entfernen
+                                    <input type="checkbox" name="remove_image" value="1" id="blog_remove_image"> <?php echo __a('admin.blog.btn_remove_image'); ?>
                                 </label>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="blog_tags" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">Schlagwörter / Tags (Kommagetrennt)</label>
-                            <input type="text" id="blog_tags" name="tags" class="form-control" placeholder="z. B. Werkstatt, Kurse, Impressionen">
+                            <label for="blog_tags" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.blog.field_tags'); ?></label>
+                            <input type="text" id="blog_tags" name="tags" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.blog.placeholder_tags')); ?>">
                         </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 1.25rem;">
                         <label for="blog_teaser" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;">
-                            Kurzer Anreißertext (Teaser)
+                            <?php echo __a('admin.blog.field_teaser'); ?>
                         </label>
-                        <textarea id="blog_teaser" name="teaser" class="form-control" rows="2" placeholder="Ein kurzer, ansprechender Einführungssatz für die Übersichtskarte und Social-Media Vorschau..."></textarea>
+                        <textarea id="blog_teaser" name="teaser" class="form-control" rows="2" placeholder="<?php echo htmlspecialchars(__a('admin.blog.placeholder_teaser')); ?>"></textarea>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 1.5rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
                             <label for="blog_content" style="font-weight:700; color:var(--text-primary); margin:0;">
-                                Ausführlicher Artikel-Inhalt (Markdown unterstützt)
+                                <?php echo __a('admin.blog.field_content'); ?>
                             </label>
                             <span style="font-size:0.78rem; color:var(--text-secondary);">
-                                Formatierung: <code>## Überschrift</code>, <code>**fett**</code>, <code>*kursiv*</code>, <code>- Liste</code>
+                                <?php echo __a('admin.blog.markdown_hint'); ?>
                             </span>
                         </div>
                         <textarea id="blog_content" name="content" class="form-control" rows="10" placeholder="Schreibe hier deinen Artikel...&#10;&#10;## Eine neue Etappe&#10;In den vergangenen Wochen ist viel passiert...&#10;&#10;- Punkt eins&#10;- Punkt zwei"></textarea>
@@ -153,17 +153,17 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
 
                     <div class="form-group" style="margin-bottom: 1.25rem;">
                         <label for="blog_revision_note" style="font-weight:600; font-size:0.85rem; color:var(--text-secondary); display:block; margin-bottom:0.25rem;">
-                            <span class="material-icons" style="font-size:15px; vertical-align:middle;">history_edu</span> Revisions-Notiz (optional):
+                            <span class="material-icons" style="font-size:15px; vertical-align:middle;">history_edu</span> <?php echo __a('admin.blog.field_revision_note'); ?>
                         </label>
-                        <input type="text" id="blog_revision_note" name="revision_note" class="form-control" placeholder="z. B. Rechtschreibung korrigiert oder neuen Abschnitt ergänzt" style="font-size:0.85rem;">
+                        <input type="text" id="blog_revision_note" name="revision_note" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.blog.placeholder_revision')); ?>" style="font-size:0.85rem;">
                     </div>
 
                     <div style="display:flex; align-items:center; gap:12px;">
                         <button type="submit" class="btn btn-primary">
-                            <span class="material-icons" style="font-size:18px;">save</span> Artikel speichern
+                            <span class="material-icons" style="font-size:18px;">save</span> <?php echo __a('admin.blog.btn_save'); ?>
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="closeBlogEditor()">
-                            Abbrechen
+                            <?php echo __a('admin.blog.btn_cancel'); ?>
                         </button>
                     </div>
                 </form>
@@ -173,12 +173,12 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
             <?php if (empty($blog_posts)): ?>
                 <div style="text-align:center; padding:3.5rem 1.5rem; background:rgba(0,0,0,0.02); border:2px dashed var(--border-color); border-radius:16px;">
                     <span class="material-icons" style="font-size:48px; color:var(--text-secondary); opacity:0.5; margin-bottom:0.75rem;">article</span>
-                    <h3 style="font-size:1.2rem; color:var(--text-primary); margin-bottom:0.5rem;">Noch keine Blog-Artikel vorhanden</h3>
+                    <h3 style="font-size:1.2rem; color:var(--text-primary); margin-bottom:0.5rem;"><?php echo __a('admin.blog.empty_title'); ?></h3>
                     <p style="color:var(--text-secondary); max-width:440px; margin:0 auto 1.5rem; font-size:0.9rem;">
-                        Halte deine Website lebendig und teile spannende Einblicke, neue Kurse oder Fotos direkt aus deiner Werkstatt mit deinen Besuchern.
+                        <?php echo __a('admin.blog.empty_desc'); ?>
                     </p>
                     <button type="button" class="btn btn-primary" onclick="openBlogEditor()">
-                        <span class="material-icons" style="font-size:18px;">add_circle</span> Ersten Artikel verfassen
+                        <span class="material-icons" style="font-size:18px;">add_circle</span> <?php echo __a('admin.blog.empty_btn'); ?>
                     </button>
                 </div>
             <?php else: ?>
@@ -213,15 +213,15 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                                         </h4>
                                         <?php if ($raw_status === 'published'): ?>
                                             <span style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(16,185,129,0.15); color:#10b981;">
-                                                Veröffentlicht
+                                                <?php echo __a('admin.blog.badge_published'); ?>
                                             </span>
                                         <?php elseif ($raw_status === 'scheduled'): ?>
-                                            <span style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(59,130,246,0.15); color:#3b82f6;" title="Geplant für: <?php echo htmlspecialchars($p_publish_at); ?>">
-                                                ⏱️ Geplant (<?php echo date('d.m.Y H:i', strtotime($p_publish_at ?: 'now')); ?>)
+                                            <span style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(59,130,246,0.15); color:#3b82f6;" title="<?php echo htmlspecialchars(str_replace('{date}', $p_publish_at, __a('admin.blog.badge_scheduled'))); ?>">
+                                                ⏱️ <?php echo htmlspecialchars(str_replace('{date}', date('d.m.Y H:i', strtotime($p_publish_at ?: 'now')), __a('admin.blog.badge_scheduled'))); ?>
                                             </span>
                                         <?php else: ?>
                                             <span style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(245,158,11,0.15); color:#f59e0b;">
-                                                Entwurf
+                                                <?php echo __a('admin.blog.badge_draft'); ?>
                                             </span>
                                         <?php endif; ?>
                                     </div>
@@ -241,32 +241,32 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                             </div>
 
                             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                <a href="<?php echo htmlspecialchars($preview_url); ?>" target="_blank" class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem;" title="Vorschau inklusive sicherem Token im Frontend ansehen">
-                                    <span class="material-icons" style="font-size:16px;">visibility</span> Vorschau
+                                <a href="<?php echo htmlspecialchars($preview_url); ?>" target="_blank" class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem;" title="<?php echo htmlspecialchars(__a('admin.blog.btn_preview')); ?>">
+                                    <span class="material-icons" style="font-size:16px;">visibility</span> <?php echo __a('admin.blog.btn_preview'); ?>
                                 </a>
 
-                                <button type="button" class="btn btn-secondary" onclick="openRevisionsModal('blog', '<?php echo htmlspecialchars($post['id'] ?? '', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($post['title'] ?? '', ENT_QUOTES); ?>')" style="padding:6px 12px; font-size:0.82rem;" title="Revisionshistorie &amp; Rollback ansehen">
-                                    <span class="material-icons" style="font-size:16px;">history</span> Revisions
+                                <button type="button" class="btn btn-secondary" onclick="openRevisionsModal('blog', '<?php echo htmlspecialchars($post['id'] ?? '', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($post['title'] ?? '', ENT_QUOTES); ?>')" style="padding:6px 12px; font-size:0.82rem;" title="<?php echo htmlspecialchars(__a('admin.blog.btn_revisions')); ?>">
+                                    <span class="material-icons" style="font-size:16px;">history</span> <?php echo __a('admin.blog.btn_revisions'); ?>
                                 </button>
 
                                 <button type="button" class="btn btn-secondary" style="padding:6px 12px; font-size:0.82rem;" onclick="editBlogPost(<?php echo htmlspecialchars(json_encode($post), ENT_QUOTES, 'UTF-8'); ?>)">
-                                    <span class="material-icons" style="font-size:16px;">edit</span> Bearbeiten
+                                    <span class="material-icons" style="font-size:16px;">edit</span> <?php echo __a('admin.blog.btn_edit'); ?>
                                 </button>
 
                                 <form method="POST" action="" style="display:inline;">
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                     <input type="hidden" name="action" value="toggle_blog_status">
                                     <input type="hidden" name="id" value="<?php echo $pid; ?>">
-                                    <button type="submit" class="btn btn-secondary" style="padding:6px 10px; font-size:0.82rem;" title="<?php echo $p_status ? 'Als Entwurf verstecken' : 'Jetzt veröffentlichen'; ?>">
-                                        <span class="material-icons" style="font-size:16px; color:<?php echo $p_status ? '#f59e0b' : '#10b981'; ?>;"><?php echo $p_status ? 'visibility_off' : 'visibility'; ?></span>
+                                    <button type="submit" class="btn btn-secondary" style="padding:6px 10px; font-size:0.82rem;" title="<?php echo ($raw_status === 'published') ? htmlspecialchars(__a('admin.blog.title_hide')) : htmlspecialchars(__a('admin.blog.title_publish')); ?>">
+                                        <span class="material-icons" style="font-size:16px; color:<?php echo ($raw_status === 'published') ? '#f59e0b' : '#10b981'; ?>;"><?php echo ($raw_status === 'published') ? 'visibility_off' : 'visibility'; ?></span>
                                     </button>
                                 </form>
 
-                                <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Möchtest du diesen Blog-Artikel wirklich unwiderruflich löschen?');">
+                                <form method="POST" action="" style="display:inline;" onsubmit="return confirm(<?php echo htmlspecialchars(json_encode(__a('admin.blog.confirm_delete'))); ?>);">
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                     <input type="hidden" name="action" value="delete_blog_post">
                                     <input type="hidden" name="id" value="<?php echo $pid; ?>">
-                                    <button type="submit" class="btn btn-danger" style="padding:6px 10px; font-size:0.82rem; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3);" title="Artikel löschen">
+                                    <button type="submit" class="btn btn-danger" style="padding:6px 10px; font-size:0.82rem; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3);" title="<?php echo htmlspecialchars(__a('admin.blog.btn_delete')); ?>">
                                         <span class="material-icons" style="font-size:16px;">delete</span>
                                     </button>
                                 </form>
@@ -288,7 +288,7 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
             function openBlogEditor() {
                 document.getElementById('blog_form_action').value = 'add_blog_post';
                 document.getElementById('blog_post_id').value = '';
-                document.getElementById('blog-editor-title').innerHTML = '<span class="material-icons">add_circle</span> Neuer Blog-Artikel';
+                document.getElementById('blog-editor-title').innerHTML = '<span class="material-icons">add_circle</span> ' + <?php echo json_encode(__a('admin.blog.drawer_new')); ?>;
                 document.getElementById('blog_title').value = '';
                 document.getElementById('blog_slug').value = '';
                 document.getElementById('blog_date').value = new Date().toISOString().split('T')[0];
@@ -311,7 +311,7 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
             function editBlogPost(post) {
                 document.getElementById('blog_form_action').value = 'edit_blog_post';
                 document.getElementById('blog_post_id').value = post.id || '';
-                document.getElementById('blog-editor-title').innerHTML = '<span class="material-icons">edit</span> Artikel bearbeiten: ' + escapeBlogHtml(post.title || '');
+                document.getElementById('blog-editor-title').innerHTML = '<span class="material-icons">edit</span> ' + <?php echo json_encode(__a('admin.blog.drawer_edit')); ?> + ': ' + escapeBlogHtml(post.title || '');
                 document.getElementById('blog_title').value = post.title || '';
                 document.getElementById('blog_slug').value = post.slug || '';
                 document.getElementById('blog_date').value = post.date || new Date().toISOString().split('T')[0];

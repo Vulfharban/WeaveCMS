@@ -39,16 +39,16 @@ if ($sec_item):
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:<?php echo $has_multiple_langs ? '12px' : '0'; ?>; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span class="material-icons" style="font-size:20px; color:var(--primary);">link</span>
-                <span style="font-size:0.92rem; font-weight:700; color:var(--text-primary);">Titel &amp; Menü:</span>
+                <span style="font-size:0.92rem; font-weight:700; color:var(--text-primary);"><?php echo __a('admin.secbar.label', 'Titel & Menü:'); ?></span>
             </div>
 
             <?php if ($has_multiple_langs): ?>
                 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                     <span style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); margin-right:4px;">
-                        <span class="material-icons" style="font-size:16px; vertical-align:middle;">translate</span> Sprache:
+                        <span class="material-icons" style="font-size:16px; vertical-align:middle;">translate</span> <?php echo __a('admin.secbar.lang_label', 'Sprache:'); ?>
                     </span>
                     <button type="button" class="btn btn-primary sec-bar-lang-btn-<?php echo htmlspecialchars($section_id); ?>" id="btn-secbar-<?php echo htmlspecialchars($section_id); ?>-<?php echo $primary_lang; ?>" onclick="switchSecBarLang('<?php echo htmlspecialchars($section_id); ?>', '<?php echo $primary_lang; ?>')" style="padding:3px 10px; font-size:0.8rem; border-radius:8px;">
-                        <?php echo $supported[$primary_lang]['flag'] ?? ''; ?> <?php echo htmlspecialchars($supported[$primary_lang]['name'] ?? $primary_lang); ?> (Standard)
+                        <?php echo $supported[$primary_lang]['flag'] ?? ''; ?> <?php echo htmlspecialchars($supported[$primary_lang]['name'] ?? $primary_lang); ?> <?php echo __a('admin.secbar.default_suffix', '(Standard)'); ?>
                     </button>
                     <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
                         <button type="button" class="btn btn-outline sec-bar-lang-btn-<?php echo htmlspecialchars($section_id); ?>" id="btn-secbar-<?php echo htmlspecialchars($section_id); ?>-<?php echo $al; ?>" onclick="switchSecBarLang('<?php echo htmlspecialchars($section_id); ?>', '<?php echo $al; ?>')" style="padding:3px 10px; font-size:0.8rem; border-radius:8px;">
@@ -63,12 +63,12 @@ if ($sec_item):
             <!-- Hauptsprache Felder -->
             <div id="secbar-panel-<?php echo htmlspecialchars($section_id); ?>-<?php echo $primary_lang; ?>" class="secbar-lang-panel-<?php echo htmlspecialchars($section_id); ?>" style="display:flex; align-items:center; gap:12px; flex:1; flex-wrap:wrap; min-width:280px;">
                 <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:180px;">
-                    <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); white-space:nowrap;">Titel fürs Menü:</label>
+                    <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); white-space:nowrap;"><?php echo __a('admin.secbar.nav_label', 'Titel fürs Menü:'); ?></label>
                     <input type="text" name="nav_label" class="form-control" value="<?php echo htmlspecialchars($sec_nav_label); ?>" placeholder="z. B. <?php echo htmlspecialchars($sec_title); ?>" required style="background:#ffffff; border:1px solid rgba(62,50,40,0.2); color:var(--text-primary); padding:5px 10px; font-size:0.85rem; height:auto; border-radius:8px;">
                 </div>
 
                 <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:180px;">
-                    <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); white-space:nowrap;">Sektions-Titel:</label>
+                    <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); white-space:nowrap;"><?php echo __a('admin.secbar.section_title', 'Sektions-Titel:'); ?></label>
                     <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($sec_title); ?>" placeholder="Titel der Sektion" style="background:#ffffff; border:1px solid rgba(62,50,40,0.2); color:var(--text-primary); padding:5px 10px; font-size:0.85rem; height:auto; border-radius:8px;">
                 </div>
             </div>
@@ -81,12 +81,12 @@ if ($sec_item):
                 ?>
                     <div id="secbar-panel-<?php echo htmlspecialchars($section_id); ?>-<?php echo $al; ?>" class="secbar-lang-panel-<?php echo htmlspecialchars($section_id); ?>" style="display:none; align-items:center; gap:12px; flex:1; flex-wrap:wrap; min-width:280px;">
                         <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:180px;">
-                            <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); white-space:nowrap;">Menü (<?php echo strtoupper($al); ?>):</label>
+                            <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); white-space:nowrap;"><?php echo __a('admin.secbar.nav_lang_label', 'Menü ({lang}):', null, ['lang' => strtoupper($al)]); ?></label>
                             <input type="text" name="trans_<?php echo $al; ?>_nav_label" class="form-control" value="<?php echo htmlspecialchars($al_nav); ?>" placeholder="<?php echo htmlspecialchars($sec_nav_label); ?>" style="background:#ffffff; border:1px solid rgba(62,50,40,0.2); color:var(--text-primary); padding:5px 10px; font-size:0.85rem; height:auto; border-radius:8px;">
                         </div>
 
                         <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:180px;">
-                            <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); white-space:nowrap;">Titel (<?php echo strtoupper($al); ?>):</label>
+                            <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); white-space:nowrap;"><?php echo __a('admin.secbar.title_lang_label', 'Titel ({lang}):', null, ['lang' => strtoupper($al)]); ?></label>
                             <input type="text" name="trans_<?php echo $al; ?>_title" class="form-control" value="<?php echo htmlspecialchars($al_title); ?>" placeholder="<?php echo htmlspecialchars($sec_title); ?>" style="background:#ffffff; border:1px solid rgba(62,50,40,0.2); color:var(--text-primary); padding:5px 10px; font-size:0.85rem; height:auto; border-radius:8px;">
                         </div>
                     </div>
@@ -96,11 +96,11 @@ if ($sec_item):
             <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
                 <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-primary); cursor:pointer; white-space:nowrap;">
                     <input type="checkbox" name="in_nav" value="1" <?php if ($sec_in_nav) echo 'checked'; ?>>
-                    <span>Im Menü anzeigen</span>
+                    <span><?php echo __a('admin.secbar.in_nav', 'Im Menü anzeigen'); ?></span>
                 </label>
 
                 <button type="submit" class="btn btn-primary" style="padding:6px 14px; font-size:0.82rem; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;">
-                    <span class="material-icons" style="font-size:16px;">save</span> Speichern
+                    <span class="material-icons" style="font-size:16px;">save</span> <?php echo __a('admin.btn.save', 'Speichern'); ?>
                 </button>
             </div>
         </div>
