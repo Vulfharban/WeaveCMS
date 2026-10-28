@@ -12,13 +12,10 @@ require_once __DIR__ . '/libs/php/SecurityManager.php';
 SecurityManager::applySecurityHeaders();
 SecurityManager::initSecureSession();
 
-// 2. Standard-Fallback-Zugangsdaten, Version & Tokens
+// 2. Version & Basiskonfiguration
 define('WEAVE_VERSION', '1.3.0');
-define('DEFAULT_ADMIN_PASSWORD', 'admin123123');
-define('DEFAULT_ADMIN_PIN', '1977');
-define('ADMIN_TOKEN', 'xyz123'); // Beibehalten für direkten Zugriff via URL-Token falls benötigt
 
-// 3. Lokale Umgebungskonfiguration laden (falls vorhanden)
+// 3. Lokale Umgebungskonfiguration laden (falls vorhanden, z. B. für Entwickler-Tokens oder Fallbacks)
 if (file_exists(__DIR__ . '/config.local.php')) {
     require_once __DIR__ . '/config.local.php';
 }

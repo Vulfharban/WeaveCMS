@@ -585,7 +585,7 @@ class ForumUserManager {
             }
         }
 
-        $contactName = !empty($data['texts']['contact_name']) ? trim($data['texts']['contact_name']) : 'Christian Wolfrum';
+        $contactName = !empty($data['texts']['contact_name']) ? trim($data['texts']['contact_name']) : 'Administrator';
         $contactEmail = !empty($data['texts']['contact_email']) ? trim($data['texts']['contact_email']) : '';
 
         $users = self::getAllUsers();
@@ -625,13 +625,13 @@ class ForumUserManager {
             }
         }
 
-        $username = !empty($data['texts']['contact_name']) ? trim($data['texts']['contact_name']) : 'Christian Wolfrum';
+        $username = !empty($data['texts']['contact_name']) ? trim($data['texts']['contact_name']) : 'Administrator';
         $email = !empty($data['texts']['contact_email']) ? trim($data['texts']['contact_email']) : 'admin@weavecms.local';
 
         // Passwort-Hash ermitteln
         $pwHash = $data['settings']['admin_password_hash'] ?? null;
         if (empty($pwHash)) {
-            $defaultPw = defined('DEFAULT_ADMIN_PASSWORD') ? DEFAULT_ADMIN_PASSWORD : 'admin123123';
+            $defaultPw = defined('DEFAULT_ADMIN_PASSWORD') ? DEFAULT_ADMIN_PASSWORD : bin2hex(random_bytes(8));
             $pwHash = password_hash($defaultPw, PASSWORD_DEFAULT);
         }
 

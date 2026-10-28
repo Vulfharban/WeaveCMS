@@ -48,8 +48,8 @@ class AuthManager {
      * @return string
      */
     public static function getAuthHash(?array $data = null): string {
-        $pw_hash = $data['settings']['admin_password_hash'] ?? md5(defined('DEFAULT_ADMIN_PASSWORD') ? DEFAULT_ADMIN_PASSWORD : 'admin123123');
-        $pin_hash = $data['settings']['admin_pin_hash'] ?? md5(defined('DEFAULT_ADMIN_PIN') ? DEFAULT_ADMIN_PIN : '1977');
+        $pw_hash = $data['settings']['admin_password_hash'] ?? (defined('DEFAULT_ADMIN_PASSWORD') ? md5(DEFAULT_ADMIN_PASSWORD) : '');
+        $pin_hash = $data['settings']['admin_pin_hash'] ?? (defined('DEFAULT_ADMIN_PIN') ? md5(DEFAULT_ADMIN_PIN) : '');
         return md5($pw_hash . ':' . $pin_hash);
     }
 
@@ -74,9 +74,8 @@ class AuthManager {
             return true;
         }
 
-        // 3. Fallback: Direkter URL-Token (z. B. ?token=xyz123)
-        $admin_token = defined('ADMIN_TOKEN') ? ADMIN_TOKEN : 'xyz123';
-        if (isset($_GET['token']) && $_GET['token'] === $admin_token) {
+        // 3. Optionaler Zugriff via URL-Token (nur aktiv, falls in config.local.php explizit definiert)
+        if (defined('ADMIN_TOKEN') && ADMIN_TOKEN !== '' && isset($_GET['token']) && hash_equals(ADMIN_TOKEN, (string)$_GET['token'])) {
             $_SESSION['admin_logged_in'] = true;
             SecurityManager::regenerateSession(true);
             setcookie('admin_auth', $auth_hash, [
@@ -106,22 +105,18 @@ class AuthManager {
 
         // Passwort prüfen
         $pw_ok = false;
-        if ($pw_hash) {
+        if (!empty($pw_hash)) {
             $pw_ok = password_verify($password, $pw_hash);
-        }
-        $default_pw = defined('DEFAULT_ADMIN_PASSWORD') ? DEFAULT_ADMIN_PASSWORD : 'admin123123';
-        if (!$pw_ok && ($password === $default_pw || $password === 'admin123123' || $password === 'bianka123123' || $password === '1605071977')) {
-            $pw_ok = true;
+        } elseif (defined('DEFAULT_ADMIN_PASSWORD') && DEFAULT_ADMIN_PASSWORD !== '') {
+            $pw_ok = ($password === DEFAULT_ADMIN_PASSWORD);
         }
 
         // PIN prüfen
         $pin_ok = false;
-        if ($pin_hash) {
+        if (!empty($pin_hash)) {
             $pin_ok = password_verify($pin, $pin_hash);
-        }
-        $default_pin = defined('DEFAULT_ADMIN_PIN') ? DEFAULT_ADMIN_PIN : '1977';
-        if (!$pin_ok && ($pin === $default_pin || $pin === '1977' || $pin === '1605071977' || $pin === '1234')) {
-            $pin_ok = true;
+        } elseif (defined('DEFAULT_ADMIN_PIN') && DEFAULT_ADMIN_PIN !== '') {
+            $pin_ok = ($pin === DEFAULT_ADMIN_PIN);
         }
 
         return ($pw_ok && $pin_ok);
@@ -148,16 +143,10 @@ class AuthManager {
         $pin_hash = $data['settings']['admin_pin_hash'] ?? null;
         $is_valid = false;
 
-        if ($pin_hash && password_verify($pin, $pin_hash)) {
-            $is_valid = true;
-        }
-
-        $default_pin = defined('DEFAULT_ADMIN_PIN') ? DEFAULT_ADMIN_PIN : '1977';
-        if (!$pin_hash && ($pin === $default_pin || $pin === '1977')) {
-            $is_valid = true;
-        }
-        if ($pin === $default_pin || $pin === '1977' || $pin === '1605071977' || $pin === '1234') {
-            $is_valid = true;
+        if (!empty($pin_hash)) {
+            $is_valid = password_verify($pin, $pin_hash);
+        } elseif (defined('DEFAULT_ADMIN_PIN') && DEFAULT_ADMIN_PIN !== '') {
+            $is_valid = ($pin === DEFAULT_ADMIN_PIN);
         }
 
         if ($is_valid) {

@@ -112,7 +112,7 @@ $isSqliteSupported = ForumUserManager::isSqliteSupported();
     <div id="fusers-list" class="tab-pane">
         <!-- Seiten-Administrator Sync Card -->
         <?php
-        $siteAdminName = !empty($data['texts']['contact_name']) ? trim($data['texts']['contact_name']) : 'Christian Wolfrum';
+        $siteAdminName = !empty($data['texts']['contact_name']) ? trim($data['texts']['contact_name']) : 'Administrator';
         $siteAdminEmail = !empty($data['texts']['contact_email']) ? trim($data['texts']['contact_email']) : 'admin@weavecms.local';
         $siteAdminAccount = ForumUserManager::getSiteAdminUser($data);
         ?>

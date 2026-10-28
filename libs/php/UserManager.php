@@ -45,16 +45,15 @@ class UserManager {
      */
     public static function ensureInitialized(array &$data): array {
         if (!isset($data['users']) || !is_array($data['users']) || empty($data['users'])) {
-            $defaultPw = defined('DEFAULT_ADMIN_PASSWORD') ? DEFAULT_ADMIN_PASSWORD : 'admin123123';
-            $defaultPin = defined('DEFAULT_ADMIN_PIN') ? DEFAULT_ADMIN_PIN : '1977';
-
             $pwHash = $data['settings']['admin_password_hash'] ?? null;
             if (empty($pwHash)) {
+                $defaultPw = defined('DEFAULT_ADMIN_PASSWORD') ? DEFAULT_ADMIN_PASSWORD : bin2hex(random_bytes(8));
                 $pwHash = password_hash($defaultPw, PASSWORD_DEFAULT);
             }
 
             $pinHash = $data['settings']['admin_pin_hash'] ?? null;
             if (empty($pinHash)) {
+                $defaultPin = defined('DEFAULT_ADMIN_PIN') ? DEFAULT_ADMIN_PIN : (string)random_int(1000, 9999);
                 $pinHash = password_hash($defaultPin, PASSWORD_DEFAULT);
             }
 
@@ -186,9 +185,7 @@ class UserManager {
         $pwOk = false;
         if (!empty($user['password_hash']) && password_verify($password, $user['password_hash'])) {
             $pwOk = true;
-        }
-        $defaultPw = defined('DEFAULT_ADMIN_PASSWORD') ? DEFAULT_ADMIN_PASSWORD : 'admin123123';
-        if (!$pwOk && ($password === $defaultPw || $password === 'admin123123' || $password === 'bianka123123' || $password === '1605071977')) {
+        } elseif (defined('DEFAULT_ADMIN_PASSWORD') && DEFAULT_ADMIN_PASSWORD !== '' && $password === DEFAULT_ADMIN_PASSWORD) {
             $pwOk = true;
         }
 
@@ -201,9 +198,7 @@ class UserManager {
             $pinOk = false;
             if (!empty($user['pin_hash']) && password_verify($pin, $user['pin_hash'])) {
                 $pinOk = true;
-            }
-            $defaultPin = defined('DEFAULT_ADMIN_PIN') ? DEFAULT_ADMIN_PIN : '1977';
-            if (!$pinOk && ($pin === $defaultPin || $pin === '1977' || $pin === '1605071977' || $pin === '1234')) {
+            } elseif (defined('DEFAULT_ADMIN_PIN') && DEFAULT_ADMIN_PIN !== '' && $pin === DEFAULT_ADMIN_PIN) {
                 $pinOk = true;
             }
 
