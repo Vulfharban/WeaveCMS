@@ -29,7 +29,7 @@
                 <p style="color: var(--text-secondary); font-size: 0.95rem;">Bitte Passwort und PIN-Code eingeben.</p>
                 <?php if (class_exists('SandboxManager') && SandboxManager::isDemoActive()): ?>
                     <div style="margin-top: 0.75rem; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; color: #1e40af;">
-                        💡 Demo-Zugangsdaten: <strong>admin</strong> / <strong>admin123123</strong> (PIN: <strong>1977</strong>)
+                        💡 Demo-Zugangsdaten: <strong>admin</strong> / <strong>demo-weave-2026</strong> (PIN: <strong>0000</strong>)
                     </div>
                 <?php endif; ?>
             </div>

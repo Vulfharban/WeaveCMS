@@ -105,10 +105,10 @@ class EphemeralSessionDriver implements StorageDriverInterface {
         if (isset($data['settings'])) {
             // Verhindere das Entfernen des Admin-Zugangs
             if (empty($data['settings']['admin_password_hash'])) {
-                $data['settings']['admin_password_hash'] = password_hash('admin123123', PASSWORD_DEFAULT);
+                $data['settings']['admin_password_hash'] = password_hash('demo-weave-2026', PASSWORD_DEFAULT);
             }
             if (empty($data['settings']['admin_pin_hash'])) {
-                $data['settings']['admin_pin_hash'] = password_hash('1977', PASSWORD_DEFAULT);
+                $data['settings']['admin_pin_hash'] = password_hash('0000', PASSWORD_DEFAULT);
             }
         }
 

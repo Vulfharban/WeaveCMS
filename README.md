@@ -76,7 +76,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - 🛠️ **Installer (MySQL):** Konkrete SQL-Fehlermeldungen statt Pauschalfehler, die Option „Datenbank automatisch erzeugen“ wird berücksichtigt, `config.local.php` wird erst nach erfolgreicher Tabellenanlage geschrieben.
 - 🌐 **Vollständige Mehrsprachigkeit der Beispieldaten & Frontend-Texte:** Sämtliche mitgelieferten Beispieldaten (`data.sample.json`) für Galerie, Workshops, Blog, FAQ, Team, Preise, Downloads, Sektionen und Rechtstexte liegen nun vollständig übersetzt für Deutsch (`de`), Englisch (`en`) und Italienisch (`it`) vor. Frontend-Controller und Template-Views übersetzen sämtliche UI-Strings, Kategorien, Captchas und Metadaten konsistent ohne unerwünschte Fallbacks auf Deutsch.
 - 📊 **Statistik:** `data/stats.json` wird nicht mehr ausgeliefert; neue Installationen starten mit leerer Besucherstatistik.
-- 🔐 **PIN-Eingabe:** Keine Beispiel-Vorbelegung („1977“) mehr im Installer und Admin-Login.
+- 🔐 **PIN-Eingabe:** Keine Beispiel-Vorbelegung mehr im Installer und Admin-Login.
 
 ### v1.2.2 (25. Oktober 2026)
 
