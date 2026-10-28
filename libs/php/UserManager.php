@@ -68,11 +68,19 @@ class UserManager {
                     'password_hash' => $pwHash,
                     'pin_hash'      => $pinHash,
                     'role'          => self::ROLE_ADMIN,
+                    'admin_lang'    => 'de',
                     'active'        => true,
                     'created_at'    => date('Y-m-d H:i:s'),
                     'last_login'    => date('Y-m-d H:i:s')
                 ]
             ];
+        } else {
+            // Sicherstellen, dass alle bestehenden Benutzer ein admin_lang-Feld besitzen
+            foreach ($data['users'] as &$exUser) {
+                if (empty($exUser['admin_lang']) || !in_array($exUser['admin_lang'], ['de', 'en'], true)) {
+                    $exUser['admin_lang'] = 'de';
+                }
+            }
         }
 
         return $data['users'];
@@ -156,6 +164,12 @@ class UserManager {
         $_SESSION['admin_user_id'] = $user['id'];
         $_SESSION['admin_username'] = $user['username'];
         $_SESSION['admin_role'] = $user['role'];
+        if (!empty($user['admin_lang']) && in_array($user['admin_lang'], ['de', 'en'], true)) {
+            $_SESSION[LanguageManager::ADMIN_COOKIE_NAME] = $user['admin_lang'];
+            if (!headers_sent()) {
+                setcookie(LanguageManager::ADMIN_COOKIE_NAME, $user['admin_lang'], time() + 86400 * 365, '/');
+            }
+        }
     }
 
     /**
@@ -273,7 +287,8 @@ class UserManager {
             'add_pricing_plan', 'update_pricing_plan', 'delete_pricing_plan',
             'add_blog_post', 'update_blog_post', 'delete_blog_post',
             'upload_media', 'delete_media', 'update_media_meta',
-            'update_profile_password', 'save_quickactions', 'reset_quickactions'
+            'update_profile_password', 'save_quickactions', 'reset_quickactions',
+            'set_user_language'
         ];
 
         if (in_array($action, $editorialActions, true)) {
@@ -299,9 +314,10 @@ class UserManager {
      * @param string $password
      * @param string $role
      * @param string|null $pin
+     * @param string $adminLang
      * @return array ['success' => bool, 'message' => string]
      */
-    public static function createUser(array &$data, string $username, string $email, string $password, string $role = self::ROLE_EDITOR, ?string $pin = null): array {
+    public static function createUser(array &$data, string $username, string $email, string $password, string $role = self::ROLE_EDITOR, ?string $pin = null, string $adminLang = 'de'): array {
         self::ensureInitialized($data);
 
         $cleanUsername = trim($username);
@@ -328,6 +344,11 @@ class UserManager {
             $role = self::ROLE_EDITOR;
         }
 
+        $cleanLang = strtolower(trim($adminLang));
+        if (!in_array($cleanLang, ['de', 'en'], true)) {
+            $cleanLang = 'de';
+        }
+
         $newUser = [
             'id'            => 'usr_' . bin2hex(random_bytes(6)),
             'username'      => $cleanUsername,
@@ -335,13 +356,14 @@ class UserManager {
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
             'pin_hash'      => (!empty($pin)) ? password_hash($pin, PASSWORD_DEFAULT) : null,
             'role'          => $role,
+            'admin_lang'    => $cleanLang,
             'active'        => true,
             'created_at'    => date('Y-m-d H:i:s'),
             'last_login'    => null
         ];
 
         $data['users'][] = $newUser;
-        SecurityManager::logEvent('USER_CREATED', "Neuer Benutzer angelegt: {$cleanUsername} (Rolle: {$role})", 'INFO');
+        SecurityManager::logEvent('USER_CREATED', "Neuer Benutzer angelegt: {$cleanUsername} (Rolle: {$role}, Sprache: {$cleanLang})", 'INFO');
 
         return ['success' => true, 'message' => "Benutzer '{$cleanUsername}' erfolgreich angelegt!"];
     }
@@ -375,6 +397,18 @@ class UserManager {
                     }
                     $user['active'] = $activeVal;
                 }
+                if (isset($fields['admin_lang'])) {
+                    $lCode = strtolower(trim($fields['admin_lang']));
+                    if (in_array($lCode, ['de', 'en'], true)) {
+                        $user['admin_lang'] = $lCode;
+                        if (!empty($_SESSION['admin_user_id']) && $_SESSION['admin_user_id'] === $id) {
+                            $_SESSION[LanguageManager::ADMIN_COOKIE_NAME] = $lCode;
+                            if (!headers_sent()) {
+                                setcookie(LanguageManager::ADMIN_COOKIE_NAME, $lCode, time() + 86400 * 365, '/');
+                            }
+                        }
+                    }
+                }
                 if (!empty($fields['new_password'])) {
                     $user['password_hash'] = password_hash($fields['new_password'], PASSWORD_DEFAULT);
                 }
@@ -388,6 +422,18 @@ class UserManager {
         }
 
         return ['success' => false, 'message' => 'Benutzer nicht gefunden.'];
+    }
+
+    /**
+     * Aktualisiert die bevorzugte Backend-Sprache eines Benutzers.
+     * @param array &$data
+     * @param string $userId
+     * @param string $lang
+     * @return bool
+     */
+    public static function updateUserLanguage(array &$data, string $userId, string $lang): bool {
+        $res = self::updateUser($data, $userId, ['admin_lang' => $lang]);
+        return !empty($res['success']);
     }
 
     /**

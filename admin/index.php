@@ -95,6 +95,18 @@ if (!AuthManager::isLoggedIn($data)) {
     exit;
 }
 
+// 4.1 Wenn Sprache im Header umgeschaltet wurde, als Standard für diesen Benutzer persistieren
+if (!empty($_GET['admin_lang'])) {
+    $paramLang = strtolower(trim($_GET['admin_lang']));
+    if (in_array($paramLang, ['de', 'en'], true)) {
+        $curUser = UserManager::getCurrentUser($data);
+        if (!empty($curUser['id']) && ($curUser['admin_lang'] ?? '') !== $paramLang) {
+            UserManager::updateUser($data, $curUser['id'], ['admin_lang' => $paramLang]);
+            save_data($data_file, $data);
+        }
+    }
+}
+
 // 5. Download von Backups verarbeiten (nur autorisiert)
 if (isset($_GET['action']) && $_GET['action'] === 'download_backup') {
     $file = $_GET['file'] ?? '';

@@ -89,6 +89,7 @@ class AdminController {
             case 'create_user':
             case 'update_user':
             case 'delete_user':
+            case 'set_user_language':
                 self::handleUserAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
@@ -357,8 +358,9 @@ class AdminController {
             $password = trim($_POST['new_password'] ?? '');
             $role = trim($_POST['new_role'] ?? UserManager::ROLE_EDITOR);
             $pin = trim($_POST['new_pin'] ?? '');
+            $adminLang = trim($_POST['new_admin_lang'] ?? 'de');
 
-            $res = UserManager::createUser($data, $username, $email, $password, $role, $pin);
+            $res = UserManager::createUser($data, $username, $email, $password, $role, $pin, $adminLang);
             if ($res['success']) {
                 save_data($dataFile, $data);
                 $success_msg = $res['message'];
@@ -372,6 +374,9 @@ class AdminController {
                 'role'   => trim($_POST['edit_role'] ?? ''),
                 'active' => isset($_POST['edit_active']) ? (int)$_POST['edit_active'] : 1
             ];
+            if (isset($_POST['edit_admin_lang'])) {
+                $fields['admin_lang'] = trim($_POST['edit_admin_lang']);
+            }
             if (!empty($_POST['edit_password'])) {
                 $fields['new_password'] = trim($_POST['edit_password']);
             }
@@ -385,6 +390,20 @@ class AdminController {
                 $success_msg = $res['message'];
             } else {
                 $error_msg = $res['message'];
+            }
+        } elseif ($action === 'set_user_language') {
+            $targetLang = strtolower(trim($_POST['admin_lang'] ?? ''));
+            if (in_array($targetLang, ['de', 'en'], true)) {
+                $cur = UserManager::getCurrentUser($data);
+                $res = UserManager::updateUser($data, $cur['id'], ['admin_lang' => $targetLang]);
+                if ($res['success']) {
+                    save_data($dataFile, $data);
+                    $success_msg = __a('admin.users.lang_saved', 'Bevorzugte Backend-Sprache erfolgreich gespeichert.');
+                } else {
+                    $error_msg = $res['message'];
+                }
+            } else {
+                $error_msg = 'Ungültige Sprachauswahl.';
             }
         } elseif ($action === 'delete_user') {
             $id = trim($_POST['user_id'] ?? '');

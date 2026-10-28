@@ -22,11 +22,14 @@
         }
     ?>
     <div class="login-container">
-        <div class="login-box">
+        <div class="login-box" style="position:relative;">
+            <div style="position:absolute; top:18px; right:18px;">
+                <?php echo LanguageManager::renderAdminLanguageSwitcher(); ?>
+            </div>
             <div style="text-align: center; margin-bottom: 2rem;">
                 <span style="font-size: 3rem;">🌿</span>
-                <h1 style="font-size: 1.8rem; margin-top: 1rem; margin-bottom: 0.5rem;">Admin-Bereich</h1>
-                <p style="color: var(--text-secondary); font-size: 0.95rem;">Bitte Passwort und PIN-Code eingeben.</p>
+                <h1 style="font-size: 1.8rem; margin-top: 1rem; margin-bottom: 0.5rem;"><?php echo __a('admin.login.title', 'Admin-Bereich'); ?></h1>
+                <p style="color: var(--text-secondary); font-size: 0.95rem;"><?php echo __a('admin.login.subtitle', 'Bitte Passwort und PIN-Code eingeben.'); ?></p>
                 <?php if (class_exists('SandboxManager') && SandboxManager::isDemoActive()): ?>
                     <div style="margin-top: 0.75rem; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; color: #1e40af;">
                         💡 Demo-Zugangsdaten: <strong>admin</strong> / <strong>demo-weave-2026</strong> (PIN: <strong>0000</strong>)
@@ -44,32 +47,32 @@
                 <input type="hidden" name="login" value="1">
                 <input type="hidden" name="csrf_token" value="<?php echo AuthManager::getCsrfToken(); ?>">
                 <div class="form-group" style="margin-bottom: 1.25rem;">
-                    <label for="username" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">Benutzername oder E-Mail</label>
+                    <label for="username" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);"><?php echo __a('admin.login.username', 'Benutzername oder E-Mail'); ?></label>
                     <div style="position:relative;">
                         <input type="text" id="username" name="username" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px;" placeholder="admin" value="<?php echo htmlspecialchars($_POST['username'] ?? 'admin'); ?>" required autofocus>
                         <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); font-size:18px;">person</span>
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 1.25rem;">
-                    <label for="password" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">Passwort</label>
+                    <label for="password" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);"><?php echo __a('admin.login.password', 'Passwort'); ?></label>
                     <div style="position:relative;">
-                        <input type="password" id="password" name="password" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px;" placeholder="Passwort eingeben" required>
+                        <input type="password" id="password" name="password" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px;" placeholder="<?php echo htmlspecialchars(__a('admin.login.password_placeholder', 'Passwort eingeben')); ?>" required>
                         <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); cursor:pointer; font-size:18px;" onclick="toggleVisibility('password')">visibility</span>
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 1.75rem;">
-                    <label for="pin" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">PIN-Code</label>
+                    <label for="pin" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);"><?php echo __a('admin.login.pin', 'PIN-Code'); ?></label>
                     <div style="position:relative;">
                         <input type="password" id="pin" name="pin" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px; letter-spacing: 3px;" maxlength="10" required>
                         <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); cursor:pointer; font-size:18px;" onclick="toggleVisibility('pin')">pin</span>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 1rem;">
-                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">lock_open</span> Einloggen
+                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">lock_open</span> <?php echo __a('admin.login.submit', 'Einloggen'); ?>
                 </button>
             </form>
             <div style="text-align: center; margin-top: 2rem;">
-                <a href="../" style="font-size: 0.9rem; color: var(--text-secondary); text-decoration: none;">&larr; Zurück zur Website</a>
+                <a href="../" style="font-size: 0.9rem; color: var(--text-secondary); text-decoration: none;">&larr; <?php echo __a('admin.login.back_to_site', 'Zurück zur Website'); ?></a>
             </div>
         </div>
     </div>

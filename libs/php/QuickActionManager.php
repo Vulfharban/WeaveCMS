@@ -676,16 +676,16 @@ class QuickActionManager {
                     </div>
                     <div>
                         <h4 style="margin:0; font-size: 1.05rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.2px;">
-                            Schnellzugriffe &amp; Workflows
+                            <?php echo __a('admin.quickactions.title', 'Schnellzugriffe & Workflows'); ?>
                         </h4>
                         <span style="font-size: 0.8rem; color: var(--text-secondary);">
-                            Deine persönlichen Favoriten für den schnellen Arbeitsalltag (<?php echo count($actions); ?> aktiv)
+                            <?php echo __a('admin.quickactions.subtitle', 'Deine persönlichen Favoriten für den schnellen Arbeitsalltag ({count} aktiv)', null, ['count' => count($actions)]); ?>
                         </span>
                     </div>
                 </div>
 
-                <button type="button" class="btn btn-outline" onclick="openQuickActionsModal()" style="padding: 6px 14px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px; border-radius: 10px;" title="Schnellzugriffe anpassen">
-                    <span class="material-icons" style="font-size: 16px; color: var(--primary);">tune</span> Anpassen
+                <button type="button" class="btn btn-outline" onclick="openQuickActionsModal()" style="padding: 6px 14px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px; border-radius: 10px;" title="<?php echo htmlspecialchars(__a('admin.quickactions.customize', 'Anpassen')); ?>">
+                    <span class="material-icons" style="font-size: 16px; color: var(--primary);">tune</span> <?php echo __a('admin.quickactions.customize', 'Anpassen'); ?>
                 </button>
             </div>
 
@@ -839,10 +839,10 @@ class QuickActionManager {
                         </div>
                         <div>
                             <h3 style="margin:0; font-size:1.25rem; font-weight:800; color:var(--text-primary);">
-                                Schnellzugriffe &amp; Workflows anpassen
+                                <?php echo __a('admin.quickactions.modal_title', 'Schnellzugriffe & Workflows anpassen'); ?>
                             </h3>
                             <span style="font-size:0.83rem; color:var(--text-secondary);">
-                                Wähle deine persönlichen Favoriten aus dem Gesamtkatalog und bestimme die Reihenfolge.
+                                <?php echo __a('admin.quickactions.modal_subtitle', 'Wähle deine persönlichen Favoriten aus dem Gesamtkatalog und bestimme die Reihenfolge.'); ?>
                             </span>
                         </div>
                     </div>
@@ -860,7 +860,7 @@ class QuickActionManager {
                         <!-- 1. Workflow-Presets -->
                         <div>
                             <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-secondary); display:block; margin-bottom:8px;">
-                                ⚡ Schnell-Profile (Presets)
+                                <?php echo __a('admin.quickactions.presets_title', '⚡ Schnell-Profile (Presets)'); ?>
                             </span>
                             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:8px;">
                                 <?php foreach ($presets as $pKey => $preset): ?>
@@ -880,12 +880,12 @@ class QuickActionManager {
                         <!-- 2. Suchleiste & Kategorie-Pills -->
                         <div>
                             <div style="position:relative; margin-bottom:10px;">
-                                <input type="text" id="quickactions-search-input" oninput="filterQuickActionsCatalog()" placeholder="Aktion suchen (z. B. Blog, Backup, Galerie)..." style="width:100%; padding:9px 12px 9px 38px; border:1px solid var(--border-color); border-radius:12px; font-size:0.88rem; outline:none; background:var(--bg-card); box-sizing:border-box;">
+                                <input type="text" id="quickactions-search-input" oninput="filterQuickActionsCatalog()" placeholder="<?php echo htmlspecialchars(__a('admin.quickactions.search_placeholder', 'Aktion suchen (z. B. Blog, Backup, Galerie)...')); ?>" style="width:100%; padding:9px 12px 9px 38px; border:1px solid var(--border-color); border-radius:12px; font-size:0.88rem; outline:none; background:var(--bg-card); box-sizing:border-box;">
                                 <span class="material-icons" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--text-secondary);">search</span>
                             </div>
 
                             <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom:4px;" class="category-pills">
-                                <button type="button" class="cat-pill active" onclick="setQuickActionCategoryFilter('all', this)">Alle</button>
+                                <button type="button" class="cat-pill active" onclick="setQuickActionCategoryFilter('all', this)"><?php echo __a('admin.quickactions.cat_all', 'Alle'); ?></button>
                                 <?php foreach ($categories as $cat): ?>
                                     <button type="button" class="cat-pill" onclick="setQuickActionCategoryFilter('<?php echo htmlspecialchars($cat['id']); ?>', this)">
                                         <?php echo htmlspecialchars($cat['name']); ?>
@@ -912,7 +912,7 @@ class QuickActionManager {
                                         <div style="font-weight:700; font-size:0.86rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
                                             <?php echo htmlspecialchars($act['title']); ?>
                                             <?php if (!$hasAccess): ?>
-                                                <span style="font-size:0.68rem; background:rgba(239,68,68,0.1); color:#dc2626; padding:1px 6px; border-radius:4px; font-weight:700;">Nur Admin</span>
+                                                <span style="font-size:0.68rem; background:rgba(239,68,68,0.1); color:#dc2626; padding:1px 6px; border-radius:4px; font-weight:700;"><?php echo __a('admin.quickactions.admin_only', 'Nur Admin'); ?></span>
                                             <?php endif; ?>
                                         </div>
                                         <div style="font-size:0.75rem; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
@@ -930,14 +930,14 @@ class QuickActionManager {
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <div>
                                 <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-secondary); display:block;">
-                                    📌 Ausgewählte Schnellzugriffe (<span id="qa-selected-counter">0</span>)
+                                    <?php echo __a('admin.quickactions.selected_title', '📌 Ausgewählte Schnellzugriffe ({count})', null, ['count' => '<span id="qa-selected-counter">0</span>']); ?>
                                 </span>
                                 <span style="font-size:0.75rem; color:var(--text-secondary);">
-                                    Reihenfolge mit den Pfeilen flexibel anpassen
+                                    <?php echo __a('admin.quickactions.selected_hint', 'Reihenfolge mit den Pfeilen flexibel anpassen'); ?>
                                 </span>
                             </div>
-                            <button type="button" class="btn btn-outline" onclick="resetQuickActionsToDefault()" style="padding:4px 8px; font-size:0.75rem; display:inline-flex; align-items:center; gap:4px;" title="Auf Standard zurücksetzen">
-                                <span class="material-icons" style="font-size:14px;">restart_alt</span> Reset
+                            <button type="button" class="btn btn-outline" onclick="resetQuickActionsToDefault()" style="padding:4px 8px; font-size:0.75rem; display:inline-flex; align-items:center; gap:4px;" title="<?php echo htmlspecialchars(__a('admin.btn.reset', 'Zurücksetzen')); ?>">
+                                <span class="material-icons" style="font-size:14px;">restart_alt</span> <?php echo __a('admin.btn.reset', 'Reset'); ?>
                             </button>
                         </div>
 
@@ -957,12 +957,12 @@ class QuickActionManager {
 
                     <div style="padding:1.25rem 1.75rem; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.02);">
                         <span style="font-size:0.8rem; color:var(--text-secondary);">
-                            Tipp: Die Auswahl wird benutzerspezifisch in deinem Profil gespeichert.
+                            <?php echo __a('admin.quickactions.footer_tip', 'Tipp: Die Auswahl wird benutzerspezifisch in deinem Profil gespeichert.'); ?>
                         </span>
                         <div style="display:flex; gap:10px;">
-                            <button type="button" class="btn btn-outline" onclick="closeQuickActionsModal()">Abbrechen</button>
+                            <button type="button" class="btn btn-outline" onclick="closeQuickActionsModal()"><?php echo __a('admin.btn.cancel', 'Abbrechen'); ?></button>
                             <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px; padding:8px 20px;">
-                                <span class="material-icons" style="font-size:18px;">save</span> Favoriten speichern
+                                <span class="material-icons" style="font-size:18px;">save</span> <?php echo __a('admin.quickactions.save_btn', 'Favoriten speichern'); ?>
                             </button>
                         </div>
                     </div>

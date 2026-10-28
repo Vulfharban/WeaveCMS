@@ -22,12 +22,27 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **21-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 
-## Releases & Downloads (v1.3.0)
+## Releases & Downloads (v1.3.1)
 
-- 📦 **[WeaveCMS v1.3.0 Full Package](releases/weavecms-v1.3.0.zip)** (`releases/weavecms-v1.3.0.zip`, 12.02 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.0 Update Package](releases/update-v1.3.0.zip)** (`releases/update-v1.3.0.zip`, 0.59 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.1 Full Package](releases/weavecms-v1.3.1.zip)** (`releases/weavecms-v1.3.1.zip`, 12.11 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.1 Update Package](releases/update-v1.3.1.zip)** (`releases/update-v1.3.1.zip`, 0.66 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.1 (28. Oktober 2026)
+
+- 🌐 **Vollständige Backend-Mehrsprachigkeit (DE & EN):**
+  - **Umfassende Lokalisierungskataloge:** Lückenlose Übersetzung aller Administrationsbereiche (Header, Login-Screen, Haupt- und Subnavigation, Dashboard-KPIs, Benutzerverwaltung, Schnellzugriffe, Statusmeldungen und Bestätigungsdialoge) in `libs/lang/admin/de.json` und `libs/lang/admin/en.json` mit über 200 synchronisierten Schlüsseln.
+  - **Login-Sprachumschalter:** Eleganter Sprachschalter auf der Login-Maske mit automatischer Session- und Cookie-Persistenz.
+  - **Intelligente Fallback-Engine:** `LanguageManager::adminT()` und `__a()` mit automatischer Browser-Erkennung, Rollen-Fallback und dynamischer Platzhalter-Ersetzung (`{name}`, `{count}`, `{version}`).
+- 👤 **Benutzerdefinierte Default-Sprache im Backend:**
+  - **Persönliche Spracheinstellung:** Jeder Benutzer (Administrator, Moderator, Redakteur) kann seine bevorzugte Backend-Sprache (`de` oder `en`) festlegen.
+  - **Nahtlose Live-Synchronisation:** Beim Klick auf den Sprachumschalter im Header wird die gewählte Sprache sofort im Benutzerprofil (`admin_lang`) gespeichert und auf aktive Sitzungen und Cookies übertragen.
+  - **Benutzerverwaltung mit Sprach-Indikator:** Tabellarische Übersicht der gewählten Sprache inklusive pixelgenauer SVG-Länderflaggen und direkter Sprachauswahl beim Anlegen oder Bearbeiten von Benutzern.
+- ⚡ **Custom Action-Hub & Dashboard-Schnellzugriffe (Phase 26):**
+  - **Personalisierte Workflow-Kacheln:** Frei konfigurierbare Schnellzugriffe auf dem Dashboard mit Rollenprüfung (RBAC) und dynamischen Zähler-Badges (z. B. ungelesene Nachrichten).
+  - **Aktionskatalog & 1-Klick-Presets:** Über 25 kuratierte Aktionen aus den Bereichen Content, Medien, Kommunikation, Design, System und Plugins sowie Vorlagen (*Allrounder*, *Redakteur*, *Administrator*, *Minimal*).
+  - **Schwebende Sprach- & Seitenauswahl:** Schwebende Toolbar im Einzelseiten-Editor für bequemes Wechseln zwischen Sprachen und Seiten ohne langes Scrollen.
 
 ### v1.3.0 (27. Oktober 2026)
 
@@ -102,7 +117,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.3.0.zip](releases/weavecms-v1.3.0.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.1.zip](releases/weavecms-v1.3.1.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

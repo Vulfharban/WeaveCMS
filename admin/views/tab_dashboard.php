@@ -19,25 +19,25 @@
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
                 <div>
                     <h2 style="color: var(--primary); margin:0 0 0.35rem 0; font-size: 1.65rem; display:flex; align-items:center; gap:10px;">
-                        <span class="material-icons" style="font-size:30px;">dashboard</span> Dashboard &amp; Systemübersicht
+                        <span class="material-icons" style="font-size:30px;">dashboard</span> <?php echo __a('admin.dashboard.title', 'Dashboard & Systemübersicht'); ?>
                     </h2>
                     <p style="color: var(--text-secondary); margin:0; font-size: 0.95rem;">
-                        Willkommen zurück, <strong><?php echo htmlspecialchars($cur_user['username']); ?></strong>! Hier ist der aktuelle Status deiner Website.
+                        <?php echo __a('admin.dashboard.welcome', 'Willkommen zurück, {name}! Hier ist der aktuelle Status deiner Website.', null, ['name' => '<strong>' . htmlspecialchars($cur_user['username']) . '</strong>']); ?>
                     </p>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <?php echo UserManager::getRoleBadge($cur_user['role']); ?>
                     <?php if (SecurityManager::isHttps()): ?>
                         <span style="background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:3px 10px; font-size:0.75rem; font-weight:700; display:inline-flex; align-items:center; gap:4px;">
-                            <span class="material-icons" style="font-size:14px;">https</span> SSL Aktiv
+                            <span class="material-icons" style="font-size:14px;">https</span> <?php echo __a('admin.dashboard.ssl_active', 'SSL Aktiv'); ?>
                         </span>
                     <?php else: ?>
-                        <span style="background:rgba(217,119,6,0.12); color:#d97706; border:1px solid rgba(217,119,6,0.3); border-radius:12px; padding:3px 10px; font-size:0.75rem; font-weight:700; display:inline-flex; align-items:center; gap:4px;" title="Lokale Entwicklungs- oder Testumgebung">
-                            <span class="material-icons" style="font-size:14px;">http</span> Lokaler Dev-Modus
+                        <span style="background:rgba(217,119,6,0.12); color:#d97706; border:1px solid rgba(217,119,6,0.3); border-radius:12px; padding:3px 10px; font-size:0.75rem; font-weight:700; display:inline-flex; align-items:center; gap:4px;" title="<?php echo htmlspecialchars(__a('admin.dashboard.ssl_dev', 'Lokaler Dev-Modus')); ?>">
+                            <span class="material-icons" style="font-size:14px;">http</span> <?php echo __a('admin.dashboard.ssl_dev', 'Lokaler Dev-Modus'); ?>
                         </span>
                     <?php endif; ?>
-                    <a href="?tab=tab-dashboard&check_updates=1" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:4px;" title="Updates jetzt online prüfen">
-                        <span class="material-icons" style="font-size:14px;">sync</span> Updates prüfen
+                    <a href="?tab=tab-dashboard&check_updates=1" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:4px;" title="<?php echo htmlspecialchars(__a('admin.dashboard.check_updates', 'Updates prüfen')); ?>">
+                        <span class="material-icons" style="font-size:14px;">sync</span> <?php echo __a('admin.dashboard.check_updates', 'Updates prüfen'); ?>
                     </a>
                 </div>
             </div>
@@ -51,17 +51,17 @@
                         </div>
                         <div>
                             <h4 style="margin: 0 0 0.25rem 0; font-size: 1.05rem; color: #1e40af;">
-                                Neues WeaveCMS-Update verfügbar: <strong>v<?php echo htmlspecialchars($core_update_info['latest_version']); ?></strong>
+                                <?php echo __a('admin.dashboard.core_update_avail', 'Neues WeaveCMS-Update verfügbar: v{version}', null, ['version' => htmlspecialchars($core_update_info['latest_version'])]); ?>
                             </h4>
                             <p style="margin: 0; font-size: 0.88rem; color: var(--text-secondary);">
-                                Installiert: <code>v<?php echo htmlspecialchars($core_update_info['current_version']); ?></code> &bull; 
+                                <?php echo __a('admin.dashboard.core_update_installed', 'Installiert: v{version}', null, ['version' => htmlspecialchars($core_update_info['current_version'])]); ?> &bull; 
                                 <?php echo htmlspecialchars($core_update_info['changelog'] ?? 'Release-Notizen online ansehen'); ?>
                             </p>
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <a href="<?php echo htmlspecialchars($core_update_info['release_url']); ?>" target="_blank" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-                            <span class="material-icons" style="font-size: 16px;">open_in_new</span> Release &amp; Download ansehen
+                            <span class="material-icons" style="font-size: 16px;">open_in_new</span> <?php echo __a('admin.btn.view_details', 'Details ansehen'); ?>
                         </a>
                         <?php if (($cur_user['role'] ?? '') === UserManager::ROLE_ADMIN): ?>
                             <form method="POST" action="" style="margin:0;" onsubmit="return confirm('WeaveCMS jetzt auf v<?php echo htmlspecialchars($core_update_info['latest_version'], ENT_QUOTES); ?> aktualisieren?\n\nVorab wird automatisch eine Sicherung erstellt, die Website geht kurz in den Wartungsmodus.');">
@@ -69,7 +69,7 @@
                                 <input type="hidden" name="action" value="run_core_update">
                                 <input type="hidden" name="target_tab" value="tab-dashboard">
                                 <button type="submit" id="btn-run-core-update" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-                                    <span class="material-icons" style="font-size: 16px;">system_update_alt</span> Jetzt auf Version <?php echo htmlspecialchars($core_update_info['latest_version']); ?> aktualisieren
+                                    <span class="material-icons" style="font-size: 16px;">system_update_alt</span> <?php echo __a('admin.dashboard.run_update_now', 'Jetzt auf Version {version} aktualisieren', null, ['version' => htmlspecialchars($core_update_info['latest_version'])]); ?>
                                 </button>
                             </form>
                         <?php endif; ?>
@@ -80,7 +80,7 @@
             <?php if (!empty($plugin_updates)): ?>
                 <div style="background: rgba(245,158,11,0.08); border: 1px solid #f59e0b; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 2rem;">
                     <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #b45309; display: flex; align-items: center; gap: 8px;">
-                        <span class="material-icons" style="font-size: 20px;">extension</span> Plugin-Updates auf GitHub verfügbar
+                        <span class="material-icons" style="font-size: 20px;">extension</span> <?php echo __a('admin.dashboard.plugin_updates_avail', 'Plugin-Updates auf GitHub verfügbar'); ?>
                     </h4>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
                         <?php foreach ($plugin_updates as $pUp): ?>
@@ -107,12 +107,12 @@
                 <div style="background: rgba(46,98,72,0.06); border: 1px solid rgba(46,98,72,0.2); border-radius: 16px; padding: 1.25rem; position:relative; overflow:hidden;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">Aufrufe heute</span>
+                            <span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;"><?php echo __a('admin.dashboard.kpi_views_today', 'Aufrufe heute'); ?></span>
                             <div style="font-size:2rem; font-weight:800; color:var(--primary); margin:0.35rem 0 0.15rem 0; line-height:1;">
                                 <?php echo number_format($dashboard_stats['today_views'] ?? 0, 0, ',', '.'); ?>
                             </div>
                             <span style="font-size:0.78rem; color:var(--text-secondary);">
-                                Gesamt: <strong><?php echo number_format($dashboard_stats['total_views'] ?? 0, 0, ',', '.'); ?></strong>
+                                <?php echo __a('admin.dashboard.kpi_views_total', 'Gesamt: {count}', null, ['count' => '<strong>' . number_format($dashboard_stats['total_views'] ?? 0, 0, ',', '.') . '</strong>']); ?>
                             </span>
                         </div>
                         <span class="material-icons" style="font-size:32px; color:var(--primary); opacity:0.7;">visibility</span>
@@ -124,13 +124,13 @@
                 <div style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 16px; padding: 1.25rem; cursor:pointer;" onclick="switchTab('tab-security')">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">Sicherheit</span>
+                            <span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;"><?php echo __a('admin.dashboard.kpi_security', 'Sicherheit'); ?></span>
                             <div style="font-size:1.35rem; font-weight:800; color:<?php echo ($dash_audit['overall_status'] === 'ok') ? '#10b981' : '#d97706'; ?>; margin:0.45rem 0 0.25rem 0; line-height:1.2; display:flex; align-items:center; gap:6px;">
                                 <span class="material-icons" style="font-size:20px;"><?php echo ($dash_audit['overall_status'] === 'ok') ? 'shield' : 'warning'; ?></span> 
-                                <?php echo ($dash_audit['overall_status'] === 'ok') ? 'Aktiv &amp; Geschützt' : 'Audit prüfen'; ?>
+                                <?php echo ($dash_audit['overall_status'] === 'ok') ? __a('admin.dashboard.kpi_security_ok', 'Aktiv & Geschützt') : __a('admin.dashboard.kpi_security_warn', 'Audit prüfen'); ?>
                             </div>
                             <span style="font-size:0.78rem; color:var(--text-secondary);">
-                                Header, CSP, HSTS &amp; Anti-Spoofing
+                                <?php echo __a('admin.dashboard.kpi_security_desc', 'Header, CSP, HSTS & Anti-Spoofing'); ?>
                             </span>
                         </div>
                         <span class="material-icons" style="font-size:32px; color:<?php echo ($dash_audit['overall_status'] === 'ok') ? '#10b981' : '#d97706'; ?>; opacity:0.7;">lock</span>
@@ -141,13 +141,13 @@
                 <div style="background: rgba(217,119,6,0.06); border: 1px solid rgba(217,119,6,0.2); border-radius: 16px; padding: 1.25rem; cursor:pointer;" onclick="switchTab('tab-inbox')">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">Kontaktpostfach</span>
+                            <span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;"><?php echo __a('admin.dashboard.kpi_inbox', 'Kontaktpostfach'); ?></span>
                             <div style="font-size:2rem; font-weight:800; color:#d97706; margin:0.35rem 0 0.15rem 0; line-height:1;">
                                 <?php echo (int)$inbox_new_count; ?>
-                                <span style="font-size:0.9rem; font-weight:600; color:var(--text-secondary);">neu</span>
+                                <span style="font-size:0.9rem; font-weight:600; color:var(--text-secondary);"><?php echo __a('admin.dashboard.kpi_inbox_new', 'neu'); ?></span>
                             </div>
                             <span style="font-size:0.78rem; color:var(--text-secondary);">
-                                <?php echo (int)$inbox_total_count; ?> Anfrage(n) archiviert
+                                <?php echo __a('admin.dashboard.kpi_inbox_archived', '{count} Anfrage(n) archiviert', null, ['count' => (int)$inbox_total_count]); ?>
                             </span>
                         </div>
                         <span class="material-icons" style="font-size:32px; color:#d97706; opacity:0.7;">inbox</span>
@@ -158,12 +158,12 @@
                 <div style="background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.2); border-radius: 16px; padding: 1.25rem; <?php if ($cur_user['role'] === UserManager::ROLE_ADMIN): ?>cursor:pointer;<?php endif; ?>" <?php if ($cur_user['role'] === UserManager::ROLE_ADMIN): ?>onclick="switchTab('tab-users')"<?php endif; ?>>
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">Benutzerkonten</span>
+                            <span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;"><?php echo __a('admin.dashboard.kpi_users', 'Benutzerkonten'); ?></span>
                             <div style="font-size:2rem; font-weight:800; color:#6366f1; margin:0.35rem 0 0.15rem 0; line-height:1;">
                                 <?php echo count($all_users); ?>
                             </div>
                             <span style="font-size:0.78rem; color:var(--text-secondary);">
-                                <?php echo UserManager::countActiveAdmins($data); ?> Admin(s) aktiv
+                                <?php echo __a('admin.dashboard.kpi_admins_active', '{count} Admin(s) aktiv', null, ['count' => UserManager::countActiveAdmins($data)]); ?>
                             </span>
                         </div>
                         <span class="material-icons" style="font-size:32px; color:#6366f1; opacity:0.7;">group</span>
@@ -188,15 +188,15 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom: 1.25rem;">
                     <div>
                         <h3 style="margin:0 0 0.35rem 0; font-size:1.15rem; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
-                            <span class="material-icons" style="font-size:22px; color:var(--primary);">auto_awesome</span> Website-Typ &amp; Schnellstart-Profile
+                            <span class="material-icons" style="font-size:22px; color:var(--primary);">auto_awesome</span> <?php echo __a('admin.dashboard.profiles_title', 'Website-Typ & Schnellstart-Profile'); ?>
                         </h3>
                         <p style="margin:0; font-size:0.88rem; color:var(--text-secondary);">
-                            Passe mit 1 Klick die Menüführung und sichtbaren Module an dein Projekt an. Vorhandene Inhalte und Texte bleiben im Hintergrund sicher erhalten.
+                            <?php echo __a('admin.dashboard.profiles_subtitle', 'Passe mit 1 Klick die Menüführung und sichtbaren Module an dein Projekt an. Vorhandene Inhalte und Texte bleiben im Hintergrund sicher erhalten.'); ?>
                         </p>
                     </div>
                     <div>
                         <span style="font-size:0.8rem; background:rgba(46,98,72,0.12); color:var(--primary); border:1px solid rgba(46,98,72,0.25); border-radius:20px; padding:4px 12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
-                            <span class="material-icons" style="font-size:15px;">check_circle</span> Aktives Profil: <?php echo htmlspecialchars($project_presets[$active_preset_key]['name'] ?? 'Benutzerdefiniert'); ?>
+                            <span class="material-icons" style="font-size:15px;">check_circle</span> <?php echo __a('admin.dashboard.profiles_active', 'Aktives Profil: {name}', null, ['name' => htmlspecialchars($project_presets[$active_preset_key]['name'] ?? 'Benutzerdefiniert')]); ?>
                         </span>
                     </div>
                 </div>

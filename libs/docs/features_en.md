@@ -210,6 +210,23 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 
 ---
 
+### v1.3.1 (Complete Backend Localization, User Language Preferences & Custom Action Hub)
+
+* **Complete Backend Localization (DE & EN):**
+  * **Exhaustive Translation Catalogs:** Complete localization across all administration views (header, login screen, primary & sub-navigation, dashboard KPIs, user management, quick actions, status toasts, and confirmation dialogs) in `libs/lang/admin/de.json` and `libs/lang/admin/en.json` with 200+ synchronized keys.
+  * **Login Screen Language Switcher:** Elegant switcher between German and English directly on the login screen with persistent session and cookie storage.
+  * **Robust Fallback Engine:** `LanguageManager::adminT()` and `__a()` helper featuring browser locale detection, catalog fallback cascades, and placeholder replacement (`{name}`, `{count}`, `{version}`).
+* **Per-User Default Backend Language Preferences:**
+  * **Individual Language Settings:** Each user account (Administrator, Moderator, Editor) can define their preferred backend language (`de` or `en`).
+  * **Seamless Live Synchronization:** Clicking the header language switcher immediately persists the choice into the user's profile (`admin_lang`) and updates active sessions and cookies across logins.
+  * **User Management with Language Badges:** Visual language column with pixel-perfect inline SVG country flags and intuitive language selectors when creating or editing accounts.
+* **Custom Action Hub & Dashboard Quick Actions (Phase 26):**
+  * **Personalized Workflow Cards:** Customizable dashboard quick actions with role-based access control (RBAC) and dynamic badges (e.g. unread inbox count).
+  * **Action Catalog & 1-Click Presets:** 25+ curated actions across Content, Media, Communication, Design, System, and Plugins with predefined presets (*Allrounder*, *Editor*, *Administrator*, *Minimal*).
+  * **Floating Sticky Language & Page Toolbar:** Persistent editor toolbar for swift switching between languages and subpages without tedious vertical scrolling.
+
+---
+
 ### v1.3.0 (Central Media Manager, WebP/AVIF Image Pipeline & Content Revisions)
 
 * **Central Media Manager & Asset Hub (Phase 22):**

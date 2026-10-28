@@ -13,7 +13,7 @@ SecurityManager::applySecurityHeaders();
 SecurityManager::initSecureSession();
 
 // 2. Version & Basiskonfiguration
-define('WEAVE_VERSION', '1.3.0');
+define('WEAVE_VERSION', '1.3.1');
 
 // 3. Lokale Umgebungskonfiguration laden (falls vorhanden, z. B. für Entwickler-Tokens oder Fallbacks)
 if (file_exists(__DIR__ . '/config.local.php')) {

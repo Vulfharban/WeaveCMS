@@ -217,6 +217,23 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 
 ---
 
+### v1.3.1 (Vollständige Backend-Mehrsprachigkeit, Benutzer-Sprachpräferenzen & Custom Action-Hub)
+
+* **Vollständige Backend-Mehrsprachigkeit (DE & EN):**
+  * **Umfassende Übersetzungskataloge:** Lückenlose Lokalisierung aller Administrationsbereiche (Header, Login-Maske, Haupt- und Subnavigation, Dashboard-KPIs, Benutzerverwaltung, Schnellzugriffe, Statusmeldungen und Bestätigungsdialoge) in `libs/lang/admin/de.json` und `libs/lang/admin/en.json` mit über 200 synchronisierten Schlüsseln.
+  * **Sprachumschalter auf der Login-Maske:** Elegante Umschaltung zwischen Deutsch und Englisch direkt vor der Anmeldung mit automatischer Cookie- und Session-Persistenz.
+  * **Intelligente Fallback-Kaskade:** `LanguageManager::adminT()` und Hilfsfunktion `__a()` mit automatischer Browser-Erkennung, Rollen-Fallback und dynamischer Platzhalter-Ersetzung (`{name}`, `{count}`, `{version}`).
+* **Benutzerdefinierte Default-Sprache im Backend:**
+  * **Persönliche Spracheinstellung:** Jeder Benutzer (Administrator, Moderator, Redakteur) kann seine bevorzugte Backend-Sprache (`de` oder `en`) festlegen.
+  * **Nahtlose Live-Synchronisation:** Beim Klick auf den Sprachumschalter im Header wird die gewählte Sprache sofort im Benutzerprofil (`admin_lang`) gespeichert und auf aktive Sitzungen und Cookies übertragen.
+  * **Benutzerverwaltung mit Sprach-Indikator:** Tabellarische Übersicht der gewählten Sprache inklusive pixelgenauer SVG-Länderflaggen und direkter Sprachauswahl beim Anlegen oder Bearbeiten von Benutzern.
+* **Custom Action-Hub & Dashboard-Schnellzugriffe (Phase 26):**
+  * **Personalisierte Workflow-Kacheln:** Frei konfigurierbare Schnellzugriffe auf dem Dashboard mit Rollenprüfung (RBAC) und Zähler-Badges (z. B. ungelesene Nachrichten).
+  * **Aktions-Katalog & Presets:** Über 25 vorgefertigte Aktionen aus den Kategorien Content, Medien, Kommunikation, Design, System und Plugins sowie 1-Klick-Presets (*Allrounder*, *Redakteur*, *Administrator*, *Minimal*).
+  * **Schwebende Sprach- & Seitenauswahl:** Schwebende Toolbar im Einzelseiten-Editor für bequemes Wechseln zwischen Sprachen und Seiten ohne langes Scrollen.
+
+---
+
 ### v1.3.0 (Zentrale Medienverwaltung, WebP/AVIF-Bildpipeline & Content-Revisions)
 
 * **Zentraler Medien-Manager & Asset-Hub (Phase 22):**
