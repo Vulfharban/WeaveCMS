@@ -980,7 +980,7 @@ opcache.enable = 1</pre>
                             </div>
                             <div class="storage-card-title">Lokale JSON-Datei (Flat-File)</div>
                             <div class="storage-card-desc">
-                                Keine Datenbank erforderlich. Alle Daten werden atomar in <code style="color:#34d399; font-family:'JetBrains Mono', monospace;">data.json</code> gespeichert.
+                                Keine Datenbank erforderlich. Alle Daten werden in <code style="color:#34d399; font-family:'JetBrains Mono', monospace;">data.json</code> gespeichert.
                             </div>
                             <ul class="storage-features">
                                 <li><span class="material-icons">check</span> Funktioniert auf jedem Standard-Webspace</li>

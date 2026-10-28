@@ -309,6 +309,12 @@ $controllerResult = AdminController::handlePost($data_file, $data, $csrf_token);
 $success_msg = $controllerResult['success_msg'];
 $error_msg = $controllerResult['error_msg'];
 $active_tab = $controllerResult['active_tab'];
+
+// Phase 25.2: Migrationen eines zuvor eingespielten Core-Updates (läuft mit dem neuen Code)
+$pending_update_msg = CoreUpdater::finishPendingUpdate($data_file, $data);
+if ($pending_update_msg !== '' && $success_msg === '') {
+    $success_msg = $pending_update_msg;
+}
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     if (!empty($_GET['tab'])) {
         $active_tab = preg_replace('/[^a-zA-Z0-9_\-]/', '', (string)$_GET['tab']);

@@ -200,7 +200,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 - [x] **7.1 Speicher-Abstraktionsschicht (Data Access Layer - DAL):**
   - Universelles PHP-Interface: `loadData(): array`, `saveData(array $data): bool`, `ping(): bool`.
   - **Treiber A: `JsonStorageDriver` (Standard & Fallback):**
-    - Liest und schreibt atomar in `data.json`. Funktioniert ohne Datenbank auf jedem Webspace.
+    - Liest und schreibt in `data.json`. Funktioniert ohne Datenbank auf jedem Webspace.
   - **Treiber B: `PdoSqlStorageDriver` (MySQL / MariaDB):**
     - Speichert Entitäten in relationalen Tabellen via PDO mit Transaktionssicherheit.
   - **Treiber C: `SqliteStorageDriver` (Lokale SQL-Datei):**
@@ -528,7 +528,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
       - **Changelog-Drawer / Modal:** Integriertes Markdown-Feld für die Versionshistorie, das im Frontend per Klick auf einen dezenten *„📜 Changelog“*-Button als flüssiges Modal/Drawer geöffnet wird.
 - [x] **16.2 Integriertes Download-Tracking & Klick-Counter:**
   - Direkt in das Download-Modul integrierte Zähl-Engine (flüsterleise und ohne externe Tracking-Dienste).
-  - Sicherer, manipulationsgeschützter Download-Proxy (`api/download.php?id=...`), der Downloads ausliefert und atomar im Speichertreiber (Flat-File JSON oder SQL) zählt.
+  - Sicherer, manipulationsgeschützter Download-Proxy (`api/download.php?id=...`), der Downloads ausliefert und im Speichertreiber (Flat-File JSON oder SQL) zählt.
   - Integrierter Spamschutz / Bot-Filter (Crawler und Suchmaschinen erhöhen den Zähler nicht).
   - **Frontend-Option:** Optionales Badge je Karte (*„X Downloads“*), im Admin pro Download-Item ein- oder ausschaltbar sowie Zähler manuell zurücksetzbar.
   - **Admin-Übersicht:** Statistik-Spalte mit aktuellen Download-Zahlen im Download-Tab.
@@ -548,7 +548,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
     - **Sprachwechsler:** Nahtlose Integration des WeaveCMS Sprachumschalters in die Barrierefreiheitsleiste.
 - [x] **16.5 Prüfung & Abnahme:**
   - Download-Eintrag mit Version, Screenshot und Changelog anlegen und prüfen, ob Modal im Frontend flüssig öffnet.
-  - Klick auf Download durchführen: Datei lädt herunter und Zähler inkrementiert atomar.
+  - Klick auf Download durchführen: Datei lädt herunter und Zähler inkrementiert.
   - Captcha-Verfahren im Admin umschalten (Symbol ➔ Mathe ➔ Canvas ➔ Honeypot) und Kontaktformular auf Funktionsfähigkeit prüfen.
   - Besucher-Barrierefreiheitsleiste im Theme-Manager aktivieren: Umschalten von Dark Mode und Schriftzoom im Frontend testen.
 
@@ -749,13 +749,13 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 24: SEO-Autopilot & Schema.org (XML-Sitemap & Rich Snippets)
 *Ziel: Maximale Sichtbarkeit in Suchmaschinen durch automatische Generierung von XML-Sitemaps, robots.txt und strukturierten Daten (JSON-LD).*
 
-- [ ] **24.1 Dynamische XML-Sitemap (`/sitemap.xml`):**
+- [x] **24.1 Dynamische XML-Sitemap (`/sitemap.xml`):**
   - Dynamischer Controller zur Generierung einer validen `sitemap.xml` unter Berücksichtigung aller aktiven Einzelseiten, Sektionen, Sprachen (`hreflang`) und Blogbeiträge.
   - Ausschluss von Entwürfen (`draft`) und internen Seiten.
-- [ ] **24.2 Strukturierte Daten (Schema.org / JSON-LD):**
+- [x] **24.2 Strukturierte Daten (Schema.org / JSON-LD):**
   - Automatischer JSON-LD-Block im `<head>` für `LocalBusiness` / `Craftsman` (aus Inhaber- & Impressumsdaten).
   - Schema `Product` für Webshop-Artikel und `Event` / `Course` für Kursangebote zur Anzeige von Google Rich Snippets.
-- [ ] **24.3 SEO-Live-Analyse im Backend:**
+- [x] **24.3 SEO-Live-Analyse im Backend:**
   - Vorschau-Snippet für Google-Suchergebnisse (Title, Meta-Description, URL-Slug) mit Zeichenzähler und Ampel-Bewertung.
 
 ---
@@ -763,13 +763,13 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 25: 1-Klick-Core-Updater & System-Maintenance
 *Ziel: Vollautomatische, sichere Aktualisierung des WeaveCMS-Kerns direkt aus dem Administrationsbereich inklusive Rollback-Schutz.*
 
-- [ ] **25.1 1-Klick-Update-Prozess im Adminbereich:**
+- [x] **25.1 1-Klick-Update-Prozess im Adminbereich:**
   - Schaltfläche „Jetzt auf Version X.Y.Z aktualisieren“ im Tab System / Dashboard.
   - Automatischer Download des offiziellen Update-ZIPs vom Update-Server mit SHA-256-Prüfsummen-Verifikation.
   - Automatisches System-Backup (`backups/pre_update_...zip`) vor Beginn des Dateiaustauschs.
-- [ ] **25.2 Wartungsmodus & atomarer Austausch:**
+- [x] **25.2 Wartungsmodus & atomarer Austausch:**
   - Aktivierung eines temporären Wartungsmodus (`maintenance.flag`) während des Entpackens.
-  - Atomarer Austausch der Kern-Dateien (`libs/`, `admin/`, `config.php`, `index.php`).
+  - Austausch der Kern-Dateien (`libs/`, `admin/`, `config.php`, `index.php`).
   - Automatischer Aufruf von Datenbank- und Konfigurations-Migrationsroutinen.
 
 ---

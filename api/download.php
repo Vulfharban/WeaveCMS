@@ -3,7 +3,7 @@
  * WeaveCMS – Sicherer Download-Proxy & Klick-Counter (Phase 16)
  * 
  * Liefert Downloads manipulationsgeschützt aus, filtert Bots/Crawler
- * und inkrementiert atomar den Download-Zähler im Speichertreiber.
+ * und inkrementiert den Download-Zähler im Speichertreiber.
  */
 
 require_once dirname(__DIR__) . '/config.php';
@@ -39,7 +39,7 @@ $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $crawlerRegex = '/(bot|crawl|slurp|spider|mediapartners|google|yandex|bing|duckduck|baidu|teoma|yahoo|facebookexternalhit|whatsapp|preview)/i';
 $isCrawler = (bool)preg_match($crawlerRegex, $userAgent);
 
-// 2. Atomare Inkrementierung des Zählers bei echten Besuchern
+// 2. Inkrementierung des Zählers bei echten Besuchern
 if (!$isCrawler && $targetIndex !== -1) {
     $currentCount = (int)($data['downloads'][$targetIndex]['download_count'] ?? 0);
     $data['downloads'][$targetIndex]['download_count'] = $currentCount + 1;

@@ -21,6 +21,9 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/libs/php/FrontendController.php';
 
+// Phase 25: Wartungsmodus während eines Core-Updates
+CoreUpdater::enforceMaintenanceForVisitors();
+
 // Datenbasis laden
 $data_file = __DIR__ . '/data.json';
 $data = load_data($data_file, [

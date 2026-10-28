@@ -33,7 +33,7 @@ class UpdateManager {
      * @return array [ 'update_available' => bool, 'current_version' => string, 'latest_version' => string, 'release_url' => string, 'zip_url' => string, 'changelog' => string, 'checked_at' => int ]
      */
     public static function checkCoreUpdate(bool $forceRefresh = false): array {
-        $current = defined('WEAVE_VERSION') ? WEAVE_VERSION : '1.0.0';
+        $current = defined('WEAVE_VERSION') ? WEAVE_VERSION : (class_exists('Installer') ? Installer::getVersion() : '1.0.0');
         $cacheFile = self::getCacheDir() . '/core_version.json';
 
         if (!$forceRefresh && file_exists($cacheFile)) {
@@ -53,6 +53,7 @@ class UpdateManager {
             'release_url'      => 'https://github.com/' . self::DEFAULT_REPO . '/releases',
             'zip_url'          => '',
             'changelog'        => 'Keine Update-Informationen verfügbar.',
+            'sha256'           => '',
             'checked_at'       => time()
         ];
 
@@ -63,8 +64,9 @@ class UpdateManager {
             if (is_array($localJson) && !empty($localJson['latest_version'])) {
                 $result['latest_version'] = $localJson['latest_version'];
                 $result['release_url'] = $localJson['changelog_url'] ?? $localJson['download_url'] ?? $result['release_url'];
-                $result['zip_url'] = $localJson['download_url'] ?? '';
+                $result['zip_url'] = $localJson['update_download_url'] ?? $localJson['update_url'] ?? $localJson['download_url'] ?? '';
                 $result['changelog'] = $localJson['changelog'] ?? 'Release-Notizen in version.json verfügbar.';
+                $result['sha256'] = self::extractSha256((string)($localJson['update_sha256'] ?? $localJson['sha256'] ?? $localJson['checksum'] ?? ''), 'update');
                 $result['update_available'] = version_compare($current, $result['latest_version'], '<');
                 @file_put_contents($cacheFile, json_encode($result));
                 return $result;
@@ -79,11 +81,58 @@ class UpdateManager {
             $result['release_url'] = $remoteData['html_url'] ?? $result['release_url'];
             $result['zip_url'] = $remoteData['zipball_url'] ?? '';
             $result['changelog'] = $remoteData['body'] ?? '';
+            $result['sha256'] = self::extractSha256((string)($remoteData['body'] ?? ''), 'update');
+
+            // Bevorzuge explizite Update-Pakete (z. B. update-vX.Y.Z.zip) vor Vollinstallations-Paketen
+            $updateAsset = null;
+            $fallbackZip = null;
+            foreach ($remoteData['assets'] ?? [] as $asset) {
+                if (!is_array($asset) || empty($asset['browser_download_url'])) {
+                    continue;
+                }
+                $assetName = (string)($asset['name'] ?? '');
+                if (preg_match('/\.zip$/i', $assetName)) {
+                    // Update-Paket erkennen
+                    if (preg_match('/(^|[\-_])update([\-_]|\.zip$)/i', $assetName)) {
+                        $updateAsset = $asset['browser_download_url'];
+                        break;
+                    }
+                    if ($fallbackZip === null) {
+                        $fallbackZip = $asset['browser_download_url'];
+                    }
+                }
+            }
+
+            if ($updateAsset !== null) {
+                $result['zip_url'] = $updateAsset;
+            } elseif ($fallbackZip !== null && $result['sha256'] !== '') {
+                $result['zip_url'] = $fallbackZip;
+            }
+
             $result['update_available'] = version_compare($current, $latestVer, '<');
         }
 
         @file_put_contents($cacheFile, json_encode($result));
         return $result;
+    }
+
+    /**
+     * Extrahiert eine SHA-256-Prüfsumme (64 Hex-Zeichen) aus einem Text, z. B. "SHA256: abc...".
+     * Falls $targetFilter angegeben ist (z. B. 'update'), wird bevorzugt die Prüfsumme
+     * dieser spezifischen Zeile ermittelt.
+     */
+    public static function extractSha256(string $text, ?string $targetFilter = null): string {
+        if (!empty($targetFilter)) {
+            $q = preg_quote($targetFilter, '/');
+            // Suche Zeilen, in denen das Filterwort und ein 64-Hex-Hash vorkommen
+            if (preg_match('/(?:^|[^\w])' . $q . '[^\r\n]*?([a-f0-9]{64})/im', $text, $m)) {
+                return strtolower($m[1]);
+            }
+            if (preg_match('/([a-f0-9]{64})[^\r\n]*?' . $q . '/im', $text, $m)) {
+                return strtolower($m[1]);
+            }
+        }
+        return preg_match('/(?<![a-f0-9])([a-f0-9]{64})(?![a-f0-9])/i', $text, $m) ? strtolower($m[1]) : '';
     }
 
     /**

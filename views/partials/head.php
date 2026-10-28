@@ -100,6 +100,18 @@
             } catch(e) {}
         })();
     </script>
+
+    <!-- 4. Strukturierte Daten (Schema.org / JSON-LD, Phase 24) -->
+    <?php
+    if (class_exists('SeoManager')) {
+        echo SeoManager::renderJsonLd($data, $site_url, [
+            'is_home' => empty($active_post) && empty($active_page) && empty($active_section),
+            'active_post' => $active_post ?? null,
+            'active_page' => $active_page ?? null,
+            'og_image_url' => $og_image_url ?? '',
+        ]), "\n";
+    }
+    ?>
 </head>
 <?php
     $active_menu_style = class_exists('ThemeManager') ? ThemeManager::getActiveMenuStyle($data) : 'horizontal_minimal';

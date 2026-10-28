@@ -25,7 +25,7 @@ Das Shop-Modul für WeaveCMS stellt einen vollständigen, performanten Online-Sh
 
 Das Modul ist nach strengen WeaveCMS-Architekturprinzipien strukturiert:
 
-* **Geschäftslogik & Datenverwaltung:** `ShopManager.php` verwaltet atomar Produkte (`data/shop_products.json`) und Bestellungen (`data/shop_orders.json`), führt Preis- und Steuerberechnungen (§ 19 UStG / Standard-MwSt.) durch und wickelt Bezahlvorgänge ab.
+* **Geschäftslogik & Datenverwaltung:** `ShopManager.php` verwaltet Produkte (`data/shop_products.json`) und Bestellungen (`data/shop_orders.json`), führt Preis- und Steuerberechnungen (§ 19 UStG / Standard-MwSt.) durch und wickelt Bezahlvorgänge ab.
 * **Frontend-Präsentation:** `views/shop_section.php` bietet den modernen Produktkatalog, Filterleisten, schwebenden Warenkorb-Drawer und das SSL-Checkout-Modal.
 * **REST-/AJAX-Endpunkt:** `api/shop.php` verarbeitet asynchrone Berechnungen, Produktlisten und Bestellabschlüsse.
 * **Administration:** `admin/settings.php` bietet Dashboards, KPI-Statistiken, Produkt- und Bestellverwaltung sowie Konfiguration der Gateways.

@@ -54,10 +54,20 @@
             const socialTitle = document.getElementById('social-card-title');
             const socialDesc = document.getElementById('social-card-desc');
 
+            // Ampel-Bewertung (Phase 24.3): rot = leer/zu extrem, gelb = suboptimal, grün = optimal
+            const seoRating = function(len, min, max) {
+                if (len === 0) return { color: '#ef4444', label: 'fehlt' };
+                if (len < min) return { color: '#f59e0b', label: 'zu kurz' };
+                if (len > max) return { color: '#f59e0b', label: 'zu lang – wird gekürzt' };
+                return { color: '#10b981', label: 'optimal' };
+            };
+
             if (titleInput && titleCount) {
                 const len = titleInput.value.length;
                 titleCount.textContent = len;
-                titleCount.style.color = len > 60 ? '#f59e0b' : 'inherit';
+                const tr = seoRating(len, 30, 60);
+                titleCount.style.color = tr.color;
+                titleCount.title = 'Titel: ' + tr.label;
                 const fallbackTitle = titleInput.getAttribute('placeholder') || 'WeaveCMS Website';
                 const displayTitle = titleInput.value.trim() || fallbackTitle;
                 if (serpTitle) serpTitle.textContent = displayTitle;
@@ -67,7 +77,9 @@
             if (descInput && descCount) {
                 const len = descInput.value.length;
                 descCount.textContent = len;
-                descCount.style.color = len > 155 ? '#f59e0b' : 'inherit';
+                const dr = seoRating(len, 70, 155);
+                descCount.style.color = dr.color;
+                descCount.title = 'Beschreibung: ' + dr.label;
                 const fallbackDesc = 'Entdecke handgefertigte Naturgeflechte und Workshops.';
                 const displayDesc = descInput.value.trim() || fallbackDesc;
                 if (serpDesc) serpDesc.textContent = displayDesc;

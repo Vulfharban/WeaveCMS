@@ -153,6 +153,10 @@ class AdminController {
                 self::handleBackupAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
+            case 'run_core_update':
+                self::handleCoreUpdate($dataFile, $data, $success_msg, $error_msg);
+                break;
+
             case 'add_category':
             case 'delete_category':
                 self::handleCategoryAction($action, $dataFile, $data, $success_msg, $error_msg);
@@ -244,7 +248,7 @@ class AdminController {
         if (!empty($_POST['target_tab']) && is_string($_POST['target_tab'])) {
             return trim($_POST['target_tab']);
         }
-        if ($action === 'apply_project_preset') {
+        if ($action === 'apply_project_preset' || $action === 'run_core_update') {
             return 'tab-dashboard';
         }
         if (strpos($action, 'shop') !== false || strpos($action, 'webtrees') !== false || strpos($action, 'inventory') !== false || strpos($action, 'inv_') !== false) {
@@ -1170,6 +1174,19 @@ class AdminController {
             $success_msg = '✓ SMTP-Verbindungstest erfolgreich! Eine Test-E-Mail wurde an ' . htmlspecialchars($test_to) . ' gesendet.';
         } else {
             $error_msg = 'SMTP-Verbindungstest fehlgeschlagen: ' . htmlspecialchars($test_res['error']);
+        }
+    }
+
+    /**
+     * Führt das 1-Klick-Core-Update aus (Phase 25). Nur für Administratoren (RBAC).
+     */
+    protected static function handleCoreUpdate(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        $info = UpdateManager::checkCoreUpdate(true);
+        $res = CoreUpdater::run($info);
+        if ($res['success']) {
+            $success_msg = '✓ ' . htmlspecialchars($res['message']);
+        } else {
+            $error_msg = htmlspecialchars($res['message']);
         }
     }
 

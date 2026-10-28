@@ -34,4 +34,8 @@ Options -Indexes
     RewriteEngine On
     # Sperrt den direkten Web-Zugriff auf Backups, Rohdaten, PHP-Bibliotheken, Template-Views und Logs
     RewriteRule ^(backups|data|views|admin/views|libs/php|libs/docs|logs)/ - [F,L]
+
+    # 5. SEO-Autopilot (Phase 24): dynamische sitemap.xml & robots.txt
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
+    RewriteRule ^robots\.txt$ robots.php [L]
 </IfModule>

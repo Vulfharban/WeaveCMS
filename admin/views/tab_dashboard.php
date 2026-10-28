@@ -59,10 +59,20 @@
                             </p>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <a href="<?php echo htmlspecialchars($core_update_info['release_url']); ?>" target="_blank" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
                             <span class="material-icons" style="font-size: 16px;">open_in_new</span> Release &amp; Download ansehen
                         </a>
+                        <?php if (($cur_user['role'] ?? '') === UserManager::ROLE_ADMIN): ?>
+                            <form method="POST" action="" style="margin:0;" onsubmit="return confirm('WeaveCMS jetzt auf v<?php echo htmlspecialchars($core_update_info['latest_version'], ENT_QUOTES); ?> aktualisieren?\n\nVorab wird automatisch eine Sicherung erstellt, die Website geht kurz in den Wartungsmodus.');">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                <input type="hidden" name="action" value="run_core_update">
+                                <input type="hidden" name="target_tab" value="tab-dashboard">
+                                <button type="submit" id="btn-run-core-update" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                                    <span class="material-icons" style="font-size: 16px;">system_update_alt</span> Jetzt auf Version <?php echo htmlspecialchars($core_update_info['latest_version']); ?> aktualisieren
+                                </button>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endif; ?>

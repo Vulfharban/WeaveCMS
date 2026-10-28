@@ -44,6 +44,8 @@ require_once __DIR__ . '/libs/php/FrontendController.php';
 require_once __DIR__ . '/libs/php/UpdateManager.php';
 require_once __DIR__ . '/libs/php/RevisionManager.php';
 require_once __DIR__ . '/libs/php/MediaManager.php';
+require_once __DIR__ . '/libs/php/SeoManager.php';
+require_once __DIR__ . '/libs/php/CoreUpdater.php';
 
 // Phase 15 & Plugin-Frühinitialisierung: Sandbox-Plugin einbinden, falls vorhanden
 if (file_exists(__DIR__ . '/plugins/interactive-sandbox/SandboxManager.php')) {

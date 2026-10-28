@@ -24,7 +24,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Flat-File JSON-Speicher** | Funktioniert out-of-the-box ohne Datenbankeinrichtung (`data.json`). Ideal für kleine und mittlere Websites. | ✅ Integriert (v0.2.0) |
 | **SQL-Speicher-Abstraktion** | Wahlfreiheit zwischen lokaler JSON-Datei und relationaler Datenbank (MySQL / MariaDB / SQLite). | ✅ Integriert (v0.5.0) |
 | **1-Klick-Daten-Migration** | Nahtloses Konvertieren und Verschieben aller Inhalte zwischen Flat-File JSON und MySQL/MariaDB direkt im Adminbereich. | ✅ Integriert (v0.7.0) |
-| **Atomare Datenspeicherung** | Schutz vor Schreibkonflikten bei gleichzeitigen Bearbeitungen. | ✅ Integriert |
+| **Datenspeicherung** | Schutz vor Schreibkonflikten bei gleichzeitigen Bearbeitungen. | ✅ Integriert |
 | **Keine Build-Tools erforderlich** | Dateien hochladen und sofort loslegen. Kein `npm install` oder Build-Schritt nötig. | ✅ Integriert |
 | **Minimaler Ressourcenbedarf** | Lädt in wenigen Millisekunden, optimal für Shared Hosting und kostengünstige Server. | ✅ Integriert |
 
@@ -379,7 +379,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
   * **Lokale Server-Pfade:** Unterstützung flexibler Webroot-Pfade (z. B. `/webtrees` oder `/webtrees/index.php`) mit automatischer serverseitiger Verzeichnis- und Dateiprüfung im Adminbereich.
 * **Downloads, Software-Portal & Klick-Counter (Phase 16):**
   * Download-Karten mit Versions-Badges (`v1.2.0`), Plattform-Kennzeichnung (Windows, macOS, Linux), Feature-Checklisten, Screenshot-Galerie mit Lightbox und responsivem Changelog-Modal.
-  * Manipulationssicherer Download-Proxy (`api/download.php?id=...`) mit Bot-Filter gegen Web-Crawler und atomarer Zähler-Aktualisierung.
+  * Manipulationssicherer Download-Proxy (`api/download.php?id=...`) mit Bot-Filter gegen Web-Crawler und Zähler-Aktualisierung.
 * **Modulare Captcha-Auswahl-Engine & Anti-Scraping E-Mail-Schutz:**
   * Zentrale Wahl im Sicherheitsbereich zwischen 4 Verfahren: Symbol-Captcha, Mathe-Rechen-Captcha, dynamisches HTML5 Canvas-Zahlen-Captcha und unsichtbarer Honeypot.
   * Optionaler E-Mail-Schutz im Impressum: E-Mail-Adresse wird erst nach Lösung eines interaktiven Canvas-Zahlencodes über `api/verify_email_captcha.php` freigeschaltet.
