@@ -777,7 +777,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 26: Benutzerdefinierte Dashboard-Schnellzugriffe & Quick-Actions (Custom Action-Hub)
 *Ziel: Ein frei anpassbarer Schnellzugriff-Hub im Dashboard, bei dem Administratoren und Redakteure aus einem lückenlosen Gesamtkatalog aller CMS-Aktionen ihre persönlichen Favoriten und Workflows zusammenstellen können.*
 
-- [ ] **26.1 Vollständiger System-Aktionskatalog:**
+- [x] **26.1 Vollständiger System-Aktionskatalog:**
   - Strukturierter Registry-Katalog aller im CMS verfügbaren Aktionen und Ansichten, aufgeteilt in thematische Kategorien:
     - *Inhalte & Redaktion:* Neuer Blogbeitrag, Neue Einzelseite anlegen, Texte bearbeiten, Kurse verwalten, Galerie pflegen, Revisions-Verlauf öffnen.
     - *Medien & Assets:* Datei-Upload (Bilder/PDF/7z), Mediathek öffnen, Bild-Optimierungen / Varianten prüfen.
@@ -787,7 +787,7 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
     - *Plugins & Integrationen:* Plugin-Manager öffnen, Universal-Integrations verwalten, Forum administrieren.
   - Jede Aktion besitzt eindeutige ID, Titel, Beschreibung, Icon (FontAwesome / SVG), Ziel-Trigger (Tab-Switch, Modal-Öffner oder interne/externe URL) sowie Rollen-Voraussetzung (RBAC: Admin, Moderator, Content-Editor).
 
-- [ ] **26.2 Interaktives Konfigurations-Modal (`#modal-quickactions-config`):**
+- [x] **26.2 Interaktives Konfigurations-Modal (`#modal-quickactions-config`):**
   - Aufrufbar direkt über ein Zahnrad- / Anpassen-Icon („Schnellzugriffe anpassen“) im Dashboard-Widget.
   - Übersicht aller Kategorien mit Suchleiste/Filter und Checkboxen zur Auswahl.
   - Drag & Drop oder Pfeil-Buttons zur flexiblen Sortierung der ausgewählten Schnellzugriffe.
@@ -798,11 +798,11 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
     - *Minimalist:* Nur 3–4 essenzielle Kern-Aktionen für maximale Übersicht.
   - 1-Klick-Zurücksetzen auf Standard-Aktionen.
 
-- [ ] **26.3 Benutzerbezogene Persistenz & Rollenfilterung:**
+- [x] **26.3 Benutzerbezogene Persistenz & Rollenfilterung:**
   - Speicherung der gewählten Schnellzugriffe in der Konfiguration (bzw. `$data['settings']['dashboard_quickactions']` oder benutzerspezifische Präferenzen).
   - Automatische Berechtigungsprüfung (RBAC): Aktionen, für die der aktuell eingeloggte Benutzer keine Rechte besitzt, werden dynamisch ausgeblendet oder im Modal gesperrt.
 
-- [ ] **26.4 Dynamisches Dashboard-Kachel-Widget:**
+- [x] **26.4 Dynamisches Dashboard-Kachel-Widget:**
   - Modernes, responsives Kachel-Grid im Administrations-Dashboard mit Hover-Effekten, Icons, Beschreibungen und optionalen Badges (z. B. Anzahl ungelesener Nachrichten oder anstehender Entwürfe).
   - Nahtlose Trigger-Logik: Öffnet direkt den Ziel-Tab, aktiviert Modals oder navigiert mit direktem Fokus.
 

@@ -232,8 +232,9 @@ class UserManager {
             return true;
         }
 
-        // Dashboard, Inhalte und Mediathek für alle angemeldeten Rollen
-        if ($tabId === 'tab-dashboard' || $tabId === 'tab-content' || $tabId === 'tab-media') {
+        // Dashboard, Inhalte (inkl. aller Content-Untertabs) und Mediathek für alle angemeldeten Rollen
+        $contentTabs = ['tab-dashboard', 'tab-content', 'tab-media', 'tab-texts', 'tab-pages', 'tab-blog', 'tab-faqs', 'tab-team', 'tab-pricing', 'tab-downloads', 'tab-impressum', 'tab-gallery', 'tab-past', 'tab-courses'];
+        if (in_array($tabId, $contentTabs, true)) {
             return true;
         }
 
@@ -272,7 +273,7 @@ class UserManager {
             'add_pricing_plan', 'update_pricing_plan', 'delete_pricing_plan',
             'add_blog_post', 'update_blog_post', 'delete_blog_post',
             'upload_media', 'delete_media', 'update_media_meta',
-            'update_profile_password'
+            'update_profile_password', 'save_quickactions', 'reset_quickactions'
         ];
 
         if (in_array($action, $editorialActions, true)) {

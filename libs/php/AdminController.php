@@ -157,6 +157,11 @@ class AdminController {
                 self::handleCoreUpdate($dataFile, $data, $success_msg, $error_msg);
                 break;
 
+            case 'save_quickactions':
+            case 'reset_quickactions':
+                self::handleQuickActions($action, $dataFile, $data, $success_msg, $error_msg);
+                break;
+
             case 'add_category':
             case 'delete_category':
                 self::handleCategoryAction($action, $dataFile, $data, $success_msg, $error_msg);
@@ -248,7 +253,7 @@ class AdminController {
         if (!empty($_POST['target_tab']) && is_string($_POST['target_tab'])) {
             return trim($_POST['target_tab']);
         }
-        if ($action === 'apply_project_preset' || $action === 'run_core_update') {
+        if ($action === 'apply_project_preset' || $action === 'run_core_update' || $action === 'save_quickactions' || $action === 'reset_quickactions') {
             return 'tab-dashboard';
         }
         if (strpos($action, 'shop') !== false || strpos($action, 'webtrees') !== false || strpos($action, 'inventory') !== false || strpos($action, 'inv_') !== false) {
@@ -1187,6 +1192,36 @@ class AdminController {
             $success_msg = '✓ ' . htmlspecialchars($res['message']);
         } else {
             $error_msg = htmlspecialchars($res['message']);
+        }
+    }
+
+    /**
+     * Verarbeitet das Speichern und Zurücksetzen der benutzerdefinierten Dashboard-Schnellzugriffe (Phase 26).
+     */
+    protected static function handleQuickActions(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        $curUser = UserManager::getCurrentUser($data);
+        $userId = $curUser['id'] ?? 'usr_superadmin';
+        $userRole = $curUser['role'] ?? UserManager::ROLE_ADMIN;
+
+        if ($action === 'reset_quickactions') {
+            if (QuickActionManager::resetUserQuickActions($userId, $userRole, $dataFile, $data)) {
+                $success_msg = '✓ Schnellzugriffe wurden erfolgreich auf den Rollen-Standard zurückgesetzt!';
+            } else {
+                $error_msg = 'Fehler beim Zurücksetzen der Schnellzugriffe.';
+            }
+            return;
+        }
+
+        $rawJson = $_POST['action_ids_json'] ?? '';
+        $actionIds = json_decode((string)$rawJson, true);
+        if (!is_array($actionIds)) {
+            $actionIds = [];
+        }
+
+        if (QuickActionManager::saveUserQuickActions($userId, $actionIds, $dataFile, $data)) {
+            $success_msg = '✓ Deine persönlichen Schnellzugriffe & Workflows wurden erfolgreich gespeichert!';
+        } else {
+            $error_msg = 'Fehler beim Speichern der Schnellzugriffe.';
         }
     }
 

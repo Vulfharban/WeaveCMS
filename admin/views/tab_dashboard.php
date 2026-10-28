@@ -171,31 +171,11 @@
                 </div>
             </div>
 
-            <!-- 2. SCHNELLZUGRIFFE (QUICK ACTIONS) -->
-            <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 2.25rem;">
-                <h4 style="margin:0 0 1rem 0; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
-                    <span class="material-icons" style="font-size:18px; color:var(--primary);">bolt</span> Schnellzugriffe &amp; Aktionen
-                </h4>
-                <div style="display:flex; flex-wrap:wrap; gap:10px;">
-                    <button type="button" class="btn btn-outline" style="padding:7px 14px; font-size:0.86rem; display:inline-flex; align-items:center; gap:6px;" onclick="switchTab('tab-blog')">
-                        <span class="material-icons" style="font-size:17px; color:var(--primary);">article</span> Neuer Blogartikel
-                    </button>
-                    <button type="button" class="btn btn-outline" style="padding:7px 14px; font-size:0.86rem; display:inline-flex; align-items:center; gap:6px;" onclick="switchTab('tab-gallery')">
-                        <span class="material-icons" style="font-size:17px; color:var(--primary);">add_photo_alternate</span> Bild hochladen
-                    </button>
-                    <?php if ($cur_user['role'] === UserManager::ROLE_ADMIN): ?>
-                        <button type="button" class="btn btn-outline" style="padding:7px 14px; font-size:0.86rem; display:inline-flex; align-items:center; gap:6px;" onclick="switchTab('tab-users')">
-                            <span class="material-icons" style="font-size:17px; color:var(--primary);">person_add</span> Benutzer anlegen
-                        </button>
-                        <button type="button" class="btn btn-outline" style="padding:7px 14px; font-size:0.86rem; display:inline-flex; align-items:center; gap:6px;" onclick="switchTab('tab-security')">
-                            <span class="material-icons" style="font-size:17px; color:var(--primary);">folder_zip</span> 1-Klick-Sicherung
-                        </button>
-                    <?php endif; ?>
-                    <a href="../" target="_blank" class="btn btn-outline" style="padding:7px 14px; font-size:0.86rem; display:inline-flex; align-items:center; gap:6px;">
-                        <span class="material-icons" style="font-size:17px; color:var(--primary);">open_in_new</span> Live-Website
-                    </a>
-                </div>
-            </div>
+            <!-- 2. SCHNELLZUGRIFFE & WORKFLOWS (PHASE 26: CUSTOM ACTION-HUB) -->
+            <?php 
+                QuickActionManager::renderDashboardWidget($cur_user, $data);
+                QuickActionManager::renderConfigModal($cur_user, $data, $csrf_token);
+            ?>
 
             <!-- 2b. PROJEKT-STARTER: PROFIL- & BRANCHENAUSWAHL (PHASE 21) -->
             <?php 
