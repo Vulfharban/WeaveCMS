@@ -62,6 +62,42 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             </div>
 
             <!-- ──────────────── FORMULAR / EDITOR DRAWER ──────────────── -->
+            <style>
+                .page-editor-sticky-bar {
+                    position: sticky;
+                    top: 192px;
+                    z-index: 480;
+                    background: rgba(251, 249, 246, 0.96);
+                    backdrop-filter: blur(14px);
+                    -webkit-backdrop-filter: blur(14px);
+                    border: 1px solid var(--border-color);
+                    border-radius: 14px;
+                    padding: 8px 14px;
+                    margin-bottom: 1.5rem;
+                    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                    flex-wrap: wrap;
+                    transition: box-shadow 0.2s ease, top 0.2s ease;
+                }
+                [data-theme="dark"] .page-editor-sticky-bar {
+                    background: rgba(26, 32, 44, 0.96);
+                    border-color: rgba(255, 255, 255, 0.12);
+                    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+                }
+                .sticky-lang-pill {
+                    transition: all 0.15s ease;
+                }
+                .sticky-lang-pill:hover {
+                    transform: translateY(-1px);
+                }
+                .sticky-status-dot {
+                    transition: background-color 0.2s ease;
+                }
+            </style>
+
             <div id="page-editor-box" style="display:none; scroll-margin-top: 150px; background:rgba(255,255,255,0.02); border:1px solid var(--primary); border-radius:16px; padding:2rem; margin-bottom:2.5rem; animation: fadeInTab 0.25s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
                     <h3 id="page-editor-title" style="color:var(--primary); margin:0; display:flex; align-items:center; gap:8px;">
@@ -78,24 +114,53 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                     <input type="hidden" name="target_tab" value="tab-pages">
                     <input type="hidden" name="id" id="page_id" value="">
 
-                    <!-- Sprach-Reiter im Seiteneditor -->
-                    <?php if (count($active_langs) > 1): ?>
-                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:1.5rem; flex-wrap:wrap; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-color);">
-                            <span style="font-size:0.88rem; font-weight:700; color:var(--text-secondary); margin-right:4px;">
-                                <span class="material-icons" style="font-size:16px; vertical-align:middle;">translate</span> Inhaltssprache:
-                            </span>
-                            <button type="button" class="btn btn-primary page-lang-tab-btn" id="btn-page-lang-<?php echo $primary_lang; ?>" onclick="switchPageLangTab('<?php echo $primary_lang; ?>')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
-                                <span><?php echo $supported_langs[$primary_lang]['flag']; ?></span>
-                                <span><?php echo htmlspecialchars($supported_langs[$primary_lang]['name']); ?> (Hauptsprache)</span>
-                            </button>
-                            <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
-                                <button type="button" class="btn btn-outline page-lang-tab-btn" id="btn-page-lang-<?php echo $al; ?>" onclick="switchPageLangTab('<?php echo $al; ?>')" style="padding:6px 14px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
-                                    <span><?php echo $supported_langs[$al]['flag']; ?></span>
-                                    <span><?php echo htmlspecialchars($supported_langs[$al]['name']); ?></span>
-                                </button>
-                            <?php endforeach; ?>
+                    <!-- ──────────────── SCHWEBENDE / STICKY TOOLBAR ──────────────── -->
+                    <div id="page-editor-sticky-bar" class="page-editor-sticky-bar">
+                        <!-- 1. Seitenwechsler Dropdown -->
+                        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                            <span class="material-icons" style="font-size:18px; color:var(--primary);">menu_book</span>
+                            <label for="sticky_page_selector" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin:0; text-transform:uppercase; letter-spacing:0.5px;">Seite:</label>
+                            <select id="sticky_page_selector" onchange="onStickyPageSelect(this.value)" class="form-control" style="font-size:0.85rem; padding:4px 8px; width:auto; max-width:210px; font-weight:600; cursor:pointer; height:auto; border-radius:8px;">
+                                <option value="">➕ Neue Einzelseite anlegen...</option>
+                                <?php foreach ($pages as $p): ?>
+                                    <option value="<?php echo htmlspecialchars($p['id'] ?? ''); ?>">
+                                        <?php echo htmlspecialchars($p['title'] ?? 'Unbenannt'); ?> (<?php echo htmlspecialchars($p['slug'] ?? ''); ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
-                    <?php endif; ?>
+
+                        <!-- 2. Schwebende Sprach-Pills mit Statusanzeige -->
+                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; flex:1; justify-content:center; min-width:220px;">
+                            <span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); display:inline-flex; align-items:center; gap:4px; margin-right:4px;">
+                                <span class="material-icons" style="font-size:15px;">translate</span> Sprache:
+                            </span>
+                            <button type="button" class="btn btn-primary sticky-lang-pill" id="sticky-lang-btn-<?php echo $primary_lang; ?>" onclick="switchPageLangTab('<?php echo $primary_lang; ?>')" style="padding:4px 10px; font-size:0.82rem; display:inline-flex; align-items:center; gap:6px; border-radius:20px;">
+                                <span><?php echo $supported_langs[$primary_lang]['flag']; ?></span>
+                                <span><?php echo strtoupper($primary_lang); ?></span>
+                                <span class="sticky-status-dot" id="sticky-dot-<?php echo $primary_lang; ?>" title="Hauptsprache" style="width:7px; height:7px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                            </button>
+                            <?php if (count($active_langs) > 1): ?>
+                                <?php foreach ($active_langs as $al): if ($al === $primary_lang) continue; ?>
+                                    <button type="button" class="btn btn-outline sticky-lang-pill" id="sticky-lang-btn-<?php echo $al; ?>" onclick="switchPageLangTab('<?php echo $al; ?>')" style="padding:4px 10px; font-size:0.82rem; display:inline-flex; align-items:center; gap:6px; border-radius:20px;">
+                                        <span><?php echo $supported_langs[$al]['flag']; ?></span>
+                                        <span><?php echo strtoupper($al); ?></span>
+                                        <span class="sticky-status-dot" id="sticky-dot-<?php echo $al; ?>" title="Übersetzungsstatus" style="width:7px; height:7px; border-radius:50%; background:#94a3b8; display:inline-block;"></span>
+                                    </button>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- 3. Schnell-Aktionen (Schnell-Speichern & Schließen) -->
+                        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                            <button type="button" class="btn btn-primary" onclick="submitPageFormQuick()" style="padding:5px 12px; font-size:0.84rem; display:inline-flex; align-items:center; gap:6px; border-radius:8px;" title="Seite jetzt speichern ohne nach unten scrollen zu müssen">
+                                <span class="material-icons" style="font-size:16px;">save</span> Schnell-Speichern
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="closePageEditor()" style="padding:5px 10px; font-size:0.84rem; display:inline-flex; align-items:center; border-radius:8px;" title="Editor schließen">
+                                <span class="material-icons" style="font-size:16px;">close</span>
+                            </button>
+                        </div>
+                    </div>
 
                     <!-- Gemeinsame Einstellungen: Status, Seitentyp, Hauptmenü-Einbindung, Basis-Slug, Icon -->
                     <div class="grid-5" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; border:1px solid var(--border-color);">
@@ -422,14 +487,29 @@ $supported_langs = LanguageManager::getSupportedLanguages();
         <script>
         const PAGE_ACTIVE_LANGS = <?php echo json_encode($active_langs); ?>;
         const PAGE_PRIMARY_LANG = <?php echo json_encode($primary_lang); ?>;
+        const ALL_PAGES_DATA = <?php echo json_encode(array_values($pages)); ?>;
+        let CURRENT_ACTIVE_PAGE_LANG = PAGE_PRIMARY_LANG;
 
         function switchPageLangTab(lang) {
+            CURRENT_ACTIVE_PAGE_LANG = lang;
             document.querySelectorAll('.page-lang-panel').forEach(el => el.style.display = 'none');
             const targetPanel = document.getElementById('page-lang-panel-' + lang);
             if (targetPanel) {
                 targetPanel.style.display = 'block';
             }
 
+            // Sticky-Pills synchronisieren
+            document.querySelectorAll('.sticky-lang-pill').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline');
+            });
+            const activeStickyBtn = document.getElementById('sticky-lang-btn-' + lang);
+            if (activeStickyBtn) {
+                activeStickyBtn.classList.remove('btn-outline');
+                activeStickyBtn.classList.add('btn-primary');
+            }
+
+            // Fallback für Standard-Buttons (falls vorhanden)
             document.querySelectorAll('.page-lang-tab-btn').forEach(btn => {
                 btn.classList.remove('btn-primary');
                 btn.classList.add('btn-outline');
@@ -438,6 +518,62 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             if (activeBtn) {
                 activeBtn.classList.remove('btn-outline');
                 activeBtn.classList.add('btn-primary');
+            }
+        }
+
+        function updateStickyTranslationDots() {
+            const primTitle = (document.getElementById('page_title') ? document.getElementById('page_title').value.trim() : '');
+            const primContent = (document.getElementById('page_content') ? document.getElementById('page_content').value.trim() : '');
+            const primDot = document.getElementById('sticky-dot-' + PAGE_PRIMARY_LANG);
+            if (primDot) {
+                if (primTitle || primContent) {
+                    primDot.style.background = '#10b981';
+                    primDot.title = 'Hauptsprache: Inhalt vorhanden';
+                } else {
+                    primDot.style.background = '#f59e0b';
+                    primDot.title = 'Hauptsprache: Noch leer';
+                }
+            }
+
+            PAGE_ACTIVE_LANGS.forEach(lang => {
+                if (lang === PAGE_PRIMARY_LANG) return;
+                const tTitle = document.getElementById('trans_' + lang + '_title');
+                const tContent = document.getElementById('trans_' + lang + '_content');
+                const tNav = document.getElementById('trans_' + lang + '_nav_label');
+                const hasText = (tTitle && tTitle.value.trim().length > 0) || 
+                                (tContent && tContent.value.trim().length > 0) || 
+                                (tNav && tNav.value.trim().length > 0);
+                const dot = document.getElementById('sticky-dot-' + lang);
+                if (dot) {
+                    if (hasText) {
+                        dot.style.background = '#10b981';
+                        dot.title = 'Übersetzung (' + lang.toUpperCase() + ') vorhanden';
+                    } else {
+                        dot.style.background = '#94a3b8';
+                        dot.title = 'Übersetzung (' + lang.toUpperCase() + ') noch nicht angelegt';
+                    }
+                }
+            });
+        }
+
+        function onStickyPageSelect(pageId) {
+            if (!pageId) {
+                openPageEditor();
+                return;
+            }
+            const page = ALL_PAGES_DATA.find(p => String(p.id) === String(pageId));
+            if (page) {
+                editPage(page, CURRENT_ACTIVE_PAGE_LANG);
+            }
+        }
+
+        function submitPageFormQuick() {
+            const form = document.getElementById('page-form');
+            if (form) {
+                if (typeof form.reportValidity === 'function' && !form.reportValidity()) {
+                    return;
+                }
+                form.submit();
             }
         }
 
@@ -491,7 +627,11 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                 if (tContent) tContent.value = '';
             });
 
+            const sel = document.getElementById('sticky_page_selector');
+            if (sel) sel.value = '';
+
             switchPageLangTab(PAGE_PRIMARY_LANG);
+            updateStickyTranslationDots();
             document.getElementById('page-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Seite anlegen';
             document.getElementById('page_title').focus();
         }
@@ -548,11 +688,30 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                 if (tContent) tContent.value = langTrans.content || '';
             });
 
+            const sel = document.getElementById('sticky_page_selector');
+            if (sel) sel.value = pageData.id || '';
+
             const switchLang = targetLang && PAGE_ACTIVE_LANGS.includes(targetLang) ? targetLang : PAGE_PRIMARY_LANG;
             switchPageLangTab(switchLang);
+            updateStickyTranslationDots();
             document.getElementById('page-submit-btn').innerHTML = '<span class="material-icons" style="font-size:18px;">save</span> Änderungen speichern';
             document.getElementById('page-editor-box').scrollIntoView({ behavior: 'smooth' });
         }
+
+        // Live-Aktualisierung der Statuspunkte bei Eingabe
+        document.addEventListener('DOMContentLoaded', function() {
+            const watchFields = ['page_title', 'page_content', 'page_nav_label'];
+            PAGE_ACTIVE_LANGS.forEach(function(lang) {
+                if (lang === PAGE_PRIMARY_LANG) return;
+                watchFields.push('trans_' + lang + '_title', 'trans_' + lang + '_content', 'trans_' + lang + '_nav_label');
+            });
+            watchFields.forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', updateStickyTranslationDots);
+                }
+            });
+        });
 
         function autoGeneratePageSlug(title) {
             const slugInput = document.getElementById('page_slug');
