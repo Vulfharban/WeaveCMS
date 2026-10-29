@@ -10,6 +10,7 @@
  * @var array $data
  */
 
+$cur_lang = $cur_lang ?? LanguageManager::detectLanguage($data);
 $downloads = $data['downloads'] ?? [];
 $dl_title = !empty($data['texts']['downloads_title']) ? $data['texts']['downloads_title'] : 'Downloads &amp; Software';
 $dl_subtitle = !empty($data['texts']['downloads_subtitle']) ? $data['texts']['downloads_subtitle'] : 'Entdecke unsere Software-Lösungen, praktische Werkzeuge, Dokumentationen und Leitfäden zum direkten Herunterladen.';

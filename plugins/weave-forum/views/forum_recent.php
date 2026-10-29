@@ -62,16 +62,20 @@ foreach ($allBoards as $b) {
                     $views = (int)($t['views'] ?? 0);
                     $boardTitle = $boardsMap[$t['board_id'] ?? ''] ?? 'Forum';
 
-                    $authorUser = class_exists('ForumUserManager') ? ForumUserManager::findUser($t['author_name']) : null;
-                    $authorRole = $authorUser['role'] ?? 'forum_user';
-                    $authorRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
-
-                    $lastPostUser = class_exists('ForumUserManager') ? ForumUserManager::findUser($t['last_post_user']) : null;
-                    $lastPostRole = $lastPostUser['role'] ?? 'forum_user';
-                    $lastPostRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($lastPostRole) : '#2563eb';
-
                     $relCreated = ForumManager::formatRelativeTime($t['created_at']);
                     $relLastPost = ForumManager::formatRelativeTime($t['last_post_at']);
+
+                    $authorUser = ($currentUser && class_exists('ForumUserManager')) ? (ForumUserManager::getUserById($t['author_id'] ?? '') ?? ForumUserManager::findUser($t['author_name'])) : null;
+                    $authorPriv = class_exists('ForumUserManager') ? ForumUserManager::getPrivacySettings($authorUser) : ['show_role' => true];
+                    $authorRole = !empty($authorPriv['show_role']) ? ($authorUser['role'] ?? 'forum_user') : 'forum_user';
+                    $authorRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
+                    $authorDisplayName = class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($authorUser, $t['author_name']) : $t['author_name'];
+
+                    $lastPostUser = ($currentUser && class_exists('ForumUserManager')) ? ForumUserManager::findUser($t['last_post_user']) : null;
+                    $lastPostPriv = class_exists('ForumUserManager') ? ForumUserManager::getPrivacySettings($lastPostUser) : ['show_role' => true];
+                    $lastPostRole = !empty($lastPostPriv['show_role']) ? ($lastPostUser['role'] ?? 'forum_user') : 'forum_user';
+                    $lastPostRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($lastPostRole) : '#2563eb';
+                    $lastPostDisplayName = class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($lastPostUser, $t['last_post_user']) : $t['last_post_user'];
                     ?>
                     <div class="kunena-board-row" style="<?= !empty($t['is_pinned']) ? 'background: #fffdf5;' : '' ?>">
                         <div class="kunena-board-main">
@@ -98,8 +102,10 @@ foreach ($allBoards as $b) {
                                 </div>
                                 <div class="kunena-board-desc" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                                     <span>In <a href="?page=forum&view=board&id=<?= urlencode($t['board_id'] ?? '') ?>" style="color:var(--primary, #2e6248); font-weight:700; text-decoration:none;"><?= htmlspecialchars($boardTitle) ?></a></span>
-                                    <span>•</span>
-                                    <span>von <span style="color: <?= $authorRoleColor ?>; font-weight:700;"><?= htmlspecialchars($t['author_name']) ?></span></span>
+                                    <?php if ($currentUser): ?>
+                                        <span>•</span>
+                                        <span>von <span style="color: <?= $authorRoleColor ?>; font-weight:700;"><?= htmlspecialchars($authorDisplayName) ?></span></span>
+                                    <?php endif; ?>
                                     <span>•</span>
                                     <span><?= htmlspecialchars($relCreated) ?></span>
                                 </div>
@@ -118,17 +124,31 @@ foreach ($allBoards as $b) {
                         </div>
 
                         <div class="kunena-board-lastpost">
-                            <div class="kunena-avatar-mini" style="background-color: <?= $lastPostRoleColor ?>18; color: <?= $lastPostRoleColor ?>; border: 1px solid <?= $lastPostRoleColor ?>40;">
-                                <?= strtoupper(mb_substr($t['last_post_user'], 0, 1)) ?>
-                            </div>
-                            <div class="kunena-lastpost-info">
-                                <div style="font-size: 11.5px; color: #475569;">
-                                    Letzter von <span style="color: <?= $lastPostRoleColor ?>; font-weight: 700;"><?= htmlspecialchars($t['last_post_user']) ?></span>
+                            <?php if ($currentUser): ?>
+                                <div class="kunena-avatar-mini" style="background-color: <?= $lastPostRoleColor ?>18; color: <?= $lastPostRoleColor ?>; border: 1px solid <?= $lastPostRoleColor ?>40;">
+                                    <?= strtoupper(mb_substr($lastPostDisplayName, 0, 1)) ?>
                                 </div>
-                                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
-                                    <?= htmlspecialchars($relLastPost) ?>
+                                <div class="kunena-lastpost-info">
+                                    <div style="font-size: 11.5px; color: #475569;">
+                                        Letzter von <span style="color: <?= $lastPostRoleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
+                                    </div>
+                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                                        <?= htmlspecialchars($relLastPost) ?>
+                                    </div>
                                 </div>
-                            </div>
+                            <?php else: ?>
+                                <div class="kunena-avatar-mini" style="background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1;">
+                                    <span class="material-icons" style="font-size: 15px;">schedule</span>
+                                </div>
+                                <div class="kunena-lastpost-info">
+                                    <div style="font-size: 11.5px; color: #475569; font-weight: 600;">
+                                        Letzte Aktivität
+                                    </div>
+                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                                        <?= htmlspecialchars($relLastPost) ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>

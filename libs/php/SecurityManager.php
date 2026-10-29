@@ -785,7 +785,7 @@ class SecurityManager {
                     $msg = 'Kritisch: Datei/Ordner ist für alle Benutzer beschreibbar (World-Writable)!';
                     $hasCritical = true;
                     $hasIssues = true;
-                } elseif ($t['type'] === 'file' && (int)$octal > 0644) {
+                } elseif ($t['type'] === 'file' && octdec($octal) > 0644) {
                     $status = 'warning';
                     $msg = 'Zu freizügige Dateirechte auf Produktivserver.';
                     $hasIssues = true;

@@ -11,6 +11,7 @@
 ?>
 <!-- Gallery Section -->
 <section id="gallery">
+    <?php $cur_lang = $cur_lang ?? LanguageManager::detectLanguage($data); ?>
     <h2 style="margin-bottom: 1rem; text-align: center;"><?php echo htmlspecialchars($data['texts']['gallery_title'] ?? 'Galerie & Handarbeit'); ?></h2>
     <?php if (!empty($data['texts']['gallery_subtitle'])): ?>
         <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 3rem auto;">

@@ -3,9 +3,10 @@
  * ============================================================================
  * WeaveCMS Forum-Benutzerverwaltung – ForumUserManager
  * ============================================================================
- * Verwaltet Foren-Benutzer, Authentifizierung, Rollen, Berechtigungen und DSGVO.
- * Unterstützt wahlweise Flat-File JSON (data/forum_users.json) oder SQLite (data/forum.sqlite)
- * mit 1-Klick-Migration in beide Richtungen.
+ * Verwaltet Foren-Benutzer, Authentifizierung, Rollen, Berechtigungen, Alias-Namen,
+ * Privatsphäre-Einstellungen und DSGVO.
+ * Unterstützt wahlweise Flat-File JSON (data/forum_users.json), SQLite (data/forum.sqlite)
+ * oder MySQL/MariaDB mit 1-Klick-Migration in beide Richtungen.
  * ============================================================================
  */
 
@@ -20,6 +21,7 @@ class ForumUserManager {
     const STATUS_BANNED  = 'banned';
 
     protected static ?PDO $sqlitePdo = null;
+    protected static ?PDO $dbPdo = null;
 
     /**
      * Ermittelt den Speicherpfad zur JSON-Datei.
@@ -27,8 +29,6 @@ class ForumUserManager {
     public static function getJsonFilePath(): string {
         return dirname(__DIR__, 2) . '/data/forum_users.json';
     }
-
-    protected static ?PDO $dbPdo = null;
 
     /**
      * Ermittelt den Speicherpfad zur SQLite-Datei.
@@ -100,6 +100,47 @@ class ForumUserManager {
     }
 
     /**
+     * Stellt sicher, dass neue Spalten (alias, use_alias_only, privacy_settings) in bestehenden DB-Tabellen existieren.
+     */
+    protected static function ensureSchemaColumns(PDO $pdo, string $driver): void {
+        try {
+            if ($driver === 'mysql') {
+                $cols = [];
+                $stmt = $pdo->query("SHOW COLUMNS FROM weave_forum_users");
+                foreach ($stmt->fetchAll() as $row) {
+                    $cols[$row['Field']] = true;
+                }
+                if (!isset($cols['alias'])) {
+                    $pdo->exec("ALTER TABLE weave_forum_users ADD COLUMN alias VARCHAR(64) DEFAULT ''");
+                }
+                if (!isset($cols['use_alias_only'])) {
+                    $pdo->exec("ALTER TABLE weave_forum_users ADD COLUMN use_alias_only TINYINT(1) DEFAULT 0");
+                }
+                if (!isset($cols['privacy_settings'])) {
+                    $pdo->exec("ALTER TABLE weave_forum_users ADD COLUMN privacy_settings TEXT");
+                }
+            } else {
+                $cols = [];
+                $stmt = $pdo->query("PRAGMA table_info(weave_forum_users)");
+                foreach ($stmt->fetchAll() as $row) {
+                    $cols[$row['name']] = true;
+                }
+                if (!isset($cols['alias'])) {
+                    $pdo->exec("ALTER TABLE weave_forum_users ADD COLUMN alias TEXT DEFAULT ''");
+                }
+                if (!isset($cols['use_alias_only'])) {
+                    $pdo->exec("ALTER TABLE weave_forum_users ADD COLUMN use_alias_only INTEGER DEFAULT 0");
+                }
+                if (!isset($cols['privacy_settings'])) {
+                    $pdo->exec("ALTER TABLE weave_forum_users ADD COLUMN privacy_settings TEXT DEFAULT ''");
+                }
+            }
+        } catch (Exception $e) {
+            // Ignorieren falls Spalte bereits existiert
+        }
+    }
+
+    /**
      * Stellt eine MySQL-Verbindung her und initialisiert die Benutzertabelle.
      */
     public static function getMysqlPdo(): PDO {
@@ -151,9 +192,14 @@ class ForumUserManager {
                 topic_count INT DEFAULT 0,
                 banned_until VARCHAR(32) DEFAULT NULL,
                 ban_reason TEXT,
-                notification_email TINYINT(1) DEFAULT 1
+                notification_email TINYINT(1) DEFAULT 1,
+                alias VARCHAR(64) DEFAULT '',
+                use_alias_only TINYINT(1) DEFAULT 0,
+                privacy_settings TEXT
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         ");
+
+        self::ensureSchemaColumns($pdo, 'mysql');
 
         return $pdo;
     }
@@ -201,11 +247,16 @@ class ForumUserManager {
                 topic_count INTEGER DEFAULT 0,
                 banned_until TEXT DEFAULT NULL,
                 ban_reason TEXT DEFAULT '',
-                notification_email INTEGER DEFAULT 1
+                notification_email INTEGER DEFAULT 1,
+                alias TEXT DEFAULT '',
+                use_alias_only INTEGER DEFAULT 0,
+                privacy_settings TEXT DEFAULT ''
             );
             CREATE INDEX IF NOT EXISTS idx_fusers_username ON weave_forum_users(username);
             CREATE INDEX IF NOT EXISTS idx_fusers_email ON weave_forum_users(email);
         ");
+
+        self::ensureSchemaColumns($pdo, 'sqlite');
 
         // Wenn ForumManager existiert, auch die Foren-Inhaltstabellen sicherstellen
         if (class_exists('ForumManager')) {
@@ -214,6 +265,96 @@ class ForumUserManager {
 
         self::$sqlitePdo = $pdo;
         return $pdo;
+    }
+
+    /**
+     * Normalisiert ein Benutzer-Array (Typen, Alias, Privacy-Settings).
+     */
+    public static function normalizeUser(array $u): array {
+        $u['post_count'] = (int)($u['post_count'] ?? 0);
+        $u['topic_count'] = (int)($u['topic_count'] ?? 0);
+        $u['notification_email'] = !empty($u['notification_email']) ? 1 : 0;
+        $u['alias'] = trim((string)($u['alias'] ?? ''));
+        $u['use_alias_only'] = !empty($u['use_alias_only']) ? 1 : 0;
+
+        $defaultPrivacy = self::getDefaultPrivacySettings();
+        $rawPriv = $u['privacy_settings'] ?? [];
+        if (is_string($rawPriv) && $rawPriv !== '') {
+            $decoded = json_decode($rawPriv, true);
+            $rawPriv = is_array($decoded) ? $decoded : [];
+        } elseif (!is_array($rawPriv)) {
+            $rawPriv = [];
+        }
+        $mergedPriv = $defaultPrivacy;
+        foreach ($defaultPrivacy as $k => $defVal) {
+            if (array_key_exists($k, $rawPriv)) {
+                $mergedPriv[$k] = !empty($rawPriv[$k]);
+            }
+        }
+        $u['privacy_settings'] = $mergedPriv;
+        return $u;
+    }
+
+    /**
+     * Standard-Privatsphäre-Einstellungen für andere angemeldete Benutzer.
+     */
+    public static function getDefaultPrivacySettings(): array {
+        return [
+            'show_role'          => true,
+            'show_post_count'    => true,
+            'show_joined_date'   => true,
+            'show_bio'           => true,
+            'show_signature'     => true,
+            'show_online_status' => true,
+        ];
+    }
+
+    /**
+     * Liefert die aktiven Privatsphäre-Einstellungen eines Benutzers.
+     */
+    public static function getPrivacySettings(?array $user): array {
+        $defaults = self::getDefaultPrivacySettings();
+        if (!$user) {
+            return $defaults;
+        }
+        $raw = $user['privacy_settings'] ?? [];
+        if (is_string($raw) && $raw !== '') {
+            $decoded = json_decode($raw, true);
+            $raw = is_array($decoded) ? $decoded : [];
+        }
+        if (!is_array($raw)) {
+            return $defaults;
+        }
+        $res = $defaults;
+        foreach ($defaults as $k => $v) {
+            if (array_key_exists($k, $raw)) {
+                $res[$k] = !empty($raw[$k]);
+            }
+        }
+        return $res;
+    }
+
+    /**
+     * Prüft, ob ein Benutzer berechtigt ist, ein Alias zu führen (Admin & Moderator).
+     */
+    public static function canUseAlias(?array $user): bool {
+        if (!$user) return false;
+        return in_array($user['role'] ?? '', [self::ROLE_ADMIN, self::ROLE_MODERATOR], true);
+    }
+
+    /**
+     * Ermittelt den im Forum anzuzeigenden Namen eines Benutzers.
+     * Wenn Admin/Moderator einen Alias vergeben hat und "use_alias_only" aktiv ist (oder Alias gesetzt),
+     * wird ausschließlich der Alias zurückgegeben.
+     */
+    public static function getDisplayName(?array $user, string $fallback = 'Mitglied'): string {
+        if (!$user) {
+            return $fallback;
+        }
+        if (self::canUseAlias($user) && !empty(trim((string)($user['alias'] ?? ''))) && !empty($user['use_alias_only'])) {
+            return trim((string)$user['alias']);
+        }
+        return !empty($user['username']) ? (string)$user['username'] : $fallback;
     }
 
     // =========================================================================
@@ -229,13 +370,11 @@ class ForumUserManager {
                 $stmt = self::getSqlitePdo()->query("SELECT * FROM weave_forum_users ORDER BY created_at DESC");
                 $users = $stmt->fetchAll();
                 foreach ($users as &$u) {
-                    $u['post_count'] = (int)($u['post_count'] ?? 0);
-                    $u['topic_count'] = (int)($u['topic_count'] ?? 0);
-                    $u['notification_email'] = (bool)($u['notification_email'] ?? 1);
+                    $u = self::normalizeUser($u);
                 }
                 return $users;
             } catch (Exception $e) {
-                error_log('ForumUserManager SQLite getAllUsers error: ' . $e->getMessage());
+                error_log('ForumUserManager DB getAllUsers error: ' . $e->getMessage());
                 return [];
             }
         }
@@ -246,7 +385,13 @@ class ForumUserManager {
         }
         $raw = @file_get_contents($file);
         $data = json_decode((string)$raw, true);
-        return is_array($data) ? $data : [];
+        if (!is_array($data)) {
+            return [];
+        }
+        foreach ($data as &$u) {
+            $u = self::normalizeUser($u);
+        }
+        return $data;
     }
 
     /**
@@ -259,7 +404,12 @@ class ForumUserManager {
             @mkdir($dir, 0755, true);
         }
 
-        $json = json_encode(array_values($users), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $normalized = [];
+        foreach ($users as $u) {
+            $normalized[] = self::normalizeUser($u);
+        }
+
+        $json = json_encode(array_values($normalized), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $tmp = $file . '.tmp.' . bin2hex(random_bytes(6));
         if (file_put_contents($tmp, $json) === false) {
             return false;
@@ -279,10 +429,7 @@ class ForumUserManager {
                 $stmt->execute([$id]);
                 $u = $stmt->fetch();
                 if ($u) {
-                    $u['post_count'] = (int)($u['post_count'] ?? 0);
-                    $u['topic_count'] = (int)($u['topic_count'] ?? 0);
-                    $u['notification_email'] = (bool)($u['notification_email'] ?? 1);
-                    return $u;
+                    return self::normalizeUser($u);
                 }
                 return null;
             } catch (Exception $e) {
@@ -293,14 +440,14 @@ class ForumUserManager {
         $users = self::getAllUsers();
         foreach ($users as $u) {
             if (($u['id'] ?? '') === $id) {
-                return $u;
+                return self::normalizeUser($u);
             }
         }
         return null;
     }
 
     /**
-     * Findet einen Benutzer anhand von Benutzername oder E-Mail.
+     * Findet einen Benutzer anhand von Benutzername, Alias oder E-Mail.
      */
     public static function findUser(string $login): ?array {
         $loginLower = mb_strtolower(trim($login));
@@ -310,16 +457,13 @@ class ForumUserManager {
             try {
                 $stmt = self::getSqlitePdo()->prepare("
                     SELECT * FROM weave_forum_users 
-                    WHERE LOWER(username) = ? OR LOWER(email) = ? 
+                    WHERE LOWER(username) = ? OR LOWER(email) = ? OR (alias != '' AND LOWER(alias) = ?)
                     LIMIT 1
                 ");
-                $stmt->execute([$loginLower, $loginLower]);
+                $stmt->execute([$loginLower, $loginLower, $loginLower]);
                 $u = $stmt->fetch();
                 if ($u) {
-                    $u['post_count'] = (int)($u['post_count'] ?? 0);
-                    $u['topic_count'] = (int)($u['topic_count'] ?? 0);
-                    $u['notification_email'] = (bool)($u['notification_email'] ?? 1);
-                    return $u;
+                    return self::normalizeUser($u);
                 }
                 return null;
             } catch (Exception $e) {
@@ -329,8 +473,11 @@ class ForumUserManager {
 
         $users = self::getAllUsers();
         foreach ($users as $u) {
-            if (mb_strtolower($u['username'] ?? '') === $loginLower || mb_strtolower($u['email'] ?? '') === $loginLower) {
-                return $u;
+            $uName = mb_strtolower($u['username'] ?? '');
+            $uMail = mb_strtolower($u['email'] ?? '');
+            $uAlias = mb_strtolower($u['alias'] ?? '');
+            if ($uName === $loginLower || $uMail === $loginLower || ($uAlias !== '' && $uAlias === $loginLower)) {
+                return self::normalizeUser($u);
             }
         }
         return null;
@@ -341,6 +488,7 @@ class ForumUserManager {
      */
     public static function saveUser(array $user): bool {
         if (empty($user['id'])) return false;
+        $user = self::normalizeUser($user);
 
         if (self::isDatabase()) {
             try {
@@ -348,10 +496,12 @@ class ForumUserManager {
                 $stmt = $pdo->prepare("
                     REPLACE INTO weave_forum_users (
                         id, username, email, password_hash, role, status, avatar, signature,
-                        bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email
+                        bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email,
+                        alias, use_alias_only, privacy_settings
                     ) VALUES (
                         :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
-                        :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email
+                        :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email,
+                        :alias, :use_alias_only, :privacy_settings
                     )
                 ");
                 return $stmt->execute([
@@ -370,10 +520,13 @@ class ForumUserManager {
                     ':topic_count' => (int)($user['topic_count'] ?? 0),
                     ':banned_until' => $user['banned_until'] ?? null,
                     ':ban_reason' => $user['ban_reason'] ?? '',
-                    ':notification_email' => !empty($user['notification_email']) ? 1 : 0
+                    ':notification_email' => !empty($user['notification_email']) ? 1 : 0,
+                    ':alias' => $user['alias'] ?? '',
+                    ':use_alias_only' => !empty($user['use_alias_only']) ? 1 : 0,
+                    ':privacy_settings' => json_encode($user['privacy_settings'] ?? self::getDefaultPrivacySettings(), JSON_UNESCAPED_UNICODE)
                 ]);
             } catch (Exception $e) {
-                error_log('ForumUserManager SQLite saveUser error: ' . $e->getMessage());
+                error_log('ForumUserManager DB saveUser error: ' . $e->getMessage());
                 return false;
             }
         }
@@ -440,7 +593,7 @@ class ForumUserManager {
             return ['success' => false, 'message' => 'Die beiden Passwörter stimmen nicht überein.'];
         }
 
-        // Prüfung auf Duplikate
+        // Prüfung auf Duplikate (Username, Alias oder E-Mail)
         if (self::findUser($username)) {
             return ['success' => false, 'message' => 'Dieser Benutzername ist bereits vergeben.'];
         }
@@ -474,7 +627,10 @@ class ForumUserManager {
             'topic_count' => 0,
             'banned_until' => null,
             'ban_reason' => '',
-            'notification_email' => 1
+            'notification_email' => 1,
+            'alias' => '',
+            'use_alias_only' => 0,
+            'privacy_settings' => self::getDefaultPrivacySettings()
         ];
 
         if (!self::saveUser($newUser)) {
@@ -684,7 +840,10 @@ class ForumUserManager {
             'topic_count' => 0,
             'banned_until' => null,
             'ban_reason' => '',
-            'notification_email' => 1
+            'notification_email' => 1,
+            'alias' => '',
+            'use_alias_only' => 0,
+            'privacy_settings' => self::getDefaultPrivacySettings()
         ];
 
         self::saveUser($newUser);
@@ -797,6 +956,8 @@ class ForumUserManager {
         $user['avatar'] = '';
         $user['signature'] = '';
         $user['bio'] = '';
+        $user['alias'] = '';
+        $user['use_alias_only'] = 0;
         $user['ban_reason'] = 'Konto auf Wunsch des Benutzers gelöscht/anonymisiert.';
         $user['notification_email'] = 0;
 
@@ -804,7 +965,7 @@ class ForumUserManager {
     }
 
     // =========================================================================
-    // SPEICHER-MIGRATION (JSON ➔ SQLite und SQLite ➔ JSON)
+    // SPEICHER-MIGRATION (JSON ➔ SQLite/MySQL und SQLite/MySQL ➔ JSON)
     // =========================================================================
 
     /**
@@ -838,15 +999,18 @@ class ForumUserManager {
                 $stmt = $pdo->prepare("
                     INSERT OR REPLACE INTO weave_forum_users (
                         id, username, email, password_hash, role, status, avatar, signature,
-                        bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email
+                        bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email,
+                        alias, use_alias_only, privacy_settings
                     ) VALUES (
                         :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
-                        :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email
+                        :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email,
+                        :alias, :use_alias_only, :privacy_settings
                     )
                 ");
 
                 foreach ($users as $u) {
                     if (empty($u['id'])) continue;
+                    $u = self::normalizeUser($u);
                     $stmt->execute([
                         ':id' => $u['id'],
                         ':username' => $u['username'],
@@ -863,7 +1027,10 @@ class ForumUserManager {
                         ':topic_count' => (int)($u['topic_count'] ?? 0),
                         ':banned_until' => $u['banned_until'] ?? null,
                         ':ban_reason' => $u['ban_reason'] ?? '',
-                        ':notification_email' => !empty($u['notification_email']) ? 1 : 0
+                        ':notification_email' => !empty($u['notification_email']) ? 1 : 0,
+                        ':alias' => $u['alias'] ?? '',
+                        ':use_alias_only' => !empty($u['use_alias_only']) ? 1 : 0,
+                        ':privacy_settings' => json_encode($u['privacy_settings'] ?? self::getDefaultPrivacySettings(), JSON_UNESCAPED_UNICODE)
                     ]);
                     $count++;
                 }
@@ -917,15 +1084,18 @@ class ForumUserManager {
                 $stmt = $pdo->prepare("
                     REPLACE INTO weave_forum_users (
                         id, username, email, password_hash, role, status, avatar, signature,
-                        bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email
+                        bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email,
+                        alias, use_alias_only, privacy_settings
                     ) VALUES (
                         :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
-                        :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email
+                        :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email,
+                        :alias, :use_alias_only, :privacy_settings
                     )
                 ");
 
                 foreach ($users as $u) {
                     if (empty($u['id'])) continue;
+                    $u = self::normalizeUser($u);
                     $stmt->execute([
                         ':id' => $u['id'],
                         ':username' => $u['username'],
@@ -942,7 +1112,10 @@ class ForumUserManager {
                         ':topic_count' => (int)($u['topic_count'] ?? 0),
                         ':banned_until' => $u['banned_until'] ?? null,
                         ':ban_reason' => $u['ban_reason'] ?? '',
-                        ':notification_email' => !empty($u['notification_email']) ? 1 : 0
+                        ':notification_email' => !empty($u['notification_email']) ? 1 : 0,
+                        ':alias' => $u['alias'] ?? '',
+                        ':use_alias_only' => !empty($u['use_alias_only']) ? 1 : 0,
+                        ':privacy_settings' => json_encode($u['privacy_settings'] ?? self::getDefaultPrivacySettings(), JSON_UNESCAPED_UNICODE)
                     ]);
                     $count++;
                 }
@@ -963,6 +1136,33 @@ class ForumUserManager {
     }
 
     /**
+     * Migriert alle Foren-Benutzer von SQLite nach JSON.
+     */
+    public static function migrateSqliteToJson(): array {
+        try {
+            $pdo = self::getSqlitePdo();
+            $stmt = $pdo->query("SELECT * FROM weave_forum_users ORDER BY created_at DESC");
+            $users = $stmt->fetchAll();
+
+            foreach ($users as &$u) {
+                $u = self::normalizeUser($u);
+            }
+
+            if (!self::saveAllUsersJson($users)) {
+                return ['success' => false, 'message' => 'Fehler beim Schreiben der JSON-Datei.'];
+            }
+
+            return [
+                'success' => true,
+                'count' => count($users),
+                'message' => "Erfolgreich " . count($users) . " Benutzer von SQLite nach data/forum_users.json exportiert!"
+            ];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
+        }
+    }
+
+    /**
      * Migriert alle Foren-Benutzer von MySQL nach JSON.
      */
     public static function migrateMysqlToJson(): array {
@@ -972,9 +1172,7 @@ class ForumUserManager {
             $users = $stmt->fetchAll();
 
             foreach ($users as &$u) {
-                $u['post_count'] = (int)($u['post_count'] ?? 0);
-                $u['topic_count'] = (int)($u['topic_count'] ?? 0);
-                $u['notification_email'] = (bool)($u['notification_email'] ?? 1);
+                $u = self::normalizeUser($u);
             }
 
             if (!self::saveAllUsersJson($users)) {
@@ -1021,29 +1219,29 @@ class ForumUserManager {
         $curUser = self::getCurrentUser();
         $onlineMembers = [];
         if ($curUser) {
-            $onlineMembers[] = [
-                'username' => $curUser['username'],
-                'role' => $curUser['role'] ?? self::ROLE_USER,
-                'color' => self::getRoleColor($curUser['role'] ?? self::ROLE_USER)
-            ];
-        } else {
-            $onlineMembers[] = [
-                'username' => 'WeaveCMS Team',
-                'role' => self::ROLE_ADMIN,
-                'color' => self::getRoleColor(self::ROLE_ADMIN)
-            ];
+            $priv = self::getPrivacySettings($curUser);
+            if (!empty($priv['show_online_status'])) {
+                $role = $curUser['role'] ?? self::ROLE_USER;
+                $showRole = !empty($priv['show_role']);
+                $onlineMembers[] = [
+                    'username' => self::getDisplayName($curUser),
+                    'role' => $showRole ? $role : self::ROLE_USER,
+                    'color' => $showRole ? self::getRoleColor($role) : '#475569'
+                ];
+            }
         }
 
         if (empty($_SESSION['forum_guests_simulated'])) {
             $_SESSION['forum_guests_simulated'] = rand(8, 24);
         }
         $guestCount = (int)$_SESSION['forum_guests_simulated'];
+        $memberCount = $curUser ? max(1, count($onlineMembers)) : 0;
 
         return [
             'members' => $onlineMembers,
-            'member_count' => count($onlineMembers),
+            'member_count' => $memberCount,
             'guest_count' => $guestCount,
-            'total_online' => count($onlineMembers) + $guestCount
+            'total_online' => $memberCount + $guestCount
         ];
     }
 }

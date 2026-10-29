@@ -93,9 +93,9 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
                     ?>
                     <a href="?page=forum&view=profile" class="kunena-user-badge">
                         <div class="kunena-avatar-mini">
-                            <?= strtoupper(mb_substr($currentUser['username'] ?? 'U', 0, 1)) ?>
+                            <?= strtoupper(mb_substr(class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($currentUser) : ($currentUser['username'] ?? 'U'), 0, 1)) ?>
                         </div>
-                        <span style="color: <?= $roleColor ?>;"><?= htmlspecialchars($currentUser['username']) ?></span>
+                        <span style="color: <?= $roleColor ?>;"><?= htmlspecialchars(class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($currentUser) : $currentUser['username']) ?></span>
                         <span style="color: #64748b; font-size: 11px;">(<?= htmlspecialchars($roleLabel) ?>)</span>
                     </a>
                     <a href="?forum_auth=logout" class="kunena-collapse-btn" title="Abmelden" style="text-decoration:none;">

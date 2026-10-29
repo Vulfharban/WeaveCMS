@@ -2364,7 +2364,7 @@ class ForumManager {
             if (!empty($users)) {
                 $sorted = $users;
                 usort($sorted, fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
-                $stats['latest_member'] = $sorted[0]['username'] ?? 'Keines';
+                $stats['latest_member'] = ForumUserManager::getDisplayName($sorted[0], 'Keines');
             }
         }
 

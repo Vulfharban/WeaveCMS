@@ -559,6 +559,19 @@ class PluginManager {
             case 'universal-integrations':
                 $integrations = $data['integrations'] ?? [];
                 if (empty($integrations)) {
+                    if (class_exists('IntegrationManager') && method_exists('IntegrationManager', 'getIntegrations')) {
+                        $integrations = IntegrationManager::getIntegrations($data);
+                    } else {
+                        $intFile = dirname(__DIR__, 2) . '/data/integrations.json';
+                        if (file_exists($intFile)) {
+                            $decoded = json_decode((string)@file_get_contents($intFile), true);
+                            if (is_array($decoded)) {
+                                $integrations = $decoded;
+                            }
+                        }
+                    }
+                }
+                if (empty($integrations)) {
                     $issues[] = 'Noch keine externen Integrationen oder Web-Apps angelegt';
                 }
                 break;

@@ -8,7 +8,11 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
 
 $currentUser = ForumUserManager::getCurrentUser();
 if ($currentUser) {
-    echo '<div class="alert alert-info max-w-lg mx-auto my-8">Du bist bereits als <strong>' . htmlspecialchars($currentUser['username']) . '</strong> angemeldet. <a href="?forum_auth=logout" class="btn btn-sm btn-outline ml-4">Abmelden</a></div>';
+    $dispName = ForumUserManager::getDisplayName($currentUser);
+    echo '<div style="max-width:480px; margin:32px auto; padding:20px; border-radius:12px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; text-align:center;">'
+       . 'Du bist bereits als <strong>' . htmlspecialchars($dispName) . '</strong> angemeldet. '
+       . '<a href="?forum_auth=logout" class="kunena-btn-secondary" style="margin-left:10px;">Abmelden</a>'
+       . '</div>';
     return;
 }
 
@@ -16,39 +20,43 @@ $error = $_SESSION['forum_auth_error'] ?? '';
 unset($_SESSION['forum_auth_error']);
 ?>
 
-<div class="card p-8 max-w-md mx-auto my-12 shadow-lg border">
-    <div class="text-center mb-6">
-        <span class="material-icons text-4xl text-primary mb-2">lock</span>
-        <h2 class="text-2xl font-bold">Forum Anmeldung</h2>
-        <p class="text-sm text-muted">Melde dich mit deinem Benutzerkonto an, um mitzudiskutieren.</p>
+<div style="max-width: 440px; margin: 36px auto; background: #ffffff; border: 1px solid #cbd5e1; border-top: 5px solid var(--primary, #2e6248); border-radius: 14px; padding: 30px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <div style="width: 52px; height: 52px; margin: 0 auto 12px auto; border-radius: 50%; background: rgba(46, 98, 72, 0.1); color: var(--primary, #2e6248); display: flex; align-items: center; justify-content: center;">
+            <span class="material-icons" style="font-size: 26px;">lock</span>
+        </div>
+        <h2 style="margin: 0 0 6px 0; font-size: 1.4rem; font-weight: 800; color: #0f172a;">Forum Anmeldung</h2>
+        <p style="margin: 0; font-size: 13px; color: #64748b;">Melde dich mit deinem Benutzerkonto an, um mitzudiskutieren.</p>
     </div>
 
     <?php if (!empty($error)): ?>
-        <div class="alert alert-danger mb-4">
-            <span class="material-icons">error_outline</span>
-            <?= htmlspecialchars($error) ?>
+        <div style="margin-bottom: 18px; padding: 12px 14px; border-radius: 10px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font-size: 13px; display: flex; align-items: center; gap: 8px;">
+            <span class="material-icons" style="font-size: 18px;">error_outline</span>
+            <span><?= htmlspecialchars($error) ?></span>
         </div>
     <?php endif; ?>
 
-    <form method="post" action="?forum_auth=login">
+    <form method="post" action="?forum_auth=login" style="display: flex; flex-direction: column; gap: 16px;">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
         
-        <div class="form-group mb-4">
-            <label class="font-semibold block mb-1">Benutzername oder E-Mail:</label>
-            <input type="text" name="login" required autofocus class="input-field w-full" placeholder="maxmuster oder max@beispiel.de">
+        <div>
+            <label style="display: block; font-size: 12.5px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Benutzername oder E-Mail:</label>
+            <input type="text" name="login" required autofocus placeholder="maxmuster oder max@beispiel.de"
+                   style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box;">
         </div>
 
-        <div class="form-group mb-6">
-            <label class="font-semibold block mb-1">Passwort:</label>
-            <input type="password" name="password" required class="input-field w-full" placeholder="••••••••">
+        <div>
+            <label style="display: block; font-size: 12.5px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Passwort:</label>
+            <input type="password" name="password" required placeholder="••••••••"
+                   style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box;">
         </div>
 
-        <button type="submit" class="btn btn-primary w-full py-3 font-bold">
-            Anmelden
+        <button type="submit" class="kunena-btn-primary" style="width: 100%; justify-content: center; padding: 11px; font-size: 14px; cursor: pointer; margin-top: 4px;">
+            <span class="material-icons" style="font-size: 18px;">login</span> Anmelden
         </button>
 
-        <div class="text-center mt-6 text-sm">
-            Noch kein Konto? <a href="?page=forum&view=register" class="text-primary font-semibold hover:underline">Hier registrieren</a>
+        <div style="text-align: center; margin-top: 8px; font-size: 13px; color: #64748b;">
+            Noch kein Konto? <a href="?page=forum&view=register" style="color: var(--primary, #2e6248); font-weight: 700; text-decoration: none;">Hier registrieren</a>
         </div>
     </form>
 </div>

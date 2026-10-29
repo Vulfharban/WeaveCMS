@@ -11,6 +11,7 @@
 ?>
 <!-- Course Dates Section -->
 <section id="courses">
+    <?php $cur_lang = $cur_lang ?? LanguageManager::detectLanguage($data); ?>
     <h2 style="margin-bottom: 1rem; text-align: center; color: var(--accent);"><?php echo htmlspecialchars($data['texts']['courses_title'] ?? 'Kurse & Workshops'); ?></h2>
     <?php if (!empty($data['texts']['courses_subtitle'])): ?>
         <p style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto 3rem auto;">

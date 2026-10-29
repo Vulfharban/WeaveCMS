@@ -119,25 +119,44 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                                             </div>
                                         <?php elseif ($latestTopic): ?>
                                             <?php 
-                                            $authorUser = class_exists('ForumUserManager') ? ForumUserManager::findUser($latestTopic['last_post_user']) : null;
-                                            $authorRole = $authorUser['role'] ?? 'forum_user';
-                                            $roleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
                                             $relTime = ForumManager::formatRelativeTime($latestTopic['last_post_at']);
+                                            if ($currentUser):
+                                                $authorUser = class_exists('ForumUserManager') ? ForumUserManager::findUser($latestTopic['last_post_user']) : null;
+                                                $authorPriv = class_exists('ForumUserManager') ? ForumUserManager::getPrivacySettings($authorUser) : ['show_role' => true];
+                                                $authorRole = !empty($authorPriv['show_role']) ? ($authorUser['role'] ?? 'forum_user') : 'forum_user';
+                                                $roleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
+                                                $lastPostDisplayName = class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($authorUser, $latestTopic['last_post_user']) : $latestTopic['last_post_user'];
                                             ?>
-                                            <div class="kunena-avatar-mini" style="background-color: <?= $roleColor ?>18; color: <?= $roleColor ?>; border: 1px solid <?= $roleColor ?>40;">
-                                                <?= strtoupper(mb_substr($latestTopic['last_post_user'], 0, 1)) ?>
-                                            </div>
-                                            <div class="kunena-lastpost-info">
-                                                <div class="kunena-lastpost-title">
-                                                    <a href="?page=forum&view=topic&id=<?= urlencode($latestTopic['id']) ?>" title="<?= htmlspecialchars($latestTopic['title']) ?>">
-                                                        <?= htmlspecialchars($latestTopic['title']) ?>
-                                                    </a>
+                                                <div class="kunena-avatar-mini" style="background-color: <?= $roleColor ?>18; color: <?= $roleColor ?>; border: 1px solid <?= $roleColor ?>40;">
+                                                    <?= strtoupper(mb_substr($lastPostDisplayName, 0, 1)) ?>
                                                 </div>
-                                                <div class="kunena-lastpost-meta">
-                                                    von <span style="color: <?= $roleColor ?>; font-weight: 700;"><?= htmlspecialchars($latestTopic['last_post_user']) ?></span>
-                                                    • <span title="<?= htmlspecialchars($latestTopic['last_post_at']) ?>"><?= $relTime ?></span>
+                                                <div class="kunena-lastpost-info">
+                                                    <div class="kunena-lastpost-title">
+                                                        <a href="?page=forum&view=topic&id=<?= urlencode($latestTopic['id']) ?>" title="<?= htmlspecialchars($latestTopic['title']) ?>">
+                                                            <?= htmlspecialchars($latestTopic['title']) ?>
+                                                        </a>
+                                                    </div>
+                                                    <div class="kunena-lastpost-meta">
+                                                        von <span style="color: <?= $roleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
+                                                        • <span title="<?= htmlspecialchars($latestTopic['last_post_at']) ?>"><?= $relTime ?></span>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            <?php else: ?>
+                                                <!-- Gast-Ansicht: Keine Benutzerdaten anzeigen -->
+                                                <div class="kunena-avatar-mini" style="background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1;">
+                                                    <span class="material-icons" style="font-size: 15px;">chat_bubble_outline</span>
+                                                </div>
+                                                <div class="kunena-lastpost-info">
+                                                    <div class="kunena-lastpost-title">
+                                                        <a href="?page=forum&view=topic&id=<?= urlencode($latestTopic['id']) ?>" title="<?= htmlspecialchars($latestTopic['title']) ?>">
+                                                            <?= htmlspecialchars($latestTopic['title']) ?>
+                                                        </a>
+                                                    </div>
+                                                    <div class="kunena-lastpost-meta">
+                                                        <span title="<?= htmlspecialchars($latestTopic['last_post_at']) ?>"><?= $relTime ?></span>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                             <div class="kunena-no-post">
                                                 <span class="material-icons" style="font-size: 16px;">schedule</span>
@@ -170,7 +189,7 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                 <div>
                     Aktuell sind <strong><?= $onlineStats['member_count'] ?> Mitglied<?= $onlineStats['member_count'] === 1 ? '' : 'er' ?></strong> und <strong><?= $onlineStats['guest_count'] ?> Gäste</strong> online (Gesamt: <?= $onlineStats['total_online'] ?>).
                 </div>
-                <?php if (!empty($onlineStats['members'])): ?>
+                <?php if ($currentUser && !empty($onlineStats['members'])): ?>
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px;">
                         <span style="font-weight:600; color:#64748b;">Anwesende Mitglieder:</span>
                         <?php foreach ($onlineStats['members'] as $m): ?>
@@ -179,6 +198,11 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                                 <?= htmlspecialchars($m['username']) ?>
                             </span>
                         <?php endforeach; ?>
+                    </div>
+                <?php elseif (!$currentUser): ?>
+                    <div style="margin-top:8px; font-size:11.5px; color:#64748b; font-style:italic;">
+                        <span class="material-icons" style="font-size:13px; vertical-align:middle;">lock</span>
+                        Benutzerdetails und anwesende Mitglieder sind nur für angemeldete Mitglieder sichtbar.
                     </div>
                 <?php endif; ?>
 
@@ -257,10 +281,12 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                             <span class="kunena-stats-label">Registrierte Mitglieder:</span>
                             <span class="kunena-stats-val"><?= $globalStats['total_members'] ?></span>
                         </div>
-                        <div class="kunena-stats-row">
-                            <span class="kunena-stats-label">Neuestes Mitglied:</span>
-                            <span class="kunena-stats-val" style="color: var(--primary, #2e6248);"><?= htmlspecialchars($globalStats['latest_member']) ?></span>
-                        </div>
+                        <?php if ($currentUser): ?>
+                            <div class="kunena-stats-row">
+                                <span class="kunena-stats-label">Neuestes Mitglied:</span>
+                                <span class="kunena-stats-val" style="color: var(--primary, #2e6248);"><?= htmlspecialchars($globalStats['latest_member']) ?></span>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

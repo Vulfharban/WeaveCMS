@@ -7,6 +7,7 @@
  * @var array $data
  */
 
+$cur_lang = $cur_lang ?? LanguageManager::detectLanguage($data);
 $pricing_plans = $data['pricing'] ?? [];
 $pricing_title = !empty($data['texts']['pricing_title']) ? $data['texts']['pricing_title'] : 'Leistungen &amp; Preise';
 $pricing_subtitle = !empty($data['texts']['pricing_subtitle']) ? $data['texts']['pricing_subtitle'] : 'Transparente Angebote für individuelle Flechtarbeiten, maßgefertigte Körbe und persönliche Workshops.';

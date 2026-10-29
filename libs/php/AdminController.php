@@ -2589,12 +2589,30 @@ class AdminController {
                 return;
             }
 
-            $fileSource = ($_POST['file_source'] ?? 'upload') === 'external' ? 'external' : 'upload';
+            $rawSource = $_POST['file_source'] ?? 'upload';
+            $fileSource = in_array($rawSource, ['upload', 'external', 'media'], true) ? $rawSource : 'upload';
             $externalUrl = trim($_POST['external_url'] ?? '');
             $filePath = '';
             $fileSize = trim($_POST['file_size'] ?? '');
 
-            if ($fileSource === 'external') {
+            if ($fileSource === 'media') {
+                $mediaFile = trim($_POST['media_file'] ?? '');
+                if (empty($mediaFile)) {
+                    $error_msg = 'Bitte wähle eine Datei aus der Mediathek aus.';
+                    return;
+                }
+                $mediaFileClean = ltrim(str_replace(['../', '..\\'], '', $mediaFile), '/\\');
+                $rootPath = realpath(self::rootPath());
+                $fullPath = realpath($rootPath . '/' . $mediaFileClean);
+                if (!$fullPath || !file_exists($fullPath) || !is_file($fullPath) || strpos($fullPath, $rootPath) !== 0) {
+                    $error_msg = 'Die ausgewählte Datei aus der Mediathek existiert nicht oder liegt außerhalb des Webroot.';
+                    return;
+                }
+                $filePath = $mediaFileClean;
+                if (empty($fileSize)) {
+                    $fileSize = MediaManager::formatBytes((int)filesize($fullPath));
+                }
+            } elseif ($fileSource === 'external') {
                 if (empty($externalUrl) || !filter_var($externalUrl, FILTER_VALIDATE_URL)) {
                     $error_msg = 'Bitte gib eine gültige externe Download-URL an (z. B. GitHub Release oder Cloud-Speicher).';
                     return;
@@ -2679,7 +2697,8 @@ class AdminController {
                 return;
             }
 
-            $fileSource = ($_POST['file_source'] ?? 'upload') === 'external' ? 'external' : 'upload';
+            $rawSource = $_POST['file_source'] ?? 'upload';
+            $fileSource = in_array($rawSource, ['upload', 'external', 'media'], true) ? $rawSource : 'upload';
             $externalUrl = trim($_POST['external_url'] ?? '');
             $fileSize = trim($_POST['file_size'] ?? ($data['downloads'][$found_idx]['file_size'] ?? ''));
 
@@ -2725,7 +2744,18 @@ class AdminController {
                     $data['downloads'][$found_idx]['file_path'] = $docInfo['path'];
                     $data['downloads'][$found_idx]['file_size'] = $docInfo['size'];
                 }
-            } elseif (!empty($_POST['existing_file']) && $fileSource === 'upload') {
+            } elseif ($fileSource === 'media' && !empty($_POST['media_file'])) {
+                $mediaFileClean = ltrim(str_replace(['../', '..\\'], '', trim($_POST['media_file'])), '/\\');
+                $rootPath = realpath(self::rootPath());
+                $fullPath = realpath($rootPath . '/' . $mediaFileClean);
+                if ($fullPath && file_exists($fullPath) && is_file($fullPath) && strpos($fullPath, $rootPath) === 0) {
+                    $data['downloads'][$found_idx]['file_path'] = $mediaFileClean;
+                    if (empty($fileSize)) {
+                        $fileSize = MediaManager::formatBytes((int)filesize($fullPath));
+                    }
+                    $data['downloads'][$found_idx]['file_size'] = $fileSize;
+                }
+            } elseif (!empty($_POST['existing_file']) && $fileSource !== 'external') {
                 $data['downloads'][$found_idx]['file_path'] = trim($_POST['existing_file']);
                 $data['downloads'][$found_idx]['file_size'] = $fileSize;
             }

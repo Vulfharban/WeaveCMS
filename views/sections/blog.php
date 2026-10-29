@@ -8,6 +8,7 @@
  * @var string $site_url
  */
 
+$cur_lang = $cur_lang ?? LanguageManager::detectLanguage($data);
 $all_posts = $data['blog'] ?? [];
 $published_posts = array_filter($all_posts, function($p) {
     return RevisionManager::isItemVisible($p);

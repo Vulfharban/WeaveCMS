@@ -64,6 +64,7 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
 
     if (strpos($content, '[downloads]') !== false) {
         ob_start();
+        $cur_lang = LanguageManager::detectLanguage($data);
         $downloads = $data['downloads'] ?? [];
         $dl_title = !empty($data['texts']['downloads_title']) ? $data['texts']['downloads_title'] : 'Downloads &amp; Software';
         $dl_subtitle = !empty($data['texts']['downloads_subtitle']) ? $data['texts']['downloads_subtitle'] : '';

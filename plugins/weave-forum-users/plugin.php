@@ -30,7 +30,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
 
         if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
             
-            // Benutzer bearbeiten (Rolle / Status)
+            // Benutzer bearbeiten (Rolle / Status / Alias)
             if ($action === 'forum_user_edit') {
                 $uid = trim($_POST['user_id'] ?? '');
                 $user = ForumUserManager::getUserById($uid);
@@ -38,6 +38,23 @@ if (!empty($_SESSION['admin_logged_in'])) {
                     $user['role'] = trim($_POST['role'] ?? $user['role']);
                     $user['status'] = trim($_POST['status'] ?? $user['status']);
                     $user['ban_reason'] = trim($_POST['ban_reason'] ?? '');
+
+                    if (in_array($user['role'], [ForumUserManager::ROLE_ADMIN, ForumUserManager::ROLE_MODERATOR], true)) {
+                        $newAlias = trim($_POST['alias'] ?? '');
+                        if ($newAlias !== '') {
+                            $existingAlias = ForumUserManager::findUser($newAlias);
+                            if (!$existingAlias || $existingAlias['id'] === $user['id']) {
+                                $user['alias'] = $newAlias;
+                            }
+                        } else {
+                            $user['alias'] = '';
+                        }
+                        $user['use_alias_only'] = !empty($_POST['use_alias_only']) ? 1 : 0;
+                    } else {
+                        $user['alias'] = '';
+                        $user['use_alias_only'] = 0;
+                    }
+
                     ForumUserManager::saveUser($user);
                 }
                 header('Location: ?tab=tab-plugins&plugin_settings=weave-forum-users&fuser_msg=user_updated#tab-plugins');
@@ -226,6 +243,39 @@ if (!empty($_GET['forum_auth'])) {
                         header('Location: ?page=forum&view=profile');
                         exit;
                     }
+
+                    // Alias-Verwaltung (für Admins und Moderatoren)
+                    if (ForumUserManager::canUseAlias($cur)) {
+                        $newAlias = trim($_POST['alias'] ?? '');
+                        if ($newAlias !== '') {
+                            if (mb_strlen($newAlias) < 2 || mb_strlen($newAlias) > 40) {
+                                $_SESSION['forum_profile_msg'] = 'invalid_alias';
+                                header('Location: ?page=forum&view=profile');
+                                exit;
+                            }
+                            $existingAlias = ForumUserManager::findUser($newAlias);
+                            if ($existingAlias && $existingAlias['id'] !== $cur['id']) {
+                                $_SESSION['forum_profile_msg'] = 'alias_taken';
+                                header('Location: ?page=forum&view=profile');
+                                exit;
+                            }
+                            $cur['alias'] = $newAlias;
+                        } else {
+                            $cur['alias'] = '';
+                        }
+                        $cur['use_alias_only'] = !empty($_POST['use_alias_only']) ? 1 : 0;
+                    }
+
+                    // Privatsphäre-Einstellungen (welche Inhalte anderen Benutzern angezeigt werden)
+                    $cur['privacy_settings'] = [
+                        'show_role'          => !empty($_POST['priv_show_role']),
+                        'show_post_count'    => !empty($_POST['priv_show_post_count']),
+                        'show_joined_date'   => !empty($_POST['priv_show_joined_date']),
+                        'show_bio'           => !empty($_POST['priv_show_bio']),
+                        'show_signature'     => !empty($_POST['priv_show_signature']),
+                        'show_online_status' => !empty($_POST['priv_show_online_status']),
+                    ];
+
                     $cur['email'] = $newEmail;
                     $cur['bio'] = trim($_POST['bio'] ?? '');
                     $cur['signature'] = trim($_POST['signature'] ?? '');

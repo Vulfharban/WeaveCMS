@@ -10,7 +10,7 @@ $topicId = trim($_GET['id'] ?? '');
 $topic = ForumManager::getTopic($topicId);
 
 if (!$topic) {
-    echo '<div class="alert alert-danger">Dieses Thema existiert nicht mehr oder wurde entfernt.</div>';
+    echo '<div style="padding:20px; border-radius:12px; background:#fef2f2; border:1px solid #fecaca; color:#991b1b; text-align:center;">Dieses Thema existiert nicht mehr oder wurde entfernt.</div>';
     return;
 }
 
@@ -59,64 +59,114 @@ $isSubscribed = $currentUser ? ForumManager::isSubscribed($currentUser['id'], $t
 $allBoards = ForumManager::getBoards();
 ?>
 
+<style>
+.kunena-topic-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.kunena-topic-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+}
+.kunena-mod-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    font-size: 12.5px;
+}
+dialog.kunena-dialog {
+    border: none;
+    border-radius: 14px;
+    padding: 0;
+    width: 92%;
+    max-width: 520px;
+    background: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+    margin: auto;
+}
+dialog.kunena-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(3px);
+}
+</style>
+
 <!-- Topic Header -->
-<div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4">
+<div class="kunena-topic-header">
     <div>
-        <div class="flex items-center gap-2 mb-1">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
             <?php if (!empty($topic['is_pinned'])): ?>
-                <span class="badge badge-warning text-xs flex items-center gap-1">
-                    <span class="material-icons text-xs">push_pin</span> Angepinnt
+                <span class="kunena-topic-badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a;">
+                    <span class="material-icons" style="font-size:13px;">push_pin</span> Angepinnt
                 </span>
             <?php endif; ?>
             <?php if (!empty($topic['is_solved'])): ?>
-                <span class="badge badge-success text-xs flex items-center gap-1 font-bold">
-                    <span class="material-icons text-xs">check_circle</span> Gelöst
+                <span class="kunena-topic-badge" style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0;">
+                    <span class="material-icons" style="font-size:13px;">check_circle</span> Gelöst
                 </span>
             <?php endif; ?>
             <?php if (!empty($topic['is_locked'])): ?>
-                <span class="badge badge-secondary text-xs flex items-center gap-1">
-                    <span class="material-icons text-xs">lock</span> Geschlossen
+                <span class="kunena-topic-badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;">
+                    <span class="material-icons" style="font-size:13px;">lock</span> Geschlossen
                 </span>
             <?php endif; ?>
-            <span class="text-xs text-muted">
-                In Forum: <a href="?page=forum&view=board&id=<?= urlencode($board['id'] ?? '') ?>" class="text-primary hover:underline font-semibold"><?= htmlspecialchars($board['title'] ?? 'Forum') ?></a>
+            <span style="font-size:12px; color:#64748b;">
+                In Forum: <a href="?page=forum&view=board&id=<?= urlencode($board['id'] ?? '') ?>" style="color:var(--primary, #2e6248); font-weight:700; text-decoration:none;"><?= htmlspecialchars($board['title'] ?? 'Forum') ?></a>
             </span>
         </div>
-        <h2 class="text-2xl font-bold"><?= htmlspecialchars($topic['title']) ?></h2>
+        <h2 style="margin:0; font-size:1.5rem; font-weight:800; color:#0f172a;"><?= htmlspecialchars($topic['title']) ?></h2>
     </div>
 
-    <div class="flex items-center gap-2 flex-wrap">
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
         <?php 
         $canToggleSolved = $currentUser && (($currentUser['id'] === $topic['author_id']) || $isMod);
         ?>
         <?php if ($canToggleSolved): ?>
             <!-- Gelöst Toggle Button -->
-            <form method="post" action="?forum_action=toggle_solved" class="inline">
+            <form method="post" action="?forum_action=toggle_solved" style="margin:0;">
                 <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                <button type="submit" class="btn btn-sm <?= !empty($topic['is_solved']) ? 'btn-success' : 'btn-outline' ?> flex items-center gap-1"
+                <button type="submit" class="<?= !empty($topic['is_solved']) ? 'kunena-btn-primary' : 'kunena-btn-secondary' ?>" style="cursor:pointer;"
                         title="Themenstatus umschalten">
-                    <span class="material-icons text-xs"><?= !empty($topic['is_solved']) ? 'check_circle' : 'task_alt' ?></span>
-                    <?= !empty($topic['is_solved']) ? 'Gelöst ✓' : 'Als gelöst markieren' ?>
+                    <span class="material-icons" style="font-size:15px;"><?= !empty($topic['is_solved']) ? 'check_circle' : 'task_alt' ?></span>
+                    <span><?= !empty($topic['is_solved']) ? 'Gelöst ✓' : 'Als gelöst markieren' ?></span>
                 </button>
             </form>
         <?php endif; ?>
 
         <?php if ($currentUser): ?>
             <!-- Abonnement Toggle -->
-            <form method="post" action="?forum_action=toggle_subscription" class="inline">
+            <form method="post" action="?forum_action=toggle_subscription" style="margin:0;">
                 <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                <button type="submit" class="btn btn-sm <?= $isSubscribed ? 'btn-primary' : 'btn-outline' ?> flex items-center gap-1">
-                    <span class="material-icons text-xs"><?= $isSubscribed ? 'notifications_active' : 'notifications_none' ?></span>
-                    <?= $isSubscribed ? 'Abonniert' : 'Abonnieren' ?>
+                <button type="submit" class="<?= $isSubscribed ? 'kunena-btn-primary' : 'kunena-btn-secondary' ?>" style="cursor:pointer;">
+                    <span class="material-icons" style="font-size:15px;"><?= $isSubscribed ? 'notifications_active' : 'notifications_none' ?></span>
+                    <span><?= $isSubscribed ? 'Abonniert' : 'Abonnieren' ?></span>
                 </button>
             </form>
         <?php endif; ?>
 
         <?php if ($canReply && empty($topic['is_locked'])): ?>
-            <a href="#reply-box" class="btn btn-primary btn-sm flex items-center gap-1 font-bold">
-                <span class="material-icons text-xs">reply</span> Antworten
+            <a href="#reply-box" class="kunena-btn-primary">
+                <span class="material-icons" style="font-size:15px;">reply</span> Antworten
             </a>
         <?php endif; ?>
     </div>
@@ -124,56 +174,56 @@ $allBoards = ForumManager::getBoards();
 
 <!-- Moderation Toolbar (if Moderator / Admin) -->
 <?php if ($isMod): ?>
-    <div class="card p-3 mb-6 bg-amber-50/40 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800 text-xs flex flex-wrap items-center justify-between gap-3">
-        <div class="font-bold flex items-center gap-1 text-amber-700 dark:text-amber-400">
-            <span class="material-icons text-sm">shield</span> Moderations-Werkzeuge:
+    <div class="kunena-mod-bar">
+        <div style="font-weight:700; display:flex; align-items:center; gap:6px; color:#b45309;">
+            <span class="material-icons" style="font-size:18px;">shield</span> Moderations-Werkzeuge:
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
             <!-- Pin / Unpin -->
-            <form method="post" action="?forum_action=mod_pin_topic" class="inline">
+            <form method="post" action="?forum_action=mod_pin_topic" style="margin:0;">
                 <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
                 <input type="hidden" name="pinned" value="<?= !empty($topic['is_pinned']) ? '0' : '1' ?>">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                <button type="submit" class="btn btn-outline btn-xs">
+                <button type="submit" class="kunena-btn-secondary" style="padding:4px 10px; font-size:11.5px; cursor:pointer;">
                     <?= !empty($topic['is_pinned']) ? 'Lösen (Unpin)' : 'Anpinnen' ?>
                 </button>
             </form>
 
             <!-- Lock / Unlock -->
-            <form method="post" action="?forum_action=mod_lock_topic" class="inline">
+            <form method="post" action="?forum_action=mod_lock_topic" style="margin:0;">
                 <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
                 <input type="hidden" name="locked" value="<?= !empty($topic['is_locked']) ? '0' : '1' ?>">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                <button type="submit" class="btn btn-outline btn-xs">
+                <button type="submit" class="kunena-btn-secondary" style="padding:4px 10px; font-size:11.5px; cursor:pointer;">
                     <?= !empty($topic['is_locked']) ? 'Öffnen' : 'Schließen (Sperren)' ?>
                 </button>
             </form>
 
             <!-- Move Topic -->
-            <button type="button" class="btn btn-outline btn-xs" onclick="document.getElementById('modal_move_topic').showModal()">
+            <button type="button" class="kunena-btn-secondary" style="padding:4px 10px; font-size:11.5px; cursor:pointer;" onclick="document.getElementById('modal_move_topic').showModal()">
                 Verschieben...
             </button>
 
             <!-- Delete Topic -->
-            <form method="post" action="?forum_action=mod_delete_topic" class="inline" onsubmit="return confirm('Möchtest du dieses gesamte Thema wirklich löschen?')">
+            <form method="post" action="?forum_action=mod_delete_topic" style="margin:0;" onsubmit="return confirm('Möchtest du dieses gesamte Thema wirklich löschen?')">
                 <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
                 <input type="hidden" name="board_id" value="<?= htmlspecialchars($board['id'] ?? '') ?>">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                <button type="submit" class="btn btn-danger btn-xs">Thema löschen</button>
+                <button type="submit" class="kunena-btn-secondary" style="padding:4px 10px; font-size:11.5px; color:#dc2626; border-color:#fca5a5; cursor:pointer;">Thema löschen</button>
             </form>
         </div>
     </div>
 
     <!-- Modal: Move Topic -->
-    <dialog id="modal_move_topic" class="modal-dialog">
-        <form method="post" action="?forum_action=mod_move_topic" class="p-6">
+    <dialog id="modal_move_topic" class="kunena-dialog">
+        <form method="post" action="?forum_action=mod_move_topic" style="padding:24px; margin:0;">
             <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
             
-            <h3 class="text-lg font-bold mb-3">Thema in ein anderes Forum verschieben</h3>
-            <div class="form-group mb-4">
-                <label class="font-semibold block mb-1">Zielforum auswählen:</label>
-                <select name="new_board_id" class="input-field w-full">
+            <h3 style="margin:0 0 14px 0; font-size:1.1rem; font-weight:800;">Thema in ein anderes Forum verschieben</h3>
+            <div style="margin-bottom:18px;">
+                <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">Zielforum auswählen:</label>
+                <select name="new_board_id" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13.5px;">
                     <?php foreach ($allBoards as $b): ?>
                         <option value="<?= htmlspecialchars($b['id']) ?>" <?= $b['id'] === $topic['board_id'] ? 'selected' : '' ?>>
                             <?= htmlspecialchars($b['title']) ?>
@@ -181,45 +231,83 @@ $allBoards = ForumManager::getBoards();
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="flex justify-end gap-2">
-                <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Abbrechen</button>
-                <button type="submit" class="btn btn-primary">Verschieben</button>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" class="kunena-btn-secondary" style="cursor:pointer;" onclick="this.closest('dialog').close()">Abbrechen</button>
+                <button type="submit" class="kunena-btn-primary" style="cursor:pointer;">Verschieben</button>
             </div>
         </form>
     </dialog>
 <?php endif; ?>
 
 <!-- Posts List -->
-<div class="space-y-6 mb-8">
+<div style="margin-bottom: 28px;">
     <?php foreach ($posts as $idx => $post): ?>
         <?php 
-        $author = class_exists('ForumUserManager') ? ForumUserManager::getUserById($post['author_id']) : null;
+        $author = class_exists('ForumUserManager') ? (ForumUserManager::getUserById($post['author_id'] ?? '') ?? ForumUserManager::findUser($post['author_name'] ?? '')) : null;
         $authorRole = $author['role'] ?? 'forum_user';
-        $isAuthor = ($currentUser && $currentUser['id'] === $post['author_id']);
+        $authorPriv = class_exists('ForumUserManager') ? ForumUserManager::getPrivacySettings($author) : [
+            'show_role' => true, 'show_post_count' => true, 'show_joined_date' => true, 'show_bio' => true, 'show_signature' => true
+        ];
+        $authorDisplayName = class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($author, $post['author_name'] ?? 'Mitglied') : ($post['author_name'] ?? 'Mitglied');
+        $isAuthor = ($currentUser && $currentUser['id'] === ($post['author_id'] ?? ''));
         $canEdit = ($isAuthor || $isMod);
         ?>
         <div id="post-<?= htmlspecialchars($post['id']) ?>" class="kunena-post-card">
             <!-- Left: Author Card -->
             <div class="kunena-post-author">
-                <div class="kunena-avatar-mini" style="width: 48px; height: 48px; font-size: 18px;">
-                    <?= strtoupper(substr($post['author_name'] ?? 'U', 0, 1)) ?>
-                </div>
-                <div>
+                <?php if ($currentUser): ?>
                     <?php
-                    $authorRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
-                    $authorRoleLabel = class_exists('ForumUserManager') ? ForumUserManager::getRoleLabel($authorRole) : 'Mitglied';
+                    $effectiveRole = !empty($authorPriv['show_role']) ? $authorRole : 'forum_user';
+                    $authorRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($effectiveRole) : '#2563eb';
+                    $authorRoleLabel = class_exists('ForumUserManager') ? ForumUserManager::getRoleLabel($effectiveRole) : 'Mitglied';
                     ?>
-                    <strong style="display:block; font-size: 14px; font-weight:700; color: <?= htmlspecialchars($authorRoleColor) ?>"><?= htmlspecialchars($post['author_name']) ?></strong>
-                    <span style="display:inline-block; padding: 2px 8px; margin-top: 4px; border-radius: 6px; font-size: 10px; font-weight: 700; background-color: <?= htmlspecialchars($authorRoleColor) ?>18; color: <?= htmlspecialchars($authorRoleColor) ?>; border: 1px solid <?= htmlspecialchars($authorRoleColor) ?>40;">
-                        <?= htmlspecialchars($authorRoleLabel) ?>
-                    </span>
-                    
-                    <?php if ($author): ?>
-                        <div style="font-size: 11px; color: #64748b; margin-top: 8px;">
-                            <?= (int)($author['post_count'] ?? 0) ?> Beiträge
-                        </div>
-                    <?php endif; ?>
-                </div>
+                    <div class="kunena-avatar-mini" style="width: 48px; height: 48px; font-size: 18px;">
+                        <?= strtoupper(mb_substr($authorDisplayName, 0, 1)) ?>
+                    </div>
+                    <div>
+                        <strong style="display:block; font-size: 14px; font-weight:700; color: <?= htmlspecialchars($authorRoleColor) ?>">
+                            <?= htmlspecialchars($authorDisplayName) ?>
+                        </strong>
+
+                        <?php if (!empty($authorPriv['show_role'])): ?>
+                            <span style="display:inline-block; padding: 2px 8px; margin-top: 4px; border-radius: 6px; font-size: 10px; font-weight: 700; background-color: <?= htmlspecialchars($authorRoleColor) ?>18; color: <?= htmlspecialchars($authorRoleColor) ?>; border: 1px solid <?= htmlspecialchars($authorRoleColor) ?>40;">
+                                <?= htmlspecialchars($authorRoleLabel) ?>
+                            </span>
+                        <?php endif; ?>
+                        
+                        <?php if ($author && !empty($authorPriv['show_post_count'])): ?>
+                            <div style="font-size: 11px; color: #64748b; margin-top: 8px;">
+                                <?= (int)($author['post_count'] ?? 0) ?> Beiträge
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($author && !empty($authorPriv['show_joined_date']) && !empty($author['created_at'])): ?>
+                            <div style="font-size: 10.5px; color: #94a3b8; margin-top: 3px;">
+                                Dabei seit <?= htmlspecialchars(substr($author['created_at'], 0, 10)) ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($author && !empty($authorPriv['show_bio']) && !empty($author['bio'])): ?>
+                            <div style="font-size: 11px; color: #475569; margin-top: 8px; padding-top: 6px; border-top: 1px dashed #e2e8f0; line-height: 1.4;">
+                                <?= nl2br(htmlspecialchars(mb_substr($author['bio'], 0, 140))) ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <!-- Gast-Ansicht: Keine Benutzerdaten anzeigen -->
+                    <div class="kunena-avatar-mini" style="width: 44px; height: 44px; font-size: 18px; background: #e2e8f0; color: #64748b;">
+                        <span class="material-icons" style="font-size: 22px;">person_outline</span>
+                    </div>
+                    <div>
+                        <span style="display:block; font-size: 12.5px; font-weight:600; color: #64748b;">
+                            Community-Mitglied
+                        </span>
+                        <span style="display:block; font-size: 10.5px; color: #94a3b8; margin-top: 4px;">
+                            <span class="material-icons" style="font-size: 11px; vertical-align: middle;">lock</span>
+                            Profil nur für Mitglieder
+                        </span>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <!-- Right: Post Body -->
@@ -244,8 +332,8 @@ $allBoards = ForumManager::getBoards();
                         <?= ForumManager::renderFormattedContent($post['content']) ?>
                     </div>
 
-                    <!-- User Signature -->
-                    <?php if (!empty($author['signature'])): ?>
+                    <!-- User Signature (nur für eingeloggte Mitglieder und wenn vom Autor freigegeben) -->
+                    <?php if ($currentUser && !empty($author['signature']) && !empty($authorPriv['show_signature'])): ?>
                         <div style="border-top:1px solid #f1f5f9; padding-top:10px; margin-top:16px; font-size: 12px; color:#64748b; font-style:italic;">
                             <?= nl2br(htmlspecialchars($author['signature'])) ?>
                         </div>
@@ -262,57 +350,59 @@ $allBoards = ForumManager::getBoards();
                     ?>
                     <div>
                         <?php if ($currentUser): ?>
-                            <form method="post" action="?forum_action=toggle_like" class="inline">
+                            <form method="post" action="?forum_action=toggle_like" style="margin:0; display:inline;">
                                 <input type="hidden" name="post_id" value="<?= htmlspecialchars($post['id']) ?>">
                                 <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                                <button type="submit" class="btn btn-xs <?= $hasLiked ? 'btn-primary' : 'btn-outline' ?> flex items-center gap-1" title="Diesen Beitrag als hilfreich markieren">
-                                    <span class="material-icons text-xs"><?= $hasLiked ? 'favorite' : 'favorite_border' ?></span>
+                                <button type="submit" class="<?= $hasLiked ? 'kunena-btn-primary' : 'kunena-btn-secondary' ?>" style="padding:4px 10px; font-size:11.5px; cursor:pointer;" title="Diesen Beitrag als hilfreich markieren">
+                                    <span class="material-icons" style="font-size:14px;"><?= $hasLiked ? 'favorite' : 'favorite_border' ?></span>
                                     <span><?= $hasLiked ? 'Hilfreich' : 'Danke' ?></span>
                                     <?php if ($likeCount > 0): ?>
-                                        <span class="font-bold ml-0.5">(<?= $likeCount ?>)</span>
+                                        <span style="font-weight:800; margin-left:2px;">(<?= $likeCount ?>)</span>
                                     <?php endif; ?>
                                 </button>
                             </form>
                         <?php elseif ($likeCount > 0): ?>
-                            <span class="badge badge-secondary text-xs flex items-center gap-1 text-muted">
-                                <span class="material-icons text-xs text-rose-500">favorite</span> <?= $likeCount ?> <?= $likeCount === 1 ? 'Danke' : 'Dankes' ?>
+                            <span style="display:inline-flex; align-items:center; gap:4px; font-size:11.5px; color:#64748b; background:#f8fafc; padding:3px 9px; border-radius:6px; border:1px solid #e2e8f0;">
+                                <span class="material-icons" style="font-size:13px; color:#f43f5e;">favorite</span> <?= $likeCount ?> <?= $likeCount === 1 ? 'Danke' : 'Dankes' ?>
                             </span>
                         <?php endif; ?>
                     </div>
 
-                    <div class="flex items-center gap-2">
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                         <!-- Zitat-Button -->
-                        <button type="button" class="btn btn-outline btn-xs flex items-center gap-1"
-                                onclick="insertQuote('<?= htmlspecialchars(addslashes($post['author_name'])) ?>', <?= htmlspecialchars(json_encode($post['content'])) ?>)">
-                            <span class="material-icons text-xs">format_quote</span> Zitieren
-                        </button>
+                        <?php if ($currentUser): ?>
+                            <button type="button" class="kunena-btn-secondary" style="padding:4px 10px; font-size:11.5px; cursor:pointer;"
+                                    onclick="insertQuote('<?= htmlspecialchars(addslashes($authorDisplayName)) ?>', <?= htmlspecialchars(json_encode($post['content'])) ?>)">
+                                <span class="material-icons" style="font-size:14px;">format_quote</span> Zitieren
+                            </button>
+                        <?php endif; ?>
 
                         <!-- Edit Button -->
                         <?php if ($canEdit): ?>
-                            <button type="button" class="btn btn-outline btn-xs flex items-center gap-1"
+                            <button type="button" class="kunena-btn-secondary" style="padding:4px 10px; font-size:11.5px; cursor:pointer;"
                                     onclick="openEditPostModal('<?= htmlspecialchars($post['id']) ?>', <?= htmlspecialchars(json_encode($post['content'])) ?>)">
-                                <span class="material-icons text-xs">edit</span> Bearbeiten
+                                <span class="material-icons" style="font-size:14px;">edit</span> Bearbeiten
                             </button>
                         <?php endif; ?>
 
                         <!-- Delete Button (Mod) -->
                         <?php if ($isMod): ?>
-                            <form method="post" action="?forum_action=mod_delete_post" class="inline" onsubmit="return confirm('Diesen Beitrag wirklich löschen?')">
+                            <form method="post" action="?forum_action=mod_delete_post" style="margin:0; display:inline;" onsubmit="return confirm('Diesen Beitrag wirklich löschen?')">
                                 <input type="hidden" name="post_id" value="<?= htmlspecialchars($post['id']) ?>">
                                 <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                                <button type="submit" class="btn btn-outline btn-xs text-danger" title="Beitrag löschen">
-                                    <span class="material-icons text-xs">delete</span>
+                                <button type="submit" class="kunena-btn-secondary" style="padding:4px 8px; color:#dc2626; border-color:#fca5a5; cursor:pointer;" title="Beitrag löschen">
+                                    <span class="material-icons" style="font-size:14px;">delete</span>
                                 </button>
                             </form>
                         <?php endif; ?>
 
                         <!-- Melden Button -->
                         <?php if ($currentUser && !$isAuthor): ?>
-                            <button type="button" class="btn btn-outline btn-xs text-muted" title="Beitrag melden"
-                                    onclick="openReportModal('<?= htmlspecialchars($post['id']) ?>')">
-                                <span class="material-icons text-xs">flag</span>
+                            <button type="button" class="kunena-btn-secondary" style="padding:4px 8px; color:#64748b; cursor:pointer;" title="Beitrag melden"
+                                     onclick="openReportModal('<?= htmlspecialchars($post['id']) ?>')">
+                                <span class="material-icons" style="font-size:14px;">flag</span>
                             </button>
                         <?php endif; ?>
                     </div>
@@ -324,10 +414,10 @@ $allBoards = ForumManager::getBoards();
 
 <!-- Pagination -->
 <?php if ($totalPages > 1): ?>
-    <div class="flex justify-center gap-2 mb-8">
+    <div style="display:flex; justify-content:center; gap:6px; margin-bottom:28px;">
         <?php for ($i = 1; $i <= $totalPages; $i++): ?>
             <a href="?page=forum&view=topic&id=<?= urlencode($topicId) ?>&p=<?= $i ?>" 
-               class="btn btn-sm <?= $i === $page ? 'btn-primary' : 'btn-outline' ?>">
+               class="kunena-page-btn <?= $i === $page ? 'active' : '' ?>">
                 <?= $i ?>
             </a>
         <?php endfor; ?>
@@ -335,11 +425,11 @@ $allBoards = ForumManager::getBoards();
 <?php endif; ?>
 
 <!-- Quick Reply Box -->
-<div id="reply-box" class="card p-6 border shadow-sm">
+<div id="reply-box" class="kunena-cat-card" style="padding: 24px;">
     <?php if (!empty($topic['is_locked'])): ?>
-        <div class="p-4 text-center text-muted">
-            <span class="material-icons text-2xl mb-1">lock</span>
-            <p>Dieses Thema ist geschlossen. Weitere Antworten sind nicht möglich.</p>
+        <div style="padding: 16px; text-align: center; color: #64748b;">
+            <span class="material-icons" style="font-size: 28px; margin-bottom: 4px;">lock</span>
+            <p style="margin:0;">Dieses Thema ist geschlossen. Weitere Antworten sind nicht möglich.</p>
         </div>
     <?php elseif ($canReply): ?>
         <?php 
@@ -347,40 +437,41 @@ $allBoards = ForumManager::getBoards();
         unset($_SESSION['forum_reply_error']);
         ?>
         <?php if (!empty($replyError)): ?>
-            <div class="alert alert-danger mb-4">
+            <div style="margin-bottom: 16px; padding: 12px 16px; border-radius: 10px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; display: flex; align-items: center; gap: 8px;">
                 <span class="material-icons">error_outline</span>
-                <?= htmlspecialchars($replyError) ?>
+                <span><?= htmlspecialchars($replyError) ?></span>
             </div>
         <?php endif; ?>
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="font-bold text-lg flex items-center gap-2">
-                <span class="material-icons text-primary">reply</span> Antwort verfassen
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+            <h3 style="margin:0; font-weight:800; font-size:1.1rem; display:flex; align-items:center; gap:8px;">
+                <span class="material-icons" style="color:var(--primary, #2e6248);">reply</span> Antwort verfassen
             </h3>
-            <div class="flex items-center gap-1 text-xs">
-                <button type="button" id="tab_reply_write" class="btn btn-xs btn-primary font-semibold"
+            <div style="display:flex; align-items:center; gap:6px;">
+                <button type="button" id="tab_reply_write" class="kunena-btn-primary" style="cursor:pointer;"
                         onclick="switchEditorTab('write', 'reply_textarea', 'reply_preview_box', 'tab_reply_write', 'tab_reply_preview')">
                     Schreiben
                 </button>
-                <button type="button" id="tab_reply_preview" class="btn btn-xs btn-outline font-semibold"
+                <button type="button" id="tab_reply_preview" class="kunena-btn-secondary" style="cursor:pointer;"
                         onclick="switchEditorTab('preview', 'reply_textarea', 'reply_preview_box', 'tab_reply_write', 'tab_reply_preview')">
                     Vorschau
                 </button>
             </div>
         </div>
-        <form method="post" action="?forum_action=add_post">
+        <form method="post" action="?forum_action=add_post" style="margin:0;">
             <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
-            <div class="form-group mb-4">
+            <div style="margin-bottom: 14px;">
                 <textarea id="reply_textarea" name="content" rows="6" required 
-                          class="input-field w-full" placeholder="Schreibe deine Antwort... (Markdown und Zitate unterstützt)"></textarea>
-                <div id="reply_preview_box" class="input-field w-full min-h-[140px] p-4 bg-gray-50 dark:bg-gray-900 border rounded-lg hidden"></div>
+                          style="width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; font-family:inherit; outline:none; box-sizing:border-box;"
+                          placeholder="Schreibe deine Antwort... (Markdown und Zitate unterstützt)"></textarea>
+                <div id="reply_preview_box" style="display:none; width:100%; min-height:140px; padding:14px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; box-sizing:border-box;"></div>
             </div>
 
-            <div class="flex justify-between items-center">
-                <span class="text-xs text-muted">Tipp: Mit Zitat-Buttons oben kannst du Textstellen direkt zitieren.</span>
-                <button type="submit" class="btn btn-primary font-bold px-6">
-                    Antwort absenden
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <span style="font-size:12px; color:#64748b;">Tipp: Mit Zitat-Buttons oben kannst du Textstellen direkt zitieren.</span>
+                <button type="submit" class="kunena-btn-primary" style="padding:10px 22px; font-size:13.5px; cursor:pointer;">
+                    <span class="material-icons" style="font-size:16px;">send</span> Antwort absenden
                 </button>
             </div>
         </form>
@@ -406,41 +497,41 @@ $allBoards = ForumManager::getBoards();
 </div>
 
 <!-- Modal: Edit Post -->
-<dialog id="modal_edit_post" class="modal-dialog">
-    <form method="post" action="?forum_action=edit_post" class="p-6">
+<dialog id="modal_edit_post" class="kunena-dialog">
+    <form method="post" action="?forum_action=edit_post" style="padding:24px; margin:0;">
         <input type="hidden" name="post_id" id="edit_post_id" value="">
         <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
         
-        <h3 class="text-lg font-bold mb-3">Beitrag bearbeiten</h3>
-        <div class="form-group mb-4">
-            <textarea name="content" id="edit_post_content" rows="6" required class="input-field w-full"></textarea>
+        <h3 style="margin:0 0 14px 0; font-size:1.1rem; font-weight:800;">Beitrag bearbeiten</h3>
+        <div style="margin-bottom:16px;">
+            <textarea name="content" id="edit_post_content" rows="6" required style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13.5px; font-family:inherit; box-sizing:border-box;"></textarea>
         </div>
-        <div class="flex justify-end gap-2">
-            <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Abbrechen</button>
-            <button type="submit" class="btn btn-primary">Speichern</button>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="kunena-btn-secondary" style="cursor:pointer;" onclick="this.closest('dialog').close()">Abbrechen</button>
+            <button type="submit" class="kunena-btn-primary" style="cursor:pointer;">Speichern</button>
         </div>
     </form>
 </dialog>
 
 <!-- Modal: Report Post -->
-<dialog id="modal_report_post" class="modal-dialog">
-    <form method="post" action="?forum_action=report_post" class="p-6">
+<dialog id="modal_report_post" class="kunena-dialog">
+    <form method="post" action="?forum_action=report_post" style="padding:24px; margin:0;">
         <input type="hidden" name="post_id" id="report_post_id" value="">
         <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
         
-        <h3 class="text-lg font-bold mb-2 flex items-center gap-1 text-danger">
+        <h3 style="margin:0 0 8px 0; font-size:1.1rem; font-weight:800; display:flex; align-items:center; gap:6px; color:#dc2626;">
             <span class="material-icons">flag</span> Beitrag der Moderation melden
         </h3>
-        <p class="text-xs text-muted mb-3">Bitte gib einen Grund für die Meldung an (z. B. Beleidigung, Spam, unpassender Inhalt):</p>
+        <p style="font-size:12.5px; color:#64748b; margin:0 0 14px 0;">Bitte gib einen Grund für die Meldung an (z. B. Beleidigung, Spam, unpassender Inhalt):</p>
         
-        <div class="form-group mb-4">
-            <textarea name="reason" rows="3" required class="input-field w-full" placeholder="Begründung für die Moderatoren..."></textarea>
+        <div style="margin-bottom:16px;">
+            <textarea name="reason" rows="3" required style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13.5px; font-family:inherit; box-sizing:border-box;" placeholder="Begründung für die Moderatoren..."></textarea>
         </div>
-        <div class="flex justify-end gap-2">
-            <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Abbrechen</button>
-            <button type="submit" class="btn btn-danger">Meldung absenden</button>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="kunena-btn-secondary" style="cursor:pointer;" onclick="this.closest('dialog').close()">Abbrechen</button>
+            <button type="submit" class="kunena-btn-primary" style="background:#dc2626; cursor:pointer;">Meldung absenden</button>
         </div>
     </form>
 </dialog>
@@ -463,7 +554,7 @@ function insertQuote(author, text) {
 
 function renderMarkdownPreview(raw, targetEl) {
     if (!raw.trim()) {
-        targetEl.innerHTML = '<span class="text-muted italic">Keine Vorschau verfügbar (noch nichts geschrieben)...</span>';
+        targetEl.innerHTML = '<span style="color:#64748b; font-style:italic;">Keine Vorschau verfügbar (noch nichts geschrieben)...</span>';
         return;
     }
 
@@ -487,7 +578,7 @@ function renderMarkdownPreview(raw, targetEl) {
 
     // 3. BBCode Quotes: [quote="User"]Text[/quote]
     s = s.replace(/\[quote(?:="([^"]*)")?\]([\s\S]*?)\[\/quote\]/gi, function(_, author, body) {
-        const authorHtml = author ? `<div class="quote-author"><span class="material-icons text-xs" style="font-size:14px; vertical-align:middle;">format_quote</span> <strong>${author}</strong> schrieb:</div>` : '';
+        const authorHtml = author ? `<div class="quote-author"><span class="material-icons" style="font-size:14px; vertical-align:middle;">format_quote</span> <strong>${author}</strong> schrieb:</div>` : '';
         return `<blockquote class="forum-quote">${authorHtml}<div class="quote-body">${body.replace(/\n/g, '<br>')}</div></blockquote>`;
     });
 
@@ -505,7 +596,7 @@ function renderMarkdownPreview(raw, targetEl) {
                 cleanLines.push(clean);
             }
         });
-        const authorHtml = author ? `<div class="quote-author"><span class="material-icons text-xs" style="font-size:14px; vertical-align:middle;">format_quote</span> <strong>${author}</strong> schrieb:</div>` : '';
+        const authorHtml = author ? `<div class="quote-author"><span class="material-icons" style="font-size:14px; vertical-align:middle;">format_quote</span> <strong>${author}</strong> schrieb:</div>` : '';
         return `<blockquote class="forum-quote">${authorHtml}<div class="quote-body">${cleanLines.join('<br>')}</div></blockquote>`;
     });
 
@@ -542,19 +633,15 @@ function switchEditorTab(mode, editorId, previewId, btnWriteId, btnPreviewId) {
 
     if (mode === 'preview') {
         renderMarkdownPreview(editor.value, preview);
-        editor.classList.add('hidden');
-        preview.classList.remove('hidden');
-        btnWrite.classList.remove('btn-primary');
-        btnWrite.classList.add('btn-outline');
-        btnPreview.classList.remove('btn-outline');
-        btnPreview.classList.add('btn-primary');
+        editor.style.display = 'none';
+        preview.style.display = 'block';
+        btnWrite.className = 'kunena-btn-secondary';
+        btnPreview.className = 'kunena-btn-primary';
     } else {
-        editor.classList.remove('hidden');
-        preview.classList.add('hidden');
-        btnPreview.classList.remove('btn-primary');
-        btnPreview.classList.add('btn-outline');
-        btnWrite.classList.remove('btn-outline');
-        btnWrite.classList.add('btn-primary');
+        editor.style.display = 'block';
+        preview.style.display = 'none';
+        btnPreview.className = 'kunena-btn-secondary';
+        btnWrite.className = 'kunena-btn-primary';
         editor.focus();
     }
 }

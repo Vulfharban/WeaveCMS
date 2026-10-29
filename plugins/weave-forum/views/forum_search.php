@@ -209,10 +209,16 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                     <?php foreach ($results['topics'] as $t): ?>
                         <?php 
                         $replyCount = (int)($t['reply_count'] ?? 0);
-                        $authorUser = class_exists('ForumUserManager') ? ForumUserManager::findUser($t['last_post_user'] ?? $t['author_name']) : null;
-                        $authorRole = $authorUser['role'] ?? 'forum_user';
-                        $roleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
                         $relTime = ForumManager::formatRelativeTime($t['last_post_at'] ?? $t['created_at']);
+
+                        $authorObj = ($currentUser && class_exists('ForumUserManager')) ? (ForumUserManager::getUserById($t['author_id'] ?? '') ?? ForumUserManager::findUser($t['author_name'] ?? '')) : null;
+                        $authorDisplayName = class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($authorObj, $t['author_name'] ?? 'Mitglied') : ($t['author_name'] ?? 'Mitglied');
+
+                        $lastAuthorObj = ($currentUser && class_exists('ForumUserManager')) ? ForumUserManager::findUser($t['last_post_user'] ?? $t['author_name']) : null;
+                        $lastAuthorPriv = class_exists('ForumUserManager') ? ForumUserManager::getPrivacySettings($lastAuthorObj) : ['show_role' => true];
+                        $authorRole = !empty($lastAuthorPriv['show_role']) ? ($lastAuthorObj['role'] ?? 'forum_user') : 'forum_user';
+                        $roleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
+                        $lastPostDisplayName = class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($lastAuthorObj, $t['last_post_user'] ?? 'Mitglied') : ($t['last_post_user'] ?? 'Mitglied');
                         ?>
                         <div class="kunena-board-row">
                             <!-- Left: Topic Icon, Board Badge, Title, Snippet -->
@@ -260,8 +266,12 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                                     <?php endif; ?>
 
                                     <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">
-                                        Erstellt von <strong style="color: #475569;"><?= htmlspecialchars($t['author_name'] ?? 'Mitglied') ?></strong>
-                                        am <?= htmlspecialchars(substr($t['created_at'] ?? '', 0, 10)) ?>
+                                        <?php if ($currentUser): ?>
+                                            Erstellt von <strong style="color: #475569;"><?= htmlspecialchars($authorDisplayName) ?></strong>
+                                            am <?= htmlspecialchars(substr($t['created_at'] ?? '', 0, 10)) ?>
+                                        <?php else: ?>
+                                            Erstellt am <?= htmlspecialchars(substr($t['created_at'] ?? '', 0, 10)) ?>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -280,20 +290,36 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
 
                             <!-- Right Column: Last Post Block -->
                             <div class="kunena-board-lastpost">
-                                <div class="kunena-avatar-mini" style="background-color: <?= $roleColor ?>18; color: <?= $roleColor ?>; border: 1px solid <?= $roleColor ?>40;">
-                                    <?= strtoupper(mb_substr($t['last_post_user'] ?? 'M', 0, 1)) ?>
-                                </div>
-                                <div class="kunena-lastpost-info">
-                                    <div class="kunena-lastpost-title">
-                                        <a href="?page=forum&view=topic&id=<?= urlencode($t['id']) ?>">
-                                            Letzte Antwort
-                                        </a>
+                                <?php if ($currentUser): ?>
+                                    <div class="kunena-avatar-mini" style="background-color: <?= $roleColor ?>18; color: <?= $roleColor ?>; border: 1px solid <?= $roleColor ?>40;">
+                                        <?= strtoupper(mb_substr($lastPostDisplayName, 0, 1)) ?>
                                     </div>
-                                    <div class="kunena-lastpost-meta">
-                                        von <span style="color: <?= $roleColor ?>; font-weight: 700;"><?= htmlspecialchars($t['last_post_user'] ?? 'Mitglied') ?></span>
-                                        • <span title="<?= htmlspecialchars($t['last_post_at'] ?? '') ?>"><?= $relTime ?></span>
+                                    <div class="kunena-lastpost-info">
+                                        <div class="kunena-lastpost-title">
+                                            <a href="?page=forum&view=topic&id=<?= urlencode($t['id']) ?>">
+                                                Letzte Antwort
+                                            </a>
+                                        </div>
+                                        <div class="kunena-lastpost-meta">
+                                            von <span style="color: <?= $roleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
+                                            • <span title="<?= htmlspecialchars($t['last_post_at'] ?? '') ?>"><?= $relTime ?></span>
+                                        </div>
                                     </div>
-                                </div>
+                                <?php else: ?>
+                                    <div class="kunena-avatar-mini" style="background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1;">
+                                        <span class="material-icons" style="font-size: 15px;">schedule</span>
+                                    </div>
+                                    <div class="kunena-lastpost-info">
+                                        <div class="kunena-lastpost-title">
+                                            <a href="?page=forum&view=topic&id=<?= urlencode($t['id']) ?>">
+                                                Letzte Antwort
+                                            </a>
+                                        </div>
+                                        <div class="kunena-lastpost-meta">
+                                            <span title="<?= htmlspecialchars($t['last_post_at'] ?? '') ?>"><?= $relTime ?></span>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>

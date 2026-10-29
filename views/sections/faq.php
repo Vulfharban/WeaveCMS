@@ -7,6 +7,7 @@
  * @var array $data
  */
 
+$cur_lang = $cur_lang ?? LanguageManager::detectLanguage($data);
 $faqs = $data['faqs'] ?? [];
 $faq_title = !empty($data['texts']['faq_title']) ? $data['texts']['faq_title'] : 'Häufige Fragen (FAQ)';
 $faq_subtitle = !empty($data['texts']['faq_subtitle']) ? $data['texts']['faq_subtitle'] : 'Hier findest du Antworten auf die meistgestellten Fragen rund um unsere Workshops, Werkstücke und Pflege.';

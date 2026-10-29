@@ -7,6 +7,7 @@
  * @var array $data
  */
 
+$cur_lang = $cur_lang ?? LanguageManager::detectLanguage($data);
 $team_members = $data['team'] ?? [];
 $team_title = !empty($data['texts']['team_title']) ? $data['texts']['team_title'] : 'Unser Team &amp; Meister';
 $team_subtitle = !empty($data['texts']['team_subtitle']) ? $data['texts']['team_subtitle'] : 'Lerne die kreativen Köpfe hinter unseren Werkstücken, Kursen und Designs kennen.';
