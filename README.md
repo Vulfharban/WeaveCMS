@@ -22,12 +22,31 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 
-## Releases & Downloads (v1.3.1)
+## Releases & Downloads (v1.3.2)
 
-- 📦 **[WeaveCMS v1.3.1 Full Package](releases/weavecms-v1.3.1.zip)** (`releases/weavecms-v1.3.1.zip`, 12.15 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.1 Update Package](releases/update-v1.3.1.zip)** (`releases/update-v1.3.1.zip`, 0.71 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.2 Full Package](releases/weavecms-v1.3.2.zip)** (`releases/weavecms-v1.3.2.zip`, 12.18 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.2 Update Package](releases/update-v1.3.2.zip)** (`releases/update-v1.3.2.zip`, 0.73 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.2 (29. Oktober 2026)
+
+- 🏷️ **Globale Taxonomien & Modulübergreifendes Tagging (Phase 28.1):**
+  - **Zentrale Schlagwort-Engine (`TaxonomyManager`):** Aggregiert und normalisiert Tags modulübergreifend aus Blogartikeln, Einzelseiten, Kursen, Galerie-Einträgen und Downloads mit konsistentem Slugify-Verfahren (`ä`->`ae`, `ö`->`oe`, `ü`->`ue`, `ß`->`ss`).
+  - **Responsive Tag-Archivseiten im Frontend (`?tag={slug}`):** Strukturierte Archivansicht mit Trefferzähler, Modul-Kategorisierung (Blog, Einzelseiten, Kurse, Galerie, Downloads), Schnellfilter-Cloud und dynamischer Lokalisierung via `LanguageManager::t()`.
+  - **Interaktives Tagging im Adminbereich:** HTML5 Datalists und Klick-Badges in Blog- und Einzelseiten-Formularen für blitzschnelle Schlagwort-Vorschläge und Autovervollständigung.
+- ⚙️ **Custom Fields Manager (Phase 28.2 & 28.3):**
+  - **Frei definierbare Zusatzfelder:** Konfiguration individueller Datenfelder für Seiten (`pages`), Blog (`blog`), Kurse (`courses`) und Downloads (`downloads`) direkt im Administrationsbereich unter *Darstellung & Design* (`tab_settings.php`).
+  - **7 flexible Datentypen:** Einzeiliger Text (`text`), Mehrzeiliger Text (`textarea`), Zahl (`number`), Schalter/Checkbox (`boolean`), Webadresse (`url`), Datum (`date`) und Datei/Pfad (`file`) mit Pflichtfeld-Prüfung (`required`), Platzhaltern und Hilfetexten.
+  - **Typsichere Validierung & Speicherung:** Automatische Validierung über `CustomFieldManager::extractAndValidate()` beim Speichern von Inhalten.
+  - **Dynamisches Frontend-Templating:** Globale Helfer `get_custom_field($item, $key, $default)` und `render_custom_fields($item, $module)` für automatische Attributlisten sowie Anzeige klickbarer Tag-Badges auf Blog- und Einzelseiten.
+- 📐 **Visueller Spalten- & Grid-Builder (Phase 27):**
+  - **Grid-Shortcodes (`[grid]` / `[col]`):** Modulare Mehrspaltigkeit (50/50, 3-Spalten, 1/3-2/3, 2/3-1/3) im Einzelseiten-Editor auf Basis reiner, schlanker CSS-Grids ohne externe Frameworks mit automatischem Mobile-Stacking und Verschachtelungsschutz.
+  - **Preset-Vorlagen & Shortcode-Boxen:** Hero-Teaser, Testimonial-Card, Call-to-Action und moderne `[box]`-Shortcodes.
+  - **Responsive Breakpoint-Vorschau:** Interaktives Modal mit `<iframe>` zur Live-Vorschau in Desktop- (1200px), Tablet- (768px) und Smartphone-Ansicht (375px).
+- 🌐 **Vollständige Mehrsprachigkeit (i18n):**
+  - Sämtliche neuen Komponenten, Dialoge und Fehlermeldungen sind lückenlos in Deutsch und Englisch synchronisiert (`libs/lang/admin/de.json`, `libs/lang/admin/en.json`, `libs/lang/de.json`, `libs/lang/en.json`).
+
 
 ### v1.3.1 (28. Oktober 2026)
 
@@ -117,7 +136,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.3.1.zip](releases/weavecms-v1.3.1.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.2.zip](releases/weavecms-v1.3.2.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

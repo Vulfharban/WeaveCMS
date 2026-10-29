@@ -2,10 +2,10 @@
 ## Umfassende Funktionsanalyse, Alleinstellungsmerkmale (USPs) & Feature-Gap-Roadmap
 
 > **Dokumenten-ID:** `DOC-ANALYSIS-2026-10-CMS-BENCHMARK`  
-> **Status:** Aktualisiert nach Abschluss der Phasen 22–26 (Release v1.3.1)  
-> **Zielsystem:** WeaveCMS (v1.3.1+)  
+> **Status:** Aktualisiert nach Abschluss der Phasen 22–28 (Release v1.3.2)  
+> **Zielsystem:** WeaveCMS (v1.3.2+)  
 > **Vergleichssysteme:** WordPress 6.x, Joomla 5.x, Drupal 10/11, TYPO3 v12/13  
-> **Letzte Prüfung:** 28. Oktober 2026  
+> **Letzte Prüfung:** 29. Oktober 2026  
 
 ---
 
@@ -25,13 +25,13 @@ Enterprise / Behörden            Agenturen / Publishing            Mittelstand 
 └───────────────────────┘        └───────────────────────┘        └───────────────────────────────┘
 ```
 
-Mit den Veröffentlichungen von **v1.3.0** und **v1.3.1** wurden die bisher gravierendsten funktionalen Lücken gegenüber den etablierten Systemen (zentrale Mediathek, Content-Versionierung, Entwurfsmodus, SEO-Autopilot mit Sitemaps & JSON-LD, 1-Klick-Core-Updater sowie lückenlose Backend-Mehrsprachigkeit) vollständig geschlossen.
+Mit den Veröffentlichungen von **v1.3.0**, **v1.3.1** und **v1.3.2** wurden die bisher gravierendsten funktionalen Lücken gegenüber den etablierten Systemen (zentrale Mediathek, Content-Versionierung, Entwurfsmodus, SEO-Autopilot mit Sitemaps & JSON-LD, 1-Klick-Core-Updater, lückenlose Backend-Mehrsprachigkeit, visueller Grid-Builder sowie globale Taxonomien & Custom Fields) vollständig geschlossen.
 
 ---
 
-## 2. Detaillierter Feature-Matrix-Vergleich (Stand: v1.3.1)
+## 2. Detaillierter Feature-Matrix-Vergleich (Stand: v1.3.2)
 
-| Funktionsbereich | **WeaveCMS (v1.3.1)** | **WordPress** | **Joomla** | **Drupal** | **TYPO3** |
+| Funktionsbereich | **WeaveCMS (v1.3.2)** | **WordPress** | **Joomla** | **Drupal** | **TYPO3** |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Architektur & Laufzeit** |
 | Zero-Dependency PHP (ohne Composer-Zwang) | **Ja (100 % Pure PHP)** | Nein (Composer/Vendor) | Nein (Composer) | Nein (Composer/Symfony) | Nein (Composer/Symfony) |
@@ -42,11 +42,13 @@ Mit den Veröffentlichungen von **v1.3.0** und **v1.3.1** wurden die bisher grav
 | Pre-Update Backup & Auto-Rollback | **Nativ im Updater** | Nur via Dritt-Plugins | Eingeschränkt | Via CLI / Skripte | Via CLI / Skripte |
 | **Content-Management & Authoring** |
 | Sektions-/Baukasten-Prinzip | **Nativ im Kern (Kanban)** | Via Plugins / FSE | Eingeschränkt | Via Layout Builder | Via Gridelements/Fluid |
+| Visueller Grid-Builder & Spalten-Layouts | **Nativ CSS-Grid (v1.3.2 / Phase 27)** | Gutenberg Grids | Bootstrap / Grids | Layout Builder | Grids / DCE |
 | Visueller WYSIWYG / Block-Editor | Markdown + Design-Toolbar | Gutenberg (Blocks) | TinyMCE | CKEditor 5 | CKEditor / RTE |
 | Entwürfe / Versionierung / Revisions | **Nativ (v1.3.0 / Phase 23)** | Nativ | Nativ | Nativ (Sehr stark) | Nativ (Workspaces) |
 | Zeitgesteuertes Veröffentlichen (`scheduled`)| **Nativ (v1.3.0 / Phase 23)** | Nativ | Nativ | Nativ | Nativ |
 | Entwurfs-Vorschau mit Secure-Token | **Nativ (v1.3.0 / Phase 23)** | Nativ | Eingeschränkt | Nativ | Nativ |
-| Globale Schlagworte (Tags/Taxonomie) | *Sektionsbezogen (Roadmap)* | Nativ | Nativ | Extrem mächtig | Nativ |
+| Globale Schlagworte (Tags/Taxonomie) | **Nativ (v1.3.2 / Phase 28)** | Nativ | Nativ | Extrem mächtig | Nativ |
+| Custom Fields & Strukturierte Attribute | **Nativ (v1.3.2 / Phase 28)** | Plugins (ACF) / Nativ | Nativ (Custom Fields) | Nativ (Entity Fields) | Nativ |
 | Personalisierbarer Action-Hub (Dashboard) | **Nativ (v1.3.1 / Phase 26)** | Eingeschränkt (Widgets)| Eingeschränkt | Dashboard-Module | Dashboard-Module |
 | **Medien & Asset-Management** |
 | Zentrale Mediathek (Media Library) | **Nativ (v1.3.0 / Phase 22)** | Nativ (Exzellent) | Nativ | Nativ | Nativ (FAL) |
@@ -213,22 +215,20 @@ Auf Basis des aktuellen Wettbewerbsumfelds und Rückmeldungen aus Agenturprojekt
   - [x] Vollständige DE/EN Lokalisierungskataloge mit über 1.050 synchronen Schlüsseln (100 % Parität aller 1.056 Schlüssel).
   - [x] Benutzerspezifische Standardsprache (`admin_lang`) im Profil mit automatischer Sitzungssynchronisation.
   - [x] Schwebende Toolbar im Einzelseiten-Editor für bequemen Sprachwechsel.
+- [x] **Paket 6: Visueller Spalten- & Grid-Builder (v1.3.2 / Phase 27)**
+  - [x] Grid-Layout-Komponente im Einzelseiten-Editor (Auswahl von 1- bis 3-spaltigen Layouts wie 50/50, 33/33/33, 1/3-2/3 per Klick).
+  - [x] Vordefinierte Block-Vorlagen (Hero-Callout, Bild-Text-Split, Feature-Boxen) auf Basis reiner, schlanker CSS-Grids ohne externe Frameworks.
+  - [x] Live-Vorschau-Umschaltung im Editor mit Responsive-Breakpoints (Desktop 1200px / Tablet 768px / Smartphone 375px).
+- [x] **Paket 7: Globale Taxonomien & Custom Fields (v1.3.2 / Phase 28)**
+  - [x] Sektionsübergreifendes Tagging-System für globale Filter und Taxonomie-Seiten (`/tag/{slug}`).
+  - [x] Custom-Fields-Manager: Anlegen frei definierbarer Zusatzfelder (Text, Link, Zahl, Checkbox, Datei) für Einzelseiten und Produkte.
+  - [x] Dynamische Ausgabe im Frontend und Schema.org-Mapping.
 
 ---
 
 ### 🚀 Zukünftige Entwicklungs-Pakete (Roadmap v1.4.0 – v1.5.0)
 
-### 🎯 Paket 6: Visueller Spalten- & Grid-Builder (v1.4.0 / Phase 27)
-- [ ] **Task 27.1:** Grid-Layout-Komponente im Einzelseiten-Editor (Auswahl von 1- bis 3-spaltigen Layouts wie 50/50, 33/33/33, 1/3-2/3 per Klick).
-- [ ] **Task 27.2:** Vordefinierte Block-Vorlagen (Hero-Callout, Bild-Text-Split, Feature-Boxen) auf Basis reiner, schlanker CSS-Grids ohne externe Frameworks.
-- [ ] **Task 27.3:** Live-Vorschau-Umschaltung im Editor mit Responsive-Breakpoints (Desktop 1200px / Tablet 768px / Smartphone 375px).
-
-### 🎯 Paket 7: Globale Taxonomien & Custom Fields (v1.4.5 / Phase 28)
-- [ ] **Task 28.1:** Sektionsübergreifendes Tagging-System für globale Filter und Taxonomie-Seiten (`/tag/{slug}`).
-- [ ] **Task 28.2:** Custom-Fields-Manager: Anlegen frei definierbarer Zusatzfelder (Text, Link, Zahl, Checkbox, Datei) für Einzelseiten und Produkte.
-- [ ] **Task 28.3:** Dynamische Ausgabe im Frontend und Schema.org-Mapping.
-
-### 🎯 Paket 8: Zwei-Faktor-Authentifizierung (2FA via TOTP / App) (v1.4.5 / Phase 29)
+### 🎯 Paket 8: Zwei-Faktor-Authentifizierung (2FA via TOTP / App) (v1.4.0 / Phase 29)
 - [ ] **Task 29.1:** Standardkonformer RFC 6238 TOTP-Generator (Pure PHP, ohne externe Bloat-Abhängigkeiten) für Authenticator-Apps (Google Authenticator, Bitwarden, 1Password, Aegis).
 - [ ] **Task 29.2:** QR-Code-Generator & Einrichtungs-Assistent im Admin-Profil mit Validierung vor Aktivierung.
 - [ ] **Task 29.3:** 8 Notfall-Wiederherstellungscodes (Backup-Codes) mit Einmal-Entwertung bei Geräteverlust.
