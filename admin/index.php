@@ -277,9 +277,103 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     </h1>
                 </header>
             <?php endif; ?>
-            <div class="page-body" style="font-size: 1.05rem; line-height: 1.8;">
-                <?php echo $html_content; ?>
-            </div>
+            <?php if (!empty($html_content)): ?>
+                <div class="page-body" style="font-size: 1.05rem; line-height: 1.8; margin-bottom: 2rem;">
+                    <?php echo $html_content; ?>
+                </div>
+            <?php endif; ?>
+
+            <?php
+            // Phase 32.3: Modulare Landingpage-Sektionen im Breakpoint-Modal rendern
+            $is_modular = (($_POST['page_type'] ?? '') === 'modular');
+            if ($is_modular) {
+                $preview_sections = isset($_POST['page_sections']) && is_array($_POST['page_sections']) ? $_POST['page_sections'] : [];
+                $sec_layouts = isset($_POST['page_section_layouts']) && is_array($_POST['page_section_layouts']) ? $_POST['page_section_layouts'] : [];
+                
+                if (empty($preview_sections)) {
+                    echo '<div style="text-align:center; padding: 3rem 1rem; color: var(--text-secondary); background: rgba(0,0,0,0.02); border-radius:12px;">'
+                       . '<p style="margin:0;">Keine Sektionen für diese modulare Landingpage ausgewählt.</p>'
+                       . '</div>';
+                } else {
+                    $i = 0;
+                    $count = count($preview_sections);
+                    while ($i < $count) {
+                        $secId = $preview_sections[$i];
+                        $layout = $sec_layouts[$secId] ?? 'full';
+
+                        if ($layout === 'full' || !in_array($layout, ['2', '3', '1-2', '2-1'], true)) {
+                            $sec = SectionManager::getSectionById($secId, $data);
+                            echo '<div style="margin: 2rem 0; padding: 1.5rem; background: #faf8f5; border: 1px solid var(--border-color); border-radius: var(--card-radius, 16px);">';
+                            if ($sec) {
+                                $secType = !empty($sec['type']) ? $sec['type'] : $secId;
+                                FrontendController::renderSection($secType, ['data' => $data, 'cur_lang' => $admin_lang]);
+                            }
+                            echo '</div>';
+                            $i++;
+                        } elseif ($layout === '2') {
+                            $colSecs = [$secId];
+                            if (($i + 1) < $count && ($sec_layouts[$preview_sections[$i + 1]] ?? 'full') === '2') {
+                                $colSecs[] = $preview_sections[$i + 1];
+                                $i += 2;
+                            } else {
+                                $i++;
+                            }
+                            echo '<div class="weave-grid weave-grid-2" style="margin: 2rem 0;">';
+                            foreach ($colSecs as $csId) {
+                                $cSec = SectionManager::getSectionById($csId, $data);
+                                echo '<div class="weave-col" style="padding: 1.5rem; background: #faf8f5; border: 1px solid var(--border-color); border-radius: var(--card-radius, 16px);">';
+                                if ($cSec) {
+                                    $cType = !empty($cSec['type']) ? $cSec['type'] : $csId;
+                                    FrontendController::renderSection($cType, ['data' => $data, 'cur_lang' => $admin_lang]);
+                                }
+                                echo '</div>';
+                            }
+                            echo '</div>';
+                        } elseif ($layout === '3') {
+                            $colSecs = [$secId];
+                            while (count($colSecs) < 3 && ($i + count($colSecs)) < $count && ($sec_layouts[$preview_sections[$i + count($colSecs)]] ?? 'full') === '3') {
+                                $colSecs[] = $preview_sections[$i + count($colSecs)];
+                            }
+                            $i += count($colSecs);
+                            echo '<div class="weave-grid weave-grid-3" style="margin: 2rem 0;">';
+                            foreach ($colSecs as $csId) {
+                                $cSec = SectionManager::getSectionById($csId, $data);
+                                echo '<div class="weave-col" style="padding: 1.25rem; background: #faf8f5; border: 1px solid var(--border-color); border-radius: var(--card-radius, 16px);">';
+                                if ($cSec) {
+                                    $cType = !empty($cSec['type']) ? $cSec['type'] : $csId;
+                                    FrontendController::renderSection($cType, ['data' => $data, 'cur_lang' => $admin_lang]);
+                                }
+                                echo '</div>';
+                            }
+                            echo '</div>';
+                        } elseif ($layout === '1-2' || $layout === '2-1') {
+                            $gridClass = ($layout === '1-2') ? 'weave-grid-1-2' : 'weave-grid-2-1';
+                            $colSecs = [$secId];
+                            $opposite = ($layout === '1-2') ? '2-1' : '1-2';
+                            if (($i + 1) < $count && in_array($sec_layouts[$preview_sections[$i + 1]] ?? '', [$opposite, '2', '1-2', '2-1'], true)) {
+                                $colSecs[] = $preview_sections[$i + 1];
+                                $i += 2;
+                            } else {
+                                $i++;
+                            }
+                            echo '<div class="weave-grid ' . $gridClass . '" style="margin: 2rem 0;">';
+                            foreach ($colSecs as $csId) {
+                                $cSec = SectionManager::getSectionById($csId, $data);
+                                echo '<div class="weave-col" style="padding: 1.5rem; background: #faf8f5; border: 1px solid var(--border-color); border-radius: var(--card-radius, 16px);">';
+                                if ($cSec) {
+                                    $cType = !empty($cSec['type']) ? $cSec['type'] : $csId;
+                                    FrontendController::renderSection($cType, ['data' => $data, 'cur_lang' => $admin_lang]);
+                                }
+                                echo '</div>';
+                            }
+                            echo '</div>';
+                        } else {
+                            $i++;
+                        }
+                    }
+                }
+            }
+            ?>
         </div>
     </body>
     </html>

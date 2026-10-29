@@ -54,12 +54,12 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | Feature | Beschreibung | Status |
 | :--- | :--- | :---: |
 | **100 % Text-Autonomie** | Alle Überschriften, Untertitel und Infotexte aller Sektionen sind direkt im Adminbereich editierbar. | ✅ Integriert (v0.2.0) |
-| **Galerie-Manager** | Bilder hochladen, Werkstücke benennen, Beschreibungen anlegen und Kategorien zuweisen. | ✅ Integriert |
+| **Galerie- & Portfolio-Manager** | Bilder hochladen, Einträge & Werke benennen, Beschreibungen anlegen und Kategorien zuweisen. | ✅ Integriert |
 | **Dynamische Kategorien** | Beliebige eigene Kategorien anlegen, filtern und löschen. | ✅ Integriert |
-| **Manuelle Galerie-Sortierung** | Reihenfolge der Werkstücke numerisch festlegen und sortieren. | ✅ Integriert |
-| **Kurs- & Termin-Manager** | Kurse mit Datum, Uhrzeit, Ort, Preis, Teilnehmerbegrenzung und Status (Plätze frei / Ausgebucht) verwalten. | ✅ Integriert |
-| **Direkte Kurslinks & Teilen** | 1-Klick-Kopieren von Einladungslinks und systemweites Teilen via Web Share API. | ✅ Integriert |
-| **Kursimpressionen / Rückblick** | Upload von Impressionen vergangener Termine und Workshops. | ✅ Integriert |
+| **Manuelle Galerie-Sortierung** | Reihenfolge der Portfolio-Einträge numerisch festlegen und sortieren. | ✅ Integriert |
+| **Event- & Termin-Manager** | Veranstaltungen & Termine mit Datum, Uhrzeit, Ort, Preis, Teilnehmerbegrenzung und Status (Plätze frei / Ausgebucht) verwalten. | ✅ Integriert |
+| **Direkte Eventlinks & Teilen** | 1-Klick-Kopieren von Einladungslinks und systemweites Teilen via Web Share API. | ✅ Integriert |
+| **Impressionen & Rückblick** | Upload von visuellen Impressionen und Foto-Rückblicken vergangener Veranstaltungen oder Projekte. | ✅ Integriert |
 | **Vollwertiges Blog- & Magazin-Modul** | Zeitbasierte Artikel, Status (Entwurf/Veröffentlicht), Teaser, Markdown, Beitragsbild und Einzelartikel-Ansicht (`?blog=slug`). | ✅ Integriert (v0.8.0) |
 | **Freie Einzelseiten (Custom Subpages)** | Beliebig viele Unterseiten (`?page=slug`) mit Markdown, SEO-Metadaten, Menü-Einbindung und vollständiger Mehrsprachigkeit (Sprachreiter für jede aktive Sprache im Drawer-Editor). | ✅ Integriert (v0.8.5) |
 | **Individuelle Menü- & Sektionstitel** | Direkte Anpassung des Menü-Titels (`nav_label`), Sektions-Titels und der Menü-Sichtbarkeit für jede Inhaltsart (Schnell-Leiste in jedem Content-Tab sowie zentral im Sektionen-Manager inkl. Mehrsprachigkeit). | ✅ Integriert (v0.8.5) |
@@ -88,6 +88,7 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Visueller Grid-Builder & Spalten-Shortcodes (Phase 27)** | Modulare Mehrspaltigkeit (`[grid]` / `[col]`), Presets (Hero, Testimonial, Call-to-Action), moderne `[box]`-Shortcodes und responsive 3-Stufen-Breakpoint-Vorschau (Desktop, Tablet, Smartphone). | ✅ Integriert (v1.3.2) |
 | **Globale Taxonomien & Tag-Archiv (Phase 28.1)** | Modulübergreifendes Schlagwortsystem für Blog, Seiten, Kurse, Galerie und Downloads mit responsiver Archivseite (`?tag=slug`), Filter-Cloud und Backend-Autovervollständigung via Datalist. | ✅ Integriert (v1.3.2) |
 | **Custom Fields & Daten-Attribute (Phase 28.2 & 28.3)** | Frei definierbare strukturierte Zusatzfelder je Modul (Text, Textarea, Zahl, Schalter, URL, Datum, Datei) mit automatischer Validierung, Admin-Masken und Templating-Helfern `get_custom_field()` und `render_custom_fields()`. | ✅ Integriert (v1.3.2) |
+| **Grid-Builder für modulare Seiten (Phase 32)** | Spalten-Layouts (`full`, `2`, `3`, `1-2`, `2-1`) direkt auf Sektions-Ebene im Landingpage-Stack, universelle Grid- & Shortcode-Toolbar für Freitext- und Über-uns-Sektionen sowie responsive 3-Stufen-Breakpoint-Vorschau. | ✅ Integriert (v1.3.3) |
 
 ---
 

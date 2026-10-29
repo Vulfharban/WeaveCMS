@@ -353,7 +353,27 @@
                     </div>
                     <div class="form-group" style="margin-bottom: 1.5rem;">
                         <label><?php echo __a('admin.texts.field_about_text'); ?></label>
-                        <textarea name="about_text" class="form-control" rows="6" required><?php echo htmlspecialchars($primary_texts['about_text'] ?? ''); ?></textarea>
+                        <?php 
+                            $toolbar_target_id = 'about_text_field';
+                            include __DIR__ . '/partials/grid_toolbar.php';
+                        ?>
+                        <textarea id="about_text_field" name="about_text" class="form-control" rows="6" required style="font-family: monospace; font-size:0.95rem; line-height:1.6;"><?php echo htmlspecialchars($primary_texts['about_text'] ?? ''); ?></textarea>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                        <?php echo __a('admin.texts.sec_custom_text', 'Freier Textabschnitt (Freitext)'); ?>
+                    </h3>
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label><?php echo __a('admin.texts.field_custom_text_title', 'Sektions-Titel'); ?></label>
+                        <input type="text" name="custom_text_title" class="form-control" value="<?php echo htmlspecialchars($primary_texts['custom_text_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars(__a('admin.texts.placeholder_custom_text_title', 'z. B. Unser Versprechen oder Philosophie')); ?>">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label><?php echo __a('admin.texts.field_custom_text_body', 'Inhalt (Markdown & Spalten-Shortcodes)'); ?></label>
+                        <?php 
+                            $toolbar_target_id = 'custom_text_body_field';
+                            include __DIR__ . '/partials/grid_toolbar.php';
+                        ?>
+                        <textarea id="custom_text_body_field" name="custom_text_body" class="form-control" rows="8" placeholder="<?php echo htmlspecialchars(__a('admin.texts.placeholder_custom_text_body', 'Gestalte deinen Text mit Markdown, [grid]-Spalten und [box]-Elementen...')); ?>" style="font-family: monospace; font-size:0.95rem; line-height:1.6;"><?php echo htmlspecialchars($primary_texts['custom_text_body'] ?? $primary_texts['custom_text'] ?? ''); ?></textarea>
                     </div>
 
                     <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
@@ -507,7 +527,27 @@
                         </div>
                         <div class="form-group" style="margin-bottom: 1.5rem;">
                             <label><?php echo __a('admin.texts.field_about_text'); ?></label>
-                            <textarea name="trans_<?php echo $al; ?>_about_text" class="form-control" rows="6" placeholder="<?php echo htmlspecialchars($primary_texts['about_text'] ?? ''); ?>"><?php echo htmlspecialchars($cur_trans['about_text'] ?? ''); ?></textarea>
+                            <?php 
+                                $toolbar_target_id = 'trans_' . $al . '_about_text_field';
+                                include __DIR__ . '/partials/grid_toolbar.php';
+                            ?>
+                            <textarea id="trans_<?php echo $al; ?>_about_text_field" name="trans_<?php echo $al; ?>_about_text" class="form-control" rows="6" placeholder="<?php echo htmlspecialchars($primary_texts['about_text'] ?? ''); ?>" style="font-family: monospace; font-size:0.95rem; line-height:1.6;"><?php echo htmlspecialchars($cur_trans['about_text'] ?? ''); ?></textarea>
+                        </div>
+
+                        <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+                            <?php echo __a('admin.texts.sec_custom_text', 'Freier Textabschnitt (Freitext)'); ?>
+                        </h3>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label><?php echo __a('admin.texts.field_custom_text_title', 'Sektions-Titel'); ?></label>
+                            <input type="text" name="trans_<?php echo $al; ?>_custom_text_title" class="form-control" value="<?php echo htmlspecialchars($cur_trans['custom_text_title'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars($primary_texts['custom_text_title'] ?? ''); ?>">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label><?php echo __a('admin.texts.field_custom_text_body', 'Inhalt (Markdown & Spalten-Shortcodes)'); ?></label>
+                            <?php 
+                                $toolbar_target_id = 'trans_' . $al . '_custom_text_body_field';
+                                include __DIR__ . '/partials/grid_toolbar.php';
+                            ?>
+                            <textarea id="trans_<?php echo $al; ?>_custom_text_body_field" name="trans_<?php echo $al; ?>_custom_text_body" class="form-control" rows="8" placeholder="<?php echo htmlspecialchars($primary_texts['custom_text_body'] ?? $primary_texts['custom_text'] ?? ''); ?>" style="font-family: monospace; font-size:0.95rem; line-height:1.6;"><?php echo htmlspecialchars($cur_trans['custom_text_body'] ?? $cur_trans['custom_text'] ?? ''); ?></textarea>
                         </div>
 
                         <h3 style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">

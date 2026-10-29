@@ -53,15 +53,96 @@ $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?l
         <?php 
         if (empty($page_sections)) {
             echo '<div style="text-align:center; padding: 4rem 1.5rem; color: var(--text-secondary);">'
-               . '<p>Diese modulare Landingpage enthält aktuell noch keine aktiven Sektionen.</p>'
+               . '<p>' . htmlspecialchars(LanguageManager::t('admin.pages.modular_empty_notice', 'Diese modulare Landingpage enthält aktuell noch keine aktiven Sektionen.', $cur_lang ?? null)) . '</p>'
                . '</div>';
         } else {
-            foreach ($page_sections as $secId) {
-                // Suche Sektionsdaten
-                $sec = SectionManager::getSectionById($secId, $data);
-                if ($sec) {
-                    $secType = !empty($sec['type']) ? $sec['type'] : $secId;
-                    FrontendController::renderSection($secType, $vars ?? get_defined_vars());
+            $sec_layouts = $active_page['page_section_layouts'] ?? [];
+            $vars_scope = $vars ?? get_defined_vars();
+
+            // Sektionen nach Grid-Layouts gruppieren (Phase 32.1)
+            $i = 0;
+            $count = count($page_sections);
+            while ($i < $count) {
+                $secId = $page_sections[$i];
+                $layout = $sec_layouts[$secId] ?? 'full';
+
+                if ($layout === 'full' || !in_array($layout, ['2', '3', '1-2', '2-1'], true)) {
+                    // 1. Vollbreite-Sektion
+                    $sec = SectionManager::getSectionById($secId, $data);
+                    if ($sec) {
+                        $secType = !empty($sec['type']) ? $sec['type'] : $secId;
+                        FrontendController::renderSection($secType, $vars_scope);
+                    }
+                    $i++;
+                } elseif ($layout === '2') {
+                    // 2. 2-Spalten-Layout (50% / 50%)
+                    $colSecs = [$secId];
+                    if (($i + 1) < $count && ($sec_layouts[$page_sections[$i + 1]] ?? 'full') === '2') {
+                        $colSecs[] = $page_sections[$i + 1];
+                        $i += 2;
+                    } else {
+                        $i++;
+                    }
+
+                    echo '<div class="weave-grid weave-grid-2 weave-section-grid" style="margin: 2.5rem 0; align-items: stretch;">';
+                    foreach ($colSecs as $csId) {
+                        $cSec = SectionManager::getSectionById($csId, $data);
+                        echo '<div class="weave-col weave-section-col" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--card-radius, 16px); padding: 2rem;">';
+                        if ($cSec) {
+                            $cType = !empty($cSec['type']) ? $cSec['type'] : $csId;
+                            FrontendController::renderSection($cType, $vars_scope);
+                        }
+                        echo '</div>';
+                    }
+                    // Falls nur eine Spalte vorhanden ist, leeren Platzhalter rendern für sauberes 50%-Design
+                    if (count($colSecs) === 1) {
+                        echo '<div class="weave-col weave-section-col weave-col-empty" style="display:none;"></div>';
+                    }
+                    echo '</div>';
+                } elseif ($layout === '3') {
+                    // 3. 3-Spalten-Layout (33% / 33% / 33%)
+                    $colSecs = [$secId];
+                    while (count($colSecs) < 3 && ($i + count($colSecs)) < $count && ($sec_layouts[$page_sections[$i + count($colSecs)]] ?? 'full') === '3') {
+                        $colSecs[] = $page_sections[$i + count($colSecs)];
+                    }
+                    $i += count($colSecs);
+
+                    echo '<div class="weave-grid weave-grid-3 weave-section-grid" style="margin: 2.5rem 0; align-items: stretch;">';
+                    foreach ($colSecs as $csId) {
+                        $cSec = SectionManager::getSectionById($csId, $data);
+                        echo '<div class="weave-col weave-section-col" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--card-radius, 16px); padding: 1.5rem;">';
+                        if ($cSec) {
+                            $cType = !empty($cSec['type']) ? $cSec['type'] : $csId;
+                            FrontendController::renderSection($cType, $vars_scope);
+                        }
+                        echo '</div>';
+                    }
+                    echo '</div>';
+                } elseif ($layout === '1-2' || $layout === '2-1') {
+                    // 4. Asymmetrisches Spalten-Layout (1/3 zu 2/3 oder 2/3 zu 1/3)
+                    $gridClass = ($layout === '1-2') ? 'weave-grid-1-2' : 'weave-grid-2-1';
+                    $colSecs = [$secId];
+                    $opposite = ($layout === '1-2') ? '2-1' : '1-2';
+                    if (($i + 1) < $count && in_array($sec_layouts[$page_sections[$i + 1]] ?? '', [$opposite, '2', '1-2', '2-1'], true)) {
+                        $colSecs[] = $page_sections[$i + 1];
+                        $i += 2;
+                    } else {
+                        $i++;
+                    }
+
+                    echo '<div class="weave-grid ' . $gridClass . ' weave-section-grid" style="margin: 2.5rem 0; align-items: stretch;">';
+                    foreach ($colSecs as $csId) {
+                        $cSec = SectionManager::getSectionById($csId, $data);
+                        echo '<div class="weave-col weave-section-col" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--card-radius, 16px); padding: 1.75rem;">';
+                        if ($cSec) {
+                            $cType = !empty($cSec['type']) ? $cSec['type'] : $csId;
+                            FrontendController::renderSection($cType, $vars_scope);
+                        }
+                        echo '</div>';
+                    }
+                    echo '</div>';
+                } else {
+                    $i++;
                 }
             }
         }

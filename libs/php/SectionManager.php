@@ -152,9 +152,9 @@ class SectionManager {
     public static function getSectionTitle(string $typeOrId): string {
         $titles = [
             'hero'         => 'Hero',
-            'gallery'      => 'Galerie',
-            'courses'      => 'Workshops',
-            'past_courses' => 'Impressionen',
+            'gallery'      => 'Galerie & Portfolio',
+            'courses'      => 'Events & Termine',
+            'past_courses' => 'Impressionen & Rückblick',
             'blog'         => 'Blog',
             'pricing'      => 'Preise',
             'faq'          => 'FAQ',
@@ -300,8 +300,8 @@ class SectionManager {
             [
                 'id' => 'courses',
                 'type' => self::TYPE_COURSES,
-                'title' => 'Kurse & Workshops',
-                'nav_label' => 'Workshops',
+                'title' => 'Events & Termine',
+                'nav_label' => 'Events',
                 'visible' => true,
                 'in_nav' => true,
                 'can_delete' => false,
@@ -310,7 +310,7 @@ class SectionManager {
             [
                 'id' => 'past_courses',
                 'type' => self::TYPE_PAST_COURSES,
-                'title' => 'Impressionen vergangener Workshops',
+                'title' => 'Impressionen & Rückblick',
                 'nav_label' => 'Impressionen',
                 'visible' => true,
                 'in_nav' => false,
@@ -874,8 +874,8 @@ class SectionManager {
         $desc = [
             'hero' => 'Startseiten-Header mit großer Überschrift, Untertitel und Buttons.',
             'gallery' => 'Foto-Galerie & Portfolio mit Kategoriefilter und Lightbox-Zoom.',
-            'courses' => 'Workshops & Termine mit Buchungsanfrage und Kursdetails.',
-            'past_courses' => 'Foto-Rückblicke & Impressionen vergangener Kurse.',
+            'courses' => 'Events & Termine mit Buchungsanfrage und Veranstaltungsdetails.',
+            'past_courses' => 'Foto-Rückblicke & Impressionen vergangener Veranstaltungen.',
             'blog' => 'Aktuelles & Blog mit Artikeln, Suchfunktion und Kategorien.',
             'pricing' => 'Leistungen, Paketpreise und übersichtliche Tarif-Karten.',
             'faq' => 'Häufig gestellte Fragen in interaktiven Akkordeon-Boxen.',

@@ -1221,6 +1221,34 @@ hr {
     }
 }
 
+/* ==========================================================================
+   Modulare Sektionen-Grids (Phase 32.1)
+   ========================================================================== */
+.weave-section-grid {
+    margin: 2.5rem 0;
+}
+.weave-section-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.weave-section-col > section {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+.weave-section-col > section > :first-child {
+    margin-top: 0;
+}
+.weave-section-col > section > :last-child {
+    margin-bottom: 0;
+}
+@media (max-width: 768px) {
+    .weave-section-grid {
+        margin: 1.5rem 0;
+    }
+}
+
 @media print {
     .weave-grid {
         display: block !important;

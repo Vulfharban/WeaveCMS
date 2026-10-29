@@ -902,15 +902,15 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 
 ---
 
-### Phase 32: Grid-Builder für modulare Seiten (Sektionen-Stack) (v1.5.5)
+### Phase 32: Grid-Builder für modulare Seiten (Sektionen-Stack) (v1.3.3)
 *Ziel: Die Spalten- und Layout-Funktionen aus Phase 27 auch für Seiten vom Typ `modular` (Landingpage-Stack) nutzbar machen.*
 
-- [ ] **32.1 Spalten-Layouts auf Sektions-Ebene:**
+- [x] **32.1 Spalten-Layouts auf Sektions-Ebene:**
   - Auswahl eines Spalten-Layouts pro Sektion im Sektionen-Stack (z. B. zwei Sektionen nebeneinander, 1/3 zu 2/3).
   - Wiederverwendung der `weave-grid`-CSS-Klassen und Shortcode-/Renderlogik aus Phase 27.
-- [ ] **32.2 Grid-Shortcodes in Inhaltsfeldern der Sektionen:**
+- [x] **32.2 Grid-Shortcodes in Inhaltsfeldern der Sektionen:**
   - Toolbar (Layout, Vorlagen, Boxen) in Textfeldern von Sektionen wie `custom_text`, `about` usw.
-- [ ] **32.3 Vorschau & Übersetzungen:**
+- [x] **32.3 Vorschau & Übersetzungen:**
   - Breakpoint-Vorschau-Modal für modulare Seiten.
   - Alle neuen UI-Texte in den Übersetzungsdateien aller Sprachen.
 

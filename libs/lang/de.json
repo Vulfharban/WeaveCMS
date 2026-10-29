@@ -11,7 +11,7 @@
     "btn.open_in_mail": "Im Mailprogramm öffnen",
     "btn.filter_all": "Alle",
     "btn.close": "Schließen",
-    "gallery.no_items": "Noch keine Werkstücke in der Galerie.",
+    "gallery.no_items": "Noch keine Einträge in der Galerie.",
     "gallery.zoom_hint": "Klicken für Vollbildansicht",
     "courses.no_dates": "Aktuell sind keine Kurstermine festgelegt. Schreib mir gern eine Anfrage bei Interesse!",
     "courses.spots_free": "Plätze frei",
@@ -95,8 +95,8 @@
     "frontend.tag.empty_desc": "Zu diesem Schlagwort wurden derzeit keine aktiven Beiträge, Seiten oder Angebote hinterlegt.",
     "frontend.tag.sec_blog": "Blog-Artikel",
     "frontend.tag.sec_pages": "Seiten & Inhalte",
-    "frontend.tag.sec_courses": "Kurse & Workshops",
-    "frontend.tag.sec_gallery": "Galerie & Werkstücke",
+    "frontend.tag.sec_courses": "Events & Termine",
+    "frontend.tag.sec_gallery": "Galerie & Portfolio",
     "frontend.tag.sec_downloads": "Downloads & Dokumente",
     "btn.view_page": "Seite ansehen"
 }

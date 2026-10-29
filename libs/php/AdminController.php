@@ -280,10 +280,10 @@ class AdminController {
             return 'tab-inbox';
         } elseif (strpos($action, 'gallery') !== false || strpos($action, 'category') !== false) {
             return 'tab-gallery';
-        } elseif (strpos($action, 'course') !== false) {
-            return 'tab-courses';
         } elseif (strpos($action, 'past') !== false) {
             return 'tab-past';
+        } elseif (strpos($action, 'course') !== false) {
+            return 'tab-courses';
         } elseif (strpos($action, 'seo') !== false) {
             return 'tab-seo';
         } elseif (
@@ -1363,6 +1363,7 @@ class AdminController {
 
         $text_keys = [
             'hero_title', 'hero_subtitle', 'about_title', 'about_text',
+            'custom_text_title', 'custom_text_body',
             'gallery_title', 'gallery_subtitle', 'courses_title', 'courses_subtitle',
             'past_courses_title', 'past_courses_subtitle', 'blog_title', 'blog_subtitle',
             'faq_title', 'faq_subtitle', 'team_title', 'team_subtitle',
@@ -1784,15 +1785,19 @@ class AdminController {
                 $error_msg = 'Fehler beim Bildupload.';
             }
         } elseif ($action === 'delete_past_course_image') {
-            $img_path = $_POST['image_path'] ?? '';
+            $img_path = trim($_POST['image_path'] ?? '');
             $found = false;
+            if (!isset($data['past_courses']) || !is_array($data['past_courses'])) {
+                $data['past_courses'] = [];
+            }
             foreach ($data['past_courses'] as $idx => $path) {
-                if ($path === $img_path) {
-                    $upload_cfg = ImageUploader::getConfig($data);
-                    $rel_prefix = $upload_cfg['rel'] . '/';
-                    if (!empty($path) && strpos($path, $rel_prefix) === 0) {
-                        $filepath = self::rootPath() . '/' . ltrim($path, '/\\');
-                        if (file_exists($filepath)) {
+                if ($path === $img_path || ltrim((string)$path, '/\\') === ltrim($img_path, '/\\')) {
+                    $cleanRelPath = ltrim((string)$path, '/\\');
+                    $upload_cfg = ImageUploader::getUploadConfig($data);
+                    $cleanUploadRel = trim($upload_cfg['rel'] ?? 'images/uploads', '/\\');
+                    if (!empty($cleanRelPath) && (strpos($cleanRelPath, $cleanUploadRel . '/') === 0 || strpos($cleanRelPath, 'images/uploads/') === 0)) {
+                        $filepath = self::rootPath() . '/' . $cleanRelPath;
+                        if (file_exists($filepath) && is_file($filepath)) {
                             @unlink($filepath);
                         }
                     }
@@ -1805,7 +1810,7 @@ class AdminController {
             if ($found) {
                 $data['past_courses'] = array_values($data['past_courses']);
                 save_data($dataFile, $data);
-                $success_msg = 'Kursbild erfolgreich gelöscht!';
+                $success_msg = 'Bild erfolgreich gelöscht!';
             } else {
                 $error_msg = 'Bild nicht in der Liste gefunden.';
             }
@@ -2088,8 +2093,19 @@ class AdminController {
 
             $page_type = in_array($_POST['page_type'] ?? '', ['content', 'modular'], true) ? $_POST['page_type'] : 'content';
             $page_sections = [];
+            $page_section_layouts = [];
+            $allowed_layouts = ['full', '2', '3', '1-2', '2-1'];
             if ($page_type === 'modular' && isset($_POST['page_sections']) && is_array($_POST['page_sections'])) {
                 $page_sections = array_values(array_filter($_POST['page_sections'], 'is_string'));
+                if (isset($_POST['page_section_layouts']) && is_array($_POST['page_section_layouts'])) {
+                    foreach ($_POST['page_section_layouts'] as $secId => $lay) {
+                        $secId = trim((string)$secId);
+                        $lay = trim((string)$lay);
+                        if ($secId !== '' && in_array($lay, $allowed_layouts, true)) {
+                            $page_section_layouts[$secId] = $lay;
+                        }
+                    }
+                }
             }
 
             $page_tags = TaxonomyManager::sanitizeTagList($_POST['tags'] ?? []);
@@ -2106,6 +2122,7 @@ class AdminController {
                 'slug' => $slug,
                 'page_type' => $page_type,
                 'page_sections' => $page_sections,
+                'page_section_layouts' => $page_section_layouts,
                 'nav_label' => trim($_POST['nav_label'] ?? ''),
                 'icon' => trim($_POST['icon'] ?? ''),
                 'status' => in_array($_POST['status'] ?? '', ['published', 'draft', 'scheduled'], true) ? $_POST['status'] : 'published',
@@ -2183,8 +2200,19 @@ class AdminController {
 
             $page_type = in_array($_POST['page_type'] ?? '', ['content', 'modular'], true) ? $_POST['page_type'] : 'content';
             $page_sections = [];
+            $page_section_layouts = [];
+            $allowed_layouts = ['full', '2', '3', '1-2', '2-1'];
             if ($page_type === 'modular' && isset($_POST['page_sections']) && is_array($_POST['page_sections'])) {
                 $page_sections = array_values(array_filter($_POST['page_sections'], 'is_string'));
+                if (isset($_POST['page_section_layouts']) && is_array($_POST['page_section_layouts'])) {
+                    foreach ($_POST['page_section_layouts'] as $secId => $lay) {
+                        $secId = trim((string)$secId);
+                        $lay = trim((string)$lay);
+                        if ($secId !== '' && in_array($lay, $allowed_layouts, true)) {
+                            $page_section_layouts[$secId] = $lay;
+                        }
+                    }
+                }
             }
 
             $status = in_array($_POST['status'] ?? '', ['published', 'draft', 'scheduled'], true) ? $_POST['status'] : 'published';
@@ -2203,6 +2231,7 @@ class AdminController {
             $data['pages'][$found_idx]['slug'] = $slug;
             $data['pages'][$found_idx]['page_type'] = $page_type;
             $data['pages'][$found_idx]['page_sections'] = $page_sections;
+            $data['pages'][$found_idx]['page_section_layouts'] = $page_section_layouts;
             $data['pages'][$found_idx]['nav_label'] = trim($_POST['nav_label'] ?? '');
             $data['pages'][$found_idx]['icon'] = trim($_POST['icon'] ?? '');
             $data['pages'][$found_idx]['status'] = $status;

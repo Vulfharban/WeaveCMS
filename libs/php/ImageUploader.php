@@ -71,6 +71,15 @@ class ImageUploader {
     }
 
     /**
+     * Alias für getUploadConfig zur nahtlosen Kompatibilität mit Controllern.
+     * @param array|null $data
+     * @return array ['rel' => string, 'abs' => string]
+     */
+    public static function getConfig(?array $data = null): array {
+        return self::getUploadConfig($data);
+    }
+
+    /**
      * Prüft den echten MIME-Type einer Datei via Fileinfo (Magic Bytes) - Phase 9.3.
      * @param string $filePath
      * @param array $allowedMimes

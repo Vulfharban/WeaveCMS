@@ -831,3 +831,115 @@ function initAdminListeners() {
 
 // Beim Laden des DOMs ausführen
 window.addEventListener('DOMContentLoaded', initAdminListeners);
+
+/**
+ * ============================================================================
+ * Universelle Snippet- & Grid-Insert-Funktion für Textareas (Phase 27 & 32.2)
+ * ============================================================================
+ */
+function insertUniversalSnippet(selectElem, type, targetId) {
+    const val = selectElem.value;
+    if (!val) return;
+
+    let target = null;
+    if (targetId) {
+        target = document.getElementById(targetId);
+    }
+    if (!target) {
+        if (document.activeElement && document.activeElement.tagName === 'TEXTAREA') {
+            target = document.activeElement;
+        } else {
+            // Suche Textarea in der Nähe der Toolbar
+            const parentForm = selectElem.closest('.form-group') || selectElem.closest('.admin-section') || selectElem.closest('form');
+            if (parentForm) {
+                target = parentForm.querySelector('textarea');
+            }
+        }
+    }
+    if (!target) {
+        target = document.getElementById('page_content') || document.querySelector('textarea');
+    }
+    if (!target) return;
+
+    // Farbwähler ermitteln
+    const toolbar = selectElem.closest('.weave-editor-design-toolbar') || selectElem.closest('.page-editor-design-toolbar');
+    const colorPicker = toolbar ? toolbar.querySelector('.picker_box_color_field') || toolbar.querySelector('#picker_box_color') : null;
+    const chosenColor = colorPicker ? colorPicker.value : '#e0f2fe';
+
+    // Verschachtelungsschutz für [grid]
+    const isCursorInsideGrid = function(t) {
+        if (!t) return false;
+        const beforeCursor = t.value.substring(0, t.selectionStart || t.value.length);
+        const opened = (beforeCursor.match(/\[grid[\s\]]/gi) || []).length;
+        const closed = (beforeCursor.match(/\[\/grid\]/gi) || []).length;
+        return opened > closed;
+    };
+
+    let snippet = '';
+    if (type === 'heading') {
+        const headings = {
+            'left_bar': '\n<h3 class="heading-left-bar">Hervorgehobene Überschrift</h3>\n',
+            'underline': '\n<h3 class="heading-underline">Überschrift mit Akzentlinie</h3>\n',
+            'eyebrow': '\n<span class="heading-eyebrow">KATEGORIE / THEMA</span>\n<h2 class="heading-with-eyebrow">Hauptüberschrift</h2>\n',
+            'gradient': '\n<h2 class="heading-gradient">Elegante Verlauf-Überschrift</h2>\n',
+            'icon': '\n<h3 class="heading-icon"><span class="heading-icon-badge">✨</span> Überschrift mit Icon-Badge</h3>\n',
+            'display': '\n<h1 class="heading-display">Große Headline</h1>\n'
+        };
+        snippet = headings[val] || '';
+    } else if (type === 'box') {
+        const attr = (val === 'tintable') ? 'color="' + chosenColor + '"' : 'style="' + val + '"';
+        snippet = '\n[box ' + attr + ']\n### Wichtiger Hinweis\nDein Text oder Inhalt in dieser ansprechend gestalteten Box.\n[/box]\n';
+    } else if (type === 'preset') {
+        if (isCursorInsideGrid(target)) {
+            alert('Spalten-Grids können nicht ineinander verschachtelt werden.');
+            if (selectElem.tagName === 'SELECT') selectElem.selectedIndex = 0;
+            return;
+        }
+        const presets = {
+            'hero': '\n<h1 class="heading-display">Dein starker Slogan hier</h1>\n<p style="font-size:1.2rem; color:var(--text-secondary); max-width:700px; margin-bottom:1.5rem;">Ein prägnanter Teaser-Text, der Besucher sofort begeistert und die Kernbotschaft vermittelt.</p>\n<p><a href="#contact" class="btn btn-primary" style="margin-right:8px;">Jetzt anfragen</a> <a href="#gallery" class="btn btn-secondary">Mehr erfahren</a></p>\n',
+            'testimonial': '\n[box style="soft_amber"]\n<blockquote style="margin:0; font-style:italic; font-size:1.1rem; line-height:1.6;">\n"Hier steht ein begeistertes Zitat eines Kunden oder Partners, das Vertrauen schafft und persönliche Qualität belegt."\n</blockquote>\n<p style="margin:0.75rem 0 0 0; font-weight:700; color:var(--primary);">– Zufriedener Kunde / Partner</p>\n[/box]\n',
+            'cta': '\n[box style="gradient"]\n<div style="text-align:center; padding:1rem 0;">\n<h2 class="heading-gradient" style="margin-bottom:0.5rem;">Bereit für das nächste Projekt?</h2>\n<p style="font-size:1.1rem; color:var(--text-secondary); max-width:600px; margin:0 auto 1.5rem auto;">Kontaktiere uns noch heute für ein unverbindliches Beratungsgespräch oder Angebot.</p>\n<p style="margin:0;"><a href="#contact" class="btn btn-primary">Jetzt Kontakt aufnehmen</a></p>\n</div>\n[/box]\n',
+            'features': '\n[grid layout="3"]\n[col]\n<h3 class="heading-icon"><span class="heading-icon-badge">🎯</span> Zielgerichtet</h3>\n<p>Klare Lösungen und maßgeschneiderte Ergebnisse für deine Anforderungen.</p>\n[/col]\n[col]\n<h3 class="heading-icon"><span class="heading-icon-badge">⚡</span> Effizient</h3>\n<p>Schnelle Umsetzung und moderne Technik für beste Performance.</p>\n[/col]\n[col]\n<h3 class="heading-icon"><span class="heading-icon-badge">🌱</span> Nachhaltig</h3>\n<p>Langlebige Qualität und verlässliche Betreuung auf Augenhöhe.</p>\n[/col]\n[/grid]\n'
+        };
+        snippet = presets[val] || '';
+    } else if (type === 'divider') {
+        const dividers = {
+            'gradient': '\n<div class="divider-gradient"></div>\n',
+            'icon_leaf': '\n<div class="divider-icon"><span>🌿</span></div>\n',
+            'icon_star': '\n<div class="divider-icon"><span>⭐</span></div>\n',
+            'glow': '\n<div class="divider-glow"></div>\n',
+            'dots': '\n<div class="divider-dots"></div>\n',
+            'dashed': '\n<div class="divider-dashed"></div>\n',
+            'wave': '\n<div class="divider-wave"></div>\n'
+        };
+        snippet = dividers[val] || '';
+    } else if (type === 'grid') {
+        if (isCursorInsideGrid(target)) {
+            alert('Spalten-Grids können nicht ineinander verschachtelt werden.');
+            if (selectElem.tagName === 'SELECT') selectElem.selectedIndex = 0;
+            return;
+        }
+        const col = (n) => '[col]\n#### Spalte ' + n + '\nText, Bilder oder Aufzählungen in Spalte ' + n + '.\n[/col]\n';
+        if (val === 'img-text') {
+            snippet = '\n[grid layout="img-text"]\n[col]\n![Beispielbild](images/uploads/demo.jpg)\n[/col]\n[col]\n### Ausführliche Beschreibung\nText neben dem Bild mit allen Details und Argumenten.\n[/col]\n[/grid]\n';
+        } else if (val === '3') {
+            snippet = '\n[grid layout="3"]\n' + col(1) + col(2) + col(3) + '[/grid]\n';
+        } else if (['2', '1-2', '2-1'].includes(val)) {
+            snippet = '\n[grid layout="' + val + '"]\n' + col(1) + col(2) + '[/grid]\n';
+        }
+    }
+
+    if (snippet && target) {
+        const start = target.selectionStart || target.value.length;
+        const end = target.selectionEnd || target.value.length;
+        const text = target.value;
+        target.value = text.substring(0, start) + snippet + text.substring(end);
+        target.focus();
+        const newPos = start + snippet.length;
+        target.setSelectionRange(newPos, newPos);
+    }
+
+    if (selectElem && selectElem.tagName === 'SELECT') {
+        selectElem.selectedIndex = 0;
+    }
+}

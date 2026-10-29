@@ -113,13 +113,13 @@
                 <span class="material-icons" style="font-size:17px;">folder_zip</span> <?php echo __a('admin.subnav.downloads', 'Downloads'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="gallery" onclick="switchTab('tab-gallery')" style="<?php echo in_array('gallery', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">photo_library</span> <?php echo __a('admin.subnav.gallery', 'Galerie &amp; Werkstücke'); ?>
+                <span class="material-icons" style="font-size:17px;">photo_library</span> <?php echo __a('admin.subnav.gallery', 'Galerie &amp; Portfolio'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="courses" onclick="switchTab('tab-courses')" style="<?php echo in_array('courses', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">event</span> <?php echo __a('admin.subnav.courses', 'Workshops &amp; Kurse'); ?>
+                <span class="material-icons" style="font-size:17px;">event</span> <?php echo __a('admin.subnav.courses', 'Events &amp; Termine'); ?>
             </button>
             <button class="admin-subnav-link" data-sec-type="past_courses" onclick="switchTab('tab-past')" style="<?php echo in_array('past_courses', $active_sec_types, true) ? '' : 'display:none;'; ?>">
-                <span class="material-icons" style="font-size:17px;">photo_camera</span> <?php echo __a('admin.subnav.past_courses', 'Kursimpressionen'); ?>
+                <span class="material-icons" style="font-size:17px;">photo_camera</span> <?php echo __a('admin.subnav.past_courses', 'Impressionen &amp; Rückblick'); ?>
             </button>
             <?php 
                 // Dynamisch registrierte Subnav-Einträge von Plugins (Phase 21)

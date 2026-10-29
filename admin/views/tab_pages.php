@@ -212,14 +212,14 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                     </div>
 
                     <!-- Modulare Sektionen-Auswahl (Landingpage-Stack) -->
-                    <div id="modular-sections-box" style="display:none; background:rgba(46,98,72,0.06); border:1px solid rgba(46,98,72,0.3); border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
-                        <h4 style="color:var(--primary); margin:0 0 0.4rem 0; font-size:1.05rem; display:flex; align-items:center; gap:6px;">
+                    <div id="modular-sections-box" style="display:none; background:rgba(46,98,72,0.06); border:1px solid rgba(46,98,72,0.3); border-radius:14px; padding:1.5rem; margin-bottom:1.5rem;">
+                        <h4 style="color:var(--primary); margin:0 0 0.4rem 0; font-size:1.1rem; display:flex; align-items:center; gap:8px;">
                             <span class="material-icons">view_quilt</span> <?php echo __a('admin.pages.modular_heading'); ?>
                         </h4>
-                        <p style="color:var(--text-secondary); font-size:0.85rem; margin:0 0 1rem 0;">
+                        <p style="color:var(--text-secondary); font-size:0.88rem; margin:0 0 1.25rem 0; line-height:1.5;">
                             <?php echo __a('admin.pages.modular_desc'); ?>
                         </p>
-                        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap:10px;">
+                        <div id="modular-sections-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:12px;">
                             <?php 
                             $avail_sections = SectionManager::ensureSections($data);
                             $sec_type_icons = [
@@ -231,11 +231,23 @@ $supported_langs = LanguageManager::getSupportedLanguages();
                             foreach ($avail_sections as $asec):
                                 $aicon = $sec_type_icons[$asec['type']] ?? 'dashboard';
                             ?>
-                                <label style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:#ffffff; border:1px solid var(--border-color); border-radius:10px; cursor:pointer; font-size:0.9rem;">
-                                    <input type="checkbox" name="page_sections[]" value="<?php echo htmlspecialchars($asec['id']); ?>" class="modular-sec-checkbox" style="width:16px; height:16px; accent-color:var(--primary);">
-                                    <span class="material-icons" style="font-size:18px; color:var(--primary);"><?php echo $aicon; ?></span>
-                                    <span style="font-weight:600; color:var(--text-primary);"><?php echo htmlspecialchars($asec['title']); ?></span>
-                                </label>
+                                <div class="modular-sec-card" id="mod-card-<?php echo htmlspecialchars($asec['id']); ?>" data-sec-id="<?php echo htmlspecialchars($asec['id']); ?>" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; background:#ffffff; border:1px solid var(--border-color); border-radius:12px; transition:all 0.2s ease;">
+                                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; flex:1; margin:0; min-width:0;">
+                                        <input type="checkbox" name="page_sections[]" value="<?php echo htmlspecialchars($asec['id']); ?>" class="modular-sec-checkbox" onchange="toggleModularSecCard(this)" style="width:17px; height:17px; accent-color:var(--primary); cursor:pointer;">
+                                        <span class="material-icons" style="font-size:20px; color:var(--primary);"><?php echo $aicon; ?></span>
+                                        <span style="font-weight:600; font-size:0.92rem; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><?php echo htmlspecialchars($asec['title']); ?></span>
+                                    </label>
+                                    <div class="modular-sec-layout-wrap" id="mod-layout-wrap-<?php echo htmlspecialchars($asec['id']); ?>" style="display:none; align-items:center; gap:6px;">
+                                        <span style="font-size:0.75rem; color:var(--text-secondary); font-weight:600;"><?php echo __a('admin.pages.modular_col_layout', 'Breite:'); ?></span>
+                                        <select name="page_section_layouts[<?php echo htmlspecialchars($asec['id']); ?>]" id="mod-layout-select-<?php echo htmlspecialchars($asec['id']); ?>" class="form-control modular-sec-layout-select" style="width:auto; padding:3px 8px; font-size:0.8rem; border-radius:6px; cursor:pointer;">
+                                            <option value="full"><?php echo __a('admin.pages.layout_full', '█ 100% Vollbreite'); ?></option>
+                                            <option value="2"><?php echo __a('admin.pages.layout_half', '▌▌ 50% (2 Spalten)'); ?></option>
+                                            <option value="3"><?php echo __a('admin.pages.layout_three', '▌▌▌ 33% (3 Spalten)'); ?></option>
+                                            <option value="1-2"><?php echo __a('admin.pages.layout_third', '▍▋ 1/3 Spalte'); ?></option>
+                                            <option value="2-1"><?php echo __a('admin.pages.layout_two_thirds', '▋▍ 2/3 Spalte'); ?></option>
+                                        </select>
+                                    </div>
+                                </div>
                             <?php endforeach; ?>
                         </div>
                     </div>
@@ -744,6 +756,22 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             }
         }
 
+        function toggleModularSecCard(cb) {
+            const card = cb.closest('.modular-sec-card');
+            if (!card) return;
+            const wrap = card.querySelector('.modular-sec-layout-wrap');
+            if (wrap) {
+                wrap.style.display = cb.checked ? 'flex' : 'none';
+            }
+            if (cb.checked) {
+                card.style.borderColor = 'var(--primary)';
+                card.style.background = 'rgba(46,98,72,0.04)';
+            } else {
+                card.style.borderColor = 'var(--border-color)';
+                card.style.background = '#ffffff';
+            }
+        }
+
         function togglePageTypeMode(type) {
             const modBox = document.getElementById('modular-sections-box');
             if (modBox) {
@@ -779,6 +807,10 @@ $supported_langs = LanguageManager::getSupportedLanguages();
 
             document.querySelectorAll('.modular-sec-checkbox').forEach(cb => {
                 cb.checked = false;
+                toggleModularSecCard(cb);
+            });
+            document.querySelectorAll('.modular-sec-layout-select').forEach(sel => {
+                sel.value = 'full';
             });
             togglePageTypeMode('content');
 
@@ -882,8 +914,14 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             }
 
             const chosenSecs = Array.isArray(pageData.page_sections) ? pageData.page_sections : [];
+            const secLayouts = pageData.page_section_layouts || {};
             document.querySelectorAll('.modular-sec-checkbox').forEach(cb => {
                 cb.checked = chosenSecs.includes(cb.value);
+                toggleModularSecCard(cb);
+                const sel = document.getElementById('mod-layout-select-' + cb.value);
+                if (sel) {
+                    sel.value = secLayouts[cb.value] || 'full';
+                }
             });
             togglePageTypeMode(pType);
 
@@ -1117,6 +1155,18 @@ $supported_langs = LanguageManager::getSupportedLanguages();
             formData.append('csrf_token', <?php echo json_encode($csrf_token); ?>);
             formData.append('content', currentContent);
             formData.append('title', currentTitle);
+
+            const pType = document.getElementById('page_type') ? document.getElementById('page_type').value : 'content';
+            formData.append('page_type', pType);
+            if (pType === 'modular') {
+                document.querySelectorAll('.modular-sec-checkbox:checked').forEach(cb => {
+                    formData.append('page_sections[]', cb.value);
+                    const sel = document.getElementById('mod-layout-select-' + cb.value);
+                    if (sel) {
+                        formData.append('page_section_layouts[' + cb.value + ']', sel.value);
+                    }
+                });
+            }
 
             fetch('index.php', {
                 method: 'POST',

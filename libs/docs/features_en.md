@@ -54,12 +54,12 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 | Feature | Description | Status |
 | :--- | :--- | :---: |
 | **100% Content Autonomy** | Edit all headings, sublines, and text blurbs directly through the admin panel. | ✅ Integrated (v0.2.0) |
-| **Gallery Manager** | Upload images, name creations, write descriptions, and assign categories. | ✅ Integrated |
+| **Gallery & Portfolio Manager** | Upload images, name portfolio items, write descriptions, and assign categories. | ✅ Integrated |
 | **Dynamic Categories** | Create, filter, and delete custom categories on the fly. | ✅ Integrated |
-| **Manual Gallery Sorting** | Numerically reorder gallery items with drag-friendly priority fields. | ✅ Integrated |
-| **Course & Workshop Manager** | Manage dates, times, locations, pricing, capacity limits, and booking status. | ✅ Integrated |
-| **Direct Course Links & Sharing** | 1-click invitation link copying and native Web Share API integration. | ✅ Integrated |
-| **Course Impressions & Archive** | Photo and review uploads for past workshops and events. | ✅ Integrated |
+| **Manual Gallery Sorting** | Numerically reorder portfolio items with drag-friendly priority fields. | ✅ Integrated |
+| **Event & Date Manager** | Manage dates, times, locations, pricing, capacity limits, and booking status. | ✅ Integrated |
+| **Direct Event Links & Sharing** | 1-click invitation link copying and native Web Share API integration. | ✅ Integrated |
+| **Impressions & Highlights** | Photo and review uploads for past events, workshops, and highlights. | ✅ Integrated |
 | **Full-Featured Blog & Magazine Module** | Chronological articles, draft/published status, teasers, markdown, cover images, and individual article views (`?blog=slug`). | ✅ Integrated (v0.8.0) |
 | **Custom Subpages** | Unlimited standalone pages (`?page=slug`) with Markdown, custom SEO metadata, nav toggles, and multi-language drawer tabs. | ✅ Integrated (v0.8.5) |
 | **Individual Menu & Section Titles** | Customize menu label (`nav_label`), section title, and navigation visibility directly in each content tab and centrally in Section Manager. | ✅ Integrated (v0.8.5) |
@@ -80,6 +80,7 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 | **Visual Column & Grid Builder (Phase 27)** | Modular multi-column layouts (`[grid]` / `[col]`), layout presets (Hero, Testimonials, Call-to-Action), modernized `[box]` shortcodes, and responsive 3-breakpoint live preview (Desktop, Tablet, Mobile). | ✅ Integrated (v1.3.2) |
 | **Global Taxonomies & Tag Archive (Phase 28.1)** | Cross-module tagging for blog articles, standalone pages, courses, gallery items, and downloads with responsive tag archives (`?tag=slug`), filter cloud, and admin autocompletion via datalist. | ✅ Integrated (v1.3.2) |
 | **Custom Fields & Structured Attributes (Phase 28.2 & 28.3)** | Configurable structured fields per module (text, textarea, number, boolean, url, date, file) with automatic validation, admin editor inputs, and frontend helper functions `get_custom_field()` and `render_custom_fields()`. | ✅ Integrated (v1.3.2) |
+| **Grid Builder for Modular Pages (Phase 32)** | Section-level column layouts (`full`, `2`, `3`, `1-2`, `2-1`) inside the landing page stack, universal grid & shortcode toolbars for free-text and about sections, and responsive 3-breakpoint live preview. | ✅ Integrated (v1.3.3) |
 
 ---
 
