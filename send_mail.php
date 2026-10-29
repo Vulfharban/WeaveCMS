@@ -138,6 +138,7 @@ if (!empty($_POST['archive_only'])) {
 }
 
 // 4. Empfänger und Konfiguration ermitteln
+$smtp_config = $data['settings']['smtp'] ?? [];
 $to_email = trim($data['texts']['contact_email'] ?? ('info@' . ($_SERVER['SERVER_NAME'] ?? 'example.org')));
 if (empty($to_email) || !filter_var($to_email, FILTER_VALIDATE_EMAIL)) {
     $to_email = 'info@' . ($_SERVER['SERVER_NAME'] ?? 'example.org');
