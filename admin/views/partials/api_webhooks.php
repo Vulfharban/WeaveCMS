@@ -6,8 +6,8 @@
  * @var string $csrf_token CSRF-Schutztoken
  */
 
-require_once dirname(__DIR__, 2) . '/libs/php/ApiTokenManager.php';
-require_once dirname(__DIR__, 2) . '/libs/php/WebhookManager.php';
+require_once dirname(__DIR__, 3) . '/libs/php/ApiTokenManager.php';
+require_once dirname(__DIR__, 3) . '/libs/php/WebhookManager.php';
 
 $api_tokens = ApiTokenManager::getTokens();
 $api_scopes = ApiTokenManager::getAvailableScopes();
