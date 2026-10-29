@@ -107,20 +107,29 @@ class ForumUserManager {
             throw new RuntimeException('Die PHP-Erweiterung pdo_mysql ist auf diesem Server nicht aktiviert.');
         }
 
-        $cfg = [];
-        if (class_exists('PluginManager') && !empty($GLOBALS['data'])) {
-            $cfg = PluginManager::getPluginConfig('weave-forum', $GLOBALS['data']);
+        if (class_exists('ForumManager')) {
+            $c = ForumManager::getMysqlConfig();
+        } else {
+            $localConfig = dirname(__DIR__, 2) . '/config.local.php';
+            if (file_exists($localConfig)) {
+                require_once $localConfig;
+            }
+            $cfg = [];
+            if (class_exists('PluginManager') && !empty($GLOBALS['data'])) {
+                $cfg = PluginManager::getPluginConfig('weave-forum', $GLOBALS['data']);
+            }
+            $c = [
+                'host' => !empty($cfg['mysql_host']) ? $cfg['mysql_host'] : (defined('WEAVE_DB_HOST') ? WEAVE_DB_HOST : '127.0.0.1'),
+                'port' => !empty($cfg['mysql_port']) ? (int)$cfg['mysql_port'] : (defined('WEAVE_DB_PORT') ? (int)WEAVE_DB_PORT : 3306),
+                'database' => !empty($cfg['mysql_database']) ? $cfg['mysql_database'] : (defined('WEAVE_DB_NAME') ? WEAVE_DB_NAME : 'WeaveCMS'),
+                'user' => !empty($cfg['mysql_user']) ? $cfg['mysql_user'] : (defined('WEAVE_DB_USER') ? WEAVE_DB_USER : 'root'),
+                'password' => isset($cfg['mysql_password']) ? (string)$cfg['mysql_password'] : (defined('WEAVE_DB_PASS') ? (string)WEAVE_DB_PASS : ''),
+                'charset' => !empty($cfg['mysql_charset']) ? $cfg['mysql_charset'] : 'utf8mb4'
+            ];
         }
 
-        $host = $cfg['mysql_host'] ?? '127.0.0.1';
-        $port = (int)($cfg['mysql_port'] ?? 3306);
-        $dbname = $cfg['mysql_database'] ?? 'WeaveCMS';
-        $user = $cfg['mysql_user'] ?? 'root';
-        $pass = $cfg['mysql_password'] ?? '';
-        $charset = $cfg['mysql_charset'] ?? 'utf8mb4';
-
-        $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset={$charset}";
-        $pdo = new PDO($dsn, $user, $pass, [
+        $dsn = "mysql:host={$c['host']};port={$c['port']};dbname={$c['database']};charset={$c['charset']}";
+        $pdo = new PDO($dsn, $c['user'], $c['password'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ]);

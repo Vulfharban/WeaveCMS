@@ -78,8 +78,12 @@ function buildReleaseZip(string $root, string $version, string $buildType): arra
         'libs',
         'views',
         'plugins',
+        'api',
         'index.php',
         'config.php',
+        'send_mail.php',
+        'sitemap.php',
+        'robots.php',
         '.htaccess'
     ];
 

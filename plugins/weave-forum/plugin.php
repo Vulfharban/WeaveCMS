@@ -99,6 +99,36 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
             exit;
         }
 
+        // Live-Verbindungstest via AJAX
+        if ($action === 'forum_test_mysql_ajax') {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(ForumManager::testMysqlConnection($_POST));
+            exit;
+        }
+
+        // MySQL-Zugangsdaten speichern
+        if ($action === 'forum_save_mysql_config') {
+            global $data;
+            $cfg = PluginManager::getPluginConfig('weave-forum', $data);
+            $cfg['mysql_host'] = trim($_POST['mysql_host'] ?? '127.0.0.1');
+            $cfg['mysql_port'] = max(1, (int)($_POST['mysql_port'] ?? 3306));
+            $cfg['mysql_database'] = trim($_POST['mysql_database'] ?? 'WeaveCMS');
+            $cfg['mysql_user'] = trim($_POST['mysql_user'] ?? 'root');
+
+            if (isset($_POST['mysql_password']) && $_POST['mysql_password'] !== '') {
+                $cfg['mysql_password'] = (string)$_POST['mysql_password'];
+            } elseif (!empty($_POST['clear_mysql_password'])) {
+                $cfg['mysql_password'] = '';
+            }
+
+            $cfg['mysql_charset'] = trim($_POST['mysql_charset'] ?? 'utf8mb4');
+
+            PluginManager::savePluginConfig('weave-forum', $cfg, $data);
+            save_data(dirname(__DIR__, 2) . '/data.json', $data);
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-forum&forum_msg=mysql_saved#tab-plugins');
+            exit;
+        }
+
         // Meldung bearbeiten
         if ($action === 'forum_resolve_report') {
             $repId = trim($_POST['report_id'] ?? '');

@@ -22,6 +22,7 @@ $jsonFile = ForumManager::getJsonFilePath();
 $sqliteFile = ForumManager::getSqliteFilePath();
 
 $cfg = PluginManager::getPluginConfig('weave-forum', $data);
+$mysqlEffective = ForumManager::getMysqlConfig();
 $msg = $_GET['forum_msg'] ?? '';
 $err = $_GET['forum_err'] ?? '';
 $isSqliteSupported = ForumManager::isSqliteSupported();
@@ -69,6 +70,11 @@ $isSqliteSupported = ForumManager::isSqliteSupported();
         <div class="alert alert-success mb-4">
             <span class="material-icons">check_circle</span>
             Foreninhalte erfolgreich nach Flat-File JSON migriert und aktiviert!
+        </div>
+    <?php elseif ($msg === 'mysql_saved'): ?>
+        <div class="alert alert-success mb-4">
+            <span class="material-icons">check_circle</span>
+            MySQL-Zugangsdaten für das Forum erfolgreich aktualisiert und gespeichert!
         </div>
     <?php elseif ($msg === 'cat_saved'): ?>
         <div class="alert alert-success mb-4">Kategorie erfolgreich gespeichert.</div>
@@ -559,10 +565,116 @@ $isSqliteSupported = ForumManager::isSqliteSupported();
                     <?php endif; ?>
                 </div>
                 <p class="text-xs text-muted mb-3">
-                    DB: <code><?= htmlspecialchars($cfg['mysql_database'] ?? 'WeaveCMS') ?></code> (<?= htmlspecialchars($cfg['mysql_host'] ?? '127.0.0.1') ?>)<br>
-                    User: <code><?= htmlspecialchars($cfg['mysql_user'] ?? 'root') ?></code><br>
-                    Status: <?= ForumManager::isMysqlSupported() ? 'Bereit & Tabellen aktiv' : 'pdo_mysql aktivieren' ?>
+                    DB: <code><?= htmlspecialchars($mysqlEffective['database']) ?></code> (<?= htmlspecialchars($mysqlEffective['host'] . ':' . $mysqlEffective['port']) ?>)<br>
+                    User: <code><?= htmlspecialchars($mysqlEffective['user']) ?></code><br>
+                    Quelle: <span class="font-semibold text-dark"><?= $mysqlEffective['from_local_config'] ? 'Zentral aus config.local.php' : 'Plugin-Konfiguration' ?></span>
                 </p>
+
+                <!-- Formular zur Anpassung der MySQL-Zugangsdaten -->
+                <details class="mb-3 border rounded p-2 bg-light text-xs" <?= (!empty($_GET['forum_msg']) && $_GET['forum_msg'] === 'mysql_saved') || !empty($err) ? 'open' : '' ?>>
+                    <summary class="font-semibold cursor-pointer text-primary flex items-center gap-1">
+                        <span class="material-icons text-xs">tune</span> Zugangsdaten anpassen / konfigurieren
+                    </summary>
+                    <form method="post" class="mt-3 space-y-2">
+                        <input type="hidden" name="action" value="forum_save_mysql_config">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+
+                        <div>
+                            <label class="block font-medium mb-1">Datenbank-Host:</label>
+                            <input type="text" id="forum_mysql_host" name="mysql_host" class="form-control text-xs" value="<?= htmlspecialchars($cfg['mysql_host'] ?? (defined('WEAVE_DB_HOST') ? WEAVE_DB_HOST : '127.0.0.1')) ?>" required>
+                        </div>
+
+                        <div>
+                            <label class="block font-medium mb-1">Port:</label>
+                            <input type="number" id="forum_mysql_port" name="mysql_port" class="form-control text-xs" value="<?= htmlspecialchars((string)($cfg['mysql_port'] ?? (defined('WEAVE_DB_PORT') ? WEAVE_DB_PORT : 3306))) ?>" required>
+                        </div>
+
+                        <div>
+                            <label class="block font-medium mb-1">Datenbank-Name (vom Hoster vorgegeben):</label>
+                            <input type="text" id="forum_mysql_database" name="mysql_database" class="form-control text-xs" value="<?= htmlspecialchars($cfg['mysql_database'] ?? (defined('WEAVE_DB_NAME') ? WEAVE_DB_NAME : 'WeaveCMS')) ?>" required>
+                        </div>
+
+                        <div>
+                            <label class="block font-medium mb-1">Benutzername:</label>
+                            <input type="text" id="forum_mysql_user" name="mysql_user" class="form-control text-xs" value="<?= htmlspecialchars($cfg['mysql_user'] ?? (defined('WEAVE_DB_USER') ? WEAVE_DB_USER : 'root')) ?>" required>
+                        </div>
+
+                        <div>
+                            <label class="block font-medium mb-1">Passwort:</label>
+                            <div class="relative" style="position:relative;">
+                                <input type="password" id="forum_mysql_password" name="mysql_password" class="form-control text-xs" style="padding-right:32px;" placeholder="<?= !empty($mysqlEffective['password']) ? '••••••••' : 'Passwort eingeben' ?>" value="<?= htmlspecialchars($cfg['mysql_password'] ?? (defined('WEAVE_DB_PASS') ? WEAVE_DB_PASS : '')) ?>">
+                                <span class="material-icons text-muted" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:16px;" onclick="toggleForumPasswordVisibility('forum_mysql_password')">visibility</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 flex items-center gap-2">
+                            <button type="button" id="btn_test_forum_mysql" class="btn btn-outline btn-sm text-xs flex items-center gap-1" onclick="testForumMysql()">
+                                <span class="material-icons text-xs">bolt</span> Verbindung testen
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-sm text-xs">
+                                Speichern
+                            </button>
+                        </div>
+                        <div id="feedback_forum_mysql" style="display:none; margin-top:0.5rem;"></div>
+                    </form>
+                </details>
+
+                <script>
+                function toggleForumPasswordVisibility(id) {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.type = (el.type === 'password') ? 'text' : 'password';
+                }
+
+                function testForumMysql() {
+                    const btn = document.getElementById('btn_test_forum_mysql');
+                    const feedback = document.getElementById('feedback_forum_mysql');
+                    if (!btn || !feedback) return;
+
+                    btn.disabled = true;
+                    feedback.style.display = 'block';
+                    feedback.style.padding = '8px';
+                    feedback.style.borderRadius = '6px';
+                    feedback.style.fontSize = '0.75rem';
+                    feedback.style.background = '#eff6ff';
+                    feedback.style.color = '#1d4ed8';
+                    feedback.innerHTML = '<span class="material-icons" style="font-size:14px; vertical-align:middle;">refresh</span> Verbindung wird getestet...';
+
+                    const formData = new FormData();
+                    formData.append('action', 'forum_test_mysql_ajax');
+                    formData.append('csrf_token', '<?= htmlspecialchars($csrf_token) ?>');
+                    formData.append('mysql_host', document.getElementById('forum_mysql_host').value);
+                    formData.append('mysql_port', document.getElementById('forum_mysql_port').value);
+                    formData.append('mysql_database', document.getElementById('forum_mysql_database').value);
+                    formData.append('mysql_user', document.getElementById('forum_mysql_user').value);
+                    formData.append('mysql_password', document.getElementById('forum_mysql_password').value);
+
+                    fetch('?tab=tab-plugins&plugin_settings=weave-forum', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        btn.disabled = false;
+                        if (res.success) {
+                            feedback.style.background = '#f0fdf4';
+                            feedback.style.color = '#15803d';
+                            feedback.innerHTML = '<span class="material-icons" style="font-size:14px; vertical-align:middle;">check_circle</span> ' + res.message;
+                        } else {
+                            feedback.style.background = '#fef2f2';
+                            feedback.style.color = '#b91c1c';
+                            feedback.innerHTML = '<span class="material-icons" style="font-size:14px; vertical-align:middle;">error</span> ' + res.message;
+                        }
+                    })
+                    .catch(err => {
+                        btn.disabled = false;
+                        feedback.style.background = '#fef2f2';
+                        feedback.style.color = '#b91c1c';
+                        feedback.innerHTML = '<span class="material-icons" style="font-size:14px; vertical-align:middle;">error</span> Fehler bei der Anfrage: ' + err;
+                    });
+                }
+                </script>
+
                 <?php if ($currentDriver !== 'mysql'): ?>
                     <form method="post">
                         <input type="hidden" name="action" value="forum_migrate_data_storage">

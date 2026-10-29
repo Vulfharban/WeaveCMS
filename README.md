@@ -24,8 +24,8 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Releases & Downloads (v1.3.2)
 
-- 📦 **[WeaveCMS v1.3.2 Full Package](releases/weavecms-v1.3.2.zip)** (`releases/weavecms-v1.3.2.zip`, 12.18 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.2 Update Package](releases/update-v1.3.2.zip)** (`releases/update-v1.3.2.zip`, 0.73 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.2 Full Package](releases/weavecms-v1.3.2.zip)** (`releases/weavecms-v1.3.2.zip`, 12.19 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.2 Update Package](releases/update-v1.3.2.zip)** (`releases/update-v1.3.2.zip`, 0.78 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
 

@@ -86,6 +86,82 @@ class ForumManager {
     }
 
     /**
+     * Ermittelt die effektive MySQL-Konfiguration (Priorität: Plugin-Config > config.local.php > Fallbacks).
+     */
+    public static function getMysqlConfig(): array {
+        $cfg = [];
+        if (class_exists('PluginManager') && !empty($GLOBALS['data'])) {
+            $cfg = PluginManager::getPluginConfig('weave-forum', $GLOBALS['data']);
+        }
+
+        $localConfig = dirname(__DIR__, 2) . '/config.local.php';
+        if (file_exists($localConfig)) {
+            require_once $localConfig;
+        }
+
+        $host = !empty($cfg['mysql_host']) ? $cfg['mysql_host'] : (defined('WEAVE_DB_HOST') ? WEAVE_DB_HOST : '127.0.0.1');
+        $port = !empty($cfg['mysql_port']) ? (int)$cfg['mysql_port'] : (defined('WEAVE_DB_PORT') ? (int)WEAVE_DB_PORT : 3306);
+        $dbname = !empty($cfg['mysql_database']) ? $cfg['mysql_database'] : (defined('WEAVE_DB_NAME') ? WEAVE_DB_NAME : 'WeaveCMS');
+        $user = !empty($cfg['mysql_user']) ? $cfg['mysql_user'] : (defined('WEAVE_DB_USER') ? WEAVE_DB_USER : 'root');
+        $pass = isset($cfg['mysql_password']) ? (string)$cfg['mysql_password'] : (defined('WEAVE_DB_PASS') ? (string)WEAVE_DB_PASS : '');
+        $charset = !empty($cfg['mysql_charset']) ? $cfg['mysql_charset'] : 'utf8mb4';
+
+        $isFromLocalConfig = empty($cfg['mysql_host']) && defined('WEAVE_DB_HOST');
+
+        return [
+            'host' => $host,
+            'port' => $port,
+            'database' => $dbname,
+            'user' => $user,
+            'password' => $pass,
+            'charset' => $charset,
+            'from_local_config' => $isFromLocalConfig,
+            'has_custom_config' => !empty($cfg['mysql_host']) || !empty($cfg['mysql_database'])
+        ];
+    }
+
+    /**
+     * Prüft eine MySQL-Verbindung live mit gegebenen oder gespeicherten Parametern.
+     * @param array $params [mysql_host, mysql_port, mysql_database, mysql_user, mysql_password, mysql_charset]
+     * @return array [success => bool, message => string, server_version => string|null]
+     */
+    public static function testMysqlConnection(array $params = []): array {
+        if (!self::isMysqlSupported()) {
+            return [
+                'success' => false,
+                'message' => 'Die PHP-Erweiterung pdo_mysql ist auf diesem Server nicht aktiviert.'
+            ];
+        }
+
+        $default = self::getMysqlConfig();
+        $host = !empty($params['mysql_host']) ? trim($params['mysql_host']) : $default['host'];
+        $port = !empty($params['mysql_port']) ? (int)$params['mysql_port'] : $default['port'];
+        $dbname = !empty($params['mysql_database']) ? trim($params['mysql_database']) : $default['database'];
+        $user = !empty($params['mysql_user']) ? trim($params['mysql_user']) : $default['user'];
+        $pass = isset($params['mysql_password']) ? (string)$params['mysql_password'] : $default['password'];
+        $charset = !empty($params['mysql_charset']) ? trim($params['mysql_charset']) : $default['charset'];
+
+        try {
+            $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset={$charset}";
+            $pdo = new PDO($dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_TIMEOUT => 4
+            ]);
+            $version = $pdo->query('SELECT VERSION()')->fetchColumn();
+            return [
+                'success' => true,
+                'message' => "Verbindung erfolgreich! (Server: MySQL {$version})",
+                'server_version' => $version
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Verbindung fehlgeschlagen: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Stellt eine MySQL-Verbindung her und initialisiert Tabellen.
      */
     public static function getMysqlPdo(): PDO {
@@ -93,20 +169,9 @@ class ForumManager {
             throw new RuntimeException('Die PHP-Erweiterung pdo_mysql ist auf diesem Server nicht aktiviert.');
         }
 
-        $cfg = [];
-        if (class_exists('PluginManager') && !empty($GLOBALS['data'])) {
-            $cfg = PluginManager::getPluginConfig('weave-forum', $GLOBALS['data']);
-        }
-
-        $host = $cfg['mysql_host'] ?? '127.0.0.1';
-        $port = (int)($cfg['mysql_port'] ?? 3306);
-        $dbname = $cfg['mysql_database'] ?? 'WeaveCMS';
-        $user = $cfg['mysql_user'] ?? 'root';
-        $pass = $cfg['mysql_password'] ?? '';
-        $charset = $cfg['mysql_charset'] ?? 'utf8mb4';
-
-        $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset={$charset}";
-        $pdo = new PDO($dsn, $user, $pass, [
+        $c = self::getMysqlConfig();
+        $dsn = "mysql:host={$c['host']};port={$c['port']};dbname={$c['database']};charset={$c['charset']}";
+        $pdo = new PDO($dsn, $c['user'], $c['password'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ]);
