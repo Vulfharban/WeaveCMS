@@ -192,6 +192,26 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Frontend-Moderationszentrale** | Eigener Frontend-Reiter *„🛡️ Moderation“* (`?page=forum&view=moderation`) für Administratoren und Moderatoren mit Beitragsmeldungs-Queue, Schnellaktionen und Audit-Log. | ✅ Integriert (v1.3.1) |
 | **Erweiterte Forensuche mit Bereichsfilter** | Schnelle Volltextsuche mit Dropdown-Filterung nach Unterforen (inkl. Optgroups nach Kategorien), Wahl des Suchbereichs (*Beiträge & Titel* vs. *Nur Titel*), Sortierung und `<mark>`-Hervorhebung. | ✅ Integriert (v1.3.1) |
 | **Foren-Markdown- & Code-Engine** | Umfassender Markdown-Parser mit Unterstützung für Fett (`**`), Kursiv (`*`), Hyperlinks (`[Text](url)`), Inline-Code (`code`), mehrzeilige Fenced Code-Blöcke (`php ...`) mit Sprach-Badge & 1-Klick-Kopieren sowie Markdown- und BBCode-Zitate (`[quote]`) inkl. Live-Vorschau. | ✅ Integriert (v1.3.1) |
+| **Foren-Alias, Privatsphäre & Gänseschutz** | Öffentliche Alias-Namen für Administratoren & Moderatoren (`use_alias_only`), granulare Profil-Sichtbarkeitseinstellungen für Mitglieder (Rolle, Beitragszähler, Beitrittsdatum, Biografie, Signatur, Online-Status) sowie vollständiger Schutz sämtlicher Benutzerdaten vor nicht angemeldeten Gästen. | ✅ Integriert (v1.3.3) |
+| **Mediathek-Picker im Download-Manager** | Direkte Auswahl bereits hochgeladener Dateien aus der Mediathek (`uploads/` & `images/uploads/`) inklusive automatischer Dateigrößen- und Format-Erkennung sowie mehrsprachigen Download-Shortcodes (`[downloads]`). | ✅ Integriert (v1.3.3) |
+
+---
+
+### v1.3.3 (Foren-Alias & Privatsphäre, Gänseschutz, Mediathek-Download-Picker & System-Fixes)
+
+* **Erweiterte Forum-Benutzerverwaltung, Alias-System & Privatsphäre (`weave-forum-users` & `weave-forum`):**
+  * **Modernisierte Admin-Benutzerverwaltung:** Überarbeitete Mitgliederliste mit Such- und Rollenfilter, Initial-Avataren, Status- und Rollen-Pills, Alias-Anzeige sowie modernem `<dialog>`-Bearbeitungsmodal im WeaveCMS-Design.
+  * **Alias-Recht für Administratoren & Moderatoren:** Admins (`forum_admin`) und Moderatoren (`forum_moderator`) können im Profil oder Admin-Backend einen öffentlichen Alias vergeben und per Option festlegen, dass im gesamten Forum ausschließlich dieser Alias statt des echten Benutzernamens angezeigt wird.
+  * **Granulare Privatsphäre-Einstellungen im Benutzerprofil:** Jedes Mitglied kann im Profil selbst bestimmen, welche Inhalte anderen angemeldeten Mitgliedern angezeigt werden (Rolle/Rang-Badge, Beitragszähler, Registrierungsdatum, Biografie, Signatur unter Beiträgen sowie Erscheinen in der „Wer ist online“-Liste).
+  * **Strikter Gänseschutz für Benutzerdaten:** Nicht angemeldeten Besuchern (Gästen) werden im gesamten Forum (Themen- und Beitragsansichten, Forenübersicht, Aktuelle Themen, Suche, Online-Liste und Statistiken) keinerlei persönliche Benutzerdaten oder Benutzernamen angezeigt.
+  * **Überarbeiteter „Neues Thema“-Editor:** Kunena-inspiriertes Formularlayout in voller Breite mit integrierter Markdown-Formatierungsleiste (Fett, Kursiv, Zitat, Inline-Code, Code-Block, Link) und Live-Vorschau-Umschalter.
+* **Download-Manager & Mehrsprachigkeit (i18n):**
+  * **Mediathek-Dateiauswahl:** Im Tab *„Downloads & Software-Katalog verwalten“* können neben dem klassischen Direkt-Upload nun auch vorhandene Dateien direkt aus der Mediathek ausgewählt werden (inkl. automatischer Ermittlung von Dateigröße und Dateiformat).
+  * **Mehrsprachige Shortcode-Ausgabe (`[downloads]`):** Zuverlässige Erkennung der aktiven Besuchersprache (`LanguageManager::getCurrentLanguage()`) in allen Sektions-Templates und Shortcode-Renderern für korrekte Anzeige übersetzter Titel und Beschreibungen (DE, EN, FR, IT u. a.).
+* **SMTP-, Sicherheits- & Integrations-Optimierungen:**
+  * **Kontaktformular SMTP-Synchronisation:** `send_mail.php` liest und synchronisiert die SMTP-Konfiguration zuverlässig über den `StorageManager` (MySQL/SQLite & JSON).
+  * **POSIX-Dateirechte-Audit (`SecurityManager`):** Korrekte bitweise Prüfung für `config.php` (`0640`/`0644`) und `installed.lock` (`0640`) auf Linux-Produktivservern ohne Fehlwarnungen.
+  * **Universelle Integrationen (`PluginManager`):** Präzise Prüfung konfigurierter Integrationen sowohl in der Plugin-Konfiguration als auch im globalen Datenstamm (`data['integrations']`).
 
 ---
 

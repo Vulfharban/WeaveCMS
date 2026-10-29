@@ -31,7 +31,7 @@ $lockedTopics = array_filter($allTopics, fn($t) => !empty($t['is_locked']));
                     Foren-Moderationszentrale
                 </h2>
                 <span class="kunena-cat-badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a;">
-                    <?= htmlspecialchars($currentUser['username'] ?? 'Moderator') ?> (<?= htmlspecialchars(class_exists('ForumUserManager') ? ForumUserManager::getRoleLabel($currentUser['role'] ?? 'forum_moderator') : 'Moderator') ?>)
+                    <?= htmlspecialchars(class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($currentUser, 'Moderator') : ($currentUser['username'] ?? 'Moderator')) ?> (<?= htmlspecialchars(class_exists('ForumUserManager') ? ForumUserManager::getRoleLabel($currentUser['role'] ?? 'forum_moderator') : 'Moderator') ?>)
                 </span>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">

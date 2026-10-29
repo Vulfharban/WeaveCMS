@@ -183,10 +183,30 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 | **Frontend Moderation Center** | Dedicated frontend navigation tab *“🛡️ Moderation”* (`?page=forum&view=moderation`) for administrators and moderators featuring reported post queues, quick resolution actions, and audit logs. | ✅ Integrated (v1.3.1) |
 | **Advanced Forum Search with Category Filter** | Fast full-text search with sub-board dropdown selector (with category optgroups), search scope selection (*Posts & Titles* vs. *Titles only*), sorting options, and `<mark>` keyword highlighting. | ✅ Integrated (v1.3.1) |
 | **Forum Markdown & Code Engine** | Comprehensive Markdown parser supporting bold (`**`), italic (`*`), hyperlinks (`[Text](url)`), inline code (`` `code` ``), fenced multi-line code blocks (```` ```php ... ``` ````) with language badges & 1-click copy, as well as Markdown blockquotes and BBCode quotes (`[quote]`) with live preview. | ✅ Integrated (v1.3.1) |
+| **Forum Alias, Member Privacy & Guest Data Shield** | Public alias display names for administrators & moderators (`use_alias_only`), granular profile visibility controls for members (role, post count, joined date, bio, signature, online status), and strict masking of all user data from unauthenticated guests. | ✅ Integrated (v1.3.3) |
+| **Media Library Picker in Download Manager** | Direct selection of existing files from the Media Library (`uploads/` & `images/uploads/`) with automatic file size and format detection, plus multi-language `[downloads]` shortcode rendering. | ✅ Integrated (v1.3.3) |
 
 ---
 
 ## 📈 Release History & Milestones
+
+### v1.3.3 (Forum Alias & Privacy Controls, Guest Data Protection, Media Library Download Picker & System Fixes)
+
+* **Enhanced Forum User Management, Alias System & Privacy Controls (`weave-forum-users` & `weave-forum`):**
+  * **Modernized Admin User Management UI:** Redesigned member management table featuring search and role filters, initial avatars, role and status pills, alias indicators, and a styled `<dialog>` edit modal matching WeaveCMS design tokens.
+  * **Alias Rights for Administrators & Moderators:** Admins (`forum_admin`) and Moderators (`forum_moderator`) can define a public alias in their profile or the admin backend and opt to display exclusively that alias across the entire forum instead of their real username.
+  * **Granular Member Profile Privacy Settings:** Every member can individually configure which profile details are visible to other logged-in members (role/rank badge, post counter, registration date, bio, post signature, and visibility in the “Who is online” list).
+  * **Strict Guest Data Protection:** Unauthenticated visitors (guests) are shielded from seeing any personal user data or usernames across all forum views (topic and post cards, board index, recent topics, search results, online list, and forum statistics).
+  * **Redesigned “New Topic” Editor:** Full-width Kunena-inspired form layout equipped with an integrated Markdown formatting toolbar (Bold, Italic, Quote, Inline Code, Code Block, Link) and live preview toggle.
+* **Download Manager & Multi-Language (i18n):**
+  * **Media Library File Picker:** In *“Manage Downloads & Software Catalog”*, administrators can now select already uploaded files directly from the Media Library alongside direct file uploads (with automatic file size and extension detection).
+  * **Multi-Language Shortcode Rendering (`[downloads]`):** Reliable detection of the active visitor language (`LanguageManager::getCurrentLanguage()`) across all section templates and shortcode renderers for accurate display of localized titles and descriptions (DE, EN, FR, IT, etc.).
+* **SMTP, Security Audit & Integration Improvements:**
+  * **Contact Form SMTP Sync:** `send_mail.php` reliably loads and synchronizes SMTP settings via `StorageManager` across MySQL/SQLite and JSON drivers.
+  * **POSIX Filesystem Permission Audit (`SecurityManager`):** Accurate bitwise permission check for `config.php` (`0640`/`0644`) and `installed.lock` (`0640`) on Linux production servers without false-positive warnings.
+  * **Universal Integrations (`PluginManager`):** Accurate verification of configured integrations across both plugin config and global data storage (`data['integrations']`).
+
+---
 
 ### v1.3.2 (Global Taxonomies, Tag Archive, Custom Fields & Visual Grid Builder)
 
