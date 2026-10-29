@@ -128,7 +128,25 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                         </div>
                         <div class="form-group">
                             <label for="blog_tags" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.blog.field_tags'); ?></label>
-                            <input type="text" id="blog_tags" name="tags" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.blog.placeholder_tags')); ?>">
+                            <input type="text" id="blog_tags" name="tags" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.blog.placeholder_tags')); ?>" list="all_tags_datalist_blog">
+                            <?php 
+                                $all_known_tags = class_exists('TaxonomyManager') ? TaxonomyManager::getAllTags($data) : [];
+                            ?>
+                            <datalist id="all_tags_datalist_blog">
+                                <?php foreach ($all_known_tags as $tinfo): ?>
+                                    <option value="<?php echo htmlspecialchars($tinfo['name']); ?>"></option>
+                                <?php endforeach; ?>
+                            </datalist>
+                            <?php if (!empty($all_known_tags)): ?>
+                                <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:4px; align-items:center;">
+                                    <span style="font-size:0.75rem; color:var(--text-secondary); margin-right:4px;"><?php echo __a('admin.taxonomy.suggestions', 'Vorschläge:'); ?></span>
+                                    <?php foreach (array_slice($all_known_tags, 0, 10) as $tinfo): ?>
+                                        <button type="button" class="btn btn-secondary" onclick="appendTagToFieldBlog('blog_tags', '<?php echo htmlspecialchars($tinfo['name'], ENT_QUOTES); ?>')" style="padding:2px 8px; font-size:0.75rem; border-radius:999px; background:rgba(255,255,255,0.04); border:1px solid var(--border-color); cursor:pointer;">
+                                            + <?php echo htmlspecialchars($tinfo['name']); ?>
+                                        </button>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -149,6 +167,14 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                             </span>
                         </div>
                         <textarea id="blog_content" name="content" class="form-control" rows="10" placeholder="Schreibe hier deinen Artikel...&#10;&#10;## Eine neue Etappe&#10;In den vergangenen Wochen ist viel passiert...&#10;&#10;- Punkt eins&#10;- Punkt zwei"></textarea>
+                    </div>
+
+                    <div id="blog_custom_fields_container">
+                        <?php 
+                        if (class_exists('CustomFieldManager')) {
+                            echo CustomFieldManager::renderAdminFields('blog', [], $data);
+                        }
+                        ?>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 1.25rem;">
@@ -285,6 +311,17 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                 }
             }
 
+            function appendTagToFieldBlog(fieldId, tag) {
+                const input = document.getElementById(fieldId);
+                if (!input) return;
+                let parts = input.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                if (!parts.includes(tag)) {
+                    parts.push(tag);
+                    input.value = parts.join(', ');
+                }
+                input.focus();
+            }
+
             function openBlogEditor() {
                 document.getElementById('blog_form_action').value = 'add_blog_post';
                 document.getElementById('blog_post_id').value = '';
@@ -302,6 +339,17 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                 document.getElementById('blog_content').value = '';
                 document.getElementById('blog_image').value = '';
                 document.getElementById('blog_current_image_preview').style.display = 'none';
+
+                const cfCont = document.getElementById('blog_custom_fields_container');
+                if (cfCont) {
+                    cfCont.querySelectorAll('input, textarea, select').forEach(el => {
+                        if (el.type === 'checkbox' || el.type === 'radio') {
+                            el.checked = false;
+                        } else {
+                            el.value = '';
+                        }
+                    });
+                }
 
                 const box = document.getElementById('blog-editor-box');
                 box.style.display = 'block';
@@ -325,6 +373,23 @@ $author_default = $data['texts']['contact_name'] ?? 'Maxima Musterfrau';
                 document.getElementById('blog_teaser').value = post.teaser || '';
                 document.getElementById('blog_content').value = post.content || '';
                 document.getElementById('blog_image').value = '';
+
+                const cfCont = document.getElementById('blog_custom_fields_container');
+                if (cfCont) {
+                    const cfValues = post.custom_fields || {};
+                    cfCont.querySelectorAll('input, textarea, select').forEach(el => {
+                        const m = el.name && el.name.match(/^custom_fields\[([^\]]+)\]$/);
+                        if (m) {
+                            const k = m[1];
+                            const val = cfValues[k] !== undefined ? cfValues[k] : '';
+                            if (el.type === 'checkbox') {
+                                el.checked = !!val && val !== '0';
+                            } else {
+                                el.value = val;
+                            }
+                        }
+                    });
+                }
 
                 const prevBox = document.getElementById('blog_current_image_preview');
                 const prevImg = document.getElementById('blog_preview_img');

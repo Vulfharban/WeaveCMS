@@ -994,10 +994,10 @@ hr {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
-.box-soft h3, .box-soft h4, .box-soft h5,
-.box-card h3, .box-card h4, .box-card h5,
-.box-tintable h3, .box-tintable h4, .box-tintable h5 {
-    margin-top: 0;
+.box-soft h1, .box-soft h2, .box-soft h3, .box-soft h4, .box-soft h5,
+.box-card h1, .box-card h2, .box-card h3, .box-card h4, .box-card h5,
+.box-tintable h1, .box-tintable h2, .box-tintable h3, .box-tintable h4, .box-tintable h5 {
+    margin-top: 0 !important;
     margin-bottom: 0.65rem;
     font-weight: 700;
 }
@@ -1186,6 +1186,52 @@ hr {
     background: rgba(13, 110, 253, 0.1);
     color: var(--primary, #0d6efd);
     font-size: 20px;
+}
+
+/* ==========================================================================
+   Spalten- & Grid-Builder (Phase 27.1) – [grid] / [col] Shortcodes
+   ========================================================================== */
+.weave-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+    margin: 1.75rem 0;
+    align-items: start;
+}
+.weave-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.weave-grid-1-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+.weave-grid-2-1 { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.weave-grid-img-text { align-items: center; }
+.weave-col {
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+.weave-col > :first-child { margin-top: 0; }
+.weave-col > :last-child { margin-bottom: 0; }
+.weave-col img { max-width: 100%; height: auto; }
+
+@media (max-width: 768px) {
+    .weave-grid,
+    .weave-grid-3,
+    .weave-grid-1-2,
+    .weave-grid-2-1 {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+}
+
+@media print {
+    .weave-grid {
+        display: block !important;
+    }
+    .weave-col {
+        break-inside: avoid;
+        margin-bottom: 1.5rem;
+    }
+    .box-soft, .box-card, .box-tintable {
+        break-inside: avoid;
+    }
 }
 
 @supports not (overflow-x: clip) {

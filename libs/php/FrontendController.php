@@ -319,6 +319,25 @@ class FrontendController {
             return;
         }
 
+        // Phase 28.1: Prüfung auf Taxonomie-Archivseite: ?tag=slug
+        $requested_tag_slug = trim((string)($_GET['tag'] ?? ''));
+        if (!empty($requested_tag_slug)) {
+            $tag_data = TaxonomyManager::getItemsByTag($data, $requested_tag_slug, $preview_token);
+            $vm['tag_data'] = $tag_data;
+            $vm['meta_title'] = '#' . htmlspecialchars($tag_data['tag']['name']) . ' | ' . ($data['texts']['contact_name'] ?? 'WeaveCMS');
+            $vm['meta_desc'] = 'Inhalte zum Schlagwort #' . htmlspecialchars($tag_data['tag']['name']) . ' auf ' . ($data['texts']['contact_name'] ?? 'WeaveCMS');
+
+            self::renderPartial('head', $vm);
+            self::renderPartial('header_nav', $vm);
+            self::renderPartial('taxonomy_archive', $vm);
+            self::renderPartial('footer', $vm);
+            self::renderPartial('slide_contact', $vm);
+            self::renderPartial('slide_impressum', $vm);
+            self::renderPartial('slide_mobile_nav', $vm);
+            self::renderPartial('scripts', $vm);
+            return;
+        }
+
         // Prüfung auf Freie Einzelseite oder Modulare Landingpage: ?page=slug
         $requested_page_slug = trim($_GET['page'] ?? '');
         $active_page = null;

@@ -13,7 +13,7 @@ SecurityManager::applySecurityHeaders();
 SecurityManager::initSecureSession();
 
 // 2. Version & Basiskonfiguration
-define('WEAVE_VERSION', '1.3.1');
+define('WEAVE_VERSION', '1.3.2');
 
 // 3. Lokale Umgebungskonfiguration laden (falls vorhanden, z. B. für Entwickler-Tokens oder Fallbacks)
 if (file_exists(__DIR__ . '/config.local.php')) {
@@ -44,6 +44,8 @@ require_once __DIR__ . '/libs/php/MediaManager.php';
 require_once __DIR__ . '/libs/php/SeoManager.php';
 require_once __DIR__ . '/libs/php/CoreUpdater.php';
 require_once __DIR__ . '/libs/php/QuickActionManager.php';
+require_once __DIR__ . '/libs/php/TaxonomyManager.php';
+require_once __DIR__ . '/libs/php/CustomFieldManager.php';
 
 // Phase 15 & Plugin-Frühinitialisierung: Sandbox-Plugin einbinden, falls vorhanden
 if (file_exists(__DIR__ . '/plugins/interactive-sandbox/SandboxManager.php')) {
@@ -258,5 +260,40 @@ function __a(string $key, string $default = '', ?string $lang = null, array $par
  */
 function _t(string $key, string $default = '', ?string $lang = null): string {
     return LanguageManager::t($key, $default, $lang);
+}
+
+/**
+ * Liest den Wert eines Custom Fields aus einem Inhalts-Element aus (Phase 28.3).
+ *
+ * @param array $item
+ * @param string $key
+ * @param mixed $default
+ * @return mixed
+ */
+function get_custom_field(array $item, string $key, mixed $default = null): mixed {
+    return CustomFieldManager::getValue($item, $key, $default);
+}
+
+/**
+ * Rendert die Zusatzfelder eines Inhalts-Elements als HTML (Phase 28.3).
+ *
+ * @param array $item
+ * @param string $module
+ * @param array $data
+ * @return string
+ */
+function render_custom_fields(array $item, string $module = 'pages', array $data = []): string {
+    return CustomFieldManager::renderFrontend($item, $module, $data);
+}
+
+/**
+ * Rendert klickbare Schlagwort-Badges für das Frontend (Phase 28.1).
+ *
+ * @param array $tags
+ * @param string $baseUrl
+ * @return string
+ */
+function render_tags(array $tags, string $baseUrl = './'): string {
+    return TaxonomyManager::renderTagBadges($tags, $baseUrl);
 }
 

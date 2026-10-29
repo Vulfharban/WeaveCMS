@@ -86,5 +86,17 @@
     "captcha.prompt_nut": "die Haselnuss",
     "captcha.prompt_blossom": "die rosa Blüte",
     "captcha.prompt_sunflower": "die Sonnenblume",
-    "captcha.prompt_tulip": "die Tulpe"
+    "captcha.prompt_tulip": "die Tulpe",
+    "frontend.tag.archive_label": "Schlagwort-Archiv",
+    "frontend.tag.found_single": "1 passender Inhalt gefunden",
+    "frontend.tag.found_multiple": "{count} passende Inhalte gefunden",
+    "frontend.tag.other_tags": "Weitere Schlagwörter:",
+    "frontend.tag.empty_title": "Keine passenden Inhalte gefunden",
+    "frontend.tag.empty_desc": "Zu diesem Schlagwort wurden derzeit keine aktiven Beiträge, Seiten oder Angebote hinterlegt.",
+    "frontend.tag.sec_blog": "Blog-Artikel",
+    "frontend.tag.sec_pages": "Seiten & Inhalte",
+    "frontend.tag.sec_courses": "Kurse & Workshops",
+    "frontend.tag.sec_gallery": "Galerie & Werkstücke",
+    "frontend.tag.sec_downloads": "Downloads & Dokumente",
+    "btn.view_page": "Seite ansehen"
 }

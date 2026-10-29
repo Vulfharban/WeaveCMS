@@ -817,33 +817,42 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ---
 
 ### Phase 27: Visueller Spalten- & Grid-Builder (v1.4.0)
-*Ziel: Modulare Mehrspaltigkeit (50/50, 3-Spalten, 1/3-2/3) auf Basis reiner, schlanker CSS-Grids ohne externe Frameworks.*
+*Ziel: Modulare Mehrspaltigkeit (50/50, 3-Spalten, 1/3-2/3) auf Basis reiner, schlanker CSS-Grids ohne externe Frameworks – eingebunden als Shortcodes in den bestehenden Einzelseiten-Editor (Markdown-Textarea + Design-Toolbar).*
 
-- [ ] **27.1 Grid-Layout-Komponente im Einzelseiten-Editor:**
-  - Auswahl von 1- bis 3-spaltigen Layouts per Klick (z. B. 50/50, 33/33/33, 1/3 zu 2/3, Bild links / Text rechts).
-  - Saubere HTML/CSS-Struktur ohne Bootstrap oder Tailwind (`<div class="weave-grid weave-grid-2">`).
-  - Native visuelle Spalten-Trenner und Größenanpassung im Editor.
-- [ ] **27.2 Vordefinierte Block-Vorlagen (Presets):**
-  - Schnellauswahl vorgefertigter Content-Blöcke (Hero-Teaser, Testimonial-Card, Call-to-Action Box, Feature-Spalten).
-  - Nahtlose Markdown- und WYSIWYG-Integration innerhalb der einzelnen Spalten.
-- [ ] **27.3 Responsive Breakpoint-Vorschau:**
-  - Umschaltung der Live-Vorschau direkt im Editor auf Desktop (1200 px), Tablet (768 px) und Smartphone (375 px).
-  - Automatisches Stacking (Umbrechen) der Spalten auf mobilen Viewports.
+> **Rahmenbedingungen:** Gilt für Seitentyp `content`. Erweiterung der bestehenden `page-editor-design-toolbar` (Abstimmung erfolgt). Alle neuen UI-Texte (Dropdown-Labels, Vorlagen-Namen, Breakpoint-Buttons, Modal-Titel, Hinweise) werden über die Übersetzungsdateien (`__a()` / Admin-Sprachdateien in allen unterstützten Sprachen) bereitgestellt – keine hartkodierten Strings.
+
+- [x] **27.1 Grid-Shortcodes & Layout-Dropdown:**
+  - Toolbar-Icon-Leiste „Spalten" (50/50, 33/33/33, 1/3 zu 2/3, 2/3 zu 1/3, Bild links / Text rechts) fügt an der Cursorposition `[grid layout="1-2"] [col]…[/col] [col]…[/col] [/grid]` ein.
+  - Verschachtelungsschutz: Beim Versuch, ein Grid innerhalb eines Grids einzufügen, erscheint ein übersetzter Hinweis.
+  - `MarkdownParser::parse()` wandelt `[grid]`/`[col]` vor dem HTML-Schutz in `<div class="weave-grid weave-grid-…">` um; Spalteninhalt wird rekursiv als Markdown (und Shortcodes) gerendert.
+  - Reines CSS-Grid ohne Bootstrap/Tailwind, Spaltenweiten über CSS-Variablen, Stacking per `@media (max-width: 768px)`.
+  - Größenanpassung über Layout-Presets (Drag-Resize bewusst ausgeklammert).
+  - Übersetzungen: neue Admin-Keys in allen Sprachdateien.
+- [x] **27.2 Vorlagen (Presets) & Umstellung der Boxen auf Shortcodes:**
+  - Dropdown „Vorlagen": Hero-Teaser, Testimonial-Card, Call-to-Action Box, Feature-Spalten (zentrale Preset-Registry).
+  - Bestehende Box-Snippets (Sanfte Primär-/Erfolgs-/Bernstein-/Violett-Box, Gradient, Dark/Glass, frei einfärbbar) werden von rohem HTML auf Shortcode-Variante (z. B. `[box style="soft_primary"]…[/box]`, `[box color="#e0f2fe"]`) umgestellt.
+  - Abwärtskompatibilität: bereits gespeicherte HTML-Boxen werden weiterhin korrekt gerendert.
+  - Übersetzungen: Namen der Vorlagen/Boxen und deren Toolbar-Labels in allen Sprachdateien.
+- [x] **27.3 Responsive Breakpoint-Vorschau (Modal):**
+  - Button „Vorschau" im Editor öffnet ein Modal mit `<iframe>`, das den aktuellen Textarea-Inhalt serverseitig rendert (AJAX-Endpunkt mit CSRF-Schutz).
+  - Umschaltung Desktop (1200 px), Tablet (768 px), Smartphone (375 px) über Breakpoint-Buttons.
+  - Automatisches Stacking der Spalten im iframe-Viewport.
+  - Übersetzungen: Modal-Titel, Breakpoint-Bezeichnungen, Fehler-/Ladehinweise in allen Sprachdateien.
 
 ---
 
-### Phase 28: Globale Taxonomien & Custom Fields (v1.4.5)
+### Phase 28: Globale Taxonomien & Custom Fields (v1.3.2)
 *Ziel: Sektionsübergreifendes Tagging und frei definierbare Zusatzfelder für Seiten und Produkte.*
 
-- [ ] **28.1 Sektionsübergreifendes Tagging- & Taxonomie-System:**
+- [x] **28.1 Sektionsübergreifendes Tagging- & Taxonomie-System:**
   - Zentrale Schlagwortverwaltung für Blogartikel, Seiten, Portfolio-Arbeiten und Shop-Produkte.
   - Globale Filterung und Taxonomie-Archivseiten im Frontend (`/tag/{slug}`).
   - Tag-Cloud- und Autovervollständigungs-Widget im Backend.
-- [ ] **28.2 Custom Fields Manager:**
+- [x] **28.2 Custom Fields Manager:**
   - Frei definierbare Zusatzfelder pro Inhaltsmodul (z. B. Seiten, Produkte, Kurse).
   - Unterstützte Feldtypen: Textzeile, Textbereich, Zahl, Checkbox/Bool, Hyperlink, Datumsfeld, Datei-/PDF-Anhang.
   - Validierungsregeln (Pflichtfeld, Regex, Min/Max).
-- [ ] **28.3 Dynamische Frontend-Ausgabe & Templating:**
+- [x] **28.3 Dynamische Frontend-Ausgabe & Templating:**
   - Automatisches Rendern der Custom Fields in Sektionen oder Abruf via Helfer-Funktion `get_custom_field($item, 'field_key')`.
   - Schema.org-Attribut-Mapping für benutzerdefinierte Datenfelder.
 
@@ -891,4 +900,17 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 - [ ] **31.3 Webhook-Log & Wiederholungsversuche:**
   - Protokollierung ausgehender Webhook-Aufrufe (HTTP-Statuscode, Payload, Antwortzeit) im Adminbereich mit manuellem Re-Trigger.
 
+---
+
+### Phase 32: Grid-Builder für modulare Seiten (Sektionen-Stack) (v1.5.5)
+*Ziel: Die Spalten- und Layout-Funktionen aus Phase 27 auch für Seiten vom Typ `modular` (Landingpage-Stack) nutzbar machen.*
+
+- [ ] **32.1 Spalten-Layouts auf Sektions-Ebene:**
+  - Auswahl eines Spalten-Layouts pro Sektion im Sektionen-Stack (z. B. zwei Sektionen nebeneinander, 1/3 zu 2/3).
+  - Wiederverwendung der `weave-grid`-CSS-Klassen und Shortcode-/Renderlogik aus Phase 27.
+- [ ] **32.2 Grid-Shortcodes in Inhaltsfeldern der Sektionen:**
+  - Toolbar (Layout, Vorlagen, Boxen) in Textfeldern von Sektionen wie `custom_text`, `about` usw.
+- [ ] **32.3 Vorschau & Übersetzungen:**
+  - Breakpoint-Vorschau-Modal für modulare Seiten.
+  - Alle neuen UI-Texte in den Übersetzungsdateien aller Sprachen.
 

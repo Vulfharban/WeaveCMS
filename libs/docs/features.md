@@ -85,6 +85,9 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Automatische WebP- & AVIF-Bildpipeline (Phase 22)** | Vollautomatische Konvertierung aller hochgeladenen Bilder via PHP `gd` in komprimierte WebP- und AVIF-Formate sowie Generierung responsiver Größen (`thumb`: 350px, `medium`: 800px, `large`: 1400px). | ✅ Integriert (v1.3.0) |
 | **HTML5 &lt;picture&gt;- &amp; srcset-Helfer (Phase 22)** | Automatische Bereitstellung von performantem `<picture>`-Markup (`MediaManager::renderPictureTag`) mit modernstem Format-Fallback für maximale Ladezeiten. | ✅ Integriert (v1.3.0) |
 | **Multi-Upload &amp; 7Z-Archiv-Unterstützung (Phase 22)** | Drag &amp; Drop Mehrfach-Upload mit Fortschrittsbalken und automatischer Dateinamens-Bereinigung. Unterstützung für JPG, PNG, WebP, GIF, SVG, PDF, ZIP, 7Z (proprietäre Office-Formate zugunsten von sauberem PDF-Export ausgeschlossen). | ✅ Integriert (v1.3.0) |
+| **Visueller Grid-Builder & Spalten-Shortcodes (Phase 27)** | Modulare Mehrspaltigkeit (`[grid]` / `[col]`), Presets (Hero, Testimonial, Call-to-Action), moderne `[box]`-Shortcodes und responsive 3-Stufen-Breakpoint-Vorschau (Desktop, Tablet, Smartphone). | ✅ Integriert (v1.3.2) |
+| **Globale Taxonomien & Tag-Archiv (Phase 28.1)** | Modulübergreifendes Schlagwortsystem für Blog, Seiten, Kurse, Galerie und Downloads mit responsiver Archivseite (`?tag=slug`), Filter-Cloud und Backend-Autovervollständigung via Datalist. | ✅ Integriert (v1.3.2) |
+| **Custom Fields & Daten-Attribute (Phase 28.2 & 28.3)** | Frei definierbare strukturierte Zusatzfelder je Modul (Text, Textarea, Zahl, Schalter, URL, Datum, Datei) mit automatischer Validierung, Admin-Masken und Templating-Helfern `get_custom_field()` und `render_custom_fields()`. | ✅ Integriert (v1.3.2) |
 
 ---
 
@@ -186,6 +189,26 @@ WeaveCMS wurde entwickelt, um die Lücke zwischen überladenen Standard-CMS (wie
 | **Frontend-Moderationszentrale** | Eigener Frontend-Reiter *„🛡️ Moderation“* (`?page=forum&view=moderation`) für Administratoren und Moderatoren mit Beitragsmeldungs-Queue, Schnellaktionen und Audit-Log. | ✅ Integriert (v1.3.1) |
 | **Erweiterte Forensuche mit Bereichsfilter** | Schnelle Volltextsuche mit Dropdown-Filterung nach Unterforen (inkl. Optgroups nach Kategorien), Wahl des Suchbereichs (*Beiträge & Titel* vs. *Nur Titel*), Sortierung und `<mark>`-Hervorhebung. | ✅ Integriert (v1.3.1) |
 | **Foren-Markdown- & Code-Engine** | Umfassender Markdown-Parser mit Unterstützung für Fett (`**`), Kursiv (`*`), Hyperlinks (`[Text](url)`), Inline-Code (`code`), mehrzeilige Fenced Code-Blöcke (`php ...`) mit Sprach-Badge & 1-Klick-Kopieren sowie Markdown- und BBCode-Zitate (`[quote]`) inkl. Live-Vorschau. | ✅ Integriert (v1.3.1) |
+
+---
+
+### v1.3.2 (Globale Taxonomien, Tag-Archiv, Custom Fields & Visueller Grid-Builder)
+
+* **Globale Taxonomien & Modulübergreifendes Tagging (Phase 28.1):**
+  * **Modulübergreifende Schlagwort-Engine (`TaxonomyManager`):** Aggregiert und normalisiert Tags aus Blogartikeln, Einzelseiten, Kursen, Galerie-Einträgen und Downloads mit konsistentem Slugify-Verfahren (`ä`->`ae`, `ö`->`oe`, `ü`->`ue`, `ß`->`ss`).
+  * **Responsive Tag-Archivseiten im Frontend (`?tag={slug}`):** Übersichtliche Archivansicht mit Trefferzähler, Modul-Kategorisierung (Blog, Einzelseiten, Kurse, Galerie, Downloads), Schnellfilter-Cloud und dynamischer Lokalisierung via `LanguageManager::t()`.
+  * **Interaktives Tagging im Adminbereich:** Schnellauswahl bestehender Schlagwörter über HTML5 Datalists und Klick-Badges in Blog- und Einzelseiten-Formularen mit automatischer Autovervollständigung.
+* **Custom Fields Manager (Phase 28.2):**
+  * **Frei definierbare Zusatzfelder:** Konfiguration strukturierter Datenfelder für Seiten (`pages`), Blog (`blog`), Kurse (`courses`) und Downloads (`downloads`) direkt im Administrationsbereich unter *Darstellung & Design* (`tab_settings.php`).
+  * **7 flexible Feldtypen:** Einzeiliger Text (`text`), Mehrzeiliger Text (`textarea`), Zahl (`number`), Schalter/Checkbox (`boolean`), Webadresse (`url`), Datum (`date`) und Datei/Pfad (`file`) mit Pflichtfeld-Prüfung (`required`), Platzhaltern und Hilfetexten.
+  * **Automatische Validierung & Speicherung:** Typsichere Extraktion und Prüfung (`CustomFieldManager::extractAndValidate`) beim Speichern von Seiten und Blogbeiträgen.
+* **Dynamische Frontend-Ausgabe & Templating (Phase 28.3):**
+  * **Globale Templating-Helfer:** `get_custom_field($item, $key, $default)` zur gezielten Abfrage einzelner Zusatzfelder sowie `render_custom_fields($item, $module)` für die automatische, responsive Ausgabe von Attribut-Listen.
+  * **Nahtlose Integration:** Automatische Darstellung klickbarer Tag-Badges (`TaxonomyManager::renderTagBadges`) und definierter Zusatzfelder auf Blog-Artikelseiten (`blog_single.php`) und Einzelseiten (`page_single.php`).
+* **Visueller Spalten- & Grid-Builder (Phase 27):**
+  * **Grid-Shortcodes (`[grid]` / `[col]`):** Layout-Presets (50/50, 3-Spalten, 1/3-2/3, 2/3-1/3) im Einzelseiten-Editor mit reiner CSS-Grid-Basis, Stacking auf Mobilgeräten und Verschachtelungsschutz.
+  * **Preset-Vorlagen & Shortcode-Boxen:** Hero-Teaser, Testimonial-Card, Call-to-Action und moderne `[box]`-Shortcodes.
+  * **Responsive Breakpoint-Vorschau:** Modal mit interaktivem `<iframe>` zur Live-Vorschau in Desktop- (1200px), Tablet- (768px) und Smartphone-Ansicht (375px).
 
 ---
 

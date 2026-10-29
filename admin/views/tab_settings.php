@@ -984,4 +984,303 @@
                     <span class="material-icons" style="font-size:18px; vertical-align:middle;">save</span> Darstellung &amp; Design speichern
                 </button>
             </form>
+
+            <!-- ==========================================================
+                 GLOBALE TAXONOMIE & CUSTOM FIELDS (PHASE 28.2)
+                 ========================================================== -->
+            <div style="margin-top: 3.5rem; border-top: 2px dashed var(--border-color); padding-top: 2rem;">
+                <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; display:flex; align-items:center; gap:8px; color:var(--primary);">
+                    <span class="material-icons" style="font-size:24px;">tune</span> <?php echo __a('admin.custom_fields.title', 'Zusatzfelder & Attribute (Custom Fields)'); ?>
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height:1.5;">
+                    <?php echo __a('admin.custom_fields.desc', 'Definiere modulübergreifend eigene strukturierte Datenfelder (z. B. Untertitel, Lesedauer, externe Links oder Kennzahlen). Diese Felder erscheinen automatisch in der Eingabemaske des jeweiligen Moduls und können im Frontend ausgegeben werden.'); ?>
+                </p>
+
+                <?php 
+                    $cf_modules = [
+                        'pages'     => ['name' => __a('admin.custom_fields.mod_pages', 'Seiten (Pages)'), 'icon' => 'article'],
+                        'blog'      => ['name' => __a('admin.custom_fields.mod_blog', 'Blog & Magazin'), 'icon' => 'newspaper'],
+                        'courses'   => ['name' => __a('admin.custom_fields.mod_courses', 'Kurse & Workshops'), 'icon' => 'event'],
+                        'downloads' => ['name' => __a('admin.custom_fields.mod_downloads', 'Downloads & Dateien'), 'icon' => 'folder_zip']
+                    ];
+                    $initial_cf_defs = $data['custom_fields_def'] ?? [];
+                    $cf_types = class_exists('CustomFieldManager') ? CustomFieldManager::getSupportedTypes() : [
+                        'text'     => 'Einzeiliger Text (text)',
+                        'textarea' => 'Mehrzeiliger Text (textarea)',
+                        'number'   => 'Zahl (number)',
+                        'boolean'  => 'Schalter / Checkbox (boolean)',
+                        'url'      => 'Webadresse / URL (url)',
+                        'date'     => 'Datum (date)',
+                        'file'     => 'Datei / Pfad (file)',
+                    ];
+                ?>
+
+                <!-- Modul-Auswahl Pills -->
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1.5rem;">
+                    <?php foreach ($cf_modules as $mod_key => $mod_info): ?>
+                        <button type="button" class="btn btn-secondary cf-mod-tab-btn" id="cf_tab_btn_<?php echo $mod_key; ?>" onclick="switchCfModule('<?php echo $mod_key; ?>')" style="padding:8px 16px; font-size:0.9rem; border-radius:10px; display:inline-flex; align-items:center; gap:6px;">
+                            <span class="material-icons" style="font-size:18px;"><?php echo $mod_info['icon']; ?></span>
+                            <?php echo htmlspecialchars($mod_info['name']); ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+
+                <form method="POST" action="" id="custom_fields_def_form" onsubmit="return submitCfDefinitions();">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                    <input type="hidden" name="action" value="save_custom_fields_def">
+                    <input type="hidden" name="target_tab" value="tab-settings">
+                    <input type="hidden" name="cf_module" id="cf_active_module_input" value="pages">
+                    <input type="hidden" name="cf_definitions_json" id="cf_definitions_json_input" value="">
+
+                    <!-- Tabellen-Box für das aktive Modul -->
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:14px; padding:1.5rem; margin-bottom:1.5rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <h4 id="cf_current_mod_title" style="margin:0; font-size:1.1rem; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+                                    <span class="material-icons" style="color:var(--primary); font-size:20px;">layers</span>
+                                    <span>Seiten (Pages)</span>
+                                </h4>
+                                <span style="font-size:0.82rem; color:var(--text-secondary);"><?php echo __a('admin.custom_fields.table_hint', 'Konfigurierte Zusatzfelder für dieses Modul:'); ?></span>
+                            </div>
+                            <button type="button" class="btn btn-secondary" onclick="toggleAddCfBox()" style="padding:6px 14px; font-size:0.85rem; border-radius:8px;">
+                                <span class="material-icons" style="font-size:16px;">add</span> <?php echo __a('admin.custom_fields.btn_new_field', 'Neues Feld hinzufügen'); ?>
+                            </button>
+                        </div>
+
+                        <!-- Tabelle -->
+                        <div style="overflow-x:auto;">
+                            <table class="table" style="width:100%; border-collapse:collapse; text-align:left; font-size:0.88rem;">
+                                <thead>
+                                    <tr style="border-bottom:1px solid var(--border-color); color:var(--text-secondary);">
+                                        <th style="padding:8px 12px;"><?php echo __a('admin.custom_fields.col_key', 'Schlüssel (Key)'); ?></th>
+                                        <th style="padding:8px 12px;"><?php echo __a('admin.custom_fields.col_label', 'Bezeichnung (Label)'); ?></th>
+                                        <th style="padding:8px 12px;"><?php echo __a('admin.custom_fields.col_type', 'Typ'); ?></th>
+                                        <th style="padding:8px 12px;"><?php echo __a('admin.custom_fields.col_required', 'Pflichtfeld'); ?></th>
+                                        <th style="padding:8px 12px;"><?php echo __a('admin.custom_fields.col_help', 'Hilfetext / Platzhalter'); ?></th>
+                                        <th style="padding:8px 12px; text-align:right;"><?php echo __a('admin.custom_fields.col_actions', 'Aktion'); ?></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cf_fields_table_body">
+                                    <!-- Dynamisch gefüllt per JS -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Inline Form: Neues Feld anlegen -->
+                        <div id="cf_new_field_drawer" style="display:none; background:rgba(0,0,0,0.03); border:1px solid var(--border-color); border-radius:10px; padding:1.25rem; margin-top:1.5rem;">
+                            <h5 style="margin:0 0 1rem 0; font-size:0.95rem; color:var(--primary); display:flex; align-items:center; gap:6px;">
+                                <span class="material-icons" style="font-size:18px;">add_circle_outline</span> <?php echo __a('admin.custom_fields.drawer_title', 'Neues Zusatzfeld definieren'); ?>
+                            </h5>
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1rem;">
+                                <div class="form-group">
+                                    <label style="font-weight:700; font-size:0.82rem; color:var(--text-primary); display:block; margin-bottom:4px;"><?php echo __a('admin.custom_fields.col_key', 'Schlüssel (Key)'); ?> *</label>
+                                    <input type="text" id="new_cf_key" class="form-control" placeholder="z. B. subtitle oder reading_time" style="font-size:0.85rem;" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, '_');">
+                                    <small style="font-size:0.72rem; color:var(--text-secondary);"><?php echo __a('admin.custom_fields.key_hint', 'Kleinbuchstaben, Zahlen und Unterstriche.'); ?></small>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight:700; font-size:0.82rem; color:var(--text-primary); display:block; margin-bottom:4px;"><?php echo __a('admin.custom_fields.col_label', 'Bezeichnung (Label)'); ?> *</label>
+                                    <input type="text" id="new_cf_label" class="form-control" placeholder="z. B. Untertitel" style="font-size:0.85rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight:700; font-size:0.82rem; color:var(--text-primary); display:block; margin-bottom:4px;"><?php echo __a('admin.custom_fields.col_type', 'Typ'); ?></label>
+                                    <select id="new_cf_type" class="form-control" style="font-size:0.85rem;">
+                                        <?php foreach ($cf_types as $t_key => $t_label): ?>
+                                            <option value="<?php echo htmlspecialchars($t_key); ?>"><?php echo htmlspecialchars($t_label); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1rem;">
+                                <div class="form-group">
+                                    <label style="font-weight:700; font-size:0.82rem; color:var(--text-primary); display:block; margin-bottom:4px;"><?php echo __a('admin.custom_fields.placeholder_field', 'Platzhalter (optional)'); ?></label>
+                                    <input type="text" id="new_cf_placeholder" class="form-control" placeholder="z. B. Kurzer Teaser..." style="font-size:0.85rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight:700; font-size:0.82rem; color:var(--text-primary); display:block; margin-bottom:4px;"><?php echo __a('admin.custom_fields.help_field', 'Hilfetext (optional)'); ?></label>
+                                    <input type="text" id="new_cf_help" class="form-control" placeholder="z. B. Wird unter der Überschrift angezeigt" style="font-size:0.85rem;">
+                                </div>
+                                <div class="form-group" style="display:flex; align-items:flex-end;">
+                                    <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; padding-bottom:8px;">
+                                        <input type="checkbox" id="new_cf_required" value="1" style="width:16px; height:16px; accent-color:var(--primary);">
+                                        <span><?php echo __a('admin.custom_fields.required_checkbox', 'Eingabe ist Pflichtfeld'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" class="btn btn-primary" onclick="addCfFieldToList()" style="padding:6px 14px; font-size:0.85rem;">
+                                    <span class="material-icons" style="font-size:16px;">check</span> <?php echo __a('admin.custom_fields.btn_confirm_add', 'Feld übernehmen'); ?>
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="toggleAddCfBox(false)" style="padding:6px 12px; font-size:0.85rem;">
+                                    <?php echo __a('admin.custom_fields.btn_cancel', 'Abbrechen'); ?>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="material-icons" style="font-size:18px;">save</span> <span id="cf_submit_btn_label"><?php echo __a('admin.custom_fields.btn_save_module', 'Zusatzfelder speichern'); ?></span>
+                        </button>
+                        <span style="font-size:0.82rem; color:var(--text-secondary);">
+                            <?php echo __a('admin.custom_fields.hint_persist', 'Änderungen werden nach dem Klick auf Speichern im CMS gesichert.'); ?>
+                        </span>
+                    </div>
+                </form>
+            </div>
+
+            <script>
+                const ALL_CF_MODULES = <?php echo json_encode($cf_modules); ?>;
+                const ALL_CF_DEFS = <?php echo json_encode($initial_cf_defs); ?>;
+                let activeCfModule = 'pages';
+
+                function switchCfModule(modKey) {
+                    if (!ALL_CF_MODULES[modKey]) return;
+                    activeCfModule = modKey;
+                    document.getElementById('cf_active_module_input').value = modKey;
+
+                    document.querySelectorAll('.cf-mod-tab-btn').forEach(btn => {
+                        btn.style.background = 'rgba(255,255,255,0.05)';
+                        btn.style.borderColor = 'var(--border-color)';
+                        btn.style.color = 'var(--text-primary)';
+                    });
+                    const activeBtn = document.getElementById('cf_tab_btn_' + modKey);
+                    if (activeBtn) {
+                        activeBtn.style.background = 'var(--primary)';
+                        activeBtn.style.borderColor = 'var(--primary)';
+                        activeBtn.style.color = '#ffffff';
+                    }
+
+                    const modInfo = ALL_CF_MODULES[modKey];
+                    const titleEl = document.getElementById('cf_current_mod_title');
+                    if (titleEl) {
+                        titleEl.innerHTML = '<span class="material-icons" style="color:var(--primary); font-size:20px;">' + escapeHtml(modInfo.icon) + '</span> ' + escapeHtml(modInfo.name);
+                    }
+
+                    renderCfTable();
+                    toggleAddCfBox(false);
+                }
+
+                function renderCfTable() {
+                    const tbody = document.getElementById('cf_fields_table_body');
+                    if (!tbody) return;
+                    const fields = Array.isArray(ALL_CF_DEFS[activeCfModule]) ? ALL_CF_DEFS[activeCfModule] : [];
+                    tbody.innerHTML = '';
+
+                    if (fields.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="padding:1.5rem; text-align:center; color:var(--text-secondary);">' + <?php echo json_encode(__a('admin.custom_fields.empty', 'Noch keine Zusatzfelder für dieses Modul definiert. Klicke auf „Neues Feld hinzufügen“.')); ?> + '</td></tr>';
+                        return;
+                    }
+
+                    fields.forEach((f, idx) => {
+                        const tr = document.createElement('tr');
+                        tr.style.borderBottom = '1px solid var(--border-color)';
+
+                        const reqBadge = f.required 
+                            ? '<span style="color:#ef4444; font-weight:700;">Ja</span>' 
+                            : '<span style="color:var(--text-secondary);">Nein</span>';
+
+                        const extra = [f.placeholder ? ('Placeholder: ' + escapeHtml(f.placeholder)) : '', f.help ? ('Hilfe: ' + escapeHtml(f.help)) : ''].filter(Boolean).join(' | ');
+
+                        tr.innerHTML = `
+                            <td style="padding:10px 12px;"><code style="color:var(--primary); font-weight:700;">${escapeHtml(f.key)}</code></td>
+                            <td style="padding:10px 12px; font-weight:600; color:var(--text-primary);">${escapeHtml(f.label)}</td>
+                            <td style="padding:10px 12px;"><span style="background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:6px; font-size:0.8rem;">${escapeHtml(f.type || 'text')}</span></td>
+                            <td style="padding:10px 12px;">${reqBadge}</td>
+                            <td style="padding:10px 12px; color:var(--text-secondary); font-size:0.8rem;">${extra || '—'}</td>
+                            <td style="padding:10px 12px; text-align:right;">
+                                <button type="button" class="btn btn-danger" onclick="removeCfField(${idx})" style="padding:4px 8px; font-size:0.75rem; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3);" title="Feld entfernen">
+                                    <span class="material-icons" style="font-size:15px;">delete</span>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                function toggleAddCfBox(show) {
+                    const box = document.getElementById('cf_new_field_drawer');
+                    if (!box) return;
+                    if (show === undefined) {
+                        box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+                    } else {
+                        box.style.display = show ? 'block' : 'none';
+                    }
+                    if (box.style.display === 'block') {
+                        document.getElementById('new_cf_key').value = '';
+                        document.getElementById('new_cf_label').value = '';
+                        document.getElementById('new_cf_placeholder').value = '';
+                        document.getElementById('new_cf_help').value = '';
+                        document.getElementById('new_cf_required').checked = false;
+                        document.getElementById('new_cf_key').focus();
+                    }
+                }
+
+                function addCfFieldToList() {
+                    const keyInput = document.getElementById('new_cf_key');
+                    const labelInput = document.getElementById('new_cf_label');
+                    const typeInput = document.getElementById('new_cf_type');
+                    const phInput = document.getElementById('new_cf_placeholder');
+                    const helpInput = document.getElementById('new_cf_help');
+                    const reqInput = document.getElementById('new_cf_required');
+
+                    const key = (keyInput.value || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+                    const label = (labelInput.value || '').trim();
+
+                    if (!key) {
+                        alert('Bitte gib einen gültigen technischen Schlüssel (Key) ein.');
+                        keyInput.focus();
+                        return;
+                    }
+                    if (!label) {
+                        alert('Bitte gib eine Bezeichnung (Label) ein.');
+                        labelInput.focus();
+                        return;
+                    }
+
+                    if (!Array.isArray(ALL_CF_DEFS[activeCfModule])) {
+                        ALL_CF_DEFS[activeCfModule] = [];
+                    }
+
+                    const exists = ALL_CF_DEFS[activeCfModule].some(f => f.key === key);
+                    if (exists) {
+                        alert('Ein Feld mit dem Schlüssel „' + key + '“ existiert in diesem Modul bereits.');
+                        keyInput.focus();
+                        return;
+                    }
+
+                    ALL_CF_DEFS[activeCfModule].push({
+                        key: key,
+                        label: label,
+                        type: typeInput.value || 'text',
+                        required: !!reqInput.checked,
+                        placeholder: (phInput.value || '').trim(),
+                        help: (helpInput.value || '').trim()
+                    });
+
+                    renderCfTable();
+                    toggleAddCfBox(false);
+                }
+
+                function removeCfField(index) {
+                    if (!Array.isArray(ALL_CF_DEFS[activeCfModule])) return;
+                    if (confirm('Möchtest du dieses Feld wirklich aus der Definition entfernen?')) {
+                        ALL_CF_DEFS[activeCfModule].splice(index, 1);
+                        renderCfTable();
+                    }
+                }
+
+                function submitCfDefinitions() {
+                    const fields = Array.isArray(ALL_CF_DEFS[activeCfModule]) ? ALL_CF_DEFS[activeCfModule] : [];
+                    document.getElementById('cf_definitions_json_input').value = JSON.stringify(fields);
+                    return true;
+                }
+
+                function escapeHtml(str) {
+                    return (str || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                }
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    switchCfModule('pages');
+                });
+            </script>
         </div>

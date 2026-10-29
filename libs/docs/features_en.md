@@ -77,6 +77,9 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 | **Module Pool & Section Layout Board (Phase 20)** | Interactive 2-zone Drag & Drop board (inactive Module Pool vs. Active Sections) for intuitive website architecture management. | ✅ Integrated (v1.0.0) |
 | **Dynamic Content Sub-Navigation (Phase 20)** | Backend sub-navigation tabs under "Content & Pages" are dynamically filtered to show only active modules. | ✅ Integrated (v1.0.0) |
 | **Responsive Touch Switcher for Board (Phase 20)** | Tablet and mobile optimized board controls (<= 900px) with view switching (`view-active` / `view-pool`) and 1-tap actions (+ Activate, Reorder, Settings). | ✅ Integrated (v1.0.0) |
+| **Visual Column & Grid Builder (Phase 27)** | Modular multi-column layouts (`[grid]` / `[col]`), layout presets (Hero, Testimonials, Call-to-Action), modernized `[box]` shortcodes, and responsive 3-breakpoint live preview (Desktop, Tablet, Mobile). | ✅ Integrated (v1.3.2) |
+| **Global Taxonomies & Tag Archive (Phase 28.1)** | Cross-module tagging for blog articles, standalone pages, courses, gallery items, and downloads with responsive tag archives (`?tag=slug`), filter cloud, and admin autocompletion via datalist. | ✅ Integrated (v1.3.2) |
+| **Custom Fields & Structured Attributes (Phase 28.2 & 28.3)** | Configurable structured fields per module (text, textarea, number, boolean, url, date, file) with automatic validation, admin editor inputs, and frontend helper functions `get_custom_field()` and `render_custom_fields()`. | ✅ Integrated (v1.3.2) |
 
 ---
 
@@ -181,6 +184,26 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 ---
 
 ## 📈 Release History & Milestones
+
+### v1.3.2 (Global Taxonomies, Tag Archive, Custom Fields & Visual Grid Builder)
+
+* **Global Taxonomies & Cross-Module Tagging (Phase 28.1):**
+  * **Unified Tagging Engine (`TaxonomyManager`):** Aggregates and normalizes tags across blog posts, custom pages, courses, gallery items, and downloads with consistent slugification.
+  * **Responsive Frontend Tag Archives (`?tag={slug}`):** Clean archive view featuring hit counter, module-categorized results (blog, pages, courses, gallery, downloads), quick-filter cloud, and dynamic localization via `LanguageManager::t()`.
+  * **Interactive Admin Tagging:** Quick selection of existing tags using HTML5 datalists and interactive click pills with auto-completion in blog and page editors.
+* **Custom Fields Manager (Phase 28.2):**
+  * **Configurable Structured Fields:** Define custom data attributes for pages (`pages`), blog (`blog`), courses (`courses`), and downloads (`downloads`) directly in *Settings & Design* (`tab_settings.php`).
+  * **7 Supported Field Types:** Single-line text (`text`), multi-line text (`textarea`), numeric (`number`), toggle switch (`boolean`), web link (`url`), date (`date`), and file upload/path (`file`) with required validation, placeholders, and helper texts.
+  * **Automated Form Handling & Validation:** Type-safe extraction and validation (`CustomFieldManager::extractAndValidate`) during page and blog post saves.
+* **Dynamic Frontend Rendering & Templating (Phase 28.3):**
+  * **Global Template Helpers:** `get_custom_field($item, $key, $default)` for targeted field lookups and `render_custom_fields($item, $module)` for automated, responsive key-value attribute displays.
+  * **Seamless Page Integration:** Automatic rendering of clickable tag badges (`TaxonomyManager::renderTagBadges`) and custom attributes on blog article pages (`blog_single.php`) and standalone pages (`page_single.php`).
+* **Visual Column & Grid Builder (Phase 27):**
+  * **Grid Shortcodes (`[grid]` / `[col]`):** Layout presets (50/50, 3-column, 1/3-2/3, 2/3-1/3) in the content editor powered by clean CSS grid with mobile stacking and nesting protection.
+  * **Reusable Presets & Modern Boxes:** Hero teaser, testimonial card, call-to-action block, and modern shortcode-based `[box]` containers.
+  * **Responsive Breakpoint Preview:** Modal with interactive `<iframe>` for real-time preview across Desktop (1200px), Tablet (768px), and Smartphone (375px) viewports.
+
+---
 
 ### v1.3.1 (Community Discussion Forum, Access Control, Kunena UI & Markdown Engine)
 

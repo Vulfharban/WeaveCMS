@@ -89,12 +89,8 @@ $blog_subtitle = !empty($data['texts']['blog_subtitle']) ? $data['texts']['blog_
                         <?php endif; ?>
 
                         <?php if (!empty($p_tags)): ?>
-                            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:1.25rem;">
-                                <?php foreach ($p_tags as $t): ?>
-                                    <span style="font-size:0.75rem; padding:2px 8px; border-radius:999px; background:rgba(0,0,0,0.04); color:var(--text-secondary);">
-                                        #<?php echo htmlspecialchars($t); ?>
-                                    </span>
-                                <?php endforeach; ?>
+                            <div style="margin-bottom:1.25rem;">
+                                <?php echo TaxonomyManager::renderTagBadges($p_tags); ?>
                             </div>
                         <?php endif; ?>
 

@@ -33,6 +33,11 @@ $card_padding = $is_forum_page ? '1.5rem 1.5rem' : '2.5rem 3rem';
     <article class="card" style="padding: <?php echo $card_padding; ?>; border-radius: var(--card-radius, 24px); box-shadow: 0 8px 30px rgba(0,0,0,0.06);">
         <?php if (!$is_forum_page): ?>
             <header style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+                <?php if (!empty($active_page['tags'])): ?>
+                    <div style="margin-bottom: 0.75rem;">
+                        <?php echo TaxonomyManager::renderTagBadges($active_page['tags'], $home_url); ?>
+                    </div>
+                <?php endif; ?>
                 <h1 style="font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.5rem; color: var(--text-primary);">
                     <?php echo $p_title; ?>
                 </h1>
@@ -43,5 +48,8 @@ $card_padding = $is_forum_page ? '1.5rem 1.5rem' : '2.5rem 3rem';
         <div class="page-body" style="font-size: 1.05rem; line-height: 1.8; color: var(--text-primary);">
             <?php echo $p_content_html; ?>
         </div>
+
+        <!-- Dynamische Zusatzfelder (Phase 28.3) -->
+        <?php echo render_custom_fields($active_page, 'pages', $data); ?>
     </article>
 </div>

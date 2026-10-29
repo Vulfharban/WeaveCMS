@@ -195,6 +195,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
+// 6.1b AJAX Action: Responsive Breakpoint-Vorschau für Seiten-Editor (Phase 27.3)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'preview_page_content') {
+    if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        http_response_code(403);
+        echo '<p style="color:red; font-family:sans-serif; padding:1rem;">' . htmlspecialchars(__a('admin.pages.csrf_error', 'Sicherheitswarnung: CSRF-Token ungültig oder abgelaufen.'), ENT_QUOTES, 'UTF-8') . '</p>';
+        exit;
+    }
+    $raw_content = (string)($_POST['content'] ?? '');
+    $title = htmlspecialchars((string)($_POST['title'] ?? 'Vorschau'), ENT_QUOTES, 'UTF-8');
+    
+    // Markdown & Shortcodes rendern
+    $parsed_content = MarkdownParser::parse($raw_content);
+    $html_content = PluginManager::applyFilters('content_shortcodes', $parsed_content, $data);
+
+    // CSS-Assets ermitteln
+    $styles_ver = file_exists('../libs/css/styles.css') ? filemtime('../libs/css/styles.css') : time();
+    $base_ver = file_exists('../libs/css/base.css') ? filemtime('../libs/css/base.css') : time();
+
+    // Design-Variablen
+    $bg_color = $data['settings']['bg_color'] ?? '#fcfbf9';
+    $primary_color = $data['settings']['primary_color'] ?? '#2c5e3b';
+    $accent_color = $data['settings']['accent_color'] ?? '#d97706';
+    $container_width = $data['settings']['container_width'] ?? '1200px';
+    $font_scale = $data['settings']['font_scale'] ?? '100%';
+    $card_radius = $data['settings']['card_radius'] ?? '16px';
+    $gallery_gap = $data['settings']['gallery_gap'] ?? '1.5rem';
+
+    header('Content-Type: text/html; charset=utf-8');
+    ?>
+    <!DOCTYPE html>
+    <html lang="<?php echo htmlspecialchars($admin_lang); ?>">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><?php echo $title; ?></title>
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link href="../libs/css/styles.css?v=<?php echo $styles_ver; ?>" rel="stylesheet">
+        <link href="../libs/css/base.css?v=<?php echo $base_ver; ?>" rel="stylesheet">
+        <style>
+            :root {
+                --bg-dark: <?php echo htmlspecialchars($bg_color, ENT_QUOTES, 'UTF-8'); ?>;
+                --primary: <?php echo htmlspecialchars($primary_color, ENT_QUOTES, 'UTF-8'); ?>;
+                --accent: <?php echo htmlspecialchars($accent_color, ENT_QUOTES, 'UTF-8'); ?>;
+                --container-max-width: <?php echo htmlspecialchars($container_width, ENT_QUOTES, 'UTF-8'); ?>;
+                --font-scale: <?php echo htmlspecialchars($font_scale, ENT_QUOTES, 'UTF-8'); ?>;
+                --card-radius: <?php echo htmlspecialchars($card_radius, ENT_QUOTES, 'UTF-8'); ?>;
+                --gallery-gap: <?php echo htmlspecialchars($gallery_gap, ENT_QUOTES, 'UTF-8'); ?>;
+            }
+            body {
+                background: var(--bg-dark, #fcfbf9);
+                color: var(--text-primary, #2d2620);
+                font-family: 'Outfit', sans-serif;
+                margin: 0;
+                padding: 1.5rem;
+                box-sizing: border-box;
+            }
+            .preview-page-card {
+                background: #ffffff;
+                border-radius: var(--card-radius, 16px);
+                border: 1px solid var(--border-color, rgba(62,50,40,0.12));
+                padding: 2rem 2.5rem;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                max-width: 100%;
+                margin: 0 auto;
+                box-sizing: border-box;
+            }
+            @media (max-width: 768px) {
+                body { padding: 0.75rem; }
+                .preview-page-card { padding: 1.25rem 1rem; }
+            }
+        </style>
+    </head>
+    <body class="weave-frontend preview-mode">
+        <div class="preview-page-card">
+            <?php if (!empty($title)): ?>
+                <header style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color, rgba(62,50,40,0.12)); padding-bottom: 1rem;">
+                    <h1 style="font-size: 2rem; line-height: 1.25; margin: 0 0 0.5rem 0; color: var(--text-primary, #2d2620);">
+                        <?php echo $title; ?>
+                    </h1>
+                </header>
+            <?php endif; ?>
+            <div class="page-body" style="font-size: 1.05rem; line-height: 1.8;">
+                <?php echo $html_content; ?>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 // 6.2 AJAX Actions: Zentrale Mediathek & Bild-Pipeline (Phase 22)
 if (isset($_GET['action']) && $_GET['action'] === 'get_media') {
     header('Content-Type: application/json; charset=utf-8');

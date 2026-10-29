@@ -86,5 +86,17 @@
     "captcha.prompt_nut": "the hazelnut",
     "captcha.prompt_blossom": "the pink blossom",
     "captcha.prompt_sunflower": "the sunflower",
-    "captcha.prompt_tulip": "the tulip"
+    "captcha.prompt_tulip": "the tulip",
+    "frontend.tag.archive_label": "Tag Archive",
+    "frontend.tag.found_single": "1 matching item found",
+    "frontend.tag.found_multiple": "{count} matching items found",
+    "frontend.tag.other_tags": "Other tags:",
+    "frontend.tag.empty_title": "No matching content found",
+    "frontend.tag.empty_desc": "No active articles, pages, or offers have been assigned to this tag yet.",
+    "frontend.tag.sec_blog": "Blog Articles",
+    "frontend.tag.sec_pages": "Pages & Content",
+    "frontend.tag.sec_courses": "Courses & Workshops",
+    "frontend.tag.sec_gallery": "Gallery & Workpieces",
+    "frontend.tag.sec_downloads": "Downloads & Documents",
+    "btn.view_page": "View Page"
 }

@@ -10,6 +10,102 @@
 class MarkdownParser {
 
     /**
+     * Wickelt in einem gemischten Block (der mit einer Überschrift, einem Trenner oder einem
+     * anderen Block-Element beginnt) nachfolgende reine Textzeilen und Inline-Elemente
+     * in Absätze. Block-Elemente (Listen, Tabellen, Divs, Trennlinien, weitere Überschriften)
+     * bleiben dabei als eigenständige Blöcke erhalten.
+     * @param string $block
+     * @return string
+     */
+    private static function wrapMixedBlock(string $block): string {
+        $out = [];
+        $buffer = [];
+        $flush = function() use (&$out, &$buffer) {
+            if (!empty($buffer)) {
+                $out[] = '<p style="margin-bottom: 1rem; line-height: 1.7;">' . implode('<br />' . "\n", $buffer) . '</p>';
+                $buffer = [];
+            }
+        };
+        foreach (explode("\n", $block) as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '') {
+                continue;
+            }
+            if (preg_match('/^(<\/?(h[1-6]|hr|ul|ol|li|table|div|blockquote|pre)\b|%%%WEAVE_BLOCK_HTML)/', $trimmed)) {
+                $flush();
+                $out[] = $trimmed;
+            } else {
+                $buffer[] = $trimmed;
+            }
+        }
+        $flush();
+        return implode("\n", $out);
+    }
+
+    /**
+     * Wandelt Box-Shortcodes in die bestehenden Box-Klassen um (Phase 27.2):
+     * [box style="soft_primary"]...[/box] oder [box color="#e0f2fe"]...[/box]
+     * Der Boxinhalt bleibt reguläres Markdown. Verschachtelte Boxen werden nicht unterstützt.
+     * @param string $text
+     * @return string
+     */
+    private static function parseBoxShortcodes(string $text): string {
+        if (stripos($text, '[box') === false) {
+            return $text;
+        }
+        $styleMap = [
+            'soft_primary' => 'box-soft box-soft-primary',
+            'soft_success' => 'box-soft box-soft-success',
+            'soft_amber'   => 'box-soft box-soft-amber',
+            'soft_purple'  => 'box-soft box-soft-purple',
+            'gradient'     => 'box-card box-gradient-primary',
+            'dark'         => 'box-card box-dark',
+        ];
+
+        return preg_replace_callback('/\[box((?:\s+(?:style|color)\s*=\s*["\']?[^"\'\]\s]*["\']?)*)\s*\](.*?)\[\/box\s*\]/is', function($m) use ($styleMap) {
+            $attrs = $m[1];
+            $style = null;
+            $color = null;
+            if (preg_match('/style\s*=\s*["\']?([a-z_]+)["\']?/i', $attrs, $sm)) {
+                $style = strtolower($sm[1]);
+            }
+            if (preg_match('/color\s*=\s*["\']?(#[0-9a-fA-F]{3,8})["\']?/', $attrs, $cm)) {
+                $color = $cm[1];
+            }
+
+            if ($color !== null) {
+                $open = '<div class="box-tintable" style="background: ' . $color . ';">';
+            } else {
+                $class = $styleMap[$style ?? ''] ?? $styleMap['soft_primary'];
+                $open = '<div class="' . $class . '">';
+            }
+            return "\n\n" . $open . "\n\n" . $m[2] . "\n\n</div>\n\n";
+        }, $text);
+    }
+
+    /**
+     * Wandelt Spalten-Shortcodes in CSS-Grid-Markup um (Phase 27.1):
+     * [grid layout="1-2"] [col]...[/col] [col]...[/col] [/grid]
+     * Die Wrapper-Divs werden durch Leerzeilen vom Inhalt getrennt, sodass der Spalteninhalt
+     * anschließend regulär als Markdown verarbeitet wird (inkl. Plugin-Shortcodes).
+     * @param string $text
+     * @return string
+     */
+    private static function parseGridShortcodes(string $text): string {
+        if (stripos($text, '[grid') === false) {
+            return $text;
+        }
+        $allowedLayouts = ['2', '3', '1-2', '2-1', 'img-text'];
+
+        return preg_replace_callback('/\[grid(?:\s+layout\s*=\s*["\']?([a-z0-9-]+)["\']?)?\s*\](.*?)\[\/grid\s*\]/is', function($m) use ($allowedLayouts) {
+            $layout = in_array($m[1], $allowedLayouts, true) ? $m[1] : '2';
+            $inner = preg_replace('/\[col\s*\]/i', "\n\n<div class=\"weave-col\">\n\n", $m[2]);
+            $inner = preg_replace('/\[\/col\s*\]/i', "\n\n</div>\n\n", $inner);
+            return "\n\n<div class=\"weave-grid weave-grid-" . $layout . "\">\n\n" . $inner . "\n\n</div>\n\n";
+        }, $text);
+    }
+
+    /**
      * Konvertiert Markdown in sicheren HTML-Code.
      * @param string|null $text
      * @return string
@@ -22,19 +118,29 @@ class MarkdownParser {
         // 0. HTML-Kommentare entfernen (<!-- ... --> werden im Frontend ausgeblendet)
         $text = preg_replace('/<!--.*?-->/s', '', $text);
 
-        // 1. Sichere HTML-Tags extrahieren und durch Platzhalter schützen
+        // 0b. Spalten-Shortcodes [grid]/[col] in Grid-Markup umwandeln
+        $text = self::parseGridShortcodes($text);
+
+        // 0c. Box-Shortcodes [box] in Box-Markup umwandeln
+        $text = self::parseBoxShortcodes($text);
+
+        // 1. Sichere HTML-Tags extrahieren und durch typisierte Platzhalter schützen (Block vs. Inline)
         $htmlTokens = [];
         $tokenIndex = 0;
         
-        $allowedTags = 'div|span|a|button|p|br|hr|h[1-6]|table|thead|tbody|tfoot|tr|th|td|img|strong|b|em|i|u|s|small|ul|ol|li|blockquote|svg|path|symbol|use|code|pre';
+        $blockTags = 'div|p|hr|h[1-6]|table|thead|tbody|tfoot|tr|th|td|ul|ol|li|blockquote|pre|svg|path|symbol|use';
+        $inlineTags = 'span|a|button|br|img|strong|b|em|i|u|s|small|code';
         
-        $text = preg_replace_callback('/<(\/?(?:' . $allowedTags . ')\b[^>]*)>/is', function($matches) use (&$htmlTokens, &$tokenIndex) {
+        $text = preg_replace_callback('/<(\/?(?:' . $blockTags . '|' . $inlineTags . ')\b[^>]*)>/is', function($matches) use (&$htmlTokens, &$tokenIndex, $blockTags) {
             $tag = $matches[0];
-            // XSS-Schutz: Keine Script-Events oder javascript:-URIs
-            if (preg_match('/\bon\w+\s*=/i', $tag) || preg_match('/(?:href|src)\s*=\s*["\']?\s*javascript:/i', $tag)) {
+            $tagName = strtolower(preg_replace('/^<\/?([a-z0-9]+)\b.*/is', '$1', $tag));
+            // XSS-Schutz: Keine Script-Events oder unsichere Protokolle
+            if (preg_match('/\bon\w+\s*=/i', $tag) || preg_match('/(?:href|src)\s*=\s*["\']?\s*(?:javascript|vbscript|data:text\/html):/i', $tag)) {
                 return htmlspecialchars($tag, ENT_QUOTES, 'UTF-8');
             }
-            $placeholder = "%%%WEAVE_SAFE_HTML_{$tokenIndex}%%%";
+            $isBlock = (bool)preg_match('/^(' . $blockTags . ')$/i', $tagName);
+            $prefix = $isBlock ? '%%%WEAVE_BLOCK_HTML_' : '%%%WEAVE_INLINE_HTML_';
+            $placeholder = "{$prefix}{$tokenIndex}%%%";
             $htmlTokens[$placeholder] = $tag;
             $tokenIndex++;
             return $placeholder;
@@ -102,13 +208,19 @@ class MarkdownParser {
         }
         $safe = implode("\n", $out);
 
-        // 10. Absätze erzeugen (HTML-Tags und Tabellen nicht fälschlich in <p> packen)
+        // 10. Absätze erzeugen (Block-Elemente nicht fälschlich in <p> packen, Mischblöcke sauber trennen)
         $paragraphs = preg_split('/\n\s*\n/', $safe);
         $rendered = [];
         foreach ($paragraphs as $p) {
             $p = trim($p);
             if (empty($p)) continue;
-            if (preg_match('/^(<(h[1-6]|hr|ul|ol|table|div|blockquote|pre)|%%%WEAVE_SAFE_HTML)/', $p)) {
+            $hasNewline = (strpos($p, "\n") !== false);
+            $startsWithBlock = (bool)preg_match('/^(<(h[1-6]|hr|ul|ol|table|div|blockquote|pre)\b|%%%WEAVE_BLOCK_HTML)/', $p);
+
+            if ($hasNewline && ($startsWithBlock || preg_match('/^<h[1-6]\b/', $p))) {
+                // Block-Element mit folgendem Text im selben Absatz: Fließtextzeilen in <p> wickeln
+                $rendered[] = self::wrapMixedBlock($p);
+            } elseif ($startsWithBlock) {
                 $rendered[] = $p;
             } else {
                 $rendered[] = '<p style="margin-bottom: 1rem; line-height: 1.7;">' . nl2br($p) . '</p>';

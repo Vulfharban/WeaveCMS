@@ -235,6 +235,10 @@ class AdminController {
             case 'apply_project_preset':
                 self::handleApplyPreset($dataFile, $data, $success_msg, $error_msg);
                 break;
+
+            case 'save_custom_fields_def':
+                self::handleCustomFieldsDefAction($dataFile, $data, $success_msg, $error_msg);
+                break;
         }
 
         return [
@@ -299,6 +303,8 @@ class AdminController {
             return 'tab-design';
         } elseif (strpos($action, 'settings') !== false) {
             return 'tab-display';
+        } elseif (strpos($action, 'custom_fields') !== false) {
+            return 'tab-settings';
         } elseif (strpos($action, 'contact') !== false || strpos($action, 'impressum') !== false) {
             return 'tab-impressum';
         } elseif (strpos($action, 'user') !== false) {
@@ -1879,8 +1885,14 @@ class AdminController {
             $status = in_array($_POST['status'] ?? '', ['published', 'draft', 'scheduled'], true) ? $_POST['status'] : 'published';
             $publish_at = trim($_POST['publish_at'] ?? '');
             $preview_token = RevisionManager::generatePreviewToken();
-            $tags_raw = trim($_POST['tags'] ?? '');
-            $tags = !empty($tags_raw) ? array_map('trim', explode(',', $tags_raw)) : [];
+            $tags = TaxonomyManager::sanitizeTagList($_POST['tags'] ?? []);
+
+            $cf_err = null;
+            $custom_fields = CustomFieldManager::extractAndValidate('blog', $_POST['custom_fields'] ?? [], $data, $cf_err);
+            if ($cf_err !== null) {
+                $error_msg = $cf_err;
+                return;
+            }
 
             $new_post = [
                 'id' => time() . '_' . mt_rand(100, 999),
@@ -1895,6 +1907,7 @@ class AdminController {
                 'publish_at' => $publish_at,
                 'preview_token' => $preview_token,
                 'tags' => $tags,
+                'custom_fields' => $custom_fields,
                 'created_at' => date('Y-m-d H:i:s')
             ];
 
@@ -1962,8 +1975,14 @@ class AdminController {
             $status = in_array($_POST['status'] ?? '', ['published', 'draft', 'scheduled'], true) ? $_POST['status'] : 'published';
             $publish_at = trim($_POST['publish_at'] ?? '');
             $preview_token = !empty($data['blog'][$found_idx]['preview_token']) ? $data['blog'][$found_idx]['preview_token'] : RevisionManager::generatePreviewToken();
-            $tags_raw = trim($_POST['tags'] ?? '');
-            $tags = !empty($tags_raw) ? array_map('trim', explode(',', $tags_raw)) : [];
+            $tags = TaxonomyManager::sanitizeTagList($_POST['tags'] ?? []);
+
+            $cf_err = null;
+            $custom_fields = CustomFieldManager::extractAndValidate('blog', $_POST['custom_fields'] ?? [], $data, $cf_err);
+            if ($cf_err !== null) {
+                $error_msg = $cf_err;
+                return;
+            }
 
             $data['blog'][$found_idx]['title'] = $title;
             $data['blog'][$found_idx]['slug'] = $slug;
@@ -1976,6 +1995,7 @@ class AdminController {
             $data['blog'][$found_idx]['publish_at'] = $publish_at;
             $data['blog'][$found_idx]['preview_token'] = $preview_token;
             $data['blog'][$found_idx]['tags'] = $tags;
+            $data['blog'][$found_idx]['custom_fields'] = $custom_fields;
             $data['blog'][$found_idx]['updated_at'] = date('Y-m-d H:i:s');
 
             if (save_data($dataFile, $data)) {
@@ -2072,6 +2092,14 @@ class AdminController {
                 $page_sections = array_values(array_filter($_POST['page_sections'], 'is_string'));
             }
 
+            $page_tags = TaxonomyManager::sanitizeTagList($_POST['tags'] ?? []);
+            $cf_err = null;
+            $custom_fields = CustomFieldManager::extractAndValidate('pages', $_POST['custom_fields'] ?? [], $data, $cf_err);
+            if ($cf_err !== null) {
+                $error_msg = $cf_err;
+                return;
+            }
+
             $newPage = [
                 'id' => 'page_' . uniqid(),
                 'title' => $title,
@@ -2086,6 +2114,8 @@ class AdminController {
                 'in_nav' => !empty($_POST['in_nav']),
                 'meta_description' => trim($_POST['meta_description'] ?? ''),
                 'content' => trim($_POST['content'] ?? ''),
+                'tags' => $page_tags,
+                'custom_fields' => $custom_fields,
                 'translations' => $translations,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
@@ -2161,6 +2191,14 @@ class AdminController {
             $publish_at = trim($_POST['publish_at'] ?? '');
             $preview_token = !empty($data['pages'][$found_idx]['preview_token']) ? $data['pages'][$found_idx]['preview_token'] : RevisionManager::generatePreviewToken();
 
+            $page_tags = TaxonomyManager::sanitizeTagList($_POST['tags'] ?? []);
+            $cf_err = null;
+            $custom_fields = CustomFieldManager::extractAndValidate('pages', $_POST['custom_fields'] ?? [], $data, $cf_err);
+            if ($cf_err !== null) {
+                $error_msg = $cf_err;
+                return;
+            }
+
             $data['pages'][$found_idx]['title'] = $title;
             $data['pages'][$found_idx]['slug'] = $slug;
             $data['pages'][$found_idx]['page_type'] = $page_type;
@@ -2173,6 +2211,8 @@ class AdminController {
             $data['pages'][$found_idx]['in_nav'] = !empty($_POST['in_nav']);
             $data['pages'][$found_idx]['meta_description'] = trim($_POST['meta_description'] ?? '');
             $data['pages'][$found_idx]['content'] = trim($_POST['content'] ?? '');
+            $data['pages'][$found_idx]['tags'] = $page_tags;
+            $data['pages'][$found_idx]['custom_fields'] = $custom_fields;
             $data['pages'][$found_idx]['translations'] = $translations;
             $data['pages'][$found_idx]['updated_at'] = date('Y-m-d H:i:s');
 
@@ -2836,6 +2876,31 @@ class AdminController {
             }
         } else {
             $error_msg = 'Das ausgewählte Profil konnte nicht angewendet werden.';
+        }
+    }
+
+    /**
+     * Speichert die Felddefinitionen für Custom Fields eines Moduls (Phase 28.2).
+     */
+    protected static function handleCustomFieldsDefAction(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        $module = trim((string)($_POST['cf_module'] ?? ''));
+        $allowed = ['pages', 'blog', 'courses', 'downloads'];
+        if (!in_array($module, $allowed, true)) {
+            $error_msg = 'Ungültiges Modul für Zusatzfelder.';
+            return;
+        }
+
+        $raw_json = trim((string)($_POST['cf_definitions_json'] ?? ''));
+        $defs = json_decode($raw_json, true);
+        if (!is_array($defs)) {
+            $error_msg = 'Fehler beim Verarbeiten der Felddefinitionen (ungültiges Format).';
+            return;
+        }
+
+        if (CustomFieldManager::saveDefinitions($dataFile, $data, $module, $defs)) {
+            $success_msg = 'Zusatzfelder für Modul „' . htmlspecialchars($module) . '“ erfolgreich aktualisiert!';
+        } else {
+            $error_msg = 'Fehler beim Speichern der Zusatzfelder.';
         }
     }
 }

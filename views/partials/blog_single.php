@@ -44,12 +44,8 @@ $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?l
         <!-- Metadaten Header -->
         <header style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
             <?php if (!empty($p_tags)): ?>
-                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1rem;">
-                    <?php foreach ($p_tags as $t): ?>
-                        <span style="font-size:0.8rem; font-weight:600; padding:3px 12px; border-radius:999px; background:rgba(46,98,72,0.1); color:var(--primary);">
-                            #<?php echo htmlspecialchars($t); ?>
-                        </span>
-                    <?php endforeach; ?>
+                <div style="margin-bottom:1rem;">
+                    <?php echo TaxonomyManager::renderTagBadges($p_tags, $home_url); ?>
                 </div>
             <?php endif; ?>
 
@@ -95,6 +91,9 @@ $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?l
         <div class="blog-body" style="font-size: 1.05rem; line-height: 1.8; color: var(--text-primary);">
             <?php echo $p_content_html; ?>
         </div>
+
+        <!-- Dynamische Zusatzfelder (Phase 28.3) -->
+        <?php echo render_custom_fields($active_post, 'blog', $data); ?>
 
         <!-- Social Sharing & Teilen -->
         <div style="margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
