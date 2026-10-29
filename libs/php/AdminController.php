@@ -23,6 +23,8 @@ require_once __DIR__ . '/BackupManager.php';
 require_once __DIR__ . '/SectionManager.php';
 require_once __DIR__ . '/storage/StorageManager.php';
 require_once __DIR__ . '/RevisionManager.php';
+require_once __DIR__ . '/ApiTokenManager.php';
+require_once __DIR__ . '/WebhookManager.php';
 
 class AdminController {
 
@@ -239,6 +241,18 @@ class AdminController {
             case 'save_custom_fields_def':
                 self::handleCustomFieldsDefAction($dataFile, $data, $success_msg, $error_msg);
                 break;
+
+            case 'create_api_token':
+            case 'delete_api_token':
+            case 'toggle_api_token':
+            case 'add_webhook':
+            case 'delete_webhook':
+            case 'toggle_webhook':
+            case 'test_webhook':
+            case 'retry_webhook':
+            case 'clear_webhook_logs':
+                self::handleApiWebhookAction($action, $dataFile, $data, $success_msg, $error_msg);
+                break;
         }
 
         return [
@@ -292,7 +306,9 @@ class AdminController {
             strpos($action, 'credentials') !== false || 
             strpos($action, 'backup') !== false || 
             strpos($action, 'restore') !== false || 
-            strpos($action, 'migrate') !== false
+            strpos($action, 'migrate') !== false ||
+            strpos($action, 'token') !== false ||
+            strpos($action, 'webhook') !== false
         ) {
             return 'tab-security';
         } elseif (strpos($action, 'plugin') !== false) {
@@ -1921,6 +1937,15 @@ class AdminController {
             if (save_data($dataFile, $data)) {
                 $userAuthor = $_SESSION['admin_user'] ?? 'Redaktion';
                 RevisionManager::createRevision('blog', $new_post['id'], $new_post, $userAuthor, 'Blog-Artikel neu angelegt');
+                if ($status === 'published') {
+                    WebhookManager::dispatch(WebhookManager::EVENT_POST_PUBLISHED, [
+                        'post_id'      => $new_post['id'],
+                        'title'        => $title,
+                        'slug'         => $slug,
+                        'author'       => $author,
+                        'published_at' => $date
+                    ]);
+                }
                 $success_msg = 'Blog-Artikel „' . htmlspecialchars($title) . '“ erfolgreich erstellt!';
             } else {
                 $error_msg = 'Fehler beim Speichern des Artikels.';
@@ -2007,6 +2032,15 @@ class AdminController {
                 $userAuthor = $_SESSION['admin_user'] ?? 'Redaktion';
                 $revNote = trim($_POST['revision_note'] ?? 'Blog-Artikel aktualisiert');
                 RevisionManager::createRevision('blog', $post_id, $data['blog'][$found_idx], $userAuthor, $revNote);
+                if ($status === 'published') {
+                    WebhookManager::dispatch(WebhookManager::EVENT_POST_PUBLISHED, [
+                        'post_id'      => $post_id,
+                        'title'        => $title,
+                        'slug'         => $slug,
+                        'author'       => $author,
+                        'published_at' => $date
+                    ]);
+                }
                 $success_msg = 'Blog-Artikel „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
             } else {
                 $error_msg = 'Fehler beim Speichern der Änderungen.';
@@ -2040,6 +2074,18 @@ class AdminController {
                 }
             }
             if ($found && save_data($dataFile, $data)) {
+                foreach ($data['blog'] as $p) {
+                    if ((string)($p['id'] ?? '') === (string)$post_id && ($p['status'] ?? '') === 'published') {
+                        WebhookManager::dispatch(WebhookManager::EVENT_POST_PUBLISHED, [
+                            'post_id'      => $p['id'],
+                            'title'        => $p['title'] ?? '',
+                            'slug'         => $p['slug'] ?? '',
+                            'author'       => $p['author'] ?? '',
+                            'published_at' => $p['date'] ?? date('Y-m-d')
+                        ]);
+                        break;
+                    }
+                }
                 $success_msg = 'Veröffentlichungsstatus geändert.';
             } else {
                 $error_msg = 'Artikel nicht gefunden oder Fehler beim Speichern.';
@@ -2930,6 +2976,181 @@ class AdminController {
             $success_msg = 'Zusatzfelder für Modul „' . htmlspecialchars($module) . '“ erfolgreich aktualisiert!';
         } else {
             $error_msg = 'Fehler beim Speichern der Zusatzfelder.';
+        }
+    }
+
+    /**
+     * Behandelt API-Token und Webhook-Aktionen (Phase 31).
+     */
+    protected static function handleApiWebhookAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        $isAjax = (!empty($_POST['ajax']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'));
+
+        switch ($action) {
+            case 'create_api_token':
+                $name = trim((string)($_POST['token_name'] ?? ''));
+                $permissions = isset($_POST['token_scopes']) && is_array($_POST['token_scopes']) ? $_POST['token_scopes'] : ['*'];
+                $res = ApiTokenManager::createToken($name, $permissions);
+                if ($res['success']) {
+                    $_SESSION['new_api_token_plain'] = $res['plain_token'];
+                    $_SESSION['new_api_token_name'] = $res['token']['name'];
+                    $success_msg = 'API-Token erfolgreich erstellt!';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => true, 'plain_token' => $res['plain_token'], 'token' => $res['token']]);
+                        exit;
+                    }
+                } else {
+                    $error_msg = 'Fehler beim Erstellen des API-Tokens.';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => false, 'error' => $error_msg]);
+                        exit;
+                    }
+                }
+                break;
+
+            case 'delete_api_token':
+                $id = trim((string)($_POST['token_id'] ?? ''));
+                if (ApiTokenManager::deleteToken($id)) {
+                    $success_msg = 'API-Token erfolgreich gelöscht.';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => true]);
+                        exit;
+                    }
+                } else {
+                    $error_msg = 'API-Token nicht gefunden.';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => false, 'error' => $error_msg]);
+                        exit;
+                    }
+                }
+                break;
+
+            case 'toggle_api_token':
+                $id = trim((string)($_POST['token_id'] ?? ''));
+                if (ApiTokenManager::toggleToken($id)) {
+                    $success_msg = 'Status des API-Tokens aktualisiert.';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => true]);
+                        exit;
+                    }
+                } else {
+                    $error_msg = 'API-Token nicht gefunden.';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => false, 'error' => $error_msg]);
+                        exit;
+                    }
+                }
+                break;
+
+            case 'add_webhook':
+                $name = trim((string)($_POST['webhook_name'] ?? ''));
+                $url = trim((string)($_POST['webhook_url'] ?? ''));
+                $secret = trim((string)($_POST['webhook_secret'] ?? ''));
+                $events = isset($_POST['webhook_events']) && is_array($_POST['webhook_events']) ? $_POST['webhook_events'] : ['*'];
+                $res = WebhookManager::addWebhook($name, $url, $secret, $events);
+                if ($res['success']) {
+                    $success_msg = 'Webhook erfolgreich angelegt!';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => true, 'webhook' => $res['webhook']]);
+                        exit;
+                    }
+                } else {
+                    $error_msg = $res['error'] ?? 'Fehler beim Anlegen des Webhooks.';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => false, 'error' => $error_msg]);
+                        exit;
+                    }
+                }
+                break;
+
+            case 'delete_webhook':
+                $id = trim((string)($_POST['webhook_id'] ?? ''));
+                if (WebhookManager::deleteWebhook($id)) {
+                    $success_msg = 'Webhook gelöscht.';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => true]);
+                        exit;
+                    }
+                } else {
+                    $error_msg = 'Webhook nicht gefunden.';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => false, 'error' => $error_msg]);
+                        exit;
+                    }
+                }
+                break;
+
+            case 'toggle_webhook':
+                $id = trim((string)($_POST['webhook_id'] ?? ''));
+                if (WebhookManager::toggleWebhook($id)) {
+                    $success_msg = 'Webhook-Status geändert.';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => true]);
+                        exit;
+                    }
+                } else {
+                    $error_msg = 'Webhook nicht gefunden.';
+                    if ($isAjax) {
+                        header('Content-Type: application/json; charset=utf-8');
+                        echo json_encode(['success' => false, 'error' => $error_msg]);
+                        exit;
+                    }
+                }
+                break;
+
+            case 'test_webhook':
+                $id = trim((string)($_POST['webhook_id'] ?? ''));
+                $res = WebhookManager::testWebhook($id);
+                if ($res['success']) {
+                    $success_msg = "Test-Ping erfolgreich gesendet! HTTP-Status: {$res['response_code']} ({$res['duration_ms']} ms)";
+                } else {
+                    $code = $res['response_code'] ?? 0;
+                    $err = $res['error'] ?? 'Verbindung fehlgeschlagen';
+                    $error_msg = "Test-Ping fehlgeschlagen: {$err}" . ($code ? " (HTTP {$code})" : '');
+                }
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode($res);
+                    exit;
+                }
+                break;
+
+            case 'retry_webhook':
+                $deliveryId = trim((string)($_POST['delivery_id'] ?? ''));
+                $res = WebhookManager::retryDelivery($deliveryId);
+                if ($res['success']) {
+                    $success_msg = "Webhook-Wiederholung erfolgreich gesendet! HTTP-Status: {$res['response_code']} ({$res['duration_ms']} ms)";
+                } else {
+                    $code = $res['response_code'] ?? 0;
+                    $err = $res['error'] ?? 'Wiederholung fehlgeschlagen';
+                    $error_msg = "Webhook-Wiederholung fehlgeschlagen: {$err}" . ($code ? " (HTTP {$code})" : '');
+                }
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode($res);
+                    exit;
+                }
+                break;
+
+            case 'clear_webhook_logs':
+                WebhookManager::clearLogs();
+                $success_msg = 'Webhook-Lieferprotokoll geleert.';
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode(['success' => true]);
+                    exit;
+                }
+                break;
         }
     }
 }

@@ -118,6 +118,16 @@ ContactInbox::add([
     'course_ref' => $course_ref,
 ]);
 
+// Phase 31: Event-Webhook contact.received auslösen
+require_once __DIR__ . '/libs/php/WebhookManager.php';
+WebhookManager::dispatch(WebhookManager::EVENT_CONTACT_RECEIVED, [
+    'name'       => $name,
+    'email'      => $email,
+    'phone'      => $phone,
+    'message'    => $message,
+    'course_ref' => $course_ref
+]);
+
 // Rate-Limit-Zähler aktualisieren und Sicherheits-Event protokollieren
 SecurityManager::recordFailedAttempt('contact_form', 300);
 SecurityManager::logEvent('CONTACT_RECEIVED', 'Kontaktanfrage empfangen von ' . $email, 'INFO');

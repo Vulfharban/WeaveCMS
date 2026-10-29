@@ -891,14 +891,14 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 31: Headless REST-API Endpunkte & Webhooks (v1.5.0)
 *Ziel: Strukturierte Lese-Endpunkte und Event-Webhooks für Drittanbindungen und mobile Clients.*
 
-- [ ] **31.1 Token-authentifizierte REST-Read-Endpunkte (`/api/v1/`):**
+- [x] **31.1 Token-authentifizierte REST-Read-Endpunkte (`/api/v1/`):**
   - JSON-Endpunkte für Seiten (`/api/v1/pages`), Blogartikel (`/api/v1/posts`), Produkte (`/api/v1/products`) und Termine (`/api/v1/courses`).
-  - Sichere Authentifizierung über API-Bearer-Tokens mit konfigurierbaren Rechten im Backend.
-- [ ] **31.2 Event-Webhook-Dispatcher:**
-  - Konfigurierbare Webhook-URLs im Administrationsbereich mit HMAC-Signatur (`X-Weave-Signature`).
+  - Sichere Authentifizierung über API-Bearer-Tokens (`wct_...` mit SHA-256 Hash) mit konfigurierbaren Scopes im Backend (`pages:read`, `posts:read`, `products:read`, `courses:read`, `*`).
+- [x] **31.2 Event-Webhook-Dispatcher:**
+  - Konfigurierbare Webhook-URLs im Administrationsbereich mit HMAC-SHA256 Signatur (`X-Weave-Signature`).
   - Automatische Auslösung bei Kern-Events: `contact.received` (Kontaktformular), `order.created` (Shop), `post.published` (Blog), `backup.created`.
-- [ ] **31.3 Webhook-Log & Wiederholungsversuche:**
-  - Protokollierung ausgehender Webhook-Aufrufe (HTTP-Statuscode, Payload, Antwortzeit) im Adminbereich mit manuellem Re-Trigger.
+- [x] **31.3 Webhook-Log & Wiederholungsversuche:**
+  - Protokollierung ausgehender Webhook-Aufrufe (HTTP-Statuscode, Payload, Antwortzeit in ms) im Adminbereich mit manuellem Re-Trigger und Test-Ping.
 
 ---
 

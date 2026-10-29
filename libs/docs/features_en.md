@@ -135,6 +135,8 @@ WeaveCMS was built to bridge the gap between bloated legacy CMS solutions (such 
 | **Hardened Sessions** | Session cookies configured with `HttpOnly`, `SameSite`, and auto-destruction upon sign-out. | ✅ Integrated |
 | **Role-Based Access Control (RBAC)** | User roles: Administrator, Moderator, and Editor (Content User) with granular capability checks. | ✅ Integrated (Phase 10) |
 | **Brute-Force Shield & Rate Limiting** | Progressive delay and temporary IP banning following repeated failed login attempts. | ✅ Integrated (Phase 9) |
+| **Headless REST-API (/api/v1/)** | JSON read endpoints for pages, posts, products, and courses with Bearer token authentication (`wct_...`) & scopes. | ✅ Integrated (Phase 31) |
+| **Event Webhook Dispatcher** | Automated HTTP POST event dispatching with HMAC-SHA256 signature on system events (`contact.received`, `order.created`, `post.published`, `backup.created`) with delivery logs & retries. | ✅ Integrated (Phase 31) |
 | **Audit & Security Logging** | Tamper-evident logging of security-critical administrative actions in `data/security.log`. | ✅ Integrated (Phase 9) |
 | **Strict HSTS Policy & SSL Preloading** | Enforces encrypted HTTPS connections with optional preloading header for modern browsers. | ✅ Integrated (Phase 17.1) |
 | **Production CSP & Subresource Integrity** | Hardened Content Security Policy against XSS and SRI hash verification helper (`renderSriTag`). | ✅ Integrated (Phase 17.2) |

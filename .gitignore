@@ -28,6 +28,9 @@ data/integrations.json
 data/sandbox/
 data/revisions/*.json
 data/media_meta.json
+data/api_tokens.json
+data/webhooks.json
+data/webhook_logs.json
 logs/
 
 # Uploads

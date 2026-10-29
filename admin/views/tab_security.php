@@ -850,4 +850,7 @@
                     </div>
                 <?php endif; ?>
             </div>
+
+            <!-- 8. HEADLESS REST-API & EVENT-WEBHOOKS (PHASE 31) -->
+            <?php require __DIR__ . '/partials/api_webhooks.php'; ?>
         </div>

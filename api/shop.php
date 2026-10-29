@@ -143,6 +143,25 @@ switch ($action) {
 
         $order = ShopManager::createOrder($orderRecord);
 
+        // Phase 31: Event-Webhook order.created auslösen
+        $webhookFile = dirname(__DIR__) . '/libs/php/WebhookManager.php';
+        if (file_exists($webhookFile)) {
+            require_once $webhookFile;
+            WebhookManager::dispatch(WebhookManager::EVENT_ORDER_CREATED, [
+                'order_id'       => $order['order_id'] ?? '',
+                'total'          => $order['total'] ?? 0,
+                'currency'       => $order['currency'] ?? 'EUR',
+                'customer'       => [
+                    'name'    => $customer['name'] ?? '',
+                    'email'   => $customer['email'] ?? '',
+                    'city'    => $customer['city'] ?? '',
+                    'country' => $customer['country'] ?? ''
+                ],
+                'items_count'    => count($cartCalc['items'] ?? []),
+                'payment_method' => $paymentMethod
+            ]);
+        }
+
         // Sicherheits-Log schreiben
         if (class_exists('SecurityManager')) {
             SecurityManager::logEvent(

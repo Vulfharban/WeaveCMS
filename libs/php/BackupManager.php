@@ -76,6 +76,14 @@ class BackupManager {
                 return ['success' => false, 'filename' => '', 'error' => 'Konnte Datensicherung nicht in ' . $filename . ' schreiben.'];
             }
 
+            // Phase 31: Event-Webhook backup.created
+            require_once __DIR__ . '/WebhookManager.php';
+            WebhookManager::dispatch(WebhookManager::EVENT_BACKUP_CREATED, [
+                'filename' => $filename,
+                'type'     => 'data',
+                'filesize' => @filesize($targetPath) ?: 0
+            ]);
+
             return ['success' => true, 'filename' => $filename, 'error' => null];
         }
 
@@ -131,6 +139,14 @@ class BackupManager {
         $zip->addFromString('backup_manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         $zip->close();
+
+        // Phase 31: Event-Webhook backup.created
+        require_once __DIR__ . '/WebhookManager.php';
+        WebhookManager::dispatch(WebhookManager::EVENT_BACKUP_CREATED, [
+            'filename' => $filename,
+            'type'     => 'full',
+            'filesize' => @filesize($targetZip) ?: 0
+        ]);
 
         return ['success' => true, 'filename' => $filename, 'error' => null];
     }

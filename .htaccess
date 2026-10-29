@@ -38,4 +38,8 @@ Options -Indexes
     # 5. SEO-Autopilot (Phase 24): dynamische sitemap.xml & robots.txt
     RewriteRule ^sitemap\.xml$ sitemap.php [L]
     RewriteRule ^robots\.txt$ robots.php [L]
+
+    # 6. Headless REST-API (Phase 31): Authorization-Header durchreichen & API-Routing
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteRule ^api/v1(?:/(.*))?$ api/v1/index.php?endpoint=$1 [QSA,L]
 </IfModule>
