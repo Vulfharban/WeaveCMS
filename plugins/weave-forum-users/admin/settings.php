@@ -512,6 +512,8 @@ dialog.fusers-dialog::backdrop {
                                 <td>
                                     <?php if (($u['status'] ?? '') === 'active'): ?>
                                         <span class="fusers-pill fusers-pill-active">● Aktiv</span>
+                                    <?php elseif (($u['status'] ?? '') === 'pending_verification'): ?>
+                                        <span class="fusers-pill fusers-pill-pending">📧 E-Mail unbestätigt</span>
                                     <?php elseif (($u['status'] ?? '') === 'pending_approval'): ?>
                                         <span class="fusers-pill fusers-pill-pending">⏳ Wartet</span>
                                     <?php elseif (($u['status'] ?? '') === 'banned'): ?>
@@ -596,6 +598,7 @@ dialog.fusers-dialog::backdrop {
                                                     <label>Konto-Status:</label>
                                                     <select name="status" class="fusers-select" style="width: 100%;">
                                                         <option value="active" <?= ($u['status'] ?? '') === 'active' ? 'selected' : '' ?>>Aktiv (Freigeschaltet)</option>
+                                                        <option value="pending_verification" <?= ($u['status'] ?? '') === 'pending_verification' ? 'selected' : '' ?>>Wartet auf E-Mail-Bestätigung (Token)</option>
                                                         <option value="pending_approval" <?= ($u['status'] ?? '') === 'pending_approval' ? 'selected' : '' ?>>Wartet auf Freischaltung</option>
                                                         <option value="banned" <?= ($u['status'] ?? '') === 'banned' ? 'selected' : '' ?>>Gesperrt / Gebannt</option>
                                                     </select>
@@ -609,7 +612,8 @@ dialog.fusers-dialog::backdrop {
 
                                             <div class="fusers-dialog-footer">
                                                 <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Abbrechen</button>
-                                                <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px;">
+                                            <?php // submit ?>
+                <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px;">
                                                     <span class="material-icons" style="font-size:16px;">save</span>
                                                     <span>Änderungen speichern</span>
                                                 </button>
@@ -739,6 +743,21 @@ dialog.fusers-dialog::backdrop {
             <div class="fusers-field">
                 <label>Registrierungs-Modus:</label>
                 <select name="registration_mode" class="fusers-select" style="width: 100%;">
+                    <option value="email_verify" <?= in_array($cfg['registration_mode'] ?? 'email_verify', ['email_verify', 'open'], true) ? 'selected' : '' ?>>
+                        E-Mail-Bestätigung mit Token (Double-Opt-In: Freigabe erst nach Klick auf E-Mail-Link)
+                    </option>
+                    <option value="approval" <?= ($cfg['registration_mode'] ?? '') === 'approval' ? 'selected' : '' ?>>
+                        E-Mail-Bestätigung + Admin-Freigabe: Zuerst E-Mail bestätigen, danach Admin-Freischaltung
+                    </option>
+                    <option value="direct_open" <?= ($cfg['registration_mode'] ?? '') === 'direct_open' ? 'selected' : '' ?>>
+                        Direkt offen (ohne E-Mail-Bestätigung sofort nach Registrierung aktiv)
+                    </option>
+                    <option value="closed" <?= ($cfg['registration_mode'] ?? '') === 'closed' ? 'selected' : '' ?>>
+                        Geschlossen: Keine Neuregistrierungen möglich
+                    </option>
+                </select>
+            </div>
+            <?php if (false): ?>
                     <option value="open" <?= ($cfg['registration_mode'] ?? 'open') === 'open' ? 'selected' : '' ?>>
                         Offen: Benutzer werden sofort nach Registrierung freigeschaltet
                     </option>
@@ -752,6 +771,9 @@ dialog.fusers-dialog::backdrop {
             </div>
 
             <div class="fusers-field">
+            <div class="fusers-field">
+            <?php endif; ?>
+            <div class="fusers-field">
                 <label>Passwort-Mindestlänge:</label>
                 <input type="number" name="min_password_len" min="6" max="32" 
                        value="<?= (int)($cfg['min_password_len'] ?? 8) ?>" class="fusers-input" style="width: 140px;">
@@ -764,6 +786,17 @@ dialog.fusers-dialog::backdrop {
                 </label>
             </div>
 
+            <div class="fusers-field">
+                <label>Forum-Richtlinien / Netiquette (Pflichtzustimmung bei Registrierung):</label>
+                <textarea name="forum_guidelines" rows="6" class="fusers-input" style="width: 100%; font-family: inherit; line-height: 1.5;" placeholder="<?= htmlspecialchars(ForumUserManager::getForumGuidelines()) ?>"><?= htmlspecialchars($cfg['forum_guidelines'] ?? '') ?></textarea>
+                <span style="display:block; font-size:11.5px; color:var(--text-secondary, #64748b); margin-top:4px;">Wird neuen Benutzern bei der Registrierung im Dialog „Forum-Richtlinien“ angezeigt. Bleibt das Feld leer, wird automatisch ein Standard-Netiquette-Text verwendet.</span>
+            </div>
+            <?php if (false): ?>
+                </label>
+            </div>
+
+            <div>
+            <?php endif; ?>
             <div>
                 <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px;">
                     <span class="material-icons" style="font-size: 17px;">save</span>

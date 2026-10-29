@@ -18,20 +18,30 @@ if ($currentUser) {
 
 $error = $_SESSION['forum_auth_error'] ?? '';
 unset($_SESSION['forum_auth_error']);
+
+$success = $_SESSION['forum_auth_success'] ?? '';
+unset($_SESSION['forum_auth_success']);
 ?>
 
-<div style="max-width: 440px; margin: 36px auto; background: #ffffff; border: 1px solid #cbd5e1; border-top: 5px solid var(--primary, #2e6248); border-radius: 14px; padding: 30px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);">
+<div style="max-width: 460px; margin: 36px auto; background: #ffffff; border: 1px solid #cbd5e1; border-top: 5px solid var(--primary, #2e6248); border-radius: 14px; padding: 30px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);">
     <div style="text-align: center; margin-bottom: 24px;">
         <div style="width: 52px; height: 52px; margin: 0 auto 12px auto; border-radius: 50%; background: rgba(46, 98, 72, 0.1); color: var(--primary, #2e6248); display: flex; align-items: center; justify-content: center;">
             <span class="material-icons" style="font-size: 26px;">lock</span>
         </div>
         <h2 style="margin: 0 0 6px 0; font-size: 1.4rem; font-weight: 800; color: #0f172a;">Forum Anmeldung</h2>
-        <p style="margin: 0; font-size: 13px; color: #64748b;">Melde dich mit deinem Benutzerkonto an, um mitzudiskutieren.</p>
+        <p style="margin: 0; font-size: 13px; color: #64748b;">Melde dich mit deinem bestätigten Benutzerkonto an, um mitzudiskutieren.</p>
     </div>
+
+    <?php if (!empty($success)): ?>
+        <div style="margin-bottom: 18px; padding: 14px 16px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 13.5px; line-height: 1.5; display: flex; align-items: flex-start; gap: 10px;">
+            <span class="material-icons" style="font-size: 20px; margin-top: 1px; flex-shrink: 0;">mark_email_read</span>
+            <span><?= htmlspecialchars($success) ?></span>
+        </div>
+    <?php endif; ?>
 
     <?php if (!empty($error)): ?>
         <div style="margin-bottom: 18px; padding: 12px 14px; border-radius: 10px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-            <span class="material-icons" style="font-size: 18px;">error_outline</span>
+            <span class="material-icons" style="font-size: 18px; flex-shrink: 0;">error_outline</span>
             <span><?= htmlspecialchars($error) ?></span>
         </div>
     <?php endif; ?>

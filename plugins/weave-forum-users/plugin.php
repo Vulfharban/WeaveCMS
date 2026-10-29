@@ -37,6 +37,9 @@ if (!empty($_SESSION['admin_logged_in'])) {
                 if ($user) {
                     $user['role'] = trim($_POST['role'] ?? $user['role']);
                     $user['status'] = trim($_POST['status'] ?? $user['status']);
+                    if ($user['status'] === ForumUserManager::STATUS_ACTIVE) {
+                        $user['verification_token'] = '';
+                    }
                     $user['ban_reason'] = trim($_POST['ban_reason'] ?? '');
 
                     if (in_array($user['role'], [ForumUserManager::ROLE_ADMIN, ForumUserManager::ROLE_MODERATOR], true)) {
@@ -137,9 +140,10 @@ if (!empty($_SESSION['admin_logged_in'])) {
             if ($action === 'forum_users_save_config') {
                 global $data;
                 $config = PluginManager::getPluginConfig('weave-forum-users', $data);
-                $config['registration_mode'] = trim($_POST['registration_mode'] ?? 'open');
+                $config['registration_mode'] = trim($_POST['registration_mode'] ?? 'email_verify');
                 $config['min_password_len'] = max(6, (int)($_POST['min_password_len'] ?? 8));
                 $config['allow_avatars'] = !empty($_POST['allow_avatars']) ? 1 : 0;
+                $config['forum_guidelines'] = trim($_POST['forum_guidelines'] ?? '');
                 
                 PluginManager::savePluginConfig('weave-forum-users', $config, $data);
                 save_data(dirname(__DIR__, 2) . '/data.json', $data);
@@ -169,6 +173,22 @@ if (!empty($_GET['forum_auth'])) {
         @session_start();
     }
     $authAction = $_GET['forum_auth'];
+
+    // E-Mail-Verifizierung via Token-Link (Double-Opt-In)
+    if ($authAction === 'verify_email') {
+        global $data;
+        $cfg = PluginManager::getPluginConfig('weave-forum-users', $data ?? []);
+        $mode = $cfg['registration_mode'] ?? 'email_verify';
+        $token = trim($_GET['token'] ?? '');
+        $res = ForumUserManager::verifyEmailToken($token, $mode);
+        if ($res['success']) {
+            $_SESSION['forum_auth_success'] = $res['message'];
+        } else {
+            $_SESSION['forum_auth_error'] = $res['message'];
+        }
+        header('Location: ?page=forum&view=login');
+        exit;
+    }
 
     // Logout
     if ($authAction === 'logout') {
@@ -210,12 +230,12 @@ if (!empty($_GET['forum_auth'])) {
             if ($authAction === 'register') {
                 global $data;
                 $cfg = PluginManager::getPluginConfig('weave-forum-users', $data ?? []);
-                $mode = $cfg['registration_mode'] ?? 'open';
+                $mode = $cfg['registration_mode'] ?? 'email_verify';
 
                 $res = ForumUserManager::register($_POST, $mode);
                 if ($res['success']) {
-                    if (($res['status'] ?? '') === 'pending') {
-                        $_SESSION['forum_auth_error'] = $res['message'];
+                    if (in_array($res['status'] ?? '', ['pending', 'pending_verification'], true)) {
+                        $_SESSION['forum_auth_success'] = $res['message'];
                         header('Location: ?page=forum&view=login');
                         exit;
                     }

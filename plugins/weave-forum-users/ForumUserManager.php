@@ -18,6 +18,7 @@ class ForumUserManager {
 
     const STATUS_ACTIVE  = 'active';
     const STATUS_PENDING = 'pending_approval';
+    const STATUS_UNVERIFIED = 'pending_verification';
     const STATUS_BANNED  = 'banned';
 
     protected static ?PDO $sqlitePdo = null;
@@ -119,6 +120,9 @@ class ForumUserManager {
                 if (!isset($cols['privacy_settings'])) {
                     $pdo->exec("ALTER TABLE weave_forum_users ADD COLUMN privacy_settings TEXT");
                 }
+                if (!isset($cols['verification_token'])) {
+                    $pdo->exec("ALTER TABLE weave_forum_users ADD COLUMN verification_token VARCHAR(128) DEFAULT ''");
+                }
             } else {
                 $cols = [];
                 $stmt = $pdo->query("PRAGMA table_info(weave_forum_users)");
@@ -133,6 +137,9 @@ class ForumUserManager {
                 }
                 if (!isset($cols['privacy_settings'])) {
                     $pdo->exec("ALTER TABLE weave_forum_users ADD COLUMN privacy_settings TEXT DEFAULT ''");
+                }
+                if (!isset($cols['verification_token'])) {
+                    $pdo->exec("ALTER TABLE weave_forum_users ADD COLUMN verification_token TEXT DEFAULT ''");
                 }
             }
         } catch (Exception $e) {
@@ -195,7 +202,8 @@ class ForumUserManager {
                 notification_email TINYINT(1) DEFAULT 1,
                 alias VARCHAR(64) DEFAULT '',
                 use_alias_only TINYINT(1) DEFAULT 0,
-                privacy_settings TEXT
+                privacy_settings TEXT,
+                verification_token VARCHAR(128) DEFAULT ''
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         ");
 
@@ -250,7 +258,8 @@ class ForumUserManager {
                 notification_email INTEGER DEFAULT 1,
                 alias TEXT DEFAULT '',
                 use_alias_only INTEGER DEFAULT 0,
-                privacy_settings TEXT DEFAULT ''
+                privacy_settings TEXT,
+                verification_token TEXT DEFAULT ''
             );
             CREATE INDEX IF NOT EXISTS idx_fusers_username ON weave_forum_users(username);
             CREATE INDEX IF NOT EXISTS idx_fusers_email ON weave_forum_users(email);
@@ -276,6 +285,7 @@ class ForumUserManager {
         $u['notification_email'] = !empty($u['notification_email']) ? 1 : 0;
         $u['alias'] = trim((string)($u['alias'] ?? ''));
         $u['use_alias_only'] = !empty($u['use_alias_only']) ? 1 : 0;
+        $u['verification_token'] = trim((string)($u['verification_token'] ?? ''));
 
         $defaultPrivacy = self::getDefaultPrivacySettings();
         $rawPriv = $u['privacy_settings'] ?? [];
@@ -497,11 +507,11 @@ class ForumUserManager {
                     REPLACE INTO weave_forum_users (
                         id, username, email, password_hash, role, status, avatar, signature,
                         bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email,
-                        alias, use_alias_only, privacy_settings
+                        alias, use_alias_only, privacy_settings, verification_token
                     ) VALUES (
                         :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
                         :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email,
-                        :alias, :use_alias_only, :privacy_settings
+                        :alias, :use_alias_only, :privacy_settings, :verification_token
                     )
                 ");
                 return $stmt->execute([
@@ -523,7 +533,8 @@ class ForumUserManager {
                     ':notification_email' => !empty($user['notification_email']) ? 1 : 0,
                     ':alias' => $user['alias'] ?? '',
                     ':use_alias_only' => !empty($user['use_alias_only']) ? 1 : 0,
-                    ':privacy_settings' => json_encode($user['privacy_settings'] ?? self::getDefaultPrivacySettings(), JSON_UNESCAPED_UNICODE)
+                    ':privacy_settings' => json_encode($user['privacy_settings'] ?? self::getDefaultPrivacySettings(), JSON_UNESCAPED_UNICODE),
+                    ':verification_token' => $user['verification_token'] ?? ''
                 ]);
             } catch (Exception $e) {
                 error_log('ForumUserManager DB saveUser error: ' . $e->getMessage());
@@ -592,6 +603,12 @@ class ForumUserManager {
         if ($password !== $passwordConfirm) {
             return ['success' => false, 'message' => 'Die beiden Passwörter stimmen nicht überein.'];
         }
+        if (empty($data['accept_forum_rules'])) {
+            return ['success' => false, 'message' => 'Bitte bestätige, dass du die Forum-Richtlinien gelesen hast und ihnen zustimmst.'];
+        }
+        if (empty($data['accept_privacy_dsgvo'])) {
+            return ['success' => false, 'message' => 'Bitte stimme den Datenschutzrichtlinien und der Verarbeitung deiner Daten gemäß DSGVO zu.'];
+        }
 
         // Prüfung auf Duplikate (Username, Alias oder E-Mail)
         if (self::findUser($username)) {
@@ -605,7 +622,9 @@ class ForumUserManager {
             return ['success' => false, 'message' => 'Die Registrierung für neue Benutzer ist derzeit deaktiviert.'];
         }
 
-        $status = ($registrationMode === 'approval') ? self::STATUS_PENDING : self::STATUS_ACTIVE;
+        $requireEmailVerify = ($registrationMode !== 'direct_open');
+        $verificationToken = $requireEmailVerify ? bin2hex(random_bytes(24)) : '';
+        $status = $requireEmailVerify ? self::STATUS_UNVERIFIED : self::STATUS_ACTIVE;
 
         // Wenn noch überhaupt kein Forum-User existiert, erhält der Erste die Admin-Rolle
         $existing = self::getAllUsers();
@@ -630,7 +649,8 @@ class ForumUserManager {
             'notification_email' => 1,
             'alias' => '',
             'use_alias_only' => 0,
-            'privacy_settings' => self::getDefaultPrivacySettings()
+            'privacy_settings' => self::getDefaultPrivacySettings(),
+            'verification_token' => ($verificationToken ?? '')
         ];
 
         if (!self::saveUser($newUser)) {
@@ -639,6 +659,16 @@ class ForumUserManager {
 
         if (class_exists('SecurityManager')) {
             SecurityManager::logEvent('FORUM_USER_REGISTERED', "Neuer Foren-Benutzer registriert: {$username} ({$email})", 'INFO');
+        }
+
+        if ($status === self::STATUS_UNVERIFIED) {
+            $mailRes = self::sendVerificationEmail($newUser, $verificationToken);
+            return [
+                'success' => true,
+                'status' => 'pending_verification',
+                'mail_sent' => $mailRes['success'],
+                'message' => 'Dein Benutzerkonto wurde erstellt! Wir haben dir eine Bestätigungs-E-Mail mit einem Aktivierungslink an ' . $email . ' gesendet. Erst nach Klick auf diesen Link wird dein Konto zur Anmeldung im Forum freigegeben.'
+            ];
         }
 
         if ($status === self::STATUS_PENDING) {
@@ -682,6 +712,10 @@ class ForumUserManager {
             return ['success' => false, 'message' => "Dieses Forum-Konto wurde gesperrt.{$until}{$reason}"];
         }
 
+        if ($user['status'] === self::STATUS_UNVERIFIED || !empty($user['verification_token'])) {
+            return ['success' => false, 'message' => 'Deine E-Mail-Adresse wurde noch nicht bestätigt. Bitte klicke zuerst auf den Bestätigungslink in der E-Mail, die wir dir zugesendet haben.'];
+        }
+
         if ($user['status'] === self::STATUS_PENDING) {
             return ['success' => false, 'message' => 'Dein Konto wurde noch nicht von der Moderation freigeschaltet.'];
         }
@@ -707,6 +741,153 @@ class ForumUserManager {
             @session_start();
         }
         unset($_SESSION['weave_forum_user_id']);
+    }
+
+    /**
+     * Bestätigt die E-Mail-Adresse eines neuen Benutzers anhand des Bestätigungs-Tokens (Double-Opt-In).
+     */
+    public static function verifyEmailToken(string $token, string $registrationMode = 'email_verify'): array {
+        $token = trim($token);
+        if (strlen($token) < 16) {
+            return ['success' => false, 'message' => 'Ungültiger oder beschädigter Bestätigungslink.'];
+        }
+
+        $users = self::getAllUsers();
+        $foundUser = null;
+        foreach ($users as $u) {
+            $uToken = trim((string)($u['verification_token'] ?? ''));
+            if ($uToken !== '' && hash_equals($uToken, $token)) {
+                $foundUser = $u;
+                break;
+            }
+        }
+
+        if (!$foundUser) {
+            return ['success' => false, 'message' => 'Dieser Bestätigungslink ist ungültig oder wurde bereits ausgeführt.'];
+        }
+
+        $foundUser['verification_token'] = '';
+        if ($registrationMode === 'approval') {
+            $foundUser['status'] = self::STATUS_PENDING;
+        } else {
+            $foundUser['status'] = self::STATUS_ACTIVE;
+        }
+
+        if (!self::saveUser($foundUser)) {
+            return ['success' => false, 'message' => 'Fehler beim Aktivieren des Benutzerkontos.'];
+        }
+
+        if (class_exists('SecurityManager')) {
+            SecurityManager::logEvent('FORUM_USER_EMAIL_VERIFIED', "Foren-Benutzer E-Mail bestätigt: {$foundUser['username']} ({$foundUser['email']})", 'INFO');
+        }
+
+        if ($foundUser['status'] === self::STATUS_PENDING) {
+            return [
+                'success' => true,
+                'status' => 'pending',
+                'message' => 'Deine E-Mail-Adresse wurde erfolgreich bestätigt! Dein Konto wartet nun noch auf die Freigabe durch einen Administrator.'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'status' => 'active',
+            'message' => 'Deine E-Mail-Adresse wurde erfolgreich bestätigt! Dein Benutzerkonto ist nun freigeschaltet – du kannst dich jetzt im Forum anmelden.'
+        ];
+    }
+
+    /**
+     * Versendet die Double-Opt-In Bestätigungs-E-Mail mit Token-Link an den neu registrierten Benutzer.
+     */
+    public static function sendVerificationEmail(array $user, string $token): array {
+        $mailerFile = dirname(__DIR__, 2) . '/libs/php/Mailer.php';
+        if (file_exists($mailerFile)) {
+            require_once $mailerFile;
+        }
+        if (!class_exists('SimpleMailer')) {
+            return ['success' => false, 'error' => 'Mailer-Klasse nicht verfügbar.'];
+        }
+
+        $data = $GLOBALS['data'] ?? [];
+        if (empty($data)) {
+            $df = dirname(__DIR__, 2) . '/data.json';
+            if (file_exists($df)) {
+                $data = json_decode((string)file_get_contents($df), true) ?: [];
+            }
+        }
+
+        $smtpConfig = $data['settings']['smtp'] ?? [];
+        $siteBrand = !empty($data['texts']['contact_name']) ? trim($data['texts']['contact_name']) : (!empty($data['texts']['hero_title']) ? trim($data['texts']['hero_title']) : 'WeaveCMS Forum');
+
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['SERVER_PORT'] ?? 80) == 443);
+        $scheme = $isHttps ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? 'localhost');
+        $scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/');
+        $verifyUrl = $scheme . '://' . $host . $scriptDir . '/?page=forum&view=login&forum_auth=verify_email&token=' . urlencode($token);
+
+        $safeUser = htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8');
+        $safeBrand = htmlspecialchars($siteBrand, ENT_QUOTES, 'UTF-8');
+        $safeUrl = htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8');
+
+        $subject = "Bitte bestätige dein Forum-Konto | {$siteBrand}";
+
+        $htmlBody = <<<HTML
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><title>E-Mail-Bestätigung</title></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #0f172a;">
+    <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-top: 5px solid #2e6248; border-radius: 14px; padding: 32px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);">
+        <h2 style="color: #0f172a; margin: 0 0 12px 0; font-size: 20px;">Willkommen im Forum, {$safeUser}!</h2>
+        <p style="font-size: 14.5px; line-height: 1.6; color: #334155; margin: 0 0 20px 0;">
+            Vielen Dank für deine Registrierung bei <strong>{$safeBrand}</strong>. Damit dein Benutzerkonto für die Anmeldung im Forum freigeschaltet wird, bestätige bitte deine E-Mail-Adresse über folgenden Button:
+        </p>
+        <div style="text-align: center; margin: 28px 0;">
+            <a href="{$safeUrl}" style="display: inline-block; background-color: #2e6248; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14.5px; padding: 13px 26px; border-radius: 8px;">
+                ✓ E-Mail-Adresse jetzt bestätigen
+            </a>
+        </div>
+        <p style="font-size: 12.5px; line-height: 1.5; color: #64748b; margin: 0 0 8px 0;">
+            Falls der Button nicht funktioniert, kopiere bitte diesen Link in deinen Browser:
+        </p>
+        <p style="font-size: 12px; word-break: break-all; background: #f1f5f9; padding: 10px 12px; border-radius: 6px; color: #334155; margin: 0 0 20px 0;">
+            {$safeUrl}
+        </p>
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+        <p style="font-size: 12px; color: #94a3b8; margin: 0;">
+            Hinweis: Falls du dieses Konto nicht selbst erstellt hast, kannst du diese E-Mail einfach ignorieren.
+        </p>
+    </div>
+</body>
+</html>
+HTML;
+
+        $textBody = "Willkommen im Forum, {$user['username']}!\n\n"
+                  . "Vielen Dank für deine Registrierung bei {$siteBrand}.\n"
+                  . "Bitte klicke auf den folgenden Link, um deine E-Mail-Adresse zu bestätigen und dein Benutzerkonto zur Anmeldung freizuschalten:\n\n"
+                  . $verifyUrl . "\n\n"
+                  . "Falls du dieses Konto nicht selbst erstellt hast, kannst du diese E-Mail ignorieren.";
+
+        return SimpleMailer::send($user['email'], $subject, $htmlBody, $textBody, '', $siteBrand, $smtpConfig);
+    }
+
+    /**
+     * Liefert die konfigurierten Forum-Richtlinien (oder Standard-Platzhalterrichtlinien, falls noch nicht definiert).
+     */
+    public static function getForumGuidelines(): string {
+        if (class_exists('PluginManager')) {
+            $data = $GLOBALS['data'] ?? [];
+            $cfg = PluginManager::getPluginConfig('weave-forum-users', $data);
+            if (!empty($cfg['forum_guidelines']) && trim($cfg['forum_guidelines']) !== '') {
+                return trim((string)$cfg['forum_guidelines']);
+            }
+        }
+        return "1. Respektvoller Umgang (Netiquette)\nBitte begegne allen Mitgliedern höflich, sachlich und respektvoll. Beleidigungen, persönliche Angriffe oder Diskriminierung werden nicht toleriert.\n\n"
+             . "2. Themenrelevanz & Beiträge\nAchte darauf, Themen im passenden Forenbereich zu erstellen und aussagekräftige Titel zu wählen.\n\n"
+             . "3. Keine Werbung, Spam oder rechtswidrige Inhalte\nDas Verbreiten von unerwünschter Werbung (Spam), Urheberrechtsverletzungen oder rechtswidrigen Inhalten führt zur sofortigen Sperrung des Kontos.\n\n"
+             . "(Hinweis: Die endgültigen Forum-Richtlinien können vom Administrator jederzeit in der Forum-Benutzerverwaltung angepasst werden.)";
+    }
+
+    protected static function _noopLogoutEnd(): void {
     }
 
     /**
@@ -843,7 +1024,8 @@ class ForumUserManager {
             'notification_email' => 1,
             'alias' => '',
             'use_alias_only' => 0,
-            'privacy_settings' => self::getDefaultPrivacySettings()
+            'privacy_settings' => self::getDefaultPrivacySettings(),
+            'verification_token' => ($verificationToken ?? '')
         ];
 
         self::saveUser($newUser);
@@ -938,7 +1120,7 @@ class ForumUserManager {
         if (!$user) return null;
 
         $export = $user;
-        unset($export['password_hash']);
+        unset($export['password_hash'], $export['verification_token']);
         return $export;
     }
 
@@ -958,6 +1140,7 @@ class ForumUserManager {
         $user['bio'] = '';
         $user['alias'] = '';
         $user['use_alias_only'] = 0;
+        $user['verification_token'] = '';
         $user['ban_reason'] = 'Konto auf Wunsch des Benutzers gelöscht/anonymisiert.';
         $user['notification_email'] = 0;
 
@@ -1000,11 +1183,11 @@ class ForumUserManager {
                     INSERT OR REPLACE INTO weave_forum_users (
                         id, username, email, password_hash, role, status, avatar, signature,
                         bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email,
-                        alias, use_alias_only, privacy_settings
+                        alias, use_alias_only, privacy_settings, verification_token
                     ) VALUES (
                         :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
                         :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email,
-                        :alias, :use_alias_only, :privacy_settings
+                        :alias, :use_alias_only, :privacy_settings, :verification_token
                     )
                 ");
 
@@ -1030,7 +1213,8 @@ class ForumUserManager {
                         ':notification_email' => !empty($u['notification_email']) ? 1 : 0,
                         ':alias' => $u['alias'] ?? '',
                         ':use_alias_only' => !empty($u['use_alias_only']) ? 1 : 0,
-                        ':privacy_settings' => json_encode($u['privacy_settings'] ?? self::getDefaultPrivacySettings(), JSON_UNESCAPED_UNICODE)
+                        ':privacy_settings' => json_encode($u['privacy_settings'] ?? self::getDefaultPrivacySettings(), JSON_UNESCAPED_UNICODE),
+                        ':verification_token' => $u['verification_token'] ?? ''
                     ]);
                     $count++;
                 }
@@ -1085,11 +1269,11 @@ class ForumUserManager {
                     REPLACE INTO weave_forum_users (
                         id, username, email, password_hash, role, status, avatar, signature,
                         bio, created_at, last_login, post_count, topic_count, banned_until, ban_reason, notification_email,
-                        alias, use_alias_only, privacy_settings
+                        alias, use_alias_only, privacy_settings, verification_token
                     ) VALUES (
                         :id, :username, :email, :password_hash, :role, :status, :avatar, :signature,
                         :bio, :created_at, :last_login, :post_count, :topic_count, :banned_until, :ban_reason, :notification_email,
-                        :alias, :use_alias_only, :privacy_settings
+                        :alias, :use_alias_only, :privacy_settings, :verification_token
                     )
                 ");
 
@@ -1115,7 +1299,8 @@ class ForumUserManager {
                         ':notification_email' => !empty($u['notification_email']) ? 1 : 0,
                         ':alias' => $u['alias'] ?? '',
                         ':use_alias_only' => !empty($u['use_alias_only']) ? 1 : 0,
-                        ':privacy_settings' => json_encode($u['privacy_settings'] ?? self::getDefaultPrivacySettings(), JSON_UNESCAPED_UNICODE)
+                        ':privacy_settings' => json_encode($u['privacy_settings'] ?? self::getDefaultPrivacySettings(), JSON_UNESCAPED_UNICODE),
+                        ':verification_token' => $u['verification_token'] ?? ''
                     ]);
                     $count++;
                 }
