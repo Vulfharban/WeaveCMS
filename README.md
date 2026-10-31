@@ -22,10 +22,10 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 
-## Releases & Downloads (v1.3.2)
+## Releases & Downloads (v1.3.3)
 
-- 📦 **[WeaveCMS v1.3.2 Full Package](releases/weavecms-v1.3.2.zip)** (`releases/weavecms-v1.3.2.zip`, 12.19 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.2 Update Package](releases/update-v1.3.2.zip)** (`releases/update-v1.3.2.zip`, 0.78 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.3 Full Package](releases/weavecms-v1.3.3.zip)** (`releases/weavecms-v1.3.3.zip`, 12.23 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.3 Update Package](releases/update-v1.3.3.zip)** (`releases/update-v1.3.3.zip`, 0.82 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
 
@@ -136,7 +136,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.3.2.zip](releases/weavecms-v1.3.2.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.3.zip](releases/weavecms-v1.3.3.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License
