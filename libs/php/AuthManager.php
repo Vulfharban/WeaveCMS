@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * ============================================================================
  * WeaveCMS - Authentifizierungs- & Sicherheitsmanager (AuthManager)
@@ -167,7 +167,7 @@ class AuthManager {
      * @param array|null $data
      * @return bool
      */
-    public static function login(string $password, string $pin, ?array &$data = null, ?string $usernameOrEmail = null): bool {
+    public static function login(string $password, string $pin, ?array &$data = null, ?string $usernameOrEmail = null, ?string $twoFactorCode = null): bool {
         self::initSession();
 
         // Brute-Force-Schutz für Login
@@ -183,6 +183,25 @@ class AuthManager {
         }
 
         if ($authenticatedUser !== null) {
+            // Phase 29: Prüfen ob 2FA aktiv ist
+            if (!empty($authenticatedUser["two_factor_enabled"]) && !empty($authenticatedUser["two_factor_secret"])) {
+                $code = trim((string)$twoFactorCode);
+                $totpOk = TotpManager::verifyCode($authenticatedUser["two_factor_secret"], $code);
+                if (!$totpOk) {
+                    $backupOk = TotpManager::consumeBackupCode($authenticatedUser, $code);
+                    if ($backupOk) {
+                        UserManager::updateUser($data, $authenticatedUser["id"], [
+                            "two_factor_backup_codes" => $authenticatedUser["two_factor_backup_codes"]
+                        ]);
+                        SecurityManager::logEvent("AUTH_2FA_BACKUP_USED", "Notfall-Wiederherstellungscode für {$authenticatedUser[\x27username\x27]} eingelöst", "WARNING");
+                    } else {
+                        $fails = SecurityManager::recordFailedAttempt("admin_login");
+                        SecurityManager::logEvent("AUTH_2FA_FAIL", "Ungültiger 2FA-Code / Backup-Code für {$authenticatedUser[\x27username\x27]} (Fehlversuch {$fails})", "WARNING");
+                        $_SESSION["login_2fa_required"] = true;
+                        return false;
+                    }
+                }
+            }
             SecurityManager::clearRateLimit('admin_login');
             SecurityManager::regenerateSession(true);
 

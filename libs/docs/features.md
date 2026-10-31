@@ -1,4 +1,4 @@
-# WeaveCMS – Feature-Übersicht & Funktionskatalog
+﻿# WeaveCMS – Feature-Übersicht & Funktionskatalog
 
 > **Das leichtgewichtige, modulare Flat-File & SQL Content Management System für Handwerksbetriebe, Dienstleister & kreative Köpfe.**  
 > *Offizielle Dokumentation für Produkt-Website, Download-Portal und Versions-Updates.*

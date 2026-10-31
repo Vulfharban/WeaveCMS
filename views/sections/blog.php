@@ -53,7 +53,7 @@ $blog_subtitle = !empty($data['texts']['blog_subtitle']) ? $data['texts']['blog_
                 <article class="card" style="display:flex; flex-direction:column; overflow:hidden; transition:transform 0.25s ease, box-shadow 0.25s ease; border-radius:var(--card-radius, 20px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
                     <?php if (!empty($p_img)): ?>
                         <a href="<?php echo $p_url; ?>" style="display:block; overflow:hidden; height:210px; position:relative;">
-                            <img src="<?php echo $p_img; ?>" alt="<?php echo $p_title; ?>" style="width:100%; height:100%; object-fit:cover; transition:transform 0.35s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='none'">
+                            <img src="<?php echo $p_img; ?>" alt="<?php echo $p_title; ?>" style="width:100%; height:100%; object-fit:cover; <?php echo class_exists('MediaManager') ? htmlspecialchars(MediaManager::getFocusStyle($post['image'] ?? '')) : ''; ?> transition:transform 0.35s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='none'">
                         </a>
                     <?php else: ?>
                         <a href="<?php echo $p_url; ?>" style="display:flex; align-items:center; justify-content:center; height:150px; background:rgba(46,98,72,0.06); text-decoration:none; color:var(--primary);">

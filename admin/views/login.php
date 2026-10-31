@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * WeaveCMS – Admin-Login View
  * @var string $login_error Fehlermeldung bei fehlgeschlagenem Login
@@ -65,6 +65,13 @@
                     <div style="position:relative;">
                         <input type="password" id="pin" name="pin" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px; letter-spacing: 3px;" maxlength="10" required>
                         <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); cursor:pointer; font-size:18px;" onclick="toggleVisibility('pin')">pin</span>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="two_factor_code" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);"><?php echo __a("admin.login.2fa_code", "2FA-Code / Notfall-Code (falls aktiviert)"); ?></label>
+                    <div style="position:relative;">
+                        <input type="text" id="two_factor_code" name="two_factor_code" class="form-control" style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px; letter-spacing: 2px;" placeholder="<?php echo htmlspecialchars(__a("admin.login.2fa_placeholder", "6-stelliger Code oder Backup-Code")); ?>" autocomplete="one-time-code">
+                        <span class="material-icons" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); font-size:18px;">phonelink_lock</span>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 1rem;">

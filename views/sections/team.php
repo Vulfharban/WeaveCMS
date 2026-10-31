@@ -37,7 +37,7 @@ $team_subtitle = !empty($data['texts']['team_subtitle']) ? $data['texts']['team_
                 ?>
                 <div class="card" style="text-align:center; padding: 2.5rem 1.75rem; border-radius: var(--card-radius, 20px); display:flex; flex-direction:column; align-items:center;">
                     <?php if (!empty($m_img)): ?>
-                        <img src="<?php echo $m_img; ?>" alt="<?php echo $m_name; ?>" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 1.25rem; border: 3px solid var(--primary); box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
+                        <img src="<?php echo $m_img; ?>" alt="<?php echo $m_name; ?>" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; <?php echo class_exists('MediaManager') ? htmlspecialchars(MediaManager::getFocusStyle($m['image'] ?? '')) : ''; ?> margin-bottom: 1.25rem; border: 3px solid var(--primary); box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
                     <?php else: ?>
                         <div style="width: 120px; height: 120px; border-radius: 50%; background: rgba(46,98,72,0.1); color: var(--primary); display:flex; align-items:center; justify-content:center; margin-bottom: 1.25rem;">
                             <span class="material-icons" style="font-size: 56px;">person</span>

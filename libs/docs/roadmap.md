@@ -861,14 +861,14 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 29: Zwei-Faktor-Authentifizierung (2FA via TOTP / App) (v1.4.5)
 *Ziel: Standardkonformer RFC 6238 TOTP-Generator für Authenticator-Apps (Google Authenticator, Bitwarden, 1Password) mit Backup-Wiederherstellungscodes.*
 
-- [ ] **29.1 RFC 6238 TOTP-Engine (Zero External Bloat):**
+- [x] **29.1 RFC 6238 TOTP-Engine (Zero External Bloat):**
   - Nativer PHP-Algorithmus zur Erzeugung und Verifikation zeitbasierter Einmalpasswörter (TOTP) ohne externe Composer-Pakete.
   - Kompatibel mit allen Standard-Apps (Google Authenticator, Bitwarden, 1Password, Microsoft Authenticator, Aegis).
-- [ ] **29.2 2FA-Einrichtungs-Assistent im Admin-Profil:**
+- [x] **29.2 2FA-Einrichtungs-Assistent im Admin-Profil:**
   - Generierung des Secret-Keys und Darstellung als QR-Code (SVG/Canvas) sowie manueller Textschlüssel.
   - Bestätigungsprüfung vor der Aktivierung zur Vermeidung versehentlicher Aussperrungen.
   - 2FA-Status-Badges in der Benutzerverwaltung.
-- [ ] **29.3 Notfall-Wiederherstellungscodes (Backup-Codes):**
+- [x] **29.3 Notfall-Wiederherstellungscodes (Backup-Codes):**
   - Generierung von 8 kryptografisch sicheren Einmal-Wiederherstellungscodes bei Aktivierung.
   - Notfall-Login-Pfad bei Smartphone-Verlust mit automatischer Entwertung genutzter Codes.
 
@@ -877,13 +877,13 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 30: Interaktiver Fokuspunkt-Selector für Medien (v1.5.0)
 *Ziel: Klick-Fokuspunkt im Mediathek-Modal (object-position: X% Y%) zur Optimierung von Bildausschnitten auf Smartphones.*
 
-- [ ] **30.1 Visueller Klick-Fokuspunkt im Mediathek-Detailmodal:**
+- [x] **30.1 Visueller Klick-Fokuspunkt im Mediathek-Detailmodal:**
   - Interaktiver Bildwähler: Per Klick wird das visuelle Zentrum (z. B. Gesicht, Motiv, Produkt) im Bild markiert.
   - Speicherung der Fokus-Koordinaten (`focus_x` und `focus_y` in Prozent 0–100 %) in `data/media_meta.json`.
-- [ ] **30.2 CSS `object-position` Rendering in Bildkomponenten:**
+- [x] **30.2 CSS `object-position` Rendering in Bildkomponenten:**
   - Automatisches Injizieren von `style="object-position: {x}% {y}%;"` in Hero-, Galerie- und Teaser-Bildern.
   - Garantiert optimale Bildausschnitte bei responsivem Beschnitt (`object-fit: cover`) auf allen Smartphone-Bildschirmen.
-- [ ] **30.3 Live-Vorschau in verschiedenen Seitenverhältnissen:**
+- [x] **30.3 Live-Vorschau in verschiedenen Seitenverhältnissen:**
   - Sofortige Vorschau im Mediathek-Modal in den Formaten 16:9 (Desktop), 1:1 (Kachel/Instagram) und 9:16 (Mobile Story).
 
 ---

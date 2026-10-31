@@ -244,7 +244,9 @@ class MediaManager {
                 'dimensions'     => $dimensions,
                 'variants'       => $variants,
                 'alt'            => $altText,
-                'title'          => $title
+                'title'          => $title,
+                'focus_x'        => (float)($fileMeta['focus_x'] ?? 50.0),
+                'focus_y'        => (float)($fileMeta['focus_y'] ?? 50.0)
             ];
         }
 
@@ -578,6 +580,12 @@ class MediaManager {
             if (isset($alt['title'])) {
                 $meta[$safeName]['title'] = trim((string)$alt['title']);
             }
+            if (isset($alt['focus_x'])) {
+                $meta[$safeName]['focus_x'] = max(0.0, min(100.0, round((float)$alt['focus_x'], 1)));
+            }
+            if (isset($alt['focus_y'])) {
+                $meta[$safeName]['focus_y'] = max(0.0, min(100.0, round((float)$alt['focus_y'], 1)));
+            }
         } else {
             $meta[$safeName]['alt'] = trim((string)$alt);
             if ($title !== '') {
@@ -585,6 +593,34 @@ class MediaManager {
             }
         }
         return self::saveMeta($meta);
+    }
+
+    /**
+     * Ermittelt die Fokuspunkt-Koordinaten für ein Bild (Phase 30).
+     *
+     * @param string $filename Dateiname oder relativer Pfad
+     * @return array{x: float, y: float}
+     */
+    public static function getFocusPosition(string $filename): array {
+        $safeName = basename($filename);
+        $meta = self::loadMeta();
+        $fx = isset($meta[$safeName]['focus_x']) ? (float)$meta[$safeName]['focus_x'] : 50.0;
+        $fy = isset($meta[$safeName]['focus_y']) ? (float)$meta[$safeName]['focus_y'] : 50.0;
+        return [
+            'x' => max(0.0, min(100.0, $fx)),
+            'y' => max(0.0, min(100.0, $fy))
+        ];
+    }
+
+    /**
+     * Liefert die CSS object-position Eigenschaft für ein Bild (Phase 30).
+     *
+     * @param string $filename Dateiname oder relativer Pfad
+     * @return string CSS-String (z. B. 'object-position: 45.2% 30.5%;')
+     */
+    public static function getFocusStyle(string $filename): string {
+        $pos = self::getFocusPosition($filename);
+        return sprintf('object-position: %s%% %s%%;', $pos['x'], $pos['y']);
     }
 
     /**
@@ -612,14 +648,17 @@ class MediaManager {
 
         if (!file_exists($absPath)) {
             // Fallback auf einfaches img-Tag falls Datei nicht existiert
+            $focusStyle = self::getFocusStyle($cleanRel);
             return sprintf(
-                '<img src="%s" alt="%s" class="%s" loading="%s">',
+                '<img src="%s" alt="%s" class="%s" loading="%s" style="%s">',
                 htmlspecialchars('/' . $cleanRel, ENT_QUOTES),
                 htmlspecialchars($alt, ENT_QUOTES),
                 htmlspecialchars($class, ENT_QUOTES),
-                htmlspecialchars($loading, ENT_QUOTES)
+                htmlspecialchars($loading, ENT_QUOTES),
+                htmlspecialchars($focusStyle, ENT_QUOTES)
             );
         }
+
 
         $dir = pathinfo($cleanRel, PATHINFO_DIRNAME);
         $baseName = pathinfo($cleanRel, PATHINFO_FILENAME);
@@ -647,7 +686,8 @@ class MediaManager {
         if ($webpSrc) {
             $html .= '<source type="image/webp" srcset="' . htmlspecialchars($webpSrc, ENT_QUOTES) . '" sizes="' . htmlspecialchars($sizes, ENT_QUOTES) . '">';
         }
-        $html .= '<img src="' . htmlspecialchars($fallbackSrc, ENT_QUOTES) . '" alt="' . htmlspecialchars($alt, ENT_QUOTES) . '" loading="' . htmlspecialchars($loading, ENT_QUOTES) . '">';
+        $focusStyle = self::getFocusStyle($cleanRel);
+        $html .= '<img src="' . htmlspecialchars($fallbackSrc, ENT_QUOTES) . '" alt="' . htmlspecialchars($alt, ENT_QUOTES) . '" loading="' . htmlspecialchars($loading, ENT_QUOTES) . '" style="' . htmlspecialchars($focusStyle, ENT_QUOTES) . '">';
         $html .= '</picture>';
 
         return $html;

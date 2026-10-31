@@ -73,7 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         $username = trim($_POST['username'] ?? 'admin');
         $password = $_POST['password'] ?? '';
         $pin = $_POST['pin'] ?? '';
-        if (AuthManager::login($password, $pin, $data, $username)) {
+        $twoFactorCode = trim($_POST["two_factor_code"] ?? "");
+        if (AuthManager::login($password, $pin, $data, $username, $twoFactorCode)) {
             save_data($data_file, $data);
             header('Location: ./');
             exit;
@@ -83,7 +84,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 $mins = max(1, ceil($rem / 60));
                 $login_error = "Zu viele Fehlversuche! Der Zugang wurde für {$mins} Minute(n) gesperrt.";
             } else {
-                $login_error = 'Ungültiges Passwort oder PIN-Code. Bitte versuche es erneut.';
+            if (!empty($_SESSION["login_2fa_required"])) {
+                unset($_SESSION["login_2fa_required"]);
+                $login_error = __a("admin.login.2fa_invalid", "Der eingegebene 2FA-Code oder Notfall-Code ist ungültig oder abgelaufen.");
+            } else {
+                $login_error = __a("admin.login.failed", "Ungültiges Passwort oder PIN-Code. Bitte versuche es erneut.");
+            }
             }
         }
     }
@@ -494,8 +500,167 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $filename = basename($_POST['filename'] ?? '');
     $alt = trim($_POST['alt'] ?? '');
     $title = trim($_POST['title'] ?? '');
-    $ok = MediaManager::updateMeta($filename, ['alt' => $alt, 'title' => $title]);
+    $focus_x = isset($_POST['focus_x']) ? (float)$_POST['focus_x'] : 50.0;
+    $focus_y = isset($_POST['focus_y']) ? (float)$_POST['focus_y'] : 50.0;
+    $ok = MediaManager::updateMeta($filename, [
+        'alt'     => $alt,
+        'title'   => $title,
+        'focus_x' => $focus_x,
+        'focus_y' => $focus_y
+    ]);
     echo json_encode(['success' => $ok]);
+    exit;
+}
+
+// 6.3 AJAX Actions: Zwei-Faktor-Authentifizierung (Phase 29)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'setup_2fa_init') {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        echo json_encode(['success' => false, 'error' => 'CSRF Token ungültig']);
+        exit;
+    }
+    $curUser = UserManager::getCurrentUser($data);
+    $secret = TotpManager::generateSecret();
+    $_SESSION['pending_2fa_secret'] = $secret;
+    $siteName = $data['texts']['hero_title'] ?? 'WeaveCMS';
+    $otpUrl = TotpManager::getOtpAuthUrl($curUser['username'], $secret, $siteName);
+    $qrSvg = TotpManager::generateQrSvg($otpUrl, 200);
+
+    echo json_encode([
+        'success' => true,
+        'secret'  => $secret,
+        'otp_url' => $otpUrl,
+        'qr_svg'  => $qrSvg
+    ]);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'setup_2fa_confirm') {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        echo json_encode(['success' => false, 'error' => 'CSRF Token ungültig']);
+        exit;
+    }
+    $code = trim((string)($_POST['code'] ?? ''));
+    $secret = $_SESSION['pending_2fa_secret'] ?? '';
+
+    if (empty($secret) || !TotpManager::verifyCode($secret, $code)) {
+        echo json_encode(['success' => false, 'error' => __a('admin.2fa.invalid_code', 'Der Bestätigungscode ist ungültig oder abgelaufen. Bitte prüfe die Uhrzeit deines Smartphones.')]);
+        exit;
+    }
+
+    $curUser = UserManager::getCurrentUser($data);
+    $backupCodes = TotpManager::generateBackupCodes(8);
+    $updateRes = UserManager::updateUser($data, $curUser['id'], [
+        'two_factor_enabled'      => true,
+        'two_factor_secret'       => $secret,
+        'two_factor_backup_codes' => $backupCodes
+    ]);
+
+    if (!empty($updateRes['success'])) {
+        save_data($data_file, $data);
+        unset($_SESSION['pending_2fa_secret']);
+        SecurityManager::logEvent('AUTH_2FA_ENABLED', "2FA erfolgreich aktiviert für {$curUser['username']}", 'INFO');
+        echo json_encode([
+            'success'      => true,
+            'backup_codes' => $backupCodes,
+            'message'      => __a('admin.2fa.enabled_success', 'Zwei-Faktor-Authentifizierung wurde erfolgreich aktiviert!')
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'error' => $updateRes['message'] ?? 'Fehler beim Speichern']);
+    }
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'disable_2fa') {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        echo json_encode(['success' => false, 'error' => 'CSRF Token ungültig']);
+        exit;
+    }
+
+    $curUser = UserManager::getCurrentUser($data);
+    $pin = trim((string)($_POST['pin'] ?? ''));
+    $password = (string)($_POST['password'] ?? '');
+
+    $authOk = false;
+    if (!empty($curUser['password_hash']) && password_verify($password, $curUser['password_hash'])) {
+        $authOk = true;
+    } elseif (!empty($pin) && AuthManager::verifyAdminPin($pin, $data)) {
+        $authOk = true;
+    } elseif (!empty($password) && defined('DEFAULT_ADMIN_PASSWORD') && $password === DEFAULT_ADMIN_PASSWORD) {
+        $authOk = true;
+    }
+
+    if (!$authOk) {
+        echo json_encode(['success' => false, 'error' => __a('admin.2fa.disable_failed', 'Authentifizierung fehlgeschlagen: Passwort oder PIN ungültig.')]);
+        exit;
+    }
+
+    $updateRes = UserManager::updateUser($data, $curUser['id'], [
+        'two_factor_enabled'      => false,
+        'two_factor_secret'       => null,
+        'two_factor_backup_codes' => []
+    ]);
+
+    if (!empty($updateRes['success'])) {
+        save_data($data_file, $data);
+        SecurityManager::logEvent('AUTH_2FA_DISABLED', "2FA deaktiviert für {$curUser['username']}", 'WARNING');
+        echo json_encode([
+            'success' => true,
+            'message' => __a('admin.2fa.disabled_success', 'Zwei-Faktor-Authentifizierung wurde erfolgreich deaktiviert.')
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'error' => $updateRes['message'] ?? 'Fehler beim Speichern']);
+    }
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'regenerate_2fa_backup_codes') {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        echo json_encode(['success' => false, 'error' => 'CSRF Token ungültig']);
+        exit;
+    }
+
+    $curUser = UserManager::getCurrentUser($data);
+    if (empty($curUser['two_factor_enabled'])) {
+        echo json_encode(['success' => false, 'error' => '2FA ist nicht aktiv']);
+        exit;
+    }
+
+    $pin = trim((string)($_POST['pin'] ?? ''));
+    $password = (string)($_POST['password'] ?? '');
+
+    $authOk = false;
+    if (!empty($curUser['password_hash']) && password_verify($password, $curUser['password_hash'])) {
+        $authOk = true;
+    } elseif (!empty($pin) && AuthManager::verifyAdminPin($pin, $data)) {
+        $authOk = true;
+    } elseif (!empty($password) && defined('DEFAULT_ADMIN_PASSWORD') && $password === DEFAULT_ADMIN_PASSWORD) {
+        $authOk = true;
+    }
+
+    if (!$authOk) {
+        echo json_encode(['success' => false, 'error' => __a('admin.2fa.disable_failed', 'Authentifizierung fehlgeschlagen: Passwort oder PIN ungültig.')]);
+        exit;
+    }
+
+    $newCodes = TotpManager::generateBackupCodes(8);
+    $updateRes = UserManager::updateUser($data, $curUser['id'], [
+        'two_factor_backup_codes' => $newCodes
+    ]);
+
+    if (!empty($updateRes['success'])) {
+        save_data($data_file, $data);
+        SecurityManager::logEvent('AUTH_2FA_BACKUP_REGEN', "Backup-Codes neu generiert für {$curUser['username']}", 'INFO');
+        echo json_encode([
+            'success'      => true,
+            'backup_codes' => $newCodes
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'error' => $updateRes['message'] ?? 'Fehler beim Speichern']);
+    }
     exit;
 }
 

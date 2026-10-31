@@ -193,14 +193,74 @@ $totalSizeFormatted = MediaManager::formatBytes($totalBytes);
 
         <!-- Body (Zweispalter) -->
         <div style="padding:1.5rem 1.6rem; overflow-y:auto; flex:1; display:grid; grid-template-columns: minmax(240px, 340px) 1fr; gap:1.75rem; align-items:start;">
-            <!-- Linke Spalte: Vorschau -->
+            <!-- Linke Spalte: Vorschau, Interaktiver Fokuspunkt (Phase 30) & Live-Ratios -->
             <div>
-                <div style="background:#0f172a; border:1px solid var(--border-color); border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:220px; max-height:360px; margin-bottom:1rem; position:relative;">
-                    <img id="detail-modal-img" src="" style="max-width:100%; max-height:360px; object-fit:contain; display:block;">
+                <div id="detail-modal-preview-container" style="background:#0f172a; border:1px solid var(--border-color); border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:220px; max-height:360px; margin-bottom:0.75rem; position:relative; user-select:none;">
+                    <div style="position:relative; display:inline-block; max-width:100%; max-height:360px;">
+                        <img id="detail-modal-img" src="" onclick="handleFocalPointClick(event)" style="max-width:100%; max-height:360px; object-fit:contain; display:block; cursor:crosshair;">
+                        <!-- Interaktiver Fokuspunkt Marker Pin (Phase 30.1) -->
+                        <div id="detail-focal-pin" style="display:none; position:absolute; width:26px; height:26px; border-radius:50%; border:2px solid #ffffff; background:rgba(46,98,72,0.85); box-shadow:0 0 0 3px rgba(0,0,0,0.5), 0 0 12px rgba(46,98,72,0.9); transform:translate(-50%, -50%); pointer-events:none; z-index:10; transition:left 0.1s ease, top 0.1s ease;">
+                            <div style="width:6px; height:6px; border-radius:50%; background:#ffffff; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);"></div>
+                        </div>
+                    </div>
                     <div id="detail-modal-icon-placeholder" style="display:none; font-size:64px; color:var(--text-secondary); text-align:center; padding:2rem;">
                         <span class="material-icons" style="font-size:64px;">description</span>
                     </div>
                 </div>
+
+                <!-- Fokuspunkt-Steuerung (Phase 30.1) -->
+                <div id="detail-focal-controls" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:10px; padding:10px 12px; margin-bottom:0.85rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <span style="font-size:0.8rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:4px;">
+                            <span class="material-icons" style="font-size:15px; color:var(--primary);">filter_center_focus</span>
+                            <?php echo __a('admin.media.focal_point_title', 'Visueller Fokuspunkt (Klick-Auswahl)'); ?>
+                        </span>
+                        <button type="button" class="btn btn-secondary" onclick="centerFocalPoint()" style="padding:2px 8px; font-size:0.73rem;">
+                            <?php echo __a('admin.media.focal_center_btn', 'Zentrieren (50% / 50%)'); ?>
+                        </button>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                        <div>
+                            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo __a('admin.media.focal_x', 'Fokus X'); ?> (%)</label>
+                            <input type="number" id="detail-modal-focus-x" min="0" max="100" step="0.5" value="50" class="form-control" style="font-size:0.8rem; padding:4px 8px;" oninput="updateFocalPointFromInputs()">
+                        </div>
+                        <div>
+                            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:2px;"><?php echo __a('admin.media.focal_y', 'Fokus Y'); ?> (%)</label>
+                            <input type="number" id="detail-modal-focus-y" min="0" max="100" step="0.5" value="50" class="form-control" style="font-size:0.8rem; padding:4px 8px;" oninput="updateFocalPointFromInputs()">
+                        </div>
+                    </div>
+                    <small style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-top:4px;">
+                        <?php echo __a('admin.media.focal_point_desc', 'Klicke direkt auf das Bild, um das optische Zentrum (z. B. Gesicht, Produkt) festzulegen.'); ?>
+                    </small>
+                </div>
+
+                <!-- Phase 30.3: Live-Vorschau in verschiedenen Seitenverhältnissen -->
+                <div id="detail-focal-preview-box" style="margin-bottom:0.85rem; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:10px; padding:10px 12px;">
+                    <div style="font-size:0.75rem; font-weight:700; color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">
+                        <?php echo __a('admin.media.preview_ratios_title', 'Live-Vorschau Seitenverhältnisse'); ?>:
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1.4fr 1fr 0.75fr; gap:8px; align-items:end;">
+                        <div>
+                            <div style="font-size:0.68rem; color:var(--text-secondary); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">16:9 Desktop</div>
+                            <div style="aspect-ratio:16/9; width:100%; overflow:hidden; border-radius:6px; background:#0f172a; border:1px solid var(--border-color);">
+                                <img id="preview-ratio-16-9" src="" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.68rem; color:var(--text-secondary); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">1:1 Quadrat</div>
+                            <div style="aspect-ratio:1/1; width:100%; overflow:hidden; border-radius:6px; background:#0f172a; border:1px solid var(--border-color);">
+                                <img id="preview-ratio-1-1" src="" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.68rem; color:var(--text-secondary); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">9:16 Mobile</div>
+                            <div style="aspect-ratio:9/16; width:100%; overflow:hidden; border-radius:6px; background:#0f172a; border:1px solid var(--border-color);">
+                                <img id="preview-ratio-9-16" src="" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="display:flex; justify-content:space-between; gap:8px;">
                     <a id="detail-modal-direct-link" href="#" target="_blank" class="btn btn-secondary" style="flex:1; text-align:center; padding:6px 10px; font-size:0.8rem; text-decoration:none;">
                         <span class="material-icons" style="font-size:15px; vertical-align:middle;">open_in_new</span> <?php echo __a('admin.media.open_original', 'Original öffnen'); ?>
@@ -583,15 +643,39 @@ function openMediaDetailModal(filename) {
     document.getElementById('detail-modal-date').textContent = item.date_formatted;
     document.getElementById('detail-modal-alt').value = item.alt || '';
 
+    const fx = (item.focus_x !== undefined && item.focus_x !== null) ? parseFloat(item.focus_x) : 50.0;
+    const fy = (item.focus_y !== undefined && item.focus_y !== null) ? parseFloat(item.focus_y) : 50.0;
+    document.getElementById('detail-modal-focus-x').value = fx;
+    document.getElementById('detail-modal-focus-y').value = fy;
+
     const imgEl = document.getElementById('detail-modal-img');
     const iconEl = document.getElementById('detail-modal-icon-placeholder');
+    const focalControls = document.getElementById('detail-focal-controls');
+    const focalPreviews = document.getElementById('detail-focal-preview-box');
+
     if (item.type === 'image' || item.type === 'vector') {
         imgEl.src = '../' + item.rel_url;
         imgEl.style.display = 'block';
         iconEl.style.display = 'none';
+        if (focalControls) focalControls.style.display = 'block';
+        if (focalPreviews) focalPreviews.style.display = 'block';
+
+        // Live-Vorschau Bildquellen setzen
+        const prev169 = document.getElementById('preview-ratio-16-9');
+        const prev11 = document.getElementById('preview-ratio-1-1');
+        const prev916 = document.getElementById('preview-ratio-9-16');
+        if (prev169) prev169.src = '../' + item.rel_url;
+        if (prev11) prev11.src = '../' + item.rel_url;
+        if (prev916) prev916.src = '../' + item.rel_url;
+
+        applyFocalPoint(fx, fy);
     } else {
         imgEl.style.display = 'none';
         iconEl.style.display = 'block';
+        if (focalControls) focalControls.style.display = 'none';
+        if (focalPreviews) focalPreviews.style.display = 'none';
+        const pin = document.getElementById('detail-focal-pin');
+        if (pin) pin.style.display = 'none';
     }
 
     document.getElementById('detail-modal-direct-link').href = '../' + item.rel_url;
@@ -600,22 +684,83 @@ function openMediaDetailModal(filename) {
     document.getElementById('detail-snippet-url').value = item.web_url;
     document.getElementById('detail-snippet-md').value = `![${item.alt || item.filename}](${item.web_url})`;
 
+    updatePictureSnippet(fx, fy);
+
+    const modal = document.getElementById('modal-media-detail');
+    modal.style.display = 'flex';
+}
+
+function handleFocalPointClick(e) {
+    if (!ACTIVE_DETAIL_ITEM) return;
+    const img = document.getElementById('detail-modal-img');
+    if (!img) return;
+
+    const rect = img.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    let pctX = Math.max(0, Math.min(100, (clickX / rect.width) * 100));
+    let pctY = Math.max(0, Math.min(100, (clickY / rect.height) * 100));
+
+    pctX = Math.round(pctX * 10) / 10;
+    pctY = Math.round(pctY * 10) / 10;
+
+    document.getElementById('detail-modal-focus-x').value = pctX;
+    document.getElementById('detail-modal-focus-y').value = pctY;
+
+    applyFocalPoint(pctX, pctY);
+}
+
+function updateFocalPointFromInputs() {
+    let fx = parseFloat(document.getElementById('detail-modal-focus-x').value) || 50;
+    let fy = parseFloat(document.getElementById('detail-modal-focus-y').value) || 50;
+    fx = Math.max(0, Math.min(100, fx));
+    fy = Math.max(0, Math.min(100, fy));
+    applyFocalPoint(fx, fy);
+}
+
+function centerFocalPoint() {
+    document.getElementById('detail-modal-focus-x').value = 50;
+    document.getElementById('detail-modal-focus-y').value = 50;
+    applyFocalPoint(50, 50);
+}
+
+function applyFocalPoint(x, y) {
+    const pin = document.getElementById('detail-focal-pin');
+    if (pin) {
+        pin.style.left = x + '%';
+        pin.style.top = y + '%';
+        pin.style.display = 'block';
+    }
+
+    const pos = `${x}% ${y}%`;
+    const prev169 = document.getElementById('preview-ratio-16-9');
+    const prev11 = document.getElementById('preview-ratio-1-1');
+    const prev916 = document.getElementById('preview-ratio-9-16');
+
+    if (prev169) prev169.style.objectPosition = pos;
+    if (prev11) prev11.style.objectPosition = pos;
+    if (prev916) prev916.style.objectPosition = pos;
+
+    updatePictureSnippet(x, y);
+}
+
+function updatePictureSnippet(x, y) {
+    if (!ACTIVE_DETAIL_ITEM) return;
     const picBox = document.getElementById('detail-picture-snippet-box');
-    if (item.type === 'image') {
+    if (ACTIVE_DETAIL_ITEM.type === 'image') {
         picBox.style.display = 'block';
-        const webpUrl = item.variants.webp ? '/' + item.variants.webp : '';
-        const avifUrl = item.variants.avif ? '/' + item.variants.avif : '';
+        const webpUrl = ACTIVE_DETAIL_ITEM.variants.webp ? '/' + ACTIVE_DETAIL_ITEM.variants.webp : '';
+        const avifUrl = ACTIVE_DETAIL_ITEM.variants.avif ? '/' + ACTIVE_DETAIL_ITEM.variants.avif : '';
+        const focusStyle = `style="object-position: ${x}% ${y}%;"`;
         let picCode = '<picture>';
         if (avifUrl) picCode += `<source type="image/avif" srcset="${avifUrl}">`;
         if (webpUrl) picCode += `<source type="image/webp" srcset="${webpUrl}">`;
-        picCode += `<img src="${item.web_url}" alt="${item.alt || item.filename}" loading="lazy"></picture>`;
+        picCode += `<img src="${ACTIVE_DETAIL_ITEM.web_url}" alt="${ACTIVE_DETAIL_ITEM.alt || ACTIVE_DETAIL_ITEM.filename}" loading="lazy" ${focusStyle}></picture>`;
         document.getElementById('detail-snippet-picture').value = picCode;
     } else {
         picBox.style.display = 'none';
     }
-
-    const modal = document.getElementById('modal-media-detail');
-    modal.style.display = 'flex';
 }
 
 function closeMediaDetailModal() {
@@ -646,12 +791,16 @@ function copyTextDirect(text, toastMsg) {
 function saveCurrentMediaMeta() {
     if (!ACTIVE_DETAIL_ITEM) return;
     const newAlt = document.getElementById('detail-modal-alt').value.trim();
+    const fx = parseFloat(document.getElementById('detail-modal-focus-x').value) || 50;
+    const fy = parseFloat(document.getElementById('detail-modal-focus-y').value) || 50;
 
     const formData = new URLSearchParams();
     formData.append('action', 'update_media_meta');
     formData.append('csrf_token', <?php echo json_encode($csrf_token); ?>);
     formData.append('filename', ACTIVE_DETAIL_ITEM.filename);
     formData.append('alt', newAlt);
+    formData.append('focus_x', fx);
+    formData.append('focus_y', fy);
 
     fetch('index.php', {
         method: 'POST',
@@ -662,8 +811,11 @@ function saveCurrentMediaMeta() {
     .then(res => {
         if (res.success) {
             ACTIVE_DETAIL_ITEM.alt = newAlt;
-            showToast('Alt-Text erfolgreich gespeichert!');
+            ACTIVE_DETAIL_ITEM.focus_x = fx;
+            ACTIVE_DETAIL_ITEM.focus_y = fy;
+            showToast('<?php echo __a('admin.media.focal_saved', 'Fokuspunkt und Metadaten erfolgreich gespeichert!'); ?>');
             document.getElementById('detail-snippet-md').value = `![${newAlt || ACTIVE_DETAIL_ITEM.filename}](${ACTIVE_DETAIL_ITEM.web_url})`;
+            updatePictureSnippet(fx, fy);
             renderMediaItems();
         } else {
             alert('Fehler beim Speichern');

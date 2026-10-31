@@ -1,4 +1,4 @@
-# WeaveCMS – Feature Overview & Functional Catalog
+﻿# WeaveCMS – Feature Overview & Functional Catalog
 
 > **The lightweight, modular Flat-File & SQL Content Management System for small businesses, service providers & creative minds.**  
 > *Official documentation for product website, download portal, and release distribution.*

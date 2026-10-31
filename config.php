@@ -13,7 +13,7 @@ SecurityManager::applySecurityHeaders();
 SecurityManager::initSecureSession();
 
 // 2. Version & Basiskonfiguration
-define('WEAVE_VERSION', '1.3.2');
+define('WEAVE_VERSION', '1.3.3');
 
 // 3. Lokale Umgebungskonfiguration laden (falls vorhanden, z. B. für Entwickler-Tokens oder Fallbacks)
 if (file_exists(__DIR__ . '/config.local.php')) {
@@ -46,6 +46,7 @@ require_once __DIR__ . '/libs/php/CoreUpdater.php';
 require_once __DIR__ . '/libs/php/QuickActionManager.php';
 require_once __DIR__ . '/libs/php/TaxonomyManager.php';
 require_once __DIR__ . '/libs/php/CustomFieldManager.php';
+require_once __DIR__ . '/libs/php/TotpManager.php';
 
 // Phase 15 & Plugin-Frühinitialisierung: Sandbox-Plugin einbinden, falls vorhanden
 if (file_exists(__DIR__ . '/plugins/interactive-sandbox/SandboxManager.php')) {

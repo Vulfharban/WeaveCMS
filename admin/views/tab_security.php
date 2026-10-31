@@ -710,6 +710,39 @@
                 </form>
             </div>
 
+            <!-- 4.1 ZWEI-FAKTOR-AUTHENTIFIZIERUNG (2FA VIA TOTP / APP) - PHASE 29 -->
+            <?php 
+                $curUserSec = class_exists('UserManager') ? UserManager::getCurrentUser($data) : null;
+                $cur2faIsActive = !empty($curUserSec['two_factor_enabled']);
+            ?>
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px dashed var(--border-color);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+                    <div>
+                        <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; display:flex; align-items:center; gap:8px; color:var(--primary);">
+                            <span class="material-icons" style="color:var(--primary);">shield</span> <?php echo __a('admin.2fa.title', 'Zwei-Faktor-Authentifizierung (2FA via TOTP)'); ?>
+                            <?php if ($cur2faIsActive): ?>
+                                <span style="font-size:0.75rem; background:#10b981; color:#fff; padding:2px 10px; border-radius:12px; font-weight:700;">
+                                    <?php echo __a('admin.users.2fa_active', 'Aktiv'); ?>
+                                </span>
+                            <?php else: ?>
+                                <span style="font-size:0.75rem; background:#f59e0b; color:#fff; padding:2px 10px; border-radius:12px; font-weight:700;">
+                                    <?php echo __a('admin.users.2fa_inactive', 'Aus'); ?>
+                                </span>
+                            <?php endif; ?>
+                        </h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; max-width:720px;">
+                            <?php echo __a('admin.2fa.desc', 'Schütze dein Administratorkonto mit einem zusätzlichen Einmalcode (RFC 6238 TOTP). Kompatibel mit Google Authenticator, Bitwarden, 1Password, Microsoft Authenticator & Aegis.'); ?>
+                        </p>
+                    </div>
+                    <div>
+                        <a href="?tab=tab-users" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px; padding:10px 18px; text-decoration:none;">
+                            <span class="material-icons" style="font-size:18px;">manage_accounts</span>
+                            <span>2FA im Benutzer-Profil verwalten</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- 5. SPEICHER-ENGINE & 1-KLICK-DATEN-MIGRATION (PHASE 7.3) -->
             <?php 
                 $storage_details = StorageManager::getDriverDetails();

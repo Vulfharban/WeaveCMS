@@ -69,12 +69,15 @@
                 ?>
                 <div class="card gallery-card <?php echo $is_portrait ? 'card-portrait' : ''; ?>" data-category="<?php echo htmlspecialchars($item['category'] ?? ''); ?>" data-index="<?php echo $idx; ?>">
                     <div class="gallery-media-wrapper <?php echo $is_portrait ? 'is-portrait' : ''; ?>" <?php if ($gallery_lightbox): ?>onclick="openLightbox(<?php echo $idx; ?>)" style="cursor:zoom-in;" title="<?php echo htmlspecialchars(__('gallery.zoom_hint', 'Klicken für Vollbildansicht')); ?>"<?php endif; ?>>
-                        <?php $img_alt = htmlspecialchars($item['alt'] ?? $item['title'] ?? ''); ?>
+                        <?php 
+                            $img_alt = htmlspecialchars($item['alt'] ?? $item['title'] ?? ''); 
+                            $focusStyle = class_exists('MediaManager') ? MediaManager::getFocusStyle($img_raw) : '';
+                        ?>
                         <?php if ($gallery_layout === 'ambient_blur'): ?>
-                            <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-bg-blur" alt="" aria-hidden="true">
-                            <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-fg-img" alt="<?php echo $img_alt; ?>" loading="lazy">
+                            <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-bg-blur" alt="" aria-hidden="true" style="<?php echo htmlspecialchars($focusStyle); ?>">
+                            <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-fg-img" alt="<?php echo $img_alt; ?>" loading="lazy" style="<?php echo htmlspecialchars($focusStyle); ?>">
                         <?php else: ?>
-                            <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-fg-img" alt="<?php echo $img_alt; ?>" loading="lazy">
+                            <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-fg-img" alt="<?php echo $img_alt; ?>" loading="lazy" style="<?php echo htmlspecialchars($focusStyle); ?>">
                         <?php endif; ?>
                         <?php if ($gallery_lightbox): ?>
                             <span class="lightbox-hint"><span class="material-icons" style="font-size:18px;">zoom_in</span></span>

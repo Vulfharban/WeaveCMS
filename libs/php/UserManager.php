@@ -415,6 +415,20 @@ class UserManager {
                 if (!empty($fields['new_pin'])) {
                     $user['pin_hash'] = password_hash($fields['new_pin'], PASSWORD_DEFAULT);
                 }
+                if (isset($fields['two_factor_enabled'])) {
+                    $user['two_factor_enabled'] = (bool)$fields['two_factor_enabled'];
+                }
+                if (isset($fields['two_factor_secret'])) {
+                    $user['two_factor_secret'] = trim($fields['two_factor_secret']);
+                }
+                if (isset($fields['two_factor_backup_codes']) && is_array($fields['two_factor_backup_codes'])) {
+                    $user['two_factor_backup_codes'] = $fields['two_factor_backup_codes'];
+                }
+                if (!empty($fields['reset_2fa'])) {
+                    $user['two_factor_enabled'] = false;
+                    $user['two_factor_secret'] = null;
+                    $user['two_factor_backup_codes'] = [];
+                }
 
                 SecurityManager::logEvent('USER_UPDATED', "Benutzer aktualisiert: {$user['username']}", 'INFO');
                 return ['success' => true, 'message' => "Benutzer '{$user['username']}' erfolgreich aktualisiert!"];

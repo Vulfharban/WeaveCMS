@@ -405,6 +405,9 @@ class AdminController {
             if (isset($_POST['edit_pin'])) {
                 $fields['new_pin'] = trim($_POST['edit_pin']);
             }
+            if (!empty($_POST['edit_reset_2fa'])) {
+                $fields['reset_2fa'] = true;
+            }
 
             $res = UserManager::updateUser($data, $id, $fields);
             if ($res['success']) {
