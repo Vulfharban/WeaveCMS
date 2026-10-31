@@ -13,6 +13,9 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Role-based multi-user system (RBAC):** Graduated permissions for administrator, moderator and content user.
 - **Logo management & responsive engine:** Flexible logo (SVG/image/text) and reliable mobile usage on all devices.
 - **Release packaging & update check:** ZIP/7z generator for full and update packages plus automatic remote version comparison.
+- **Two-Factor Authentication (2FA TOTP):** Native RFC 6238 TOTP authentication with offline SVG QR code generator and one-time emergency backup codes.
+- **Media Focal Point Selector:** Interactive 2D visual focal point selector with persistent `object-position` CSS handling across responsive crops.
+- **Headless REST API & Webhooks:** Bearer token authentication and HMAC-SHA256 signed event webhook dispatcher for automated integrations.
 - **Security hardening:** CSRF protection, XSS prevention, brute-force & rate limiting, strict upload validation and security headers.
 - **100 % plain PHP:** No heavy framework dependencies or build tools required on the server.
 
@@ -28,6 +31,28 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - 🔄 **[WeaveCMS v1.3.3 Update Package](releases/update-v1.3.3.zip)** (`releases/update-v1.3.3.zip`, 0.82 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.3 (31. Oktober 2026)
+
+- 🔐 **Zwei-Faktor-Authentifizierung & Backup-Codes (Phase 29):**
+  - **Natives RFC 6238 TOTP:** Vollständig integrierte 2-Faktor-Authentifizierung (`TotpManager`) für Administratoren und Redakteure ohne externe Cloud-Abhängigkeiten.
+  - **Autarker SVG-QR-Code-Generator:** Direkte Generierung des Einrichtungs-QR-Codes im Browser für Authenticator-Apps (Google Authenticator, Microsoft Authenticator, 1Password, Bitwarden, Aegis) – 100 % datenschutzkonform ohne externe Google-Chart-APIs.
+  - **Notfall-Backup-Codes:** Automatische Generierung von 8 kryptografisch sicheren Einmal-Codes (SHA-256 gehasht) mit 1-Klick-Download (`.txt`) und Zwischenablage-Kopieren für Notfall-Logins.
+  - **2FA-Status & Verwaltung:** 2FA-Einrichtung direkt im eigenen Benutzerprofil (`tab_users.php`), visuelle Status-Badges in der Benutzerverwaltung und interaktiver 2FA-Bestätigungs-Screen beim Login (`login.php`).
+- 🎯 **Visueller Medien-Fokuspunkt-Wähler (Phase 30):**
+  - **Interaktiver 2D-Fokuspunkt-Editor (`MediaManager`):** Visuelles Fadenkreuz zur pixelgenauen Festlegung des Bildfokus (`focus_x`, `focus_y` von 0–100 %) direkt im Mediathek-Detaildialog (`tab_media.php`).
+  - **Automatisches Responsive-Templating:** Intelligente Berechnung responsiver CSS-Regeln (`object-position: X% Y%`) via `MediaManager::getFocusPosition()` und `MediaManager::getFocusStyle()`.
+  - **Nahtlose Template-Integration:** Automatische Ausrichtung in Galerie (`gallery.php`), Blog (`blog.php`), Team-Karten (`team.php`) und Sektions-Teasern verhindert ungewollten Beschnitt wichtiger Bildbereiche.
+- 💬 **Foren-Erweiterung, Gast-Datenschutz & Registrierung (`weave-forum-users` & `weave-forum`):**
+  - **Double-Opt-In E-Mail-Bestätigung:** Neue Mitglieder erhalten nach der Registrierung eine E-Mail mit kryptografischem Aktivierungs-Link; das Konto wird erst nach erfolgreicher Token-Verifizierung für den Login freigeschaltet.
+  - **Rechtsverbindliche Richtlinien- & DSGVO-Zustimmung:** Pflicht-Zustimmung zu anpassbaren Foren-Richtlinien (im responsiven Modal-Dialog) sowie Datenschutz und DSGVO (Art. 6 Abs. 1 lit. a) bei der Kontoerstellung.
+  - **Alias-System & Profil-Privatsphäre:** Öffentlicher Alias für Administratoren und Moderatoren; granulare Datenschutzeinstellungen für Mitglieder (Signatur, Beitragszähler, Registrierungsdatum, Online-Status).
+  - **Strikter Gast-Schutz:** Automatische Maskierung persönlicher Profildaten und Benutzernamen für nicht angemeldete Besucher im gesamten Forum.
+  - **Vollbreiter Themen-Editor:** Kunena-inspiriertes Formularlayout mit integrierter Markdown-Symbolleiste und Live-Vorschau.
+- 📦 **Download-Manager, MySQL-Test & System-Härtung:**
+  - **Mediathek-Auswahl in Downloads:** Vorhandene Dateien direkt aus der Mediathek für Software- und Dokumenten-Downloads auswählen mit automatischer Größen- und Formatermittlung.
+  - **Mehrsprachige Shortcodes (`[downloads]`):** Zuverlässige Sprachfilterung für übersetzte Download-Titel und Beschreibungen.
+  - **Live-MySQL-Verbindungstest:** Datenbankkonfigurations-Maske mit AJAX-Verbindungstest und automatischer Speicherung in `config.local.php`.
 
 ### v1.3.2 (29. Oktober 2026)
 
