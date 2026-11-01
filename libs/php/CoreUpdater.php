@@ -303,43 +303,61 @@ class CoreUpdater {
     protected static function download(string $url, string $dest): ?string {
         if (function_exists('curl_init')) {
             $fh = @fopen($dest, 'wb');
-            if (!$fh) {
-                return 'Download-Datei konnte nicht angelegt werden.';
-            }
-            $ch = curl_init($url);
-            curl_setopt_array($ch, [
-                CURLOPT_FILE => $fh,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_MAXREDIRS => 5,
-                CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
-                CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
-                CURLOPT_CONNECTTIMEOUT => 10,
-                CURLOPT_TIMEOUT => 180,
-                CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_USERAGENT => 'WeaveCMS-CoreUpdater/' . Installer::getVersion(),
-            ]);
-            $ok = curl_exec($ch);
-            $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            fclose($fh);
-            if ($ok === false || $code !== 200) {
+            if ($fh) {
+                $ch = curl_init($url);
+                $curlOpts = [
+                    CURLOPT_FILE => $fh,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_MAXREDIRS => 5,
+                    CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
+                    CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
+                    CURLOPT_CONNECTTIMEOUT => 10,
+                    CURLOPT_TIMEOUT => 180,
+                    CURLOPT_SSL_VERIFYPEER => true,
+                    CURLOPT_USERAGENT => 'WeaveCMS-CoreUpdater/' . Installer::getVersion(),
+                ];
+                if (defined('CURLOPT_SSL_OPTIONS') && defined('CURLSSLOPT_NATIVE_CA')) {
+                    $curlOpts[CURLOPT_SSL_OPTIONS] = CURLSSLOPT_NATIVE_CA;
+                }
+                curl_setopt_array($ch, $curlOpts);
+                $ok = curl_exec($ch);
+                $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                fclose($fh);
+                if ($ok && $code === 200 && (int)@filesize($dest) > 0) {
+                    $size = (int)@filesize($dest);
+                    if ($size > self::MAX_PACKAGE_BYTES) {
+                        @unlink($dest);
+                        return 'Das heruntergeladene Paket ist zu groß.';
+                    }
+                    return null;
+                }
                 @unlink($dest);
-                return 'Download fehlgeschlagen (HTTP ' . $code . ').';
             }
-        } elseif (ini_get('allow_url_fopen')) {
-            $ctx = stream_context_create(['http' => ['timeout' => 180, 'header' => "User-Agent: WeaveCMS-CoreUpdater\r\n"]]);
+        }
+
+        // Fallback: allow_url_fopen mit Stream-Kontext
+        if (ini_get('allow_url_fopen')) {
+            $ctx = stream_context_create([
+                'http' => [
+                    'timeout' => 180,
+                    'header' => "User-Agent: WeaveCMS-CoreUpdater\r\n"
+                ],
+                'ssl' => [
+                    'verify_peer' => true
+                ]
+            ]);
             $body = @file_get_contents($url, false, $ctx, 0, self::MAX_PACKAGE_BYTES + 1);
-            if ($body === false || @file_put_contents($dest, $body) === false) {
-                return 'Download fehlgeschlagen.';
+            if ($body !== false && @file_put_contents($dest, $body) !== false) {
+                $size = (int)@filesize($dest);
+                if ($size <= 0 || $size > self::MAX_PACKAGE_BYTES) {
+                    @unlink($dest);
+                    return 'Das heruntergeladene Paket ist leer oder zu groß.';
+                }
+                return null;
             }
-        } else {
-            return 'Weder cURL noch allow_url_fopen sind verfügbar – Download nicht möglich.';
         }
-        $size = (int)@filesize($dest);
-        if ($size <= 0 || $size > self::MAX_PACKAGE_BYTES) {
-            @unlink($dest);
-            return 'Das heruntergeladene Paket ist leer oder zu groß.';
-        }
-        return null;
+
+        return 'Download fehlgeschlagen (weder cURL noch allow_url_fopen konnten die Datei herunterladen).';
     }
 
     /**

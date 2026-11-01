@@ -66,7 +66,11 @@ class UpdateManager {
                 $result['release_url'] = $localJson['changelog_url'] ?? $localJson['download_url'] ?? $result['release_url'];
                 $result['zip_url'] = $localJson['update_download_url'] ?? $localJson['update_url'] ?? $localJson['download_url'] ?? '';
                 $result['changelog'] = $localJson['changelog'] ?? 'Release-Notizen in version.json verfügbar.';
-                $result['sha256'] = self::extractSha256((string)($localJson['update_sha256'] ?? $localJson['sha256'] ?? $localJson['checksum'] ?? ''), 'update');
+                $rawSha = (string)($localJson['update_sha256'] ?? $localJson['sha256'] ?? $localJson['checksum'] ?? '');
+                $result['sha256'] = self::extractSha256($rawSha, 'update');
+                if ($result['sha256'] === '') {
+                    $result['sha256'] = self::extractSha256($rawSha);
+                }
                 $result['update_available'] = version_compare($current, $result['latest_version'], '<');
                 @file_put_contents($cacheFile, json_encode($result));
                 return $result;
@@ -85,28 +89,52 @@ class UpdateManager {
 
             // Bevorzuge explizite Update-Pakete (z. B. update-vX.Y.Z.zip) vor Vollinstallations-Paketen
             $updateAsset = null;
+            $updateDigest = '';
             $fallbackZip = null;
+            $fallbackDigest = '';
             foreach ($remoteData['assets'] ?? [] as $asset) {
                 if (!is_array($asset) || empty($asset['browser_download_url'])) {
                     continue;
                 }
                 $assetName = (string)($asset['name'] ?? '');
+
+                // GitHub API liefert den SHA-256 Hash direkt im 'digest'-Feld des Assets (z. B. "sha256:367c4f1...")
+                $assetDigest = '';
+                if (!empty($asset['digest']) && preg_match('/(?:sha256:)?([a-f0-9]{64})/i', (string)$asset['digest'], $dm)) {
+                    $assetDigest = strtolower($dm[1]);
+                }
+
                 if (preg_match('/\.zip$/i', $assetName)) {
                     // Update-Paket erkennen
                     if (preg_match('/(^|[\-_])update([\-_]|\.zip$)/i', $assetName)) {
                         $updateAsset = $asset['browser_download_url'];
+                        $updateDigest = $assetDigest;
                         break;
                     }
                     if ($fallbackZip === null) {
                         $fallbackZip = $asset['browser_download_url'];
+                        $fallbackDigest = $assetDigest;
                     }
                 }
             }
 
             if ($updateAsset !== null) {
                 $result['zip_url'] = $updateAsset;
-            } elseif ($fallbackZip !== null && $result['sha256'] !== '') {
-                $result['zip_url'] = $fallbackZip;
+                if ($result['sha256'] === '' && $updateDigest !== '') {
+                    $result['sha256'] = $updateDigest;
+                }
+            } elseif ($fallbackZip !== null) {
+                if ($result['sha256'] === '' && $fallbackDigest !== '') {
+                    $result['sha256'] = $fallbackDigest;
+                }
+                if ($result['sha256'] !== '') {
+                    $result['zip_url'] = $fallbackZip;
+                }
+            }
+
+            // Fallback 1: Falls die Release-Notes die Prüfsumme ohne Schlüsselwort 'update' enthalten
+            if ($result['sha256'] === '') {
+                $result['sha256'] = self::extractSha256((string)($remoteData['body'] ?? ''));
             }
 
             $result['update_available'] = version_compare($current, $latestVer, '<');
@@ -219,28 +247,40 @@ class UpdateManager {
 
         if (function_exists('curl_init')) {
             $ch = curl_init($url);
-            curl_setopt_array($ch, [
+            $curlOpts = [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_USERAGENT      => 'WeaveCMS-UpdateChecker/' . (defined('WEAVE_VERSION') ? WEAVE_VERSION : '1.0.0'),
-                CURLOPT_TIMEOUT        => 3,
-                CURLOPT_CONNECTTIMEOUT => 2,
+                CURLOPT_TIMEOUT        => 4,
+                CURLOPT_CONNECTTIMEOUT => 3,
                 CURLOPT_SSL_VERIFYPEER => true,
                 CURLOPT_FOLLOWLOCATION => true
-            ]);
+            ];
+            // Auf Windows / XAMPP das native Windows-Zertifikats-Store nutzen
+            if (defined('CURLOPT_SSL_OPTIONS') && defined('CURLSSLOPT_NATIVE_CA')) {
+                $curlOpts[CURLOPT_SSL_OPTIONS] = CURLSSLOPT_NATIVE_CA;
+            }
+            curl_setopt_array($ch, $curlOpts);
             $body = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            // In PHP 8.0+ wird cURL automatisch bei GC geschlossen
 
             if ($httpCode === 200 && is_string($body)) {
                 $parsed = json_decode($body, true);
-                return is_array($parsed) ? $parsed : null;
+                if (is_array($parsed)) {
+                    return $parsed;
+                }
             }
-        } elseif (ini_get('allow_url_fopen')) {
+        }
+
+        // Fallback: file_get_contents mit Stream-Kontext
+        if (ini_get('allow_url_fopen')) {
             $ctx = stream_context_create([
                 'http' => [
                     'method'  => 'GET',
                     'header'  => "User-Agent: WeaveCMS-UpdateChecker\r\n",
-                    'timeout' => 3
+                    'timeout' => 4
+                ],
+                'ssl' => [
+                    'verify_peer' => true
                 ]
             ]);
             $body = @file_get_contents($url, false, $ctx);
