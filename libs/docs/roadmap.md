@@ -914,3 +914,20 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Breakpoint-Vorschau-Modal für modulare Seiten.
   - Alle neuen UI-Texte in den Übersetzungsdateien aller Sprachen.
 
+---
+
+### Phase 33: Nonce-basierte Content Security Policy (CSP) & Event-Delegation (A+ Security Hardening)
+*Ziel: Upgrade der CSP von Note A auf A+ ohne Warnungen auf SecurityHeaders.com durch dynamische Nonces und Ablösung von Inline-`onclick`-Event-Handlern.*
+
+- [ ] **33.1 Kryptografisches CSP-Nonce-System (`SecurityManager::getCspNonce()`):**
+  - Generierung eines kryptografisch sicheren Zufallstokens (`bin2hex(random_bytes(16))` bzw. base64) pro Request.
+  - Bereitstellung des Nonce in der CSP-Header-Direktive: `script-src 'self' 'nonce-{NONCE}' https://cdnjs.cloudflare.com;`.
+  - Injizieren des `nonce`-Attributs in alle Core-Skriptblöcke (`views/partials/head.php`, `views/partials/scripts.php`).
+- [ ] **33.2 Frontend-Event-Delegation in `libs/js/main.js`:**
+  - Ablösung aller Inline-`onclick`-Attribute im Frontend (`views/sections/gallery.php`, `views/sections/courses.php`, `views/partials/scripts.php`) durch semantische Daten-Attribute (`data-action="filter"`, `data-action="request-course"`, `data-action="lightbox"` etc.).
+  - Zentraler `document.addEventListener('click', ...)` Handler in `main.js`.
+  - Erhalt der vollständigen Funktionalität (Galerie-Filterung, Lightbox, Kursanfragen, Share, A11y-Schriftzoom/Darkmode) ohne inline Event-Handler.
+- [ ] **33.3 Getrennte CSP-Profile für Frontend und Admin:**
+  - Öffentliches Frontend: Strenge, warnungsfreie CSP mit Nonces (Score A+ auf SecurityHeaders.com).
+  - Administrationsbereich: Pragmatische CSP mit `'unsafe-inline'` zur Gewährleistung aller dynamischen Admin-Drawers, Modals und interaktiven Tools.
+
