@@ -84,6 +84,7 @@ class SecurityManager {
         }
 
         $default = [
+            'hsts_mode' => 'server',
             'hsts_preload' => false,
             'production_csp' => false,
             'trusted_proxies' => '127.0.0.1, ::1',
@@ -288,12 +289,20 @@ class SecurityManager {
         // 5. XSS-Auditor für ältere Browser
         header('X-XSS-Protection: 1; mode=block');
 
+        // 5.1 Cross-Origin-Opener-Policy (COOP - Schutz vor Cross-Origin-Datenlecks)
+        header('Cross-Origin-Opener-Policy: same-origin-allow-popups');
+
         // 6. HSTS & SSL-Preloading (Phase 17.1)
         if (self::isHttps()) {
-            if (!empty($prod['hsts_preload'])) {
+            $hstsMode = $prod['hsts_mode'] ?? (!empty($prod['hsts_preload']) ? 'preload' : 'server');
+            if ($hstsMode === 'preload') {
                 header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
-            } else {
+            } elseif ($hstsMode === 'subdomains') {
                 header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+            } elseif ($hstsMode === 'standard') {
+                header('Strict-Transport-Security: max-age=31536000');
+            } else {
+                // Keine Aktion bei 'server' oder 'off' (verhindert doppelte Header)
             }
         }
 
@@ -309,7 +318,11 @@ class SecurityManager {
                  . "media-src 'self'; "
                  . "object-src 'none'; "
                  . "base-uri 'self'; "
-                 . "form-action 'self';";
+                 . "form-action 'self'; "
+                 . "frame-ancestors 'self';";
+            if (self::isHttps()) {
+                $csp .= " upgrade-insecure-requests;";
+            }
             header("Content-Security-Policy: {$csp}");
         }
     }

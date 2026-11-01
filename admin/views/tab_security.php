@@ -248,7 +248,24 @@
                 </p>
 
                 <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
-                    <!-- 17.1 HSTS Preload -->
+                    <!-- 17.1 HSTS Konfiguration -->
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label style="font-weight:700; color:var(--text-primary); font-size:0.95rem; display:block; margin-bottom:6px;">
+                            <?php echo __a('admin.security.hsts_title', '🔒 HTTP Strict Transport Security (HSTS - Phase 17.1)'); ?>
+                        </label>
+                        <?php $cur_hsts_mode = $prod_sec['hsts_mode'] ?? (!empty($prod_sec['hsts_preload']) ? 'preload' : 'server'); ?>
+                        <select name="prod_hsts_mode" class="form-control" style="max-width: 560px;">
+                            <option value="server" <?php echo ($cur_hsts_mode === 'server') ? 'selected' : ''; ?>>🌐 Vom Webserver / Hoster verwaltet (Kein zusätzlicher PHP-Header – empfohlen bei Hostern mit HSTS, verhindert doppelte Header)</option>
+                            <option value="preload" <?php echo ($cur_hsts_mode === 'preload') ? 'selected' : ''; ?>>🔒 WeaveCMS HSTS mit Preload (max-age=31536000; includeSubDomains; preload)</option>
+                            <option value="subdomains" <?php echo ($cur_hsts_mode === 'subdomains') ? 'selected' : ''; ?>>🛡️ WeaveCMS HSTS Standard (max-age=31536000; includeSubDomains)</option>
+                            <option value="standard" <?php echo ($cur_hsts_mode === 'standard') ? 'selected' : ''; ?>>🛡️ WeaveCMS HSTS Basis (max-age=31536000)</option>
+                            <option value="off" <?php echo ($cur_hsts_mode === 'off') ? 'selected' : ''; ?>>🚫 Deaktiviert (kein HSTS)</option>
+                        </select>
+                        <small style="color:var(--text-secondary); display:block; margin-top:4px;">
+                            <?php echo __a('admin.security.hsts_desc', 'Wenn dein Webserver oder Hosting-Paket bereits einen HSTS-Header liefert (wie auf weavecms.de), wähle „Vom Webserver / Hoster verwaltet“, um die Warnung vor doppelten Headern auf SecurityHeaders.com zu vermeiden.'); ?>
+                        </small>
+                    </div>
+                    <?php if (false): ?>
                     <label style="display:inline-flex; align-items:flex-start; gap:10px; cursor:pointer;">
                         <input type="checkbox" name="prod_hsts_preload" value="1" <?php echo !empty($prod_sec['hsts_preload']) ? 'checked' : ''; ?> style="width:18px; height:18px; margin-top:2px; accent-color:var(--primary);">
                         <div>
@@ -261,15 +278,17 @@
                         </div>
                     </label>
 
+                    <?php endif; ?>
+
                     <!-- 17.2 Production CSP -->
                     <label style="display:inline-flex; align-items:flex-start; gap:10px; cursor:pointer;">
                         <input type="checkbox" name="prod_production_csp" value="1" <?php echo !empty($prod_sec['production_csp']) ? 'checked' : ''; ?> style="width:18px; height:18px; margin-top:2px; accent-color:var(--primary);">
                         <div>
                             <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem; display:block;">
-                                <?php echo __a('admin.security.csp_title', '🛡️ Gehärtete Production-CSP (Content Security Policy) aktivieren (Phase 17.2)'); ?>
+                                <?php echo __a('admin.security.csp_title', '🛡️ Gehärtete Production-CSP (Content Security Policy) aktivieren (Phase 17.2) – Erforderlich für Note A+'); ?>
                             </span>
                             <span style="font-size:0.84rem; color:var(--text-secondary); line-height:1.4; display:block; margin-top:2px;">
-                                <?php echo __a('admin.security.csp_desc', 'Schützt deine Website vor Cross-Site-Scripting (XSS) und unbefugtem Nachladen externer Ressourcen durch strikte Restriktion auf sichere eigene Domains und kuratierte Google-Fonts.'); ?>
+                                <?php echo __a('admin.security.csp_desc', 'Schützt deine Website vor Cross-Site-Scripting (XSS) und unbefugtem Nachladen externer Ressourcen durch strikte Restriktion auf sichere eigene Domains und Google-Fonts. Wird von SecurityHeaders.com für die Höchstnote A+ vorausgesetzt.'); ?>
                             </span>
                         </div>
                     </label>
@@ -407,8 +426,8 @@
                             <span><?php echo __a('admin.security.check_ssl', '1. Gültiges SSL-Zertifikat (HTTPS)'); ?></span>
                         </div>
                         <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem;">
-                            <span class="material-icons" style="color:<?php echo !empty($prod_sec['hsts_preload']) ? '#10b981' : '#9ca3af'; ?>; font-size:18px;"><?php echo !empty($prod_sec['hsts_preload']) ? 'check_circle' : 'radio_button_unchecked'; ?></span>
-                            <span><?php echo __a('admin.security.check_hsts', '2. Strikte HSTS-Policy mit Preload'); ?></span>
+                            <span class="material-icons" style="color:<?php echo (!empty($prod_sec['hsts_preload']) || ($prod_sec['hsts_mode'] ?? '') === 'server' || ($prod_sec['hsts_mode'] ?? '') === 'preload' || ($prod_sec['hsts_mode'] ?? '') === 'subdomains') ? '#10b981' : '#9ca3af'; ?>; font-size:18px;"><?php echo (!empty($prod_sec['hsts_preload']) || ($prod_sec['hsts_mode'] ?? '') === 'server' || ($prod_sec['hsts_mode'] ?? '') === 'preload' || ($prod_sec['hsts_mode'] ?? '') === 'subdomains') ? 'check_circle' : 'radio_button_unchecked'; ?></span>
+                            <span><?php echo __a('admin.security.check_hsts', '2. HSTS-Policy aktiv (Server oder WeaveCMS)'); ?></span>
                         </div>
                         <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem;">
                             <span class="material-icons" style="color:<?php echo !empty($prod_sec['production_csp']) ? '#10b981' : '#9ca3af'; ?>; font-size:18px;"><?php echo !empty($prod_sec['production_csp']) ? 'check_circle' : 'radio_button_unchecked'; ?></span>

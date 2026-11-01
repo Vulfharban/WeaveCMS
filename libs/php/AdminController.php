@@ -1165,7 +1165,12 @@ class AdminController {
         }
 
         // Phase 17: Live-Server-Deployment, SSL/HSTS-Härtung & Produktions-Sicherheit
-        $data['settings']['prod_security']['hsts_preload'] = !empty($_POST['prod_hsts_preload']);
+        $hsts_mode = trim($_POST['prod_hsts_mode'] ?? '');
+        if (!in_array($hsts_mode, ['server', 'preload', 'subdomains', 'standard', 'off'], true)) {
+            $hsts_mode = !empty($_POST['prod_hsts_preload']) ? 'preload' : 'server';
+        }
+        $data['settings']['prod_security']['hsts_mode'] = $hsts_mode;
+        $data['settings']['prod_security']['hsts_preload'] = ($hsts_mode === 'preload');
         $data['settings']['prod_security']['production_csp'] = !empty($_POST['prod_production_csp']);
         $data['settings']['prod_security']['trusted_proxies'] = trim($_POST['prod_trusted_proxies'] ?? '127.0.0.1, ::1');
         $data['settings']['prod_security']['alert_email'] = trim($_POST['prod_alert_email'] ?? '');
