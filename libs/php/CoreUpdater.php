@@ -158,8 +158,11 @@ class CoreUpdater {
                 return $fail($err);
             }
             $to = self::readPackageVersion($staging) ?? (string)($info['latest_version'] ?? '');
-            if ($to !== '' && version_compare($to, $from, '<=')) {
-                return $fail("Das Paket (v{$to}) ist nicht neuer als die installierte Version (v{$from}).");
+            if (!empty($info['latest_version']) && version_compare($info['latest_version'], $to, '>')) {
+                $to = (string)$info['latest_version'];
+            }
+            if ($to !== '' && version_compare($to, $from, '<')) {
+                return $fail("Das Paket (v{$to}) ist älter als die installierte Version (v{$from}).");
             }
 
             // 4. Pre-Update-Backup
@@ -446,13 +449,18 @@ class CoreUpdater {
     }
 
     protected static function readPackageVersion(string $staging): ?string {
-        $srcInstaller = (string)@file_get_contents($staging . '/libs/php/Installer.php');
-        if (preg_match("~const\\s+VERSION\\s*=\\s*'([^']+)'~", $srcInstaller, $m)) {
-            return $m[1];
-        }
+        $versions = [];
         $srcConfig = (string)@file_get_contents($staging . '/config.php');
         if (preg_match("~define\\(\\s*['\"]WEAVE_VERSION['\"]\\s*,\\s*['\"]([^'\"]+)['\"]\\s*\\)~", $srcConfig, $m)) {
-            return $m[1];
+            $versions[] = $m[1];
+        }
+        $srcInstaller = (string)@file_get_contents($staging . '/libs/php/Installer.php');
+        if (preg_match("~const\\s+VERSION\\s*=\\s*'([^']+)'~", $srcInstaller, $m)) {
+            $versions[] = $m[1];
+        }
+        if (!empty($versions)) {
+            usort($versions, 'version_compare');
+            return end($versions);
         }
         return null;
     }

@@ -1,0 +1,8 @@
+{
+    "latest_version": "1.3.3",
+    "download_url": "https://github.com/Vulfharban/WeaveCMS/releases/tag/v1.3.3",
+    "update_download_url": "https://github.com/Vulfharban/WeaveCMS/releases/download/v1.3.3/update-v1.3.3.zip",
+    "changelog": "WeaveCMS v1.3.3 – Two-Factor Authentication (2FA), Focal Point Selector & Forum Privacy",
+    "update_sha256": "update: 367c4f183a494a0b9bd324107f3a9913ad3b03c8e2c914dfc18d9dbb32c32640"
+}
+
