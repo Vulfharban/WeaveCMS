@@ -34,6 +34,15 @@ class UpdateManager {
      */
     public static function checkCoreUpdate(bool $forceRefresh = false): array {
         $current = defined('WEAVE_VERSION') ? WEAVE_VERSION : (class_exists('Installer') ? Installer::getVersion() : '1.0.0');
+        if (class_exists('CoreUpdater')) {
+            $pendingMarker = CoreUpdater::getRootDir() . '/data/update_pending.json';
+            if (is_file($pendingMarker)) {
+                $pending = json_decode((string)@file_get_contents($pendingMarker), true);
+                if (!empty($pending['to']) && version_compare((string)$pending['to'], $current, '>=')) {
+                    $current = (string)$pending['to'];
+                }
+            }
+        }
         $cacheFile = self::getCacheDir() . '/core_version.json';
 
         if (!$forceRefresh && file_exists($cacheFile)) {

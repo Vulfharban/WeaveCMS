@@ -1233,7 +1233,9 @@ class AdminController {
         $info = UpdateManager::checkCoreUpdate(true);
         $res = CoreUpdater::run($info);
         if ($res['success']) {
-            $success_msg = '✓ ' . htmlspecialchars($res['message']);
+            $_SESSION['core_update_flash_success'] = '✓ ' . htmlspecialchars($res['message']);
+            header('Location: index.php?tab=tab-dashboard');
+            exit;
         } else {
             $error_msg = htmlspecialchars($res['message']);
         }

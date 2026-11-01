@@ -183,7 +183,17 @@ class CoreUpdater {
 
             // 6. Migrationen vormerken, Caches leeren, Wartungsmodus beenden
             self::writePendingMarker($from, $to);
-            @unlink($workDir . '/core_version.json');
+            $freshCache = [
+                'update_available' => false,
+                'current_version'  => $to,
+                'latest_version'   => $to,
+                'release_url'      => (string)($info['release_url'] ?? ''),
+                'zip_url'          => (string)($info['zip_url'] ?? ''),
+                'changelog'        => (string)($info['changelog'] ?? ''),
+                'sha256'           => (string)($info['sha256'] ?? ''),
+                'checked_at'       => time(),
+            ];
+            @file_put_contents($workDir . '/core_version.json', json_encode($freshCache));
             if (function_exists('opcache_reset')) {
                 @opcache_reset();
             }

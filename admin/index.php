@@ -675,7 +675,11 @@ $active_tab = $controllerResult['active_tab'];
 
 // Phase 25.2: Migrationen eines zuvor eingespielten Core-Updates (läuft mit dem neuen Code)
 $pending_update_msg = CoreUpdater::finishPendingUpdate($data_file, $data);
-if ($pending_update_msg !== '' && $success_msg === '') {
+if (!empty($_SESSION['core_update_flash_success'])) {
+    $flash = (string)$_SESSION['core_update_flash_success'];
+    unset($_SESSION['core_update_flash_success']);
+    $success_msg = $flash . ($pending_update_msg !== '' ? ' ' . $pending_update_msg : '');
+} elseif ($pending_update_msg !== '' && $success_msg === '') {
     $success_msg = $pending_update_msg;
 }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
