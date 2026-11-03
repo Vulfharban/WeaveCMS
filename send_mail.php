@@ -31,6 +31,14 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/libs/php/Mailer.php';
 require_once __DIR__ . '/libs/php/ContactInbox.php';
 
+// Phase 15: Im Demo-Modus keinen realen Mailversand durchführen
+if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+    send_json_response([
+        'success' => true,
+        'message' => '✓ Demo-Modus: Deine Nachricht wurde empfangen. (Der reale E-Mail-Versand ist im Demo-Modus deaktiviert).'
+    ]);
+}
+
 // 1. Rate-Limiting gegen Spambots & Flooding (Phase 9.2: max. 5 Anfragen je 5 Minuten)
 if (SecurityManager::isRateLimited('contact_form', 5, 300)) {
     $rem = SecurityManager::getLockoutRemaining('contact_form', 5, 300);

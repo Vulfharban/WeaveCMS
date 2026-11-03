@@ -6,11 +6,12 @@
  * Aktualisiert die Versionsnummer systemweit an allen relevanten Stellen:
  * 1. config.php (WEAVE_VERSION)
  * 2. libs/php/Installer.php (Installer::VERSION)
- * 3. Erzeugt die neuen Release-ZIPs (tools/build_release.php all)
- * 4. Aktualisiert automatisch die README.md (Downloads, Dateigrößen, Changelog-Header)
+ * 3. version.json (latest_version, URLs, sha256)
+ * 4. Erzeugt die neuen Release-ZIPs (tools/build_release.php all)
+ * 5. Aktualisiert automatisch die README.md (Downloads, Dateigrößen, Changelog-Header)
  * 
  * Benutzung (CLI):
- * php tools/set_version.php 1.2.4
+ * php tools/set_version.php 1.3.3.1
  * ============================================================================
  */
 
@@ -22,12 +23,12 @@ $root = dirname(__DIR__);
 $newVersion = trim($argv[1] ?? ($_GET['version'] ?? ''));
 
 if (empty($newVersion)) {
-    die("Fehler: Bitte gib eine Versionsnummer an. Beispiel:\n  php tools/set_version.php 1.2.4\n");
+    die("Fehler: Bitte gib eine Versionsnummer an. Beispiel:\n  php tools/set_version.php 1.3.3.1\n");
 }
 
-// SemVer Format prüfen (z. B. 1.2.4 oder 1.2.4-rc1)
-if (!preg_match('/^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$/', $newVersion)) {
-    die("Fehler: Ungültiges Versionsformat '{$newVersion}'. Erwartet wird SemVer (z.B. 1.2.4 oder 1.3.0).\n");
+// SemVer Format prüfen (z. B. 1.2.4 oder 1.3.3.1 oder 1.2.4-rc1)
+if (!preg_match('/^[0-9]+(\.[0-9]+){2,3}(-[a-zA-Z0-9.]+)?$/', $newVersion)) {
+    die("Fehler: Ungültiges Versionsformat '{$newVersion}'. Erwartet wird SemVer (z.B. 1.3.3 oder 1.3.3.1).\n");
 }
 
 echo "========================================================\n";
@@ -63,24 +64,16 @@ if (file_exists($installerPath)) {
     }
 }
 
-// 3. Optional: Changelog-Eintrag in README.md vorbereiten, falls noch nicht existent
-$readmePath = $root . '/README.md';
-if (file_exists($readmePath)) {
-    $readmeContent = file_get_contents($readmePath);
-    if ($readmeContent !== false && !str_contains($readmeContent, "### v{$newVersion}")) {
-        $months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
-        $germanDate = date('j') . '. ' . $months[(int)date('n') - 1] . ' ' . date('Y');
-        $newHeader = "### v{$newVersion} ({$germanDate})\n\n- 🚀 Update auf Version v{$newVersion}.\n";
-        
-        $readmeContent = preg_replace(
-            '/(## Changelog & Recent Updates\s*\n\s*\n)/m',
-            "$1{$newHeader}\n",
-            $readmeContent,
-            1
-        );
-        file_put_contents($readmePath, $readmeContent);
-        echo "✓ README.md: Neuer Changelog-Abschnitt '### v{$newVersion}' vorbereitet.\n";
-    }
+// 3. version.json aktualisieren
+$versionJsonPath = $root . '/version.json';
+if (file_exists($versionJsonPath)) {
+    $vData = json_decode(file_get_contents($versionJsonPath), true) ?: [];
+    $vData['latest_version'] = $newVersion;
+    $vData['download_url'] = "https://github.com/Vulfharban/WeaveCMS/releases/tag/v{$newVersion}";
+    $vData['update_download_url'] = "https://github.com/Vulfharban/WeaveCMS/releases/download/v{$newVersion}/update-v{$newVersion}.zip";
+    $vData['changelog'] = "WeaveCMS v{$newVersion} – Sandbox Isolation, Security Hardening & Admin Translations (UTF-8 BOM Hotfix)";
+    file_put_contents($versionJsonPath, json_encode($vData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+    echo "✓ version.json: Aktualisiert auf v{$newVersion}\n";
 }
 
 // 4. Release-Pakete neu bauen und README synchronisieren
@@ -88,6 +81,14 @@ echo "--------------------------------------------------------\n";
 echo "Erzeuge Release-Pakete und synchronisiere README.md...\n";
 echo "--------------------------------------------------------\n";
 
-// Temporär Server-Variable oder Argumente anpassen und build_release.php einbinden
 $argv = ['build_release.php', 'all'];
 require $root . '/tools/build_release.php';
+
+// 5. SHA256 des Update-Pakets in version.json nachtragen
+$updateZipPath = $root . "/releases/update-v{$newVersion}.zip";
+if (file_exists($updateZipPath) && file_exists($versionJsonPath)) {
+    $vData = json_decode(file_get_contents($versionJsonPath), true) ?: [];
+    $vData['update_sha256'] = "update: " . hash_file('sha256', $updateZipPath);
+    file_put_contents($versionJsonPath, json_encode($vData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+    echo "✓ version.json: SHA-256 Prüfsumme aktualisiert ({$vData['update_sha256']})\n";
+}

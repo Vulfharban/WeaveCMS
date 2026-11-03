@@ -3,7 +3,7 @@
  * ============================================================================
  * WeaveCMS – Interaktive Sandbox & Live-Demo Plugin Einstiegspunkt
  * ============================================================================
- * Phase 15: Sicherer temporärer Demo-Zugang ohne Persistenz.
+ * Phase 15 & 15.4: Sicherer temporärer Demo-Zugang ohne Persistenz.
  */
 
 if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_exists('PluginManager')) {
@@ -13,14 +13,20 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 require_once __DIR__ . '/SandboxManager.php';
 
 // -----------------------------------------------------------------------------
-// 1. Demo-URL-Steuerung (?demo=start, ?demo=reset, ?demo=stop)
+// 1. Demo-URL-Steuerung (?demo=start, ?demo=reset, ?demo=stop, ?demo=pause, ?demo=resume)
 // -----------------------------------------------------------------------------
 $demoParam = $_GET['demo'] ?? '';
+$inAdmin = (basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'admin') || str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/admin/');
+
+// Wenn ein Demo-Benutzer sich über ?action=logout abmeldet, Demo-Sitzung sofort bereinigen
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    if (SandboxManager::isDemoActive() || SandboxManager::isDemoPaused()) {
+        SandboxManager::stopDemoSession();
+    }
+}
 
 if ($demoParam === 'start') {
     SandboxManager::startDemoSession();
-    // Sauberen Redirect ohne ?demo=start durchführen
-    $inAdmin = (basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'admin') || str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/admin/');
     $target = $inAdmin ? './?demo=1' : './?demo=1';
     header('Location: ' . $target);
     exit;
@@ -28,7 +34,6 @@ if ($demoParam === 'start') {
 
 if ($demoParam === 'reset') {
     SandboxManager::resetDemoSession();
-    $inAdmin = (basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'admin') || str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/admin/');
     $target = $inAdmin ? './?demo=1' : './?demo=1';
     header('Location: ' . $target);
     exit;
@@ -36,8 +41,21 @@ if ($demoParam === 'reset') {
 
 if ($demoParam === 'stop') {
     SandboxManager::stopDemoSession();
-    $inAdmin = (basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'admin') || str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/admin/');
     $target = $inAdmin ? './' : './';
+    header('Location: ' . $target);
+    exit;
+}
+
+if (in_array($demoParam, ['pause', '0', 'normal', 'off', 'exit'], true)) {
+    SandboxManager::pauseDemoSession();
+    $target = $inAdmin ? './' : './';
+    header('Location: ' . $target);
+    exit;
+}
+
+if ($demoParam === 'resume') {
+    SandboxManager::resumeDemoSession();
+    $target = $inAdmin ? './?demo=1' : './?demo=1';
     header('Location: ' . $target);
     exit;
 }

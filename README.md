@@ -24,13 +24,30 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Feature catalog & update portal (Deutsch):** [`libs/docs/features.md`](libs/docs/features.md)
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
+- **Complete Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 
-## Releases & Downloads (v1.3.3)
+## Releases & Downloads (v1.3.3.1)
 
-- 📦 **[WeaveCMS v1.3.3 Full Package](releases/weavecms-v1.3.3.zip)** (`releases/weavecms-v1.3.3.zip`, 12.23 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.3 Update Package](releases/update-v1.3.3.zip)** (`releases/update-v1.3.3.zip`, 0.82 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.3.1 Full Package](releases/weavecms-v1.3.3.1.zip)** (`releases/weavecms-v1.3.3.1.zip`) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.3.1 Update Package](releases/update-v1.3.3.1.zip)** (`releases/update-v1.3.3.1.zip`) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.3.1 (3. November 2026)
+
+- 🛡️ **Sandbox-Modus & Session-Isolation:**
+  - **Reale Admin-Session-Sicherung:** Nahtlose Sicherung bestehender Administrator-Sitzungen (`weave_real_admin_backup`) beim Betreten der Sandbox und automatische Wiederherstellung beim Verlassen oder Pausieren.
+  - **Modus-Umschaltung:** Neuer Modus „Normaler Bereich“ (`?demo=pause` / `?demo=0`) zum Inspizieren der Produktiv-Website ohne Löschung der aktiven Demo-Sitzung.
+  - **Status-Banner:** Elegantes Top-Banner im Frontend und Backend mit Optionen für *„Demo fortsetzen“* (`?demo=resume`) und *„Demo verwerfen“* (`?demo=stop`).
+  - **Vorausgefüllter & Gesperrter Demo-Login:** Im Login (`admin/views/login.php`) sind Benutzername (`admin`), Passwort (`demo-weave-2026`) und PIN (`0000`) schreibgeschützt vorausgefüllt; 2FA wird im Demo-Modus automatisch übersprungen.
+  - **Vollständige Dateisystem-Bereinigung:** Physisches Löschen temporärer JSON-Dateien und aller in der Demo hochgeladenen Originalbilder inklusive abgeleiteter WebP/AVIF-Varianten (`_thumb`, `_medium`, `_large`).
+- 🔒 **Sicherheits-Audit & Sandbox-Breakout-Prävention:**
+  - **Kritische Backend-Aktionen gesperrt:** Backup-Restore (`restore_backup`, `upload_restore`), Backup-Erstellung/Löschung, Core-Updates (`CoreUpdater::run()`) und Datenbank-Migrationen sind im Sandbox-Modus hart blockiert.
+  - **Schutz echter Produktivmedien:** Löschung in der Mediathek (`MediaManager::delete()`) auf Dateien der aktuellen Demo-Sitzung beschränkt; reale Medien sind geschützt.
+  - **E-Mail-Schutz:** Kontaktformular (`send_mail.php`) und SMTP-Tests simulieren Erfolg ohne echten E-Mail-Versand.
+- 🌐 **Behebung des Sprachkatalog-Bugs (UTF-8 BOM Hotfix):**
+  - **BOM-Bereinigung:** UTF-8 BOM aus `libs/lang/admin/de.json`, `en.json`, `AuthManager.php` und `login.php` entfernt.
+  - **LanguageManager gehärtet:** Automatisches Ausfiltern von BOMs; alle 1.248 Übersetzungsschlüssel im Admin-Dashboard laden wieder fehlerfrei.
 
 ### v1.3.3 (31. Oktober 2026)
 
@@ -120,7 +137,6 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
   - **Status-Anzeige:** Der Button zeigt stets die aktuell ausgewählte Sprache mit Landesflagge und Sprachcode (z. B. `🇩🇪 DE ▾`); das Aufklappmenü listet alle aktiven Sprachen mit nativer Bezeichnung und visuellem Häkchen für die aktive Auswahl.
   - **Klick-Erkennung & Barrierefreiheit:** Leichtgängiges Auf- und Zuklappen via ARIA-Attributen und automatischem Schließen beim Klick außerhalb.
 
-
 ### v1.2.4 (26. Oktober 2026)
 
 - 🗄️ **Forum SQLite-Storage & Migration:** Die 1-Klick-Migration zu SQLite (`data/forum.sqlite`) in `weave-forum` und `weave-forum-users` initialisiert die Datenbankdatei sowie sämtliche Tabellen (`users`, `categories`, `boards`, `topics`, `posts`, `likes`, `reports`, `subscriptions`, `audit_log`) und Indizes nun auch dann zuverlässig, wenn WeaveCMS im Flat-File JSON-Modus läuft und noch keine Foren-Dateien existierten.
@@ -161,7 +177,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.3.3.zip](releases/weavecms-v1.3.3.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.3.1.zip](releases/weavecms-v1.3.3.1.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

@@ -392,6 +392,7 @@ class LanguageManager {
         $filePath = dirname(__DIR__, 2) . '/libs/lang/' . $langCode . '.json';
         if (file_exists($filePath)) {
             $content = file_get_contents($filePath);
+            $content = preg_replace('/^\xEF\xBB\xBF/', '', (string)$content);
             $parsed = json_decode((string)$content, true);
             if (is_array($parsed)) {
                 self::$translationCache[$langCode] = $parsed;
@@ -775,6 +776,7 @@ class LanguageManager {
         $filePath = dirname(__DIR__, 2) . '/libs/lang/admin/' . $langCode . '.json';
         if (file_exists($filePath)) {
             $content = @file_get_contents($filePath);
+            $content = preg_replace('/^\xEF\xBB\xBF/', '', (string)$content);
             $parsed = json_decode((string)$content, true);
             if (is_array($parsed)) {
                 self::$adminTranslationCache[$langCode] = $parsed;

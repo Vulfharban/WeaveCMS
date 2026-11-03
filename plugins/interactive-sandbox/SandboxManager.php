@@ -1,10 +1,14 @@
 <?php
 /**
  * ============================================================================
- * WeaveCMS – SandboxManager (Phase 15)
+ * WeaveCMS – SandboxManager (Phase 15 & 15.4 Gehärtet)
  * ============================================================================
  * Verwaltet den Lebenszyklus des interaktiven Demo-Modus:
- * - Starten, Zurücksetzen und Beenden von Sandbox-Sitzungen
+ * - Starten, Pausieren, Fortsetzen, Zurücksetzen und Beenden von Sandbox-Sitzungen
+ * - Saubere Session-Isolation: Reale Admin-Sessions werden gesichert und beim
+ *   Verlassen der Sandbox nahtlos wiederhergestellt.
+ * - Vollständiges Zurücksetzen: Ephemeres JSON und alle hochgeladenen Bilder/Varianten
+ *   werden beim Beenden/Reset physisch restlos bereinigt.
  * - Garbage Collection für inaktive Sitzungen (> 30 Minuten)
  * - Upload-Zählung (max. 5 Bilder je Sitzung)
  * - Bereitstellung des EphemeralSessionDriver
@@ -24,17 +28,37 @@ class SandboxManager {
      * Prüft, ob für den aktuellen Aufruf oder die Session der Demo-Modus aktiv ist.
      */
     public static function isDemoActive(): bool {
+        // Explizites Abschalten per URL-Parameter
+        $demoParam = $_GET['demo'] ?? '';
+        if (in_array($demoParam, ['0', 'stop', 'pause', 'exit', 'off', 'false', 'normal'], true)) {
+            return false;
+        }
+
+        // Falls die Demo pausiert wurde, ist der Demo-Modus inaktiv
+        if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['weave_demo_paused'])) {
+            return false;
+        }
+
+        // Falls die Demo in der Session aktiv ist
         if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['weave_demo_active'])) {
             return true;
         }
 
-        // URL-Trigger prüfen (?demo=start, ?demo=1, ?demo=reset, ?demo=stop)
-        $demoParam = $_GET['demo'] ?? '';
-        if (in_array($demoParam, ['start', '1', 'reset', 'true'], true)) {
+        // URL-Trigger prüfen (?demo=start, ?demo=1, ?demo=reset, ?demo=true, ?demo=resume)
+        if (in_array($demoParam, ['start', '1', 'reset', 'true', 'resume'], true)) {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Prüft, ob eine Demo-Sitzung existiert, aktuell aber pausiert ist.
+     */
+    public static function isDemoPaused(): bool {
+        return session_status() === PHP_SESSION_ACTIVE 
+            && !empty($_SESSION['weave_demo_paused']) 
+            && !empty($_SESSION['weave_demo_token']);
     }
 
     /**
@@ -45,17 +69,30 @@ class SandboxManager {
             @session_start();
         }
 
+        // Reale Admin-Session sichern, falls vorhanden und nicht bereits Demo-Admin
+        if (!empty($_SESSION['admin_logged_in']) && ($_SESSION['admin_username'] ?? '') !== 'demo_admin') {
+            $_SESSION['weave_real_admin_backup'] = [
+                'admin_logged_in'  => $_SESSION['admin_logged_in'],
+                'admin_username'   => $_SESSION['admin_username'] ?? 'admin',
+                'admin_role'       => $_SESSION['admin_role'] ?? 'admin',
+                'admin_user_id'    => $_SESSION['admin_user_id'] ?? null,
+                'admin_user'       => $_SESSION['admin_user'] ?? null,
+                'admin_csrf_token' => $_SESSION['admin_csrf_token'] ?? null,
+            ];
+        }
+
         if (empty($_SESSION['weave_demo_token'])) {
             $_SESSION['weave_demo_token'] = bin2hex(random_bytes(16));
         }
 
         $token = $_SESSION['weave_demo_token'];
         $_SESSION['weave_demo_active'] = true;
+        unset($_SESSION['weave_demo_paused']);
         $_SESSION['weave_demo_started'] = time();
         $_SESSION['weave_demo_last_active'] = time();
         $_SESSION['weave_demo_uploads'] = $_SESSION['weave_demo_uploads'] ?? [];
 
-        // Automatische Anmeldung als Demo-Admin ermöglichen (falls gewünscht oder im Admin-Bereich gestartet)
+        // Automatische Anmeldung als Demo-Admin ermöglichen
         $_SESSION['admin_logged_in'] = true;
         $_SESSION['admin_username'] = 'demo_admin';
         $_SESSION['admin_role'] = 'admin';
@@ -69,6 +106,77 @@ class SandboxManager {
         self::cleanupExpired();
 
         return $token;
+    }
+
+    /**
+     * Pausiert die Demo-Sitzung und wechselt zur regulären Seite/Admin.
+     * Flüchtige Daten bleiben im Speicher/Sandbox, reale Admin-Session wird reaktiviert.
+     */
+    public static function pauseDemoSession(): void {
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+
+        $_SESSION['weave_demo_active'] = false;
+        $_SESSION['weave_demo_paused'] = true;
+        self::$driverInstance = null;
+
+        // Reale Admin-Session wiederherstellen, falls vorhanden
+        if (!empty($_SESSION['weave_real_admin_backup']) && is_array($_SESSION['weave_real_admin_backup'])) {
+            foreach ($_SESSION['weave_real_admin_backup'] as $k => $v) {
+                $_SESSION[$k] = $v;
+            }
+            unset($_SESSION['weave_real_admin_backup']);
+        } else {
+            // Kein realer Admin: Demo-Admin abmelden, damit kein unbefugter Zugriff auf echten Admin besteht
+            if (($_SESSION['admin_username'] ?? '') === 'demo_admin') {
+                unset(
+                    $_SESSION['admin_logged_in'],
+                    $_SESSION['admin_username'],
+                    $_SESSION['admin_role'],
+                    $_SESSION['admin_user_id'],
+                    $_SESSION['admin_user']
+                );
+            }
+        }
+    }
+
+    /**
+     * Setzt eine pausierte Demo-Sitzung fort.
+     */
+    public static function resumeDemoSession(): void {
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+
+        if (empty($_SESSION['weave_demo_token'])) {
+            self::startDemoSession();
+            return;
+        }
+
+        // Reale Admin-Session sichern, falls vorhanden
+        if (!empty($_SESSION['admin_logged_in']) && ($_SESSION['admin_username'] ?? '') !== 'demo_admin') {
+            $_SESSION['weave_real_admin_backup'] = [
+                'admin_logged_in'  => $_SESSION['admin_logged_in'],
+                'admin_username'   => $_SESSION['admin_username'] ?? 'admin',
+                'admin_role'       => $_SESSION['admin_role'] ?? 'admin',
+                'admin_user_id'    => $_SESSION['admin_user_id'] ?? null,
+                'admin_user'       => $_SESSION['admin_user'] ?? null,
+                'admin_csrf_token' => $_SESSION['admin_csrf_token'] ?? null,
+            ];
+        }
+
+        $_SESSION['weave_demo_active'] = true;
+        unset($_SESSION['weave_demo_paused']);
+        $_SESSION['weave_demo_last_active'] = time();
+
+        $_SESSION['admin_logged_in'] = true;
+        $_SESSION['admin_username'] = 'demo_admin';
+        $_SESSION['admin_role'] = 'admin';
+        $_SESSION['admin_user_id'] = 'demo_superadmin';
+
+        self::$driverInstance = null;
+        self::getDriver();
     }
 
     /**
@@ -87,13 +195,7 @@ class SandboxManager {
 
         // Hochgeladene Demo-Bilder der Sitzung physisch entfernen
         $uploads = $_SESSION['weave_demo_uploads'] ?? [];
-        if (is_array($uploads)) {
-            foreach ($uploads as $path) {
-                if (file_exists($path) && is_file($path)) {
-                    @unlink($path);
-                }
-            }
-        }
+        self::deleteFilesAndVariants($uploads);
 
         $_SESSION['weave_demo_uploads'] = [];
         unset($_SESSION['weave_demo_data']);
@@ -117,18 +219,31 @@ class SandboxManager {
             $driver->destroy();
         }
 
-        // Hochgeladene Demo-Bilder entfernen
+        // Hochgeladene Demo-Bilder physisch entfernen (inkl. Varianten)
         $uploads = $_SESSION['weave_demo_uploads'] ?? [];
-        if (is_array($uploads)) {
-            foreach ($uploads as $path) {
-                if (file_exists($path) && is_file($path)) {
-                    @unlink($path);
-                }
+        self::deleteFilesAndVariants($uploads);
+
+        // Reale Admin-Session wiederherstellen, falls vorhanden
+        if (!empty($_SESSION['weave_real_admin_backup']) && is_array($_SESSION['weave_real_admin_backup'])) {
+            foreach ($_SESSION['weave_real_admin_backup'] as $k => $v) {
+                $_SESSION[$k] = $v;
+            }
+            unset($_SESSION['weave_real_admin_backup']);
+        } else {
+            if (($_SESSION['admin_username'] ?? '') === 'demo_admin') {
+                unset(
+                    $_SESSION['admin_logged_in'],
+                    $_SESSION['admin_username'],
+                    $_SESSION['admin_role'],
+                    $_SESSION['admin_user_id'],
+                    $_SESSION['admin_user']
+                );
             }
         }
 
         unset(
             $_SESSION['weave_demo_active'],
+            $_SESSION['weave_demo_paused'],
             $_SESSION['weave_demo_token'],
             $_SESSION['weave_demo_started'],
             $_SESSION['weave_demo_last_active'],
@@ -136,16 +251,35 @@ class SandboxManager {
             $_SESSION['weave_demo_uploads']
         );
 
-        if (($_SESSION['admin_username'] ?? '') === 'demo_admin') {
-            unset(
-                $_SESSION['admin_logged_in'],
-                $_SESSION['admin_username'],
-                $_SESSION['admin_role'],
-                $_SESSION['admin_user_id']
-            );
-        }
-
         self::$driverInstance = null;
+    }
+
+    /**
+     * Löscht eine Liste von Dateien und deren generierte Bildvarianten physisch vom Dateisystem.
+     * @param array $filePaths
+     */
+    public static function deleteFilesAndVariants(array $filePaths): void {
+        foreach ($filePaths as $path) {
+            if (!empty($path) && is_string($path) && file_exists($path) && is_file($path)) {
+                $dir = dirname($path);
+                $filename = basename($path);
+                $base = pathinfo($filename, PATHINFO_FILENAME);
+
+                // Hauptdatei löschen
+                @unlink($path);
+
+                // Abgeleitete Varianten löschen (_thumb, _medium, _large, .webp, .avif)
+                $files = @scandir($dir) ?: [];
+                foreach ($files as $f) {
+                    if ($f === '.' || $f === '..') {
+                        continue;
+                    }
+                    if (str_starts_with($f, $base . '_') || $f === $base . '.webp' || $f === $base . '.avif') {
+                        @unlink($dir . '/' . $f);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -190,7 +324,9 @@ class SandboxManager {
         if (!isset($_SESSION['weave_demo_uploads']) || !is_array($_SESSION['weave_demo_uploads'])) {
             $_SESSION['weave_demo_uploads'] = [];
         }
-        $_SESSION['weave_demo_uploads'][] = $absolutePath;
+        if (!in_array($absolutePath, $_SESSION['weave_demo_uploads'], true)) {
+            $_SESSION['weave_demo_uploads'][] = $absolutePath;
+        }
     }
 
     /**

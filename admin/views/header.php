@@ -22,7 +22,7 @@
 
     <?php 
         // Phase 15: Flüchtiger Sandbox-Banner (Backend)
-        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+        if (class_exists('SandboxManager') && (SandboxManager::isDemoActive() || SandboxManager::isDemoPaused())) {
             SandboxManager::renderBanner('admin');
         }
     ?>

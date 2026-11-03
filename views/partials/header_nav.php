@@ -51,7 +51,7 @@ if (class_exists('PluginManager') && PluginManager::hasAction('frontend_render_n
          ====================================================================== -->
     <?php 
         // Phase 15: Flüchtiger Sandbox-Banner (Frontend)
-        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+        if (class_exists('SandboxManager') && (SandboxManager::isDemoActive() || SandboxManager::isDemoPaused())) {
             SandboxManager::renderBanner('frontend');
         }
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * ============================================================================
  * WeaveCMS - Authentifizierungs- & Sicherheitsmanager (AuthManager)

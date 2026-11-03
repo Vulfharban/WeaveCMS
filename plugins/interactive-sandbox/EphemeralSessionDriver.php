@@ -47,11 +47,13 @@ class EphemeralSessionDriver implements StorageDriverInterface {
      */
     public function loadData(): array {
         if ($this->memoryData !== null) {
+            $this->ensureDemoAdminCredentials();
             return $this->memoryData;
         }
 
         if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['weave_demo_data']) && is_array($_SESSION['weave_demo_data'])) {
             $this->memoryData = $_SESSION['weave_demo_data'];
+            $this->ensureDemoAdminCredentials();
             return $this->memoryData;
         }
 
@@ -63,6 +65,7 @@ class EphemeralSessionDriver implements StorageDriverInterface {
                 if (session_status() === PHP_SESSION_ACTIVE) {
                     $_SESSION['weave_demo_data'] = $parsed;
                 }
+                $this->ensureDemoAdminCredentials();
                 return $this->memoryData;
             }
         }
@@ -87,7 +90,55 @@ class EphemeralSessionDriver implements StorageDriverInterface {
         $this->memoryData = $defaultData;
         $this->saveData($defaultData);
 
+        // Garantiere, dass der Demo-Admin stets aktiv ist
+        $this->ensureDemoAdminCredentials();
+
         return $this->memoryData;
+    }
+
+    /**
+     * Stellt sicher, dass die Demo-Zugangsdaten (admin / demo-weave-2026 / 0000) stets funktionsfähig sind.
+     */
+    protected function ensureDemoAdminCredentials(): void {
+        if (!is_array($this->memoryData)) {
+            $this->memoryData = [];
+        }
+        if (!isset($this->memoryData['settings']) || !is_array($this->memoryData['settings'])) {
+            $this->memoryData['settings'] = [];
+        }
+        $pwHash = $this->memoryData['settings']['admin_password_hash'] ?? '';
+        if (empty($pwHash) || !password_verify('demo-weave-2026', $pwHash)) {
+            $this->memoryData['settings']['admin_password_hash'] = password_hash('demo-weave-2026', PASSWORD_DEFAULT);
+            $this->memoryData['settings']['admin_pin_hash'] = password_hash('0000', PASSWORD_DEFAULT);
+
+            if (!isset($this->memoryData['users']) || !is_array($this->memoryData['users'])) {
+                $this->memoryData['users'] = [];
+            }
+            $adminFound = false;
+            foreach ($this->memoryData['users'] as &$u) {
+                if (($u['username'] ?? '') === 'admin') {
+                    $u['password_hash'] = $this->memoryData['settings']['admin_password_hash'];
+                    $u['pin_hash'] = $this->memoryData['settings']['admin_pin_hash'];
+                    $u['two_factor_enabled'] = false;
+                    $adminFound = true;
+                    break;
+                }
+            }
+            unset($u);
+            if (!$adminFound) {
+                $this->memoryData['users'][] = [
+                    'id' => 'usr_superadmin',
+                    'username' => 'admin',
+                    'email' => 'admin@weavecms.local',
+                    'role' => 'admin',
+                    'password_hash' => $this->memoryData['settings']['admin_password_hash'],
+                    'pin_hash' => $this->memoryData['settings']['admin_pin_hash'],
+                    'two_factor_enabled' => false,
+                    'status' => 'active',
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+            }
+        }
     }
 
     /**
@@ -100,16 +151,40 @@ class EphemeralSessionDriver implements StorageDriverInterface {
         $data['_sandbox_token'] = $this->sessionToken;
         $data['_sandbox_last_modified'] = time();
 
-        // Schutz-Schranke 2: Blockiere das unbefugte Aussperren im Demo-Modus (Passwort/PIN-Schutz)
-        // Behalte den Standard-Adminzugang stets funktionstüchtig
-        if (isset($data['settings'])) {
-            // Verhindere das Entfernen des Admin-Zugangs
-            if (empty($data['settings']['admin_password_hash'])) {
-                $data['settings']['admin_password_hash'] = password_hash('demo-weave-2026', PASSWORD_DEFAULT);
+        // Schutz-Schranke 2: Garantiere funktionierende Demo-Zugangsdaten (admin / demo-weave-2026 / 0000)
+        if (!isset($data['settings']) || !is_array($data['settings'])) {
+            $data['settings'] = [];
+        }
+        $data['settings']['admin_password_hash'] = password_hash('demo-weave-2026', PASSWORD_DEFAULT);
+        $data['settings']['admin_pin_hash'] = password_hash('0000', PASSWORD_DEFAULT);
+
+        // Sicherstellen, dass der Admin-User im users-Array die Demo-Credentials hat und 2FA deaktiviert ist
+        if (!isset($data['users']) || !is_array($data['users'])) {
+            $data['users'] = [];
+        }
+        $adminFound = false;
+        foreach ($data['users'] as &$u) {
+            if (($u['username'] ?? '') === 'admin') {
+                $u['password_hash'] = $data['settings']['admin_password_hash'];
+                $u['pin_hash'] = $data['settings']['admin_pin_hash'];
+                $u['two_factor_enabled'] = false;
+                $adminFound = true;
+                break;
             }
-            if (empty($data['settings']['admin_pin_hash'])) {
-                $data['settings']['admin_pin_hash'] = password_hash('0000', PASSWORD_DEFAULT);
-            }
+        }
+        unset($u);
+        if (!$adminFound) {
+            $data['users'][] = [
+                'id' => 'usr_superadmin',
+                'username' => 'admin',
+                'email' => 'admin@weavecms.local',
+                'role' => 'admin',
+                'password_hash' => $data['settings']['admin_password_hash'],
+                'pin_hash' => $data['settings']['admin_pin_hash'],
+                'two_factor_enabled' => false,
+                'status' => 'active',
+                'created_at' => date('Y-m-d H:i:s')
+            ];
         }
 
         $this->memoryData = $data;

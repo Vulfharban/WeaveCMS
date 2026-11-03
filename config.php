@@ -13,7 +13,7 @@ SecurityManager::applySecurityHeaders();
 SecurityManager::initSecureSession();
 
 // 2. Version & Basiskonfiguration
-define('WEAVE_VERSION', '1.3.3');
+define('WEAVE_VERSION', '1.3.3.1');
 
 // 3. Lokale Umgebungskonfiguration laden (falls vorhanden, z. B. für Entwickler-Tokens oder Fallbacks)
 if (file_exists(__DIR__ . '/config.local.php')) {
@@ -51,7 +51,7 @@ require_once __DIR__ . '/libs/php/TotpManager.php';
 // Phase 15 & Plugin-Frühinitialisierung: Sandbox-Plugin einbinden, falls vorhanden
 if (file_exists(__DIR__ . '/plugins/interactive-sandbox/SandboxManager.php')) {
     require_once __DIR__ . '/plugins/interactive-sandbox/SandboxManager.php';
-    if (SandboxManager::isDemoActive()) {
+    if (SandboxManager::isDemoActive() || isset($_GET['demo']) || !empty($_SESSION['weave_demo_active']) || !empty($_SESSION['weave_demo_paused'])) {
         require_once __DIR__ . '/plugins/interactive-sandbox/plugin.php';
     }
 }

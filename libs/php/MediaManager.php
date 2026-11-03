@@ -441,6 +441,14 @@ class MediaManager {
             return ['success' => false, 'item' => null, 'error' => "Dateityp .{$ext} ist nicht erlaubt."];
         }
 
+        // Phase 15: Sandbox-Upload-Beschränkung
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            if (!SandboxManager::canUploadFile()) {
+                SecurityManager::logEvent('SANDBOX_UPLOAD_LIMIT', 'Sandbox-Upload-Limit erreicht (max. 5 Bilder je Sitzung)', 'WARNING');
+                return ['success' => false, 'item' => null, 'error' => 'Demo-Upload-Limit erreicht: Im Demo-Modus können maximal ' . SandboxManager::MAX_UPLOADS . ' Bilder hochgeladen werden.'];
+            }
+        }
+
         $uploadDir = self::getUploadDir();
 
         // Magic Bytes Prüfung für Bilder & Dokumente
@@ -500,7 +508,12 @@ class MediaManager {
         ];
         self::saveMeta($meta);
 
-        SecurityManager::logEvent('MEDIA_UPLOAD_OK', "Datei erfolgreich hochgeladen: {$newFilename} (Original: {$origName})", 'INFO');
+        SecurityManager::logEvent('MEDIA_UPLOAD_OK', "Datei erfolgreich hochgeladen: {$newFilename} (Original: {$origName})", 'INFO');
+
+        // Phase 15: Im Demo-Modus hochgeladene Datei tracken für vollständiges Zurücksetzen
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            SandboxManager::recordUploadedFile($destPath, 'images/uploads/' . $newFilename);
+        }
 
         // Erstelltes Item abrufen
         $items = self::scanMedia('all', $newFilename);
@@ -535,6 +548,29 @@ class MediaManager {
 
         if (!file_exists($target)) {
             return ['success' => false, 'message' => 'Datei existiert nicht'];
+        }
+
+        // Phase 15: Im Demo-Modus dürfen reale Medien nicht gelöscht werden!
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            $uploads = $_SESSION['weave_demo_uploads'] ?? [];
+            $foundKey = array_search($target, $uploads, true);
+            if ($foundKey !== false) {
+                @unlink($target);
+                unset($_SESSION['weave_demo_uploads'][$foundKey]);
+                $_SESSION['weave_demo_uploads'] = array_values($_SESSION['weave_demo_uploads']);
+
+                // Abgeleitete Varianten löschen
+                $baseName = pathinfo($safeName, PATHINFO_FILENAME);
+                $files = @scandir($uploadDir) ?: [];
+                foreach ($files as $f) {
+                    if ($f === '.' || $f === '..') continue;
+                    if (strpos($f, $baseName . '_') === 0 || $f === $baseName . '.webp' || $f === $baseName . '.avif') {
+                        @unlink($uploadDir . '/' . $f);
+                    }
+                }
+                return ['success' => true, 'message' => 'Demo-Medium erfolgreich entfernt.'];
+            }
+            return ['success' => false, 'message' => 'Im Sandbox-Modus können reale Produktiv-Medien nicht gelöscht werden.'];
         }
 
         @unlink($target);

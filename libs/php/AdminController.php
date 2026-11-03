@@ -992,6 +992,11 @@ class AdminController {
      * Führt eine 1-Klick-Speicher-Migration durch (JSON <-> MySQL).
      */
     protected static function handleStorageMigration(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            $error_msg = '⚠️ Speicher- und Datenbank-Migrationen sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.';
+            return;
+        }
+
         $target_engine = trim($_POST['target_engine'] ?? 'json');
         $migrate_pin = trim($_POST['migrate_pin'] ?? '');
 
@@ -1193,6 +1198,11 @@ class AdminController {
      * Sendet eine Test-E-Mail über den konfigurierten SMTP-Server.
      */
     protected static function handleSmtpTest(array $data, string &$success_msg, string &$error_msg): void {
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            $success_msg = '✓ Demo-Modus: SMTP-Verbindungstest wurde erfolgreich simuliert (keine reale E-Mail versendet).';
+            return;
+        }
+
         $test_to = trim($_POST['test_to_email'] ?? ($data['texts']['contact_email'] ?? ''));
         if (empty($test_to) || !filter_var($test_to, FILTER_VALIDATE_EMAIL)) {
             $error_msg = 'Bitte gib eine gültige Ziel-E-Mail-Adresse für den SMTP-Test an.';
@@ -1235,6 +1245,11 @@ class AdminController {
      * Führt das 1-Klick-Core-Update aus (Phase 25). Nur für Administratoren (RBAC).
      */
     protected static function handleCoreUpdate(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            $error_msg = '⚠️ Core-Updates sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.';
+            return;
+        }
+
         $info = UpdateManager::checkCoreUpdate(true);
         $res = CoreUpdater::run($info);
         if ($res['success']) {
@@ -1280,6 +1295,11 @@ class AdminController {
      * Verarbeitet Backup-Erstellung, -Wiederherstellung, -Upload und -Löschung.
      */
     protected static function handleBackupAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            $error_msg = '⚠️ Sicherungs-, Wiederherstellungs- und Release-Funktionen sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.';
+            return;
+        }
+
         if ($action === 'create_backup') {
             $backup_type = $_POST['backup_type'] ?? 'full';
             $res = BackupManager::createBackup($backup_type, $data);
