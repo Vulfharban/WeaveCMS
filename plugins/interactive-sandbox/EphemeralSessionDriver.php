@@ -53,6 +53,7 @@ class EphemeralSessionDriver implements StorageDriverInterface {
 
         if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['weave_demo_data']) && is_array($_SESSION['weave_demo_data'])) {
             $this->memoryData = $_SESSION['weave_demo_data'];
+            $this->anonymizeDemoData();
             $this->ensureDemoAdminCredentials();
             return $this->memoryData;
         }
@@ -62,8 +63,9 @@ class EphemeralSessionDriver implements StorageDriverInterface {
             $parsed = !empty($raw) ? json_decode($raw, true) : null;
             if (is_array($parsed)) {
                 $this->memoryData = $parsed;
+                $this->anonymizeDemoData();
                 if (session_status() === PHP_SESSION_ACTIVE) {
-                    $_SESSION['weave_demo_data'] = $parsed;
+                    $_SESSION['weave_demo_data'] = $this->memoryData;
                 }
                 $this->ensureDemoAdminCredentials();
                 return $this->memoryData;
@@ -88,12 +90,82 @@ class EphemeralSessionDriver implements StorageDriverInterface {
         $defaultData['_sandbox_started'] = time();
 
         $this->memoryData = $defaultData;
-        $this->saveData($defaultData);
+        $this->anonymizeDemoData();
+        $this->saveData($this->memoryData);
 
         // Garantiere, dass der Demo-Admin stets aktiv ist
         $this->ensureDemoAdminCredentials();
 
         return $this->memoryData;
+    }
+
+    /**
+     * Stellt sicher, dass im Sandbox-Modus ausnahmslos anonymisierte Musterdaten
+     * (Max Mustermann, Musterstraße 12, 12345 Musterstadt, testmail@test.de)
+     * für Impressum, Kontakt und Systemkonfiguration angezeigt werden.
+     */
+    protected function anonymizeDemoData(): void {
+        if (!is_array($this->memoryData)) {
+            $this->memoryData = [];
+        }
+        if (!isset($this->memoryData['texts']) || !is_array($this->memoryData['texts'])) {
+            $this->memoryData['texts'] = [];
+        }
+
+        // Impressum & Kontakt zwingend auf Mustermann mit Musteradresse setzen
+        $this->memoryData['texts']['contact_name'] = 'Max Mustermann';
+        $this->memoryData['texts']['contact_street'] = 'Musterstraße 12';
+        $this->memoryData['texts']['contact_city'] = '12345 Musterstadt';
+        $this->memoryData['texts']['contact_phone'] = '+49 123 4567890';
+        $this->memoryData['texts']['contact_email'] = 'testmail@test.de';
+        $this->memoryData['texts']['contact_instagram'] = 'max.mustermann';
+        $this->memoryData['texts']['contact_mail_greeting'] = 'Hallo Max,';
+        $this->memoryData['texts']['course_request_template'] = "Hallo Max,\r\n\r\nich interessiere mich für deinen Workshop \"{kurs}\" am {datum} ({uhrzeit}) in {ort} und möchte fragen, ob noch Plätze frei sind.\r\n\r\nViele Grüße";
+        $this->memoryData['texts']['impressum_supervisory'] = 'Handwerkskammer Musterstadt';
+        $this->memoryData['texts']['impressum_vat_id'] = 'Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).';
+
+        // Eventuelle SMTP-Zugangsdaten in den Einstellungen neutralisieren
+        if (isset($this->memoryData['settings']['smtp']) && is_array($this->memoryData['settings']['smtp'])) {
+            $this->memoryData['settings']['smtp']['enabled'] = false;
+            $this->memoryData['settings']['smtp']['host'] = 'smtp.musterdomain.de';
+            $this->memoryData['settings']['smtp']['user'] = '';
+            $this->memoryData['settings']['smtp']['pass'] = '';
+            $this->memoryData['settings']['smtp']['from_email'] = 'testmail@test.de';
+            $this->memoryData['settings']['smtp']['from_name'] = 'Max Mustermann (Sandbox)';
+        }
+
+        // Sicherheits-Benachrichtigungs-E-Mail neutralisieren
+        if (isset($this->memoryData['settings']['prod_security']) && is_array($this->memoryData['settings']['prod_security'])) {
+            $this->memoryData['settings']['prod_security']['alert_email'] = 'testmail@test.de';
+        }
+
+        // Kurse: Reale Adressen ausfiltern
+        if (!empty($this->memoryData['courses']) && is_array($this->memoryData['courses'])) {
+            foreach ($this->memoryData['courses'] as &$course) {
+                if (isset($course['location']) && (stripos($course['location'], 'Kraaker') !== false || stripos($course['location'], 'Rastow') !== false)) {
+                    $course['location'] = 'Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt';
+                }
+                if (!empty($course['translations']) && is_array($course['translations'])) {
+                    foreach ($course['translations'] as &$tr) {
+                        if (isset($tr['location']) && (stripos($tr['location'], 'Kraaker') !== false || stripos($tr['location'], 'Rastow') !== false)) {
+                            $tr['location'] = 'Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt';
+                        }
+                    }
+                    unset($tr);
+                }
+            }
+            unset($course);
+        }
+
+        // Benutzerliste: E-Mail maskieren
+        if (!empty($this->memoryData['users']) && is_array($this->memoryData['users'])) {
+            foreach ($this->memoryData['users'] as &$u) {
+                if (($u['username'] ?? '') === 'admin') {
+                    $u['email'] = 'admin@weavecms.local';
+                }
+            }
+            unset($u);
+        }
     }
 
     /**

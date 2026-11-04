@@ -569,7 +569,7 @@
   "admin.team.drawer_edit": "Teammitglied bearbeiten",
   "admin.team.drawer_close": "Schließen",
   "admin.team.field_name": "Vollständiger Name:",
-  "admin.team.placeholder_name": "z. B. Bianka Wolfrum",
+  "admin.team.placeholder_name": "z. B. Max Mustermann",
   "admin.team.field_email": "E-Mail (optional für Kontaktanfragen):",
   "admin.team.placeholder_email": "z. B. kontakt@example.de",
   "admin.team.field_image": "Profilfoto (JPG, PNG, WebP):",

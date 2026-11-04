@@ -1678,7 +1678,7 @@ class AdminController {
             $title = $_POST['title'] ?? '';
             $date_string = $_POST['date_string'] ?? '';
             $time = $_POST['time'] ?? '10:00 - 16:00 Uhr';
-            $location = $_POST['location'] ?? 'Werkstatt Kraaker Straße 14, 19077 Rastow';
+            $location = $_POST['location'] ?? 'Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt';
             $description = $_POST['description'] ?? '';
             $price = $_POST['price'] ?? '85 €';
             $max_participants = (int)($_POST['max_participants'] ?? 10);
@@ -1747,7 +1747,7 @@ class AdminController {
                     $c['title'] = $_POST['title'] ?? '';
                     $c['date_string'] = $_POST['date_string'] ?? '';
                     $c['time'] = $_POST['time'] ?? '10:00 - 16:00 Uhr';
-                    $c['location'] = $_POST['location'] ?? 'Werkstatt Kraaker Straße 14, 19077 Rastow';
+                    $c['location'] = $_POST['location'] ?? 'Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt';
                     $c['description'] = $_POST['description'] ?? '';
                     $c['price'] = $_POST['price'] ?? '';
                     $c['max_participants'] = (int)($_POST['max_participants'] ?? 10);

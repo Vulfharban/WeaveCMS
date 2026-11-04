@@ -32,7 +32,7 @@
                     $c_desc_raw = (!empty($cur_lang) && !empty($c['translations'][$cur_lang]['description'])) ? $c['translations'][$cur_lang]['description'] : ($c['description'] ?? '');
                     $c_date_raw = (!empty($cur_lang) && !empty($c['translations'][$cur_lang]['date_string'])) ? $c['translations'][$cur_lang]['date_string'] : ($c['date_string'] ?? '');
                     $time_text = (!empty($cur_lang) && !empty($c['translations'][$cur_lang]['time'])) ? $c['translations'][$cur_lang]['time'] : (!empty($c['time']) ? $c['time'] : '10:00 - 16:00 Uhr');
-                    $location_text = (!empty($cur_lang) && !empty($c['translations'][$cur_lang]['location'])) ? $c['translations'][$cur_lang]['location'] : (!empty($c['location']) ? $c['location'] : 'Werkstatt Kraaker Straße 14, 19077 Rastow');
+                    $location_text = (!empty($cur_lang) && !empty($c['translations'][$cur_lang]['location'])) ? $c['translations'][$cur_lang]['location'] : (!empty($c['location']) ? $c['location'] : 'Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt');
                     $is_highlighted = ($selected_course_id === (int)$c['id']);
                 ?>
                 <div class="course-row <?php echo $is_highlighted ? 'highlighted' : ''; ?>" id="course-<?php echo $c['id']; ?>">

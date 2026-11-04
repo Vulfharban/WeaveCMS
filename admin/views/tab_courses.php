@@ -65,7 +65,7 @@ $all_languages = LanguageManager::getSupportedLanguages();
                             </div>
                             <div class="form-group">
                                 <label><?php echo __a('admin.courses.field_location', 'Ort / Treffpunkt:'); ?> *</label>
-                                <input type="text" name="location" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.placeholder_location', 'z. B. Flechtwerkstatt')); ?>" value="Werkstatt Kraaker Straße 14, 19077 Rastow" required>
+                                <input type="text" name="location" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.courses.placeholder_location', 'z. B. Flechtwerkstatt')); ?>" value="Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt" required>
                             </div>
                         </div>
 
@@ -212,7 +212,7 @@ $all_languages = LanguageManager::getSupportedLanguages();
                                             </div>
                                             <div class="form-group">
                                                 <label><?php echo __a('admin.courses.field_location', 'Ort / Treffpunkt:'); ?> *</label>
-                                                <input type="text" name="location" class="form-control" value="<?php echo htmlspecialchars($c['location'] ?? 'Werkstatt Kraaker Straße 14, 19077 Rastow'); ?>" required>
+                                                <input type="text" name="location" class="form-control" value="<?php echo htmlspecialchars($c['location'] ?? 'Atelier-Werkstatt, Musterstraße 12, 12345 Musterstadt'); ?>" required>
                                             </div>
                                         </div>
 

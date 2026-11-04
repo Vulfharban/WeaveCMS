@@ -569,7 +569,7 @@
   "admin.team.drawer_edit": "Edit Team Member",
   "admin.team.drawer_close": "Close",
   "admin.team.field_name": "Full Name:",
-  "admin.team.placeholder_name": "e.g. Bianka Wolfrum",
+  "admin.team.placeholder_name": "e.g. Max Mustermann",
   "admin.team.field_email": "Email (optional for contact enquiries):",
   "admin.team.placeholder_email": "e.g. contact@example.co.uk",
   "admin.team.field_image": "Profile Photo (JPG, PNG, WebP):",

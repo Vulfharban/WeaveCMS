@@ -68,7 +68,7 @@ $all_languages = LanguageManager::getSupportedLanguages();
                     <div class="grid-2" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
                         <div class="form-group">
                             <label for="team_name" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.team.field_name', 'Vollständiger Name:'); ?> *</label>
-                            <input type="text" id="team_name" name="name" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.team.placeholder_name', 'z. B. Bianka Wolfrum')); ?>" required>
+                            <input type="text" id="team_name" name="name" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.team.placeholder_name', 'z. B. Max Mustermann')); ?>" required>
                         </div>
                         <div class="form-group">
                             <label for="team_email" style="font-weight:700; color:var(--text-primary); margin-bottom:0.4rem; display:block;"><?php echo __a('admin.team.field_email', 'E-Mail (optional für Kontaktanfragen):'); ?></label>
