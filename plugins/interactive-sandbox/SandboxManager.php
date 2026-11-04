@@ -198,7 +198,11 @@ class SandboxManager {
         self::deleteFilesAndVariants($uploads);
 
         $_SESSION['weave_demo_uploads'] = [];
-        unset($_SESSION['weave_demo_data']);
+        unset(
+            $_SESSION['weave_demo_data'],
+            $_SESSION['weave_demo_inbox_status'],
+            $_SESSION['weave_demo_inbox_deleted']
+        );
         self::$driverInstance = null;
 
         // Neu starten
@@ -248,7 +252,9 @@ class SandboxManager {
             $_SESSION['weave_demo_started'],
             $_SESSION['weave_demo_last_active'],
             $_SESSION['weave_demo_data'],
-            $_SESSION['weave_demo_uploads']
+            $_SESSION['weave_demo_uploads'],
+            $_SESSION['weave_demo_inbox_status'],
+            $_SESSION['weave_demo_inbox_deleted']
         );
 
         self::$driverInstance = null;

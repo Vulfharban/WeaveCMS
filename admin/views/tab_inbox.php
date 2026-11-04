@@ -5,13 +5,29 @@
  * @var array $inbox_entries Liste aller Kontaktanfragen
  * @var string $csrf_token CSRF-Schutztoken
  */
+
+$is_demo = class_exists('SandboxManager') && SandboxManager::isDemoActive();
+if ($is_demo) {
+    // Strikte Sandbox-Isolation: Im Demo-Modus ausschließlich genau die eine Testnachricht anzeigen
+    $inbox_entries = ContactInbox::getDemoInbox();
+}
 ?>
         <!-- ──────────────── SECTION: KONTAKTANFRAGEN-POSTFACH ──────────────── -->
         <div id="tab-inbox" class="admin-section card" style="padding: 2.5rem;">
             <h2 style="color: var(--primary); margin-bottom: 0.5rem;">📥 <?php echo __a('admin.inbox.title', 'Kontaktanfragen'); ?></h2>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem;">
+            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">
                 <?php echo __a('admin.inbox.subtitle', 'Alle über das Kontaktformular eingegangenen Anfragen werden hier lokal archiviert – unabhängig davon, ob der Mailversand funktioniert.'); ?>
             </p>
+
+            <?php if ($is_demo): ?>
+                <div style="margin-bottom: 1.5rem; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); border-radius: 10px; padding: 12px 16px; font-size: 0.88rem; color: #1e40af; display: flex; align-items: center; gap: 12px;">
+                    <span class="material-icons" style="font-size: 24px; color: #2563eb;">shield</span>
+                    <div>
+                        <strong>Datenschutz im Demo-Modus:</strong> Reale Kundenanfragen und persönliche E-Mail-Adressen sind im Demo-Modus vollständig geschützt und ausgeblendet. Es wird ausschließlich diese anonyme Testnachricht angezeigt.
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <?php if (empty($inbox_entries)): ?>
                 <p style="color: var(--text-secondary);"><?php echo __a('admin.inbox.empty', 'Noch keine Anfragen eingegangen.'); ?></p>
             <?php else: ?>
@@ -28,10 +44,16 @@
                     </thead>
                     <tbody>
                     <?php foreach ($inbox_entries as $ie):
+                        $entry_email = $is_demo ? 'testmail@test.de' : ($ie['email'] ?? '');
                         $is_new = ($ie['status'] ?? '') === 'neu';
                         $subject = 'Re: Deine Anfrage' . (!empty($ie['course_ref']) ? ' - ' . $ie['course_ref'] : '');
-                        $mailto = 'mailto:' . $ie['email'] . '?subject=' . rawurlencode($subject);
+                        $mailto = 'mailto:' . $entry_email . '?subject=' . rawurlencode($subject);
                         $preview = mb_strimwidth($ie['message'] ?? '', 0, 80, '…', 'UTF-8');
+
+                        $modalData = $ie;
+                        if ($is_demo) {
+                            $modalData['email'] = 'testmail@test.de';
+                        }
                     ?>
                         <tr style="border-bottom:1px solid var(--border-color); <?php echo $is_new ? 'background:rgba(239,68,68,0.05);' : ''; ?>">
                             <td style="padding:10px 8px; white-space:nowrap;">
@@ -40,11 +62,11 @@
                             </td>
                             <td style="padding:10px 8px;">
                                 <strong><?php echo htmlspecialchars($ie['name'] ?? ''); ?></strong><br>
-                                <small style="color:var(--text-secondary);"><?php echo htmlspecialchars($ie['email'] ?? ''); ?><?php echo !empty($ie['phone']) ? ' · ' . htmlspecialchars($ie['phone']) : ''; ?></small>
+                                <small style="color:var(--text-secondary);"><?php echo htmlspecialchars($entry_email); ?><?php echo !empty($ie['phone']) ? ' · ' . htmlspecialchars($ie['phone']) : ''; ?></small>
                                 <?php if (!empty($ie['course_ref'])): ?><br><small style="color:var(--accent);"><?php echo __a('admin.inbox.course_label', 'Kurs:'); ?> <?php echo htmlspecialchars($ie['course_ref']); ?></small><?php endif; ?>
                             </td>
                             <td style="padding:10px 8px; max-width:320px;">
-                                <a href="#" style="color:var(--text-primary); text-decoration:none;" onclick="openInboxModal(<?php echo htmlspecialchars(json_encode($ie, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP), ENT_QUOTES); ?>); return false;">
+                                <a href="#" style="color:var(--text-primary); text-decoration:none;" onclick="openInboxModal(<?php echo htmlspecialchars(json_encode($modalData, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP), ENT_QUOTES); ?>); return false;">
                                     <?php echo htmlspecialchars($preview); ?>
                                 </a>
                             </td>

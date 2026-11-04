@@ -15,6 +15,7 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
   - **Modus-Umschaltung & Pausieren:** Neuer Modus „Normaler Bereich“ (`?demo=pause` / `?demo=0`) erlaubt das Inspizieren der echten Website und des regulären Administrationsbereichs, ohne die temporäre Demo-Sitzung verwerfen zu müssen.
   - **Zustands-Banner:** Elegantes Top-Banner im Frontend und Backend zeigt im Normalmodus bei pausierter Demo Optionen für *„Demo fortsetzen“* (`?demo=resume`) und *„Demo verwerfen“* (`?demo=stop`).
   - **Vorausgefüllter & Gesperrter Demo-Login:** Im Anmeldedialog (`admin/views/login.php`) sind Benutzername (`admin`), Passwort (`demo-weave-2026`) und PIN (`0000`) schreibgeschützt vorausgefüllt (`readonly`). 2FA-Eingaben werden im Demo-Modus automatisch übersprungen.
+  - **Anonymisiertes Kontaktpostfach (Nachrichten):** Reale Kundenanfragen und persönliche E-Mail-Adressen in `data/contacts.json` werden im Demo-Modus vollständig verborgen. Es wird strikt genau eine einzige anonyme Testnachricht mit der Absenderadresse `testmail@test.de` angezeigt, selbst wenn mehrere reale Nachrichten im Postfach existieren. Statusänderungen und Löschungen bleiben rein flüchtig in der Session.
   - **Vollständiges Zurücksetzen:** Beim Beenden der Demo werden nicht nur flüchtige JSON-Daten (`data/sandbox/*.json`), sondern auch sämtliche während der Sitzung hochgeladenen Originalbilder und abgeleiteten WebP/AVIF-Varianten (`_thumb`, `_medium`, `_large`) restlos vom Dateisystem entfernt.
 
 - 🔒 **Sicherheits-Audit & Sandbox-Breakout-Prävention:**
@@ -84,3 +85,4 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
   - Neuer Hauptreiter „Mediathek“, Kachel- und Listenansicht, Detail- und Barrierefreiheits-Modal.
 - ⚡ **Moderne Bild-Pipeline mit WebP & AVIF:**
   - Automatische Next-Gen-Konvertierung, responsive Standardgrößen und HTML5 `<picture>`-Helfer.
+

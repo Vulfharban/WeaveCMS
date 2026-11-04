@@ -40,6 +40,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
   - **Modus-Umschaltung:** Neuer Modus „Normaler Bereich“ (`?demo=pause` / `?demo=0`) zum Inspizieren der Produktiv-Website ohne Löschung der aktiven Demo-Sitzung.
   - **Status-Banner:** Elegantes Top-Banner im Frontend und Backend mit Optionen für *„Demo fortsetzen“* (`?demo=resume`) und *„Demo verwerfen“* (`?demo=stop`).
   - **Vorausgefüllter & Gesperrter Demo-Login:** Im Login (`admin/views/login.php`) sind Benutzername (`admin`), Passwort (`demo-weave-2026`) und PIN (`0000`) schreibgeschützt vorausgefüllt; 2FA wird im Demo-Modus automatisch übersprungen.
+  - **Anonymisiertes Kontaktpostfach (Nachrichten):** Vollständiges Verbergen realer Kundenanfragen und persönlicher E-Mail-Adressen im Demo-Modus. Es wird strikt genau eine einzige anonyme Testnachricht mit `testmail@test.de` angezeigt; Statusänderungen und Löschungen bleiben rein flüchtig in der Sitzung.
   - **Vollständige Dateisystem-Bereinigung:** Physisches Löschen temporärer JSON-Dateien und aller in der Demo hochgeladenen Originalbilder inklusive abgeleiteter WebP/AVIF-Varianten (`_thumb`, `_medium`, `_large`).
 - 🔒 **Sicherheits-Audit & Sandbox-Breakout-Prävention:**
   - **Kritische Backend-Aktionen gesperrt:** Backup-Restore (`restore_backup`, `upload_restore`), Backup-Erstellung/Löschung, Core-Updates (`CoreUpdater::run()`) und Datenbank-Migrationen sind im Sandbox-Modus hart blockiert.
