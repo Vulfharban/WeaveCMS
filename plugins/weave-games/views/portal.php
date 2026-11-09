@@ -223,10 +223,10 @@ $servers = GameServerManager::getServers();
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <div>
                     <h3 style="margin: 0; color: #38bdf8;">Space Orbit – 2D Arcade Space Shooter</h3>
-                    <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 13px;">Kein Download erforderlich – läuft nativ im Browser per HTML5 Canvas.</p>
+                    <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 13px;">3 Kampagnen-Level mit Sektor-Bossen (Viper Frigate, Dreadnought & Titan Mothership) – direkt im Browser per HTML5 Canvas spielbar.</p>
                 </div>
                 <div>
-                    <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">▶ Spiel starten</button>
+                    <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">▶ Kampagne starten</button>
                 </div>
             </div>
 
@@ -235,9 +235,10 @@ $servers = GameServerManager::getServers();
                 <canvas id="spaceOrbitCanvas" width="800" height="360" style="display: none; width: 100%; height: 100%; cursor: crosshair;"></canvas>
                 <div id="spaceOrbitIntro" style="text-align: center; color: #94a3b8;">
                     <span style="font-size: 48px; display: block; margin-bottom: 8px;">🛸</span>
-                    <strong style="color: #f8fafc; font-size: 16px;">Space Orbit Arcade</strong><br>
-                    <span style="font-size: 13px;">Steuerung: Maus / Cursor (Bewegen & Zielen), Klick oder Leertaste (Feuern) &bull; Alternativ: Pfeiltasten / A & D</span><br><br>
-                    <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">Spiel jetzt laden & starten</button>
+                    <strong style="color: #f8fafc; font-size: 16px;">Space Orbit – 3 Level Boss-Kampagne</strong><br>
+                    <span style="font-size: 13px;">Besiege alle 3 Sektor-Bosse für den finalen Sieg!</span><br>
+                    <span style="font-size: 12px; color: #64748b;">Steuerung: Maus / Cursor (Bewegen & Zielen), Klick oder Leertaste (Feuern) &bull; Alternativ: Pfeiltasten / A & D</span><br><br>
+                    <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">Kampagne jetzt starten</button>
                 </div>
             </div>
         </div>

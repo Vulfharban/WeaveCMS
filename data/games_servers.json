@@ -23,7 +23,7 @@
         "current_players": 0,
         "status": "offline",
         "last_ping_ms": null,
-        "last_checked": null,
+        "last_checked": "2026-11-09 13:33:46",
         "auto_restart": true,
         "active": true
     },
@@ -51,7 +51,7 @@
         "current_players": 0,
         "status": "offline",
         "last_ping_ms": null,
-        "last_checked": null,
+        "last_checked": "2026-11-09 13:33:47",
         "auto_restart": true,
         "active": true
     }
