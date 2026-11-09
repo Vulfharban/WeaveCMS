@@ -48,3 +48,4 @@ class GameConfigManager {
         return (file_put_contents($file, $json) !== false);
     }
 }
+

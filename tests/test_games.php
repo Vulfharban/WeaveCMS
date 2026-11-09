@@ -82,3 +82,4 @@ run_game_test("Socket-Ping-Mechanismus funktioniert", isset($ping['online']));
 echo "\n========================================================\n";
 echo "ALLE WEAVE GAMES TESTS FEHLERFREI BESTANDEN! ✓\n";
 echo "========================================================\n";
+

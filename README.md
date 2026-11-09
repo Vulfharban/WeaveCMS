@@ -23,7 +23,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 - **Feature catalog & update portal (Deutsch):** [`libs/docs/features.md`](libs/docs/features.md)
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
-- **Plugin-Dokumentation & Referenz:** [`docs/PLUGINS.md`](docs/PLUGINS.md)
+- **Plugin-Dokumentation & Referenz:** [`libs/docs/PLUGINS.md`](libs/docs/PLUGINS.md)
 - **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 - **Complete Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 

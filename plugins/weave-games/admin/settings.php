@@ -588,3 +588,4 @@ $totalReleases = count($releases);
     <?php endif; ?>
 
 </div>
+

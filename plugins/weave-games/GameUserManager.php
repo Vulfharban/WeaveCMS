@@ -308,3 +308,4 @@ class GameUserManager {
         return null;
     }
 }
+

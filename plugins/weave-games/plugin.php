@@ -299,3 +299,4 @@ PluginManager::addAction('frontend_render_custom_section', function($sectionKey,
         ";
     }
 });
+
