@@ -231,12 +231,12 @@ $servers = GameServerManager::getServers();
             </div>
 
             <!-- Canvas Container -->
-            <div id="spaceOrbitContainer" style="width: 100%; height: 340px; background: #020617; border-radius: 8px; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
-                <canvas id="spaceOrbitCanvas" width="800" height="340" style="display: none; width: 100%; height: 100%;"></canvas>
+            <div id="spaceOrbitContainer" style="width: 100%; height: 360px; background: #020617; border-radius: 8px; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                <canvas id="spaceOrbitCanvas" width="800" height="360" style="display: none; width: 100%; height: 100%; cursor: crosshair;"></canvas>
                 <div id="spaceOrbitIntro" style="text-align: center; color: #94a3b8;">
                     <span style="font-size: 48px; display: block; margin-bottom: 8px;">🛸</span>
                     <strong style="color: #f8fafc; font-size: 16px;">Space Orbit Arcade</strong><br>
-                    <span style="font-size: 13px;">Steuerung: Pfeiltasten (Bewegen), Leertaste (Feuern)</span><br><br>
+                    <span style="font-size: 13px;">Steuerung: Maus / Cursor (Bewegen & Zielen), Klick oder Leertaste (Feuern) &bull; Alternativ: Pfeiltasten / A & D</span><br><br>
                     <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">Spiel jetzt laden & starten</button>
                 </div>
             </div>
