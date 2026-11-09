@@ -356,7 +356,7 @@ class SeoManager {
                 $graph[] = $item;
             }
 
-            if (class_exists('ShopManager') && class_exists('PluginManager') && PluginManager::isPluginActive('shop', $data)) {
+            if (class_exists('ShopManager') && class_exists('PluginManager') && (PluginManager::isPluginActive('weave-shop', $data) || PluginManager::isPluginActive('shop', $data))) {
                 foreach (ShopManager::getProducts() as $prod) {
                     if (!is_array($prod) || empty($prod['active']) || empty($prod['title'])) {
                         continue;

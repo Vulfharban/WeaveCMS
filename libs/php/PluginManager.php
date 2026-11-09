@@ -528,6 +528,7 @@ class PluginManager {
         }
 
         switch ($slug) {
+            case 'weave-shop':
             case 'shop':
                 $hasPayment = false;
                 if (!empty($config['payment_credit_card']['enabled'])) {

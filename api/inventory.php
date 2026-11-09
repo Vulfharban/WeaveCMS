@@ -19,11 +19,15 @@ header('Content-Type: application/json; charset=utf-8');
 // WeaveCMS Umgebung laden
 require_once dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/libs/php/PluginManager.php';
-require_once dirname(__DIR__) . '/plugins/inventory/InventoryManager.php';
+if (file_exists(dirname(__DIR__) . '/plugins/weave-inventory/InventoryManager.php')) {
+    require_once dirname(__DIR__) . '/plugins/weave-inventory/InventoryManager.php';
+} else {
+    require_once dirname(__DIR__) . '/plugins/inventory/InventoryManager.php';
+}
 
 $dataFile = dirname(__DIR__) . '/data.json';
 $data = load_data($dataFile);
-$invConfig = PluginManager::getPluginConfig('inventory', $data, [
+$invConfig = PluginManager::getPluginConfig('weave-inventory', $data) ?: PluginManager::getPluginConfig('inventory', $data, [
     'api_enabled' => true,
     'api_key'     => ''
 ]);

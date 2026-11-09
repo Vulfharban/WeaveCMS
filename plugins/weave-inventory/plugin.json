@@ -1,6 +1,6 @@
 {
-    "name": "WeaveCMS Lager- & Artikelverwaltung",
-    "slug": "inventory",
+    "name": "Weave Inventory",
+    "slug": "weave-inventory",
     "version": "1.0.0",
     "author": "WeaveCMS Core Team",
     "description": "Professionelle Lager- & Artikelverwaltung: Bestände, Lagerplätze, Mindestbestand-Warnungen, Einkaufspreise, Margenberechnung, Wareneingang und vollständiges Lagerbewegungs-Protokoll – nahtlos synchronisiert mit dem Shop-Plugin.",
@@ -8,5 +8,5 @@
     "icon": "warehouse",
     "entry_file": "plugin.php",
     "requires_core": ">=0.4.0",
-    "settings_tab": "inventory"
+    "settings_tab": "weave-inventory"
 }

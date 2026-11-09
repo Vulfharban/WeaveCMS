@@ -68,7 +68,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
                 $user = $_SESSION['admin_username'] ?? 'admin';
                 $res = InventoryManager::importArticlesJson($rawJson, $mode, $user);
                 $msg = $res['success'] ? 'inventory_imported' : 'import_error';
-                header("Location: ?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings&msg={$msg}&imported=" . (int)$res['imported'] . "&updated=" . (int)$res['updated'] . "#tab-plugins");
+                header("Location: ?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=settings&msg={$msg}&imported=" . (int)$res['imported'] . "&updated=" . (int)$res['updated'] . "#tab-plugins");
                 exit;
             }
         }
@@ -78,12 +78,12 @@ if (!empty($_SESSION['admin_logged_in'])) {
             if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
                 $dataFile = dirname(__DIR__, 2) . '/data.json';
                 $d = load_data($dataFile);
-                $c = PluginManager::getPluginConfig('inventory', $d);
+                $c = PluginManager::getPluginConfig('weave-inventory', $d) ?: PluginManager::getPluginConfig('inventory', $d);
                 $c['api_key'] = InventoryManager::generateApiKey();
                 $c['api_enabled'] = true;
-                PluginManager::savePluginConfig('inventory', $c, $d);
+                PluginManager::savePluginConfig('weave-inventory', $c, $d);
                 save_data($dataFile, $d);
-                header('Location: ?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings&msg=api_key_generated#tab-plugins');
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=settings&msg=api_key_generated#tab-plugins');
                 exit;
             }
         }
@@ -93,7 +93,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
             if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
                 $user = $_SESSION['admin_username'] ?? 'admin';
                 InventoryManager::saveArticle($_POST, $user);
-                header('Location: ?tab=tab-plugins&plugin_settings=inventory&inv_subtab=articles&msg=article_saved#tab-plugins');
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=articles&msg=article_saved#tab-plugins');
                 exit;
             }
         }
@@ -106,7 +106,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
                 if (!empty($id)) {
                     InventoryManager::deleteArticle($id, $user);
                 }
-                header('Location: ?tab=tab-plugins&plugin_settings=inventory&inv_subtab=articles&msg=article_deleted#tab-plugins');
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=articles&msg=article_deleted#tab-plugins');
                 exit;
             }
         }
@@ -125,7 +125,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
                 if (!empty($id)) {
                     InventoryManager::receiveStock($id, $qty, $costPrice, $deliveryNote, $supplier, $note, $user);
                 }
-                header('Location: ?tab=tab-plugins&plugin_settings=inventory&inv_subtab=receipt&msg=stock_received#tab-plugins');
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=receipt&msg=stock_received#tab-plugins');
                 exit;
             }
         }
@@ -141,7 +141,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
                 if (!empty($id)) {
                     InventoryManager::adjustStock($id, $newStock, $reason, $user);
                 }
-                header('Location: ?tab=tab-plugins&plugin_settings=inventory&inv_subtab=articles&msg=stock_adjusted#tab-plugins');
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=articles&msg=stock_adjusted#tab-plugins');
                 exit;
             }
         }
@@ -160,7 +160,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
                         }
                     }
                 }
-                header('Location: ?tab=tab-plugins&plugin_settings=inventory&inv_subtab=stocktaking&msg=inventory_completed#tab-plugins');
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=stocktaking&msg=inventory_completed#tab-plugins');
                 exit;
             }
         }
@@ -207,16 +207,18 @@ PluginManager::addAction('shop_order_created', function($order) {
 // -----------------------------------------------------------------------------
 // 3. Einstellungsansicht für den Adminbereich registrieren
 // -----------------------------------------------------------------------------
-PluginManager::addAction('admin_render_plugin_settings_inventory', function($data, $csrf_token) {
-    $config = PluginManager::getPluginConfig('inventory', $data);
+$renderInventorySettings = function($data, $csrf_token) {
+    $config = PluginManager::getPluginConfig('weave-inventory', $data) ?: PluginManager::getPluginConfig('inventory', $data);
     require __DIR__ . '/admin/settings.php';
-});
+};
+PluginManager::addAction('admin_render_plugin_settings_weave-inventory', $renderInventorySettings);
+PluginManager::addAction('admin_render_plugin_settings_inventory', $renderInventorySettings);
 
 // -----------------------------------------------------------------------------
 // 4. Validierung der Konfigurationsdaten
 // -----------------------------------------------------------------------------
-PluginManager::addFilter('plugin_validate_config_inventory', function($submitted, $data) {
-    $existing = PluginManager::getPluginConfig('inventory', $data);
+$validateInventoryConfig = function($submitted, $data) {
+    $existing = PluginManager::getPluginConfig('weave-inventory', $data) ?: PluginManager::getPluginConfig('inventory', $data);
     $cleaned = $existing;
 
     if (isset($submitted['default_min_stock'])) {
@@ -245,4 +247,7 @@ PluginManager::addFilter('plugin_validate_config_inventory', function($submitted
     }
 
     return $cleaned;
-});
+};
+PluginManager::addFilter('plugin_validate_config_weave-inventory', $validateInventoryConfig);
+PluginManager::addFilter('plugin_validate_config_inventory', $validateInventoryConfig);
+

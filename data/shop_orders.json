@@ -1,5 +1,73 @@
 [
     {
+        "order_id": "ORD-20261109-D9420C",
+        "status": "shipped",
+        "payment_method": "credit_card",
+        "payment_ref": "TXN-TEST",
+        "customer": {
+            "name": "Max Mustermann",
+            "email": "kunde@test.local",
+            "street": "Musterstraße 1",
+            "city": "Musterstadt",
+            "zip": "12345",
+            "country": "Deutschland",
+            "notes": ""
+        },
+        "items": [
+            {
+                "id": "prod_korb01",
+                "title": "Handgefertigter Weidenkorb „Klassik“",
+                "sku": "KORB-01",
+                "price": 49.9,
+                "qty": 2,
+                "total": 99.8,
+                "image": "images/basket_classic.jpg",
+                "category": "Flechtkunst"
+            }
+        ],
+        "subtotal": 99.8,
+        "shipping": 0,
+        "tax": 15.93,
+        "total": 99.8,
+        "currency": "EUR",
+        "created_at": "2026-11-09 11:41:13",
+        "updated_at": "2026-11-09 11:41:17"
+    },
+    {
+        "order_id": "ORD-20261109-B8DCC1",
+        "status": "shipped",
+        "payment_method": "credit_card",
+        "payment_ref": "TXN-TEST",
+        "customer": {
+            "name": "Max Mustermann",
+            "email": "kunde@test.local",
+            "street": "Musterstraße 1",
+            "city": "Musterstadt",
+            "zip": "12345",
+            "country": "Deutschland",
+            "notes": ""
+        },
+        "items": [
+            {
+                "id": "prod_korb01",
+                "title": "Handgefertigter Weidenkorb „Klassik“",
+                "sku": "KORB-01",
+                "price": 49.9,
+                "qty": 2,
+                "total": 99.8,
+                "image": "images/basket_classic.jpg",
+                "category": "Flechtkunst"
+            }
+        ],
+        "subtotal": 99.8,
+        "shipping": 0,
+        "tax": 15.93,
+        "total": 99.8,
+        "currency": "EUR",
+        "created_at": "2026-11-09 10:33:35",
+        "updated_at": "2026-11-09 10:33:39"
+    },
+    {
         "order_id": "ORD-20261022-5C57E0",
         "status": "completed",
         "payment_method": "wero",

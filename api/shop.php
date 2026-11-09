@@ -13,11 +13,15 @@ header('Content-Type: application/json; charset=utf-8');
 // WeaveCMS Umgebung laden
 require_once dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/libs/php/PluginManager.php';
-require_once dirname(__DIR__) . '/plugins/shop/ShopManager.php';
+if (file_exists(dirname(__DIR__) . '/plugins/weave-shop/ShopManager.php')) {
+    require_once dirname(__DIR__) . '/plugins/weave-shop/ShopManager.php';
+} else {
+    require_once dirname(__DIR__) . '/plugins/shop/ShopManager.php';
+}
 
 $dataFile = dirname(__DIR__) . '/data.json';
 $data = load_data($dataFile);
-$shopConfig = PluginManager::getPluginConfig('shop', $data, [
+$shopConfig = PluginManager::getPluginConfig('weave-shop', $data) ?: PluginManager::getPluginConfig('shop', $data, [
     'currency'           => 'EUR',
     'shipping_cost'      => 4.90,
     'free_shipping_min'  => 50.0,

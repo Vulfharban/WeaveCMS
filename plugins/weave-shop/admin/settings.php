@@ -99,7 +99,7 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
     ?>
     <div style="display: flex; gap: 8px; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem; flex-wrap: wrap;">
         <?php foreach ($shopSubTabs as $tabKey => $tabInfo): ?>
-            <a href="?tab=tab-plugins&plugin_settings=shop&shop_subtab=<?php echo urlencode($tabKey); ?>#tab-plugins" 
+            <a href="?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=<?php echo urlencode($tabKey); ?>#tab-plugins" 
                style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeSubTab === $tabKey ? 'var(--primary)' : 'transparent'; ?>; color: <?php echo $activeSubTab === $tabKey ? 'var(--primary)' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
                 <?php if (!empty($tabInfo['icon'])): ?>
                     <span class="material-icons" style="font-size: 18px;"><?php echo htmlspecialchars($tabInfo['icon']); ?></span>
@@ -176,11 +176,11 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                                                 onclick='editShopProduct(<?php echo json_encode($p); ?>)'>
                                             <span class="material-icons" style="font-size: 16px;">edit</span>
                                         </button>
-                                        <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=products#tab-plugins" onsubmit="return confirm('Möchtest du dieses Produkt wirklich löschen?');" style="display:inline;">
+                                        <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=products#tab-plugins" onsubmit="return confirm('Möchtest du dieses Produkt wirklich löschen?');" style="display:inline;">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                             <input type="hidden" name="action" value="shop_delete_product">
                                             <input type="hidden" name="target_tab" value="tab-plugins">
-                                            <input type="hidden" name="plugin_slug" value="shop">
+                                            <input type="hidden" name="plugin_slug" value="weave-shop">
                                             <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($p['id']); ?>">
                                             <button type="submit" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem; color: #ef4444;">
                                                 <span class="material-icons" style="font-size: 16px;">delete</span>
@@ -245,11 +245,11 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                                     </span>
                                 </td>
                                 <td style="padding: 12px 16px;">
-                                    <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=orders#tab-plugins" style="display:inline;">
+                                    <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=orders#tab-plugins" style="display:inline;">
                                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                         <input type="hidden" name="action" value="shop_update_order_status">
                                         <input type="hidden" name="target_tab" value="tab-plugins">
-                                        <input type="hidden" name="plugin_slug" value="shop">
+                                        <input type="hidden" name="plugin_slug" value="weave-shop">
                                         <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($o['order_id']); ?>">
                                         <select name="status" onchange="this.form.submit()" style="padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.82rem; font-weight: 600;">
                                             <option value="paid" <?php echo ($o['status'] ?? '') === 'paid' ? 'selected' : ''; ?>>🟢 Bezahlt</option>
@@ -277,10 +277,10 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
     <!-- SUBTAB 3: ZAHLUNGSARTEN (Kreditkarte, PayPal, WERO)                  -->
     <!-- ===================================================================== -->
     <?php elseif ($activeSubTab === 'payments'): ?>
-        <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=payments#tab-plugins">
+        <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=payments#tab-plugins">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
             <input type="hidden" name="action" value="save_plugin_settings">
-            <input type="hidden" name="plugin_slug" value="shop">
+            <input type="hidden" name="plugin_slug" value="weave-shop">
             <input type="hidden" name="plugin_settings" value="shop">
             <input type="hidden" name="target_tab" value="tab-plugins">
             <input type="hidden" name="active_subtab" value="payments">
@@ -435,10 +435,10 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
     <!-- SUBTAB 4: SHOP-EINSTELLUNGEN                                          -->
     <!-- ===================================================================== -->
     <?php elseif ($activeSubTab === 'settings'): ?>
-        <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=settings#tab-plugins">
+        <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=settings#tab-plugins">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
             <input type="hidden" name="action" value="save_plugin_settings">
-            <input type="hidden" name="plugin_slug" value="shop">
+            <input type="hidden" name="plugin_slug" value="weave-shop">
             <input type="hidden" name="plugin_settings" value="shop">
             <input type="hidden" name="target_tab" value="tab-plugins">
             <input type="hidden" name="active_subtab" value="settings">
@@ -580,7 +580,7 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                     Lade eine exportierte JSON-Datei hoch, um neue Artikel hinzuzufügen oder bestehende Daten per SKU abzugleichen.
                 </p>
 
-                <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=interfaces#tab-plugins" enctype="multipart/form-data">
+                <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=interfaces#tab-plugins" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                     <input type="hidden" name="action" value="shop_import_products_json">
                     <input type="hidden" name="target_tab" value="tab-plugins">
@@ -626,10 +626,10 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
             </div>
 
             <!-- API-Konfiguration speichern -->
-            <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=interfaces#tab-plugins" style="margin-bottom: 1.5rem;">
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=interfaces#tab-plugins" style="margin-bottom: 1.5rem;">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="save_plugin_settings">
-                <input type="hidden" name="plugin_slug" value="shop">
+                <input type="hidden" name="plugin_slug" value="weave-shop">
                 <input type="hidden" name="plugin_settings" value="shop">
                 <input type="hidden" name="target_tab" value="tab-plugins">
                 <input type="hidden" name="active_subtab" value="interfaces">
@@ -660,7 +660,7 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
             </form>
 
             <!-- Separater Button für Token-Generierung -->
-            <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=interfaces#tab-plugins" style="margin-bottom: 1.5rem;" onsubmit="return confirm('Möchtest du wirklich einen neuen API-Schlüssel generieren? Externe Verbindungen mit dem alten Schlüssel müssen danach aktualisiert werden.');">
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=interfaces#tab-plugins" style="margin-bottom: 1.5rem;" onsubmit="return confirm('Möchtest du wirklich einen neuen API-Schlüssel generieren? Externe Verbindungen mit dem alten Schlüssel müssen danach aktualisiert werden.');">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="shop_generate_api_key">
                 <input type="hidden" name="target_tab" value="tab-plugins">
@@ -718,11 +718,11 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
             <button type="button" onclick="closeShopProductModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
         </div>
 
-        <form method="POST" action="?tab=tab-plugins&plugin_settings=shop&shop_subtab=products#tab-plugins" style="padding:1.5rem;">
+        <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=products#tab-plugins" style="padding:1.5rem;">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
             <input type="hidden" name="action" id="shop-prod-action" value="shop_add_product">
             <input type="hidden" name="target_tab" value="tab-plugins">
-            <input type="hidden" name="plugin_slug" value="shop">
+            <input type="hidden" name="plugin_slug" value="weave-shop">
             <input type="hidden" name="product_id" id="shop-prod-id" value="">
 
             <div class="grid" style="grid-template-columns: 2fr 1fr; gap:10px; margin-bottom:12px;">

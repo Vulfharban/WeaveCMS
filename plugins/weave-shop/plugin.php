@@ -54,7 +54,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
                 $mode = ($_POST['import_mode'] ?? 'merge') === 'replace' ? 'replace' : 'merge';
                 $res = ShopManager::importProductsJson($rawJson, $mode);
                 $msg = $res['success'] ? 'products_imported' : 'import_error';
-                header("Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=interfaces&msg={$msg}&imported=" . (int)$res['imported'] . "&updated=" . (int)$res['updated'] . "#tab-plugins");
+                header("Location: ?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=interfaces&msg={$msg}&imported=" . (int)$res['imported'] . "&updated=" . (int)$res['updated'] . "#tab-plugins");
                 exit;
             }
         }
@@ -64,12 +64,12 @@ if (!empty($_SESSION['admin_logged_in'])) {
             if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
                 $dataFile = dirname(__DIR__, 2) . '/data.json';
                 $d = load_data($dataFile);
-                $c = PluginManager::getPluginConfig('shop', $d);
+                $c = PluginManager::getPluginConfig('weave-shop', $d) ?: PluginManager::getPluginConfig('shop', $d);
                 $c['api_key'] = ShopManager::generateApiKey();
                 $c['api_enabled'] = true;
-                PluginManager::savePluginConfig('shop', $c, $d);
+                PluginManager::savePluginConfig('weave-shop', $c, $d);
                 save_data($dataFile, $d);
-                header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=interfaces&msg=api_key_generated#tab-plugins');
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=interfaces&msg=api_key_generated#tab-plugins');
                 exit;
             }
         }
@@ -78,7 +78,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
         if ($action === 'shop_add_product') {
             if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
                 ShopManager::addProduct($_POST);
-                header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=products&msg=product_added#tab-plugins');
+                header('Location: ?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=products&msg=product_added#tab-plugins');
                 exit;
             }
         }
@@ -90,7 +90,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
             if (!empty($id)) {
                 ShopManager::updateProduct($id, $_POST);
             }
-            header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=products&msg=product_updated#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=products&msg=product_updated#tab-plugins');
             exit;
         }
     }
@@ -102,7 +102,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
             if (!empty($id)) {
                 ShopManager::deleteProduct($id);
             }
-            header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=products&msg=product_deleted#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=products&msg=product_deleted#tab-plugins');
             exit;
         }
     }
@@ -115,7 +115,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
             if (!empty($orderId) && !empty($newStatus)) {
                 ShopManager::updateOrderStatus($orderId, $newStatus);
             }
-            header('Location: ?tab=tab-plugins&plugin_settings=shop&shop_subtab=orders&msg=status_updated#tab-plugins');
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=orders&msg=status_updated#tab-plugins');
             exit;
         }
     }
@@ -125,10 +125,12 @@ if (!empty($_SESSION['admin_logged_in'])) {
 // -----------------------------------------------------------------------------
 // 2. Einstellungsansicht für den Adminbereich registrieren
 // -----------------------------------------------------------------------------
-PluginManager::addAction('admin_render_plugin_settings_shop', function($data, $csrf_token) {
-    $config = PluginManager::getPluginConfig('shop', $data);
+$renderShopSettings = function($data, $csrf_token) {
+    $config = PluginManager::getPluginConfig('weave-shop', $data) ?: PluginManager::getPluginConfig('shop', $data);
     require __DIR__ . '/admin/settings.php';
-});
+};
+PluginManager::addAction('admin_render_plugin_settings_weave-shop', $renderShopSettings);
+PluginManager::addAction('admin_render_plugin_settings_shop', $renderShopSettings);
 
 // -----------------------------------------------------------------------------
 // 3. Shortcode-Filter für Content: [shop] oder [shop category="..."]
@@ -138,13 +140,13 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
         return $content;
     }
 
-    if (strpos($content, '[shop') === false) {
+    if (strpos($content, '[shop') === false && strpos($content, '[weave_shop') === false && strpos($content, '[weave-shop') === false) {
         return $content;
     }
 
-    $config = PluginManager::getPluginConfig('shop', $data);
+    $config = PluginManager::getPluginConfig('weave-shop', $data) ?: PluginManager::getPluginConfig('shop', $data);
 
-    return preg_replace_callback('/\[shop(?:\s+([^\]]+))?\]/i', function($matches) use ($config) {
+    return preg_replace_callback('/\[(?:shop|weave_shop|weave-shop)(?:\s+([^\]]+))?\]/i', function($matches) use ($config) {
         $rawAttrs = $matches[1] ?? '';
         $params = [];
         if (!empty($rawAttrs)) {
@@ -164,10 +166,10 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
 // 4. Eigene Sektion für den Sektionen-Manager & das Frontend registrieren
 // -----------------------------------------------------------------------------
 PluginManager::addFilter('registered_sections', function($sections, $data) {
-    if (!PluginManager::isPluginActive('shop', $data)) {
+    if (!PluginManager::isPluginActive('weave-shop', $data) && !PluginManager::isPluginActive('shop', $data)) {
         return $sections;
     }
-    $config = PluginManager::getPluginConfig('shop', $data);
+    $config = PluginManager::getPluginConfig('weave-shop', $data) ?: PluginManager::getPluginConfig('shop', $data);
     $isEnabled = !empty($config['section_enabled']);
     $sections[] = [
         'id'        => 'shop',
@@ -176,17 +178,17 @@ PluginManager::addFilter('registered_sections', function($sections, $data) {
         'nav_label' => 'Shop',
         'visible'   => $isEnabled,
         'in_nav'    => true,
-        'plugin'    => 'shop',
+        'plugin'    => 'weave-shop',
         'can_delete'=> false
     ];
     return $sections;
 });
 
 PluginManager::addFilter('visible_sections', function($sections, $data) {
-    if (!PluginManager::isPluginActive('shop', $data)) {
+    if (!PluginManager::isPluginActive('weave-shop', $data) && !PluginManager::isPluginActive('shop', $data)) {
         return $sections;
     }
-    $config = PluginManager::getPluginConfig('shop', $data);
+    $config = PluginManager::getPluginConfig('weave-shop', $data) ?: PluginManager::getPluginConfig('shop', $data);
     if (!empty($config['section_enabled'])) {
         $hasShop = false;
         foreach ($sections as $s) {
@@ -203,14 +205,14 @@ PluginManager::addFilter('visible_sections', function($sections, $data) {
                 'nav_label' => 'Shop',
                 'visible'   => true,
                 'in_nav'    => true,
-                'plugin'    => 'shop'
+                'plugin'    => 'weave-shop'
             ];
         }
     }
     return $sections;
 });
 
-PluginManager::addAction('plugin_config_saved_shop', function($config, $data) {
+$onShopConfigSaved = function($config, $data) {
     if (class_exists('SectionManager')) {
         SectionManager::ensureSections($data);
         $sectionEnabled = !empty($config['section_enabled']);
@@ -218,6 +220,7 @@ PluginManager::addAction('plugin_config_saved_shop', function($config, $data) {
         foreach ($data['sections'] as &$sec) {
             if (($sec['id'] ?? '') === 'shop') {
                 $sec['visible'] = $sectionEnabled;
+                $sec['plugin'] = 'weave-shop';
                 if (!empty($config['section_title'])) {
                     $sec['title'] = $config['section_title'];
                 }
@@ -233,19 +236,21 @@ PluginManager::addAction('plugin_config_saved_shop', function($config, $data) {
                 'nav_label' => 'Shop',
                 'visible'   => true,
                 'in_nav'    => true,
-                'plugin'    => 'shop',
+                'plugin'    => 'weave-shop',
                 'can_delete'=> false
             ];
         }
     }
-});
+};
+PluginManager::addAction('plugin_config_saved_weave-shop', $onShopConfigSaved);
+PluginManager::addAction('plugin_config_saved_shop', $onShopConfigSaved);
 
 PluginManager::addAction('frontend_render_custom_section', function($sectionKey, $data) {
     if ($sectionKey !== 'shop') {
         return;
     }
 
-    $config = PluginManager::getPluginConfig('shop', $data);
+    $config = PluginManager::getPluginConfig('weave-shop', $data) ?: PluginManager::getPluginConfig('shop', $data);
     if (empty($config['section_enabled'])) {
         return;
     }
@@ -261,8 +266,8 @@ PluginManager::addAction('frontend_render_custom_section', function($sectionKey,
 // -----------------------------------------------------------------------------
 // 5. Validierung der Konfigurationsdaten vor dem Speichern
 // -----------------------------------------------------------------------------
-PluginManager::addFilter('plugin_validate_config_shop', function($submitted, $data) {
-    $existing = PluginManager::getPluginConfig('shop', $data);
+$validateShopConfig = function($submitted, $data) {
+    $existing = PluginManager::getPluginConfig('weave-shop', $data) ?: PluginManager::getPluginConfig('shop', $data);
     $cleaned = $existing;
     $subtab = $submitted['active_subtab'] ?? '';
 
@@ -330,4 +335,8 @@ PluginManager::addFilter('plugin_validate_config_shop', function($submitted, $da
     }
 
     return $cleaned;
-});
+};
+
+PluginManager::addFilter('plugin_validate_config_weave-shop', $validateShopConfig);
+PluginManager::addFilter('plugin_validate_config_shop', $validateShopConfig);
+

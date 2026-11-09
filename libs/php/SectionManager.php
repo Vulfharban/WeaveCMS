@@ -518,10 +518,11 @@ class SectionManager {
             $pluginSlug = $sec['plugin'] ?? '';
             if (empty($pluginSlug)) {
                 if (($sec['type'] ?? '') === 'webtrees') $pluginSlug = 'webtrees-genealogy';
-                if (($sec['type'] ?? '') === 'shop') $pluginSlug = 'shop';
+                if (($sec['type'] ?? '') === 'shop') $pluginSlug = 'weave-shop';
+                if (($sec['type'] ?? '') === 'helpdesk') $pluginSlug = 'weave-helpdesk';
             }
             if (!empty($pluginSlug) && class_exists('PluginManager')) {
-                if (!PluginManager::isPluginActive($pluginSlug, $data)) {
+                if (!PluginManager::isPluginActive($pluginSlug, $data) && !PluginManager::isPluginActive(str_replace('weave-', '', $pluginSlug), $data)) {
                     return false;
                 }
                 $cfg = PluginManager::getPluginConfig($pluginSlug, $data);

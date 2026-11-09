@@ -237,7 +237,10 @@ switch ($endpoint) {
         }
 
         $products = [];
-        $shopManagerFile = dirname(__DIR__, 2) . '/plugins/shop/ShopManager.php';
+        $shopManagerFile = dirname(__DIR__, 2) . '/plugins/weave-shop/ShopManager.php';
+        if (!file_exists($shopManagerFile)) {
+            $shopManagerFile = dirname(__DIR__, 2) . '/plugins/shop/ShopManager.php';
+        }
         if (file_exists($shopManagerFile)) {
             require_once $shopManagerFile;
             $products = ShopManager::getProducts();

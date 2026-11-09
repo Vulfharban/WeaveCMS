@@ -64,23 +64,23 @@ $notifyEmail = $config['notify_email'] ?? '';
 
     <!-- Sub-Navigation -->
     <div style="display: flex; gap: 8px; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <a href="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=articles#tab-plugins" 
+        <a href="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=articles#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeInvTab === 'articles' ? '#1e3a8a' : 'transparent'; ?>; color: <?php echo $activeInvTab === 'articles' ? '#1e3a8a' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
             <span class="material-icons" style="font-size: 18px;">inventory_2</span> Artikel &amp; Lagerplätze (<?php echo count($articles); ?>)
         </a>
-        <a href="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=receipt#tab-plugins" 
+        <a href="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=receipt#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeInvTab === 'receipt' ? '#1e3a8a' : 'transparent'; ?>; color: <?php echo $activeInvTab === 'receipt' ? '#1e3a8a' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
             <span class="material-icons" style="font-size: 18px;">local_shipping</span> Wareneingang buchen
         </a>
-        <a href="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=log#tab-plugins" 
+        <a href="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=log#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeInvTab === 'log' ? '#1e3a8a' : 'transparent'; ?>; color: <?php echo $activeInvTab === 'log' ? '#1e3a8a' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
             <span class="material-icons" style="font-size: 18px;">history</span> Lagerbewegungs-Protokoll (<?php echo count($logs); ?>)
         </a>
-        <a href="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=stocktaking#tab-plugins" 
+        <a href="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=stocktaking#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeInvTab === 'stocktaking' ? '#1e3a8a' : 'transparent'; ?>; color: <?php echo $activeInvTab === 'stocktaking' ? '#1e3a8a' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
             <span class="material-icons" style="font-size: 18px;">checklist</span> Inventur-Abgleich
         </a>
-        <a href="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings#tab-plugins" 
+        <a href="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=settings#tab-plugins" 
            style="padding: 10px 18px; text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 3px solid <?php echo $activeInvTab === 'settings' ? '#1e3a8a' : 'transparent'; ?>; color: <?php echo $activeInvTab === 'settings' ? '#1e3a8a' : 'var(--text-secondary)'; ?>; display: inline-flex; align-items: center; gap: 6px;">
             <span class="material-icons" style="font-size: 18px;">tune</span> Einstellungen &amp; Export
         </a>
@@ -201,7 +201,7 @@ $notifyEmail = $config['notify_email'] ?? '';
                                                 onclick='editInventoryArticle(<?php echo json_encode($a); ?>)'>
                                             <span class="material-icons" style="font-size: 15px;">edit</span>
                                         </button>
-                                        <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=articles#tab-plugins" onsubmit="return confirm('Möchtest du diesen Artikel wirklich aus dem System löschen?');" style="display:inline;">
+                                        <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=articles#tab-plugins" onsubmit="return confirm('Möchtest du diesen Artikel wirklich aus dem System löschen?');" style="display:inline;">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                             <input type="hidden" name="action" value="inv_delete_article">
                                             <input type="hidden" name="target_tab" value="tab-plugins">
@@ -232,7 +232,7 @@ $notifyEmail = $config['notify_email'] ?? '';
                 </div>
             </div>
 
-            <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=receipt#tab-plugins">
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=receipt#tab-plugins">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="inv_receive_stock">
                 <input type="hidden" name="target_tab" value="tab-plugins">
@@ -381,7 +381,7 @@ $notifyEmail = $config['notify_email'] ?? '';
                 </div>
             </div>
 
-            <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=stocktaking#tab-plugins">
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=stocktaking#tab-plugins">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="inv_batch_stocktaking">
                 <input type="hidden" name="target_tab" value="tab-plugins">
@@ -478,10 +478,10 @@ $notifyEmail = $config['notify_email'] ?? '';
         <?php endif; ?>
 
         <!-- 1. PARAMETER FORMULAR -->
-        <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings#tab-plugins">
+        <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=settings#tab-plugins">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
             <input type="hidden" name="action" value="save_plugin_settings">
-            <input type="hidden" name="plugin_slug" value="inventory">
+            <input type="hidden" name="plugin_slug" value="weave-inventory">
             <input type="hidden" name="plugin_settings" value="inventory">
             <input type="hidden" name="target_tab" value="tab-plugins">
             <input type="hidden" name="inv_subtab" value="settings">
@@ -556,7 +556,7 @@ $notifyEmail = $config['notify_email'] ?? '';
                 Lade eine JSON-Datei mit Artikeln hoch. Bestandsänderungen werden automatisch im revisionssicheren Audit-Log protokolliert.
             </p>
 
-            <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings#tab-plugins" enctype="multipart/form-data">
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=settings#tab-plugins" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="inv_import_json">
                 <input type="hidden" name="target_tab" value="tab-plugins">
@@ -600,10 +600,10 @@ $notifyEmail = $config['notify_email'] ?? '';
             </div>
 
             <!-- API-Konfiguration speichern -->
-            <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings#tab-plugins" style="margin-bottom: 1.25rem;">
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=settings#tab-plugins" style="margin-bottom: 1.25rem;">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="save_plugin_settings">
-                <input type="hidden" name="plugin_slug" value="inventory">
+                <input type="hidden" name="plugin_slug" value="weave-inventory">
                 <input type="hidden" name="plugin_settings" value="inventory">
                 <input type="hidden" name="target_tab" value="tab-plugins">
                 <input type="hidden" name="inv_subtab" value="settings">
@@ -634,7 +634,7 @@ $notifyEmail = $config['notify_email'] ?? '';
             </form>
 
             <!-- Separater Button für Token-Generierung -->
-            <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=settings#tab-plugins" style="margin-bottom: 1.5rem;" onsubmit="return confirm('Möchtest du wirklich einen neuen API-Schlüssel für die Lagerverwaltung generieren?');">
+            <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=settings#tab-plugins" style="margin-bottom: 1.5rem;" onsubmit="return confirm('Möchtest du wirklich einen neuen API-Schlüssel für die Lagerverwaltung generieren?');">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="inv_generate_api_key">
                 <input type="hidden" name="target_tab" value="tab-plugins">
@@ -684,7 +684,7 @@ $notifyEmail = $config['notify_email'] ?? '';
             <button type="button" onclick="closeInventoryArticleModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
         </div>
 
-        <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=articles#tab-plugins" style="padding:1.5rem; max-height:75vh; overflow-y:auto;">
+        <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=articles#tab-plugins" style="padding:1.5rem; max-height:75vh; overflow-y:auto;">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
             <input type="hidden" name="action" value="inv_save_article">
             <input type="hidden" name="target_tab" value="tab-plugins">
@@ -777,7 +777,7 @@ $notifyEmail = $config['notify_email'] ?? '';
             <h4 id="quick-stock-title" style="margin:0; font-size:1.1rem; font-weight:700;">Bestand anpassen</h4>
             <button type="button" onclick="closeQuickStockModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
         </div>
-        <form method="POST" action="?tab=tab-plugins&plugin_settings=inventory&inv_subtab=articles#tab-plugins" style="padding:1.5rem;">
+        <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-inventory&inv_subtab=articles#tab-plugins" style="padding:1.5rem;">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
             <input type="hidden" name="action" value="inv_adjust_stock">
             <input type="hidden" name="target_tab" value="tab-plugins">

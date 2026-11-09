@@ -28,3 +28,4 @@ $res = HelpdeskManager::changeStatus('26010854', 'In Bearbeitung', $kunde);
 echo "Wiederöffnen-Versuch von abgerechnetem Ticket: " . ($res['success'] ? "FEHLER (durfte nicht öffnen!)" : "ERFOLGREICH BLOCKIERT: " . $res['error']) . "\n";
 
 echo "ALL TESTS PASSED!\n";
+
