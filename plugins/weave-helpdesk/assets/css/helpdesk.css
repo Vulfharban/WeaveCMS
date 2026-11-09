@@ -1,0 +1,756 @@
+/**
+ * Weave Helpdesk – Stylesheet
+ * Orientiert am professionellen Service-Desk / Aufgaben-Dashboard (Teal / Petrol)
+ */
+
+:root {
+    --hd-primary: #257985;
+    --hd-primary-dark: #1b5b64;
+    --hd-secondary: #2b3a42;
+    --hd-accent: #0f4c5c;
+    --hd-bg: #eaeff2;
+    --hd-card-bg: #ffffff;
+    --hd-text: #2c3e50;
+    --hd-text-muted: #6c7a89;
+    --hd-border: #ccd1d9;
+    --hd-btn-green: #2ecc71;
+    --hd-btn-green-hover: #27ae60;
+    --hd-btn-orange: #f39c12;
+    --hd-btn-orange-hover: #e67e22;
+    --hd-btn-red: #e74c3c;
+    --hd-btn-red-hover: #c0392b;
+    --hd-btn-blue: #3498db;
+    --hd-btn-blue-hover: #2980b9;
+    --hd-row-open: #dbe2e6;
+    --hd-row-closed: #66bb6a;
+    --hd-row-billed: #5dade2;
+}
+
+body.helpdesk-app-body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--hd-bg);
+    color: var(--hd-text);
+    font-size: 13px;
+}
+
+/* ---------------- Top Navbar ---------------- */
+.hd-navbar {
+    background-color: var(--hd-primary);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    height: 44px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.hd-nav-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+}
+
+.hd-brand-title {
+    font-weight: 700;
+    font-size: 15px;
+    margin-right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.hd-tab-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px 4px 0 0;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s;
+    height: 28px;
+    margin-top: 8px;
+}
+.hd-tab-link:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+.hd-tab-link.active {
+    background: var(--hd-bg);
+    color: var(--hd-primary-dark);
+    font-weight: 700;
+}
+.hd-tab-link .hd-tab-close {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-left: 4px;
+    cursor: pointer;
+}
+.hd-tab-link .hd-tab-close:hover {
+    opacity: 1;
+    color: var(--hd-btn-red);
+}
+
+/* ---------------- User Menu Dropdown ---------------- */
+.hd-user-menu {
+    position: relative;
+}
+.hd-user-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    border: none;
+}
+.hd-user-toggle:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+.hd-dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 6px;
+    background: #fff;
+    color: #333;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    min-width: 220px;
+    z-index: 1000;
+    display: none;
+    border: 1px solid var(--hd-border);
+}
+.hd-dropdown-menu.show {
+    display: block;
+}
+.hd-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: #333;
+    text-decoration: none;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+}
+.hd-dropdown-item:last-child {
+    border-bottom: none;
+}
+.hd-dropdown-item:hover {
+    background: #f4f8f9;
+    color: var(--hd-primary);
+}
+.hd-dropdown-item.logout:hover {
+    color: var(--hd-btn-red);
+}
+
+/* ---------------- Main Layout & Containers ---------------- */
+.hd-main-container {
+    padding: 12px 16px;
+    display: flex;
+    gap: 16px;
+}
+.hd-content-area {
+    flex: 1;
+    min-width: 0;
+}
+.hd-sidebar-area {
+    width: 320px;
+    flex-shrink: 0;
+}
+
+/* ---------------- Card / Panels ---------------- */
+.hd-panel {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border: 1px solid var(--hd-border);
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+.hd-panel-header {
+    background: var(--hd-primary);
+    color: #fff;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 13px;
+}
+.hd-panel-header.secondary {
+    background: #4a6572;
+}
+.hd-panel-header .title-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+/* ---------------- Search & Filter Bar ---------------- */
+.hd-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #fff;
+    border-bottom: 1px solid var(--hd-border);
+    gap: 12px;
+}
+.hd-search-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    max-width: 350px;
+}
+.hd-search-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--hd-border);
+    border-radius: 3px;
+    font-size: 13px;
+    outline: none;
+}
+.hd-search-input:focus {
+    border-color: var(--hd-primary);
+}
+
+.hd-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.hd-filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* ---------------- Buttons ---------------- */
+.hd-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+    color: #fff;
+}
+.hd-btn-green { background: var(--hd-btn-green); }
+.hd-btn-green:hover { background: var(--hd-btn-green-hover); }
+
+.hd-btn-orange { background: var(--hd-btn-orange); }
+.hd-btn-orange:hover { background: var(--hd-btn-orange-hover); }
+
+.hd-btn-red { background: var(--hd-btn-red); }
+.hd-btn-red:hover { background: var(--hd-btn-red-hover); }
+
+.hd-btn-blue { background: var(--hd-btn-blue); }
+.hd-btn-blue:hover { background: var(--hd-btn-blue-hover); }
+
+.hd-btn-dark { background: var(--hd-secondary); }
+.hd-btn-dark:hover { background: #1a252f; }
+
+.hd-btn-outline {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+}
+.hd-btn-outline:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* ---------------- Ticket List Table ---------------- */
+.hd-table-responsive {
+    overflow-x: auto;
+}
+.hd-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.hd-table th {
+    background: #eef2f5;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    color: #4a5568;
+    border-bottom: 2px solid var(--hd-border);
+    white-space: nowrap;
+}
+.hd-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #fff;
+    vertical-align: middle;
+}
+.hd-table tr {
+    cursor: pointer;
+    transition: filter 0.1s;
+}
+.hd-table tr:hover {
+    filter: brightness(0.95);
+}
+
+/* Farbzeilen exakt wie im Screenshot 4 */
+.hd-table tr.row-open {
+    background-color: var(--hd-row-open);
+    color: #222;
+}
+.hd-table tr.row-closed {
+    background-color: var(--hd-row-closed);
+    color: #0b3d11;
+    font-weight: 500;
+}
+.hd-table tr.row-billed {
+    background-color: var(--hd-row-billed);
+    color: #0c3352;
+    font-weight: 600;
+}
+
+.hd-table .ticket-id-cell {
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 13px;
+    white-space: nowrap;
+}
+.hd-table .status-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(0,0,0,0.1);
+}
+
+/* ---------------- Right Sidebar: Inklusivminuten Widget ---------------- */
+.hd-contract-widget {
+    background: #fff;
+    border: 1px solid var(--hd-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.hd-contract-header {
+    background: var(--hd-primary);
+    color: #fff;
+    padding: 8px 12px;
+    font-weight: 600;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.hd-contract-body {
+    padding: 12px;
+}
+.hd-contract-title {
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #1a252f;
+}
+.hd-contract-meta {
+    font-size: 11px;
+    color: var(--hd-text-muted);
+    margin-bottom: 10px;
+}
+
+.hd-contract-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: center;
+}
+.hd-contract-table th {
+    background: #f8fafc;
+    border-bottom: 1px solid var(--hd-border);
+    padding: 6px;
+    font-weight: 600;
+}
+.hd-contract-table td {
+    padding: 8px 6px;
+    border-bottom: 1px solid #edf2f7;
+    font-weight: 600;
+}
+.hd-contract-table .cell-diff {
+    background: #f39c12;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 3px;
+}
+.hd-contract-table .cell-diff.negative {
+    background: #e74c3c;
+}
+
+/* ---------------- Split View: Ticket Details & Activities ---------------- */
+.hd-split-container {
+    display: flex;
+    gap: 16px;
+}
+.hd-split-left {
+    flex: 6;
+    min-width: 0;
+}
+.hd-split-right {
+    flex: 4;
+    min-width: 0;
+}
+
+/* Form Fields */
+.hd-form-group {
+    margin-bottom: 12px;
+}
+.hd-form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.hd-form-col {
+    flex: 1;
+    min-width: 0;
+}
+.hd-form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 4px;
+}
+.hd-input, .hd-select, .hd-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px 10px;
+    border: 1px solid var(--hd-border);
+    border-radius: 3px;
+    font-size: 13px;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+}
+.hd-input:focus, .hd-select:focus, .hd-textarea:focus {
+    border-color: var(--hd-primary);
+}
+.hd-input[readonly], .hd-textarea[readonly] {
+    background: #f8fafc;
+    color: #4a5568;
+}
+
+/* Rich Text Toolbar Mock */
+.hd-editor-toolbar {
+    background: #f1f5f8;
+    border: 1px solid var(--hd-border);
+    border-bottom: none;
+    border-radius: 3px 3px 0 0;
+    padding: 4px 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+}
+.hd-editor-btn {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    padding: 2px 7px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.hd-editor-btn:hover {
+    background: #e2e8f0;
+}
+.hd-editor-content {
+    border: 1px solid var(--hd-border);
+    border-radius: 0 0 3px 3px;
+    padding: 12px;
+    min-height: 120px;
+    background: #fff;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* ---------------- Activities List (Right Column) ---------------- */
+.hd-activities-header {
+    background: var(--hd-primary);
+    color: #fff;
+    padding: 8px 12px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px 4px 0 0;
+}
+.hd-activities-list {
+    background: #fff;
+    border: 1px solid var(--hd-border);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 550px;
+    overflow-y: auto;
+}
+.hd-activity-item {
+    padding: 10px 12px;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 12px;
+}
+.hd-activity-item:last-child {
+    border-bottom: none;
+}
+.hd-activity-item.is-internal {
+    background: #fffdf5;
+    border-left: 3px solid #f39c12;
+}
+.hd-activity-title {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1a252f;
+    margin-bottom: 4px;
+}
+.hd-activity-desc {
+    color: #4a5568;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+.hd-activity-meta {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--hd-text-muted);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ---------------- Modal Popup ---------------- */
+.hd-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.hd-modal-backdrop.show {
+    display: flex;
+}
+.hd-modal {
+    background: #fff;
+    border-radius: 6px;
+    width: 600px;
+    max-width: 95%;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+.hd-modal-header {
+    background: var(--hd-primary);
+    color: #fff;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+}
+.hd-modal-body {
+    padding: 16px;
+}
+.hd-modal-footer {
+    padding: 10px 16px;
+    background: #f8fafc;
+    border-top: 1px solid var(--hd-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* ---------------- Billed Alert Badge ---------------- */
+.hd-billed-banner {
+    background: #ebf8ff;
+    border-left: 4px solid #3182ce;
+    color: #2b6cb0;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 960px) {
+    .hd-main-container, .hd-split-container {
+        flex-direction: column;
+    }
+    .hd-sidebar-area {
+        width: 100%;
+    }
+    .hd-split-left, .hd-split-right {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    body.helpdesk-app-body {
+        font-size: 12px;
+    }
+
+    /* Top Navbar mobil optimieren */
+    .hd-navbar {
+        height: auto;
+        min-height: 44px;
+        padding: 6px 10px;
+        gap: 6px;
+    }
+    .hd-nav-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        max-width: calc(100% - 110px);
+        gap: 2px;
+    }
+    .hd-nav-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    .hd-brand-title {
+        font-size: 13px;
+        margin-right: 6px;
+        white-space: nowrap;
+    }
+    .hd-tab-link {
+        padding: 4px 8px;
+        font-size: 11px;
+        height: 26px;
+        margin-top: 4px;
+        white-space: nowrap;
+    }
+    .hd-user-toggle {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+    .hd-user-toggle span:nth-child(2) {
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .hd-dropdown-menu {
+        right: 0;
+        left: auto;
+        width: 260px;
+        max-width: 90vw;
+    }
+
+    /* Formulare: Zeilen vertikal stapeln */
+    .hd-main-container {
+        padding: 8px;
+    }
+    .hd-panel-header {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+    .hd-form-row {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+    .hd-form-col {
+        width: 100%;
+    }
+    .hd-input, .hd-select, .hd-textarea {
+        font-size: 14px; /* Verhindert Auto-Zoom auf Mobilgeräten */
+    }
+
+    /* Toolbar & Suche mobil */
+    .hd-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 10px;
+    }
+    .hd-search-box {
+        width: 100%;
+    }
+    .hd-search-input {
+        width: 100%;
+        font-size: 13px;
+    }
+    .hd-filter-toggle {
+        font-size: 12px;
+    }
+
+    /* Tabelle: Horizontales Scrollen sicherstellen */
+    .hd-table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--hd-border);
+        border-radius: 0 0 4px 4px;
+    }
+    .hd-table {
+        min-width: 580px;
+    }
+    .hd-table th, .hd-table td {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    /* Modaldialoge mobil */
+    .hd-modal {
+        width: 95%;
+        max-width: 95%;
+        margin: 10px;
+    }
+    .hd-modal-body {
+        max-height: 75vh;
+        overflow-y: auto;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hd-brand-title span:last-child {
+        display: none;
+    }
+    .hd-user-toggle span:nth-child(2) {
+        display: none;
+    }
+    .hd-table {
+        min-width: 520px;
+    }
+    .hd-panel-header > div:last-child {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+

@@ -1,0 +1,30 @@
+{
+    "allow_self_registration": false,
+    "ticket_counter": 1263,
+    "service_provider_name": "",
+    "service_provider_address": "",
+    "service_provider_phone": "",
+    "service_provider_email": "",
+    "enable_contracts": true,
+    "enable_email_notifications": true,
+    "enable_imap_fetcher": false,
+    "imap_host": "",
+    "imap_port": 993,
+    "imap_ssl": true,
+    "imap_user": "",
+    "imap_pass": "",
+    "ticket_types": [
+        "Störung",
+        "Serviceanfrage",
+        "Wartung",
+        "Projekt",
+        "Installation",
+        "Sonstiges"
+    ],
+    "priorities": [
+        "Niedrig",
+        "Normal",
+        "Hoch",
+        "Kritisch"
+    ]
+}

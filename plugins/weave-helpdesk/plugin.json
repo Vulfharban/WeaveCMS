@@ -1,0 +1,13 @@
+{
+    "name": "Weave Helpdesk",
+    "slug": "weave-helpdesk",
+    "version": "1.0.0",
+    "author": "WeaveCMS",
+    "description": "Professionelles internes und externes Ticketsystem mit Aufgabenverwaltung, Rollen für Mitarbeiter und Kunden, Zeiterfassung, Tätigkeiten, E-Mail-Benachrichtigungen und Inklusivminuten-Abrechnung.",
+    "category": "content",
+    "icon": "support_agent",
+    "entry_file": "plugin.php",
+    "requires_core": ">=0.4.0",
+    "settings_tab": "weave-helpdesk"
+}
+
