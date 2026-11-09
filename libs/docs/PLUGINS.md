@@ -54,7 +54,7 @@ Jedes WeaveCMS-Plugin ist als eigenständiger Ordner in `/plugins/<slug>/` gekap
 
 ## 1. Weave Games (`weave-games`)
 
-Das **Weave Games**-Plugin bildet das zentrale Bindeglied zwischen WeaveCMS und externen Spiele-Ökosystemen. Es eignet sich gleichermaßen für komplexe Server/Client-Projekte (wie das Rust-basierte Voxel-RPG **Fastadun**), universelle Dedicated Server (Windows/Linux) als auch reine HTML5/WebGL-Browsergames.
+Das **Weave Games**-Plugin bildet das zentrale Bindeglied zwischen WeaveCMS und externen Spiele-Ökosystemen. Es eignet sich gleichermaßen für komplexe Server/Client-Projekte (wie Desktop- und Multiplayer-RPGs), universelle Dedicated Server (Windows/Linux) als auch reine HTML5/WebGL-Browsergames.
 
 ### Kernfeatures:
 * **Online-Registrierung & Spieler-Accounts:**
@@ -63,7 +63,7 @@ Das **Weave Games**-Plugin bildet das zentrale Bindeglied zwischen WeaveCMS und 
   * Rollenverteilung (`player`, `moderator`, `admin`), Whitelist-System und Bann-Verwaltung.
   * Automatische Superadmin-Erkennung für angemeldete WeaveCMS-Administratoren.
 * **Client-Update-Rollout & Patch-Verteilung:**
-  * Versionsverwaltung für Desktop-Clients (z. B. Fastadun Voxel Launcher/Client).
+  * Versionsverwaltung für Desktop-Clients (Launcher, Game-Binaries und Patches).
   * Kanäle: `stable`, `beta`, `nightly`.
   * Plattformen: `windows-x64`, `linux-x64`, `macos`, `browser-webgl`, `all`.
   * SHA256-Prüfsummen-Validierung zum Schutz vor manipulierten Client-Binaries.
@@ -79,7 +79,7 @@ Das **Weave Games**-Plugin bildet das zentrale Bindeglied zwischen WeaveCMS und 
 ### Endpunkte & Routen:
 * **Web-Portal:** `?page=games`
 * **REST API:** `/api/games.php`
-  * `?action=check_update&game=fastadun&version=0.9.0&platform=windows-x64`
+  * `?action=check_update&game=voxel-adventure&version=0.9.0&platform=windows-x64`
   * `?action=login` (POST: username, password)
   * `?action=register` (POST: username, email, password, nickname)
   * `?action=verify_token` (POST/GET: token)

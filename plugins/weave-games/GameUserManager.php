@@ -4,7 +4,7 @@
  * Weave Games – GameUserManager
  * ============================================================================
  * Verwaltet Spieler-Accounts, Online-Registrierung/Anmeldung,
- * Authentifizierungs-Tokens für Spiel-Clients (z. B. Fastadun Launcher/Client)
+ * Authentifizierungs-Tokens für Spiel-Clients (Desktop Launcher & Games)
  * sowie Whitelist- und Bann-Status.
  * ============================================================================
  */

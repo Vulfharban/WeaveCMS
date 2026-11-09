@@ -131,7 +131,7 @@ $servers = GameServerManager::getServers();
                 <div>
                     <h3 style="margin: 0; color: #38bdf8;">🎮 Angemeldet als: <?= htmlspecialchars($player['nickname']) ?></h3>
                     <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 13px;">
-                        Verwende diesen Token in deinem Game-Client (Fastadun Launcher / Config) für automatisches Login:
+                        Verwende diesen Token in deinem Game-Client (Game Launcher / Config) für automatisches Login:
                     </p>
                 </div>
                 <div class="wg-token-box">
@@ -142,24 +142,24 @@ $servers = GameServerManager::getServers();
         </section>
     <?php endif; ?>
 
-    <!-- Spiele-Sektion 1: Fastadun Voxel Project (Server / Client) -->
+    <!-- Spiele-Sektion 1: Multiplayer Voxel World (Server / Client) -->
     <section class="wg-section">
         <h2 class="wg-section-title">
             <span>🏰</span>
-            <span>Fastadun – Voxel RPG (Server/Client)</span>
+            <span>Voxel Adventure (Server/Client)</span>
         </h2>
 
         <div class="wg-game-card">
             <div class="wg-game-body">
                 <div class="wg-game-details">
-                    <h3>Fastadun Voxel World & Unterreich</h3>
+                    <h3>Voxel Adventure World</h3>
                     <p class="wg-game-desc">
-                        Multiplayer Voxel Sandbox RPG mit vollständiger Server/Client-Architektur, unterirdischen Unterreich-Ebenen, D&D Monster-Compendium (Riesen, Orks, Drow-Spinnen) und Drow-Städten.
+                        Multiplayer Voxel Sandbox RPG mit vollständiger Server/Client-Architektur, prozedural generierten Welten und optimiertem Netzwerkprotokoll.
                     </p>
 
                     <!-- Client-Download Info -->
                     <?php 
-                    $latestRel = GameRolloutManager::getLatestRelease('fastadun', 'windows_x64', 'stable');
+                    $latestRel = GameRolloutManager::getLatestRelease('voxel-adventure', 'windows_x64', 'stable');
                     ?>
                     <div class="wg-release-info">
                         <strong>Neueste Client-Version:</strong>
@@ -174,7 +174,7 @@ $servers = GameServerManager::getServers();
                     <?php if ($latestRel): ?>
                         <div class="wg-game-actions">
                             <a href="<?= htmlspecialchars($latestRel['download_url']) ?>" class="wg-btn wg-btn-primary wg-btn-large">
-                                ⬇️ Fastadun Client herunterladen (<?= htmlspecialchars($latestRel['version']) ?>)
+                                ⬇️ Game-Client herunterladen (<?= htmlspecialchars($latestRel['version']) ?>)
                             </a>
                             <button type="button" class="wg-btn wg-btn-outline" onclick="alert(<?= json_encode($latestRel['patch_notes']) ?>)">
                                 📋 Patch-Notes
@@ -183,16 +183,16 @@ $servers = GameServerManager::getServers();
                     <?php endif; ?>
                 </div>
 
-                <!-- Server-Status für Fastadun -->
+                <!-- Server-Status für Voxel Adventure -->
                 <div class="wg-server-box">
                     <h4 style="margin: 0 0 10px 0; color: #f8fafc; font-size: 14px;">📡 Live Server-Status</h4>
                     <?php 
-                    $fastadunServers = array_filter($servers, fn($s) => $s['game_slug'] === 'fastadun' && !empty($s['active']));
+                    $voxelServers = array_filter($servers, fn($s) => $s['game_slug'] === 'voxel-adventure' && !empty($s['active']));
                     ?>
-                    <?php if (empty($fastadunServers)): ?>
-                        <div style="color: #94a3b8; font-size: 12px;">Keine aktiven Fastadun-Server eingetragen.</div>
+                    <?php if (empty($voxelServers)): ?>
+                        <div style="color: #94a3b8; font-size: 12px;">Keine aktiven Game-Server eingetragen.</div>
                     <?php else: ?>
-                        <?php foreach ($fastadunServers as $fs): 
+                        <?php foreach ($voxelServers as $fs): 
                             $isOnline = (($fs['status'] ?? '') === 'online');
                         ?>
                             <div class="wg-server-item">
@@ -247,7 +247,7 @@ $servers = GameServerManager::getServers();
 
 <footer class="wg-footer">
     <div class="wg-container">
-        <p>&copy; <?= date('Y') ?> Weave Games &bull; Angetrieben von WeaveCMS & Fastadun Technologie</p>
+        <p>&copy; <?= date('Y') ?> Weave Games &bull; Angetrieben von WeaveCMS</p>
     </div>
 </footer>
 

@@ -4,7 +4,7 @@
  * Weave Games – GameRolloutManager
  * ============================================================================
  * Verwaltet Spiele-Kataloge, Client-Versionen, Update-Rollouts
- * und Patch-Verteilungen für Desktop-Clients (Fastadun / Rust Voxel Game),
+ * und Patch-Verteilungen für Desktop-Clients (Voxel & Multiplayer RPGs),
  * Browsergames (WebGL/HTML5) und universelle Spiel-Engines.
  * ============================================================================
  */
@@ -46,11 +46,11 @@ class GameRolloutManager {
         return [
             'games' => [
                 [
-                    'slug'        => 'fastadun',
-                    'title'       => 'Fastadun – Voxel RPG & Unterreich',
+                    'slug'        => 'voxel-adventure',
+                    'title'       => 'Voxel Adventure (Server/Client)',
                     'category'    => 'client_server', // client_server, browser, generic
                     'genre'       => 'Multiplayer Voxel Sandbox / RPG',
-                    'description' => 'Fastadun Voxel-Projekt mit nahtloser Server/Client-Architektur, Unterreich-Ebenen, D&D-Monstern und Drow-Zitadellen.',
+                    'description' => 'Voxel-Projekt mit nahtloser Server/Client-Architektur, dynamischen Welten und modularem Netzwerkprotokoll.',
                     'icon'        => 'view_in_ar',
                     'banner'      => '',
                     'active'      => true,
@@ -71,16 +71,16 @@ class GameRolloutManager {
             ],
             'releases' => [
                 [
-                    'id'           => 'rel_fastadun_0_9_0',
-                    'game_slug'    => 'fastadun',
+                    'id'           => 'rel_voxel_0_9_0',
+                    'game_slug'    => 'voxel-adventure',
                     'version'      => '0.9.0',
                     'channel'      => 'stable', // stable, beta, nightly
                     'platform'     => 'windows_x64', // windows_x64, linux_x64, macos, browser
-                    'download_url' => 'downloads/fastadun/fastadun-v0.9.0-windows-x64.zip',
+                    'download_url' => 'downloads/games/voxel-adventure-v0.9.0-windows-x64.zip',
                     'file_size'    => '45.2 MB',
                     'sha256'       => 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
                     'mandatory'    => false,
-                    'patch_notes'  => "- Initialer Client-Rollout mit Unterreich-Generierung\n- Server/Client Netzwerkprotokoll v1\n- D&D Monster-Klassen und Drow-Patrouillen",
+                    'patch_notes'  => "- Initialer Client-Rollout mit prozeduraler Weltengenerierung\n- Server/Client Netzwerkprotokoll v1\n- Performance- und Render-Optimierungen",
                     'released_at'  => date('Y-m-d H:i:s')
                 ]
             ]

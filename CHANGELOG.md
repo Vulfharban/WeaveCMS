@@ -12,10 +12,10 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 - 🎮 **Neues Plugin: Weave Games (`weave-games`):**
   - **Online-Registrierung & Spieler-Accounts:** Webportal (`?page=games`) und REST-API (`api/games.php`) zur Registrierung und Anmeldung von Spielern mit kryptografischen Client-Authentifizierungs-Tokens (`auth_token`).
-  - **Client-Update-Rollout & Patch-Verteilung:** Automatische Versionsprüfung für Spiel-Clients (Fastadun Voxel Launcher), SHA256-Prüfsummen-Verifikation, Pflicht-Updates (`mandatory = true`) und Plattform-Unterstützung (Windows x64, Linux x64, macOS, WebGL/Browser).
+  - **Client-Update-Rollout & Patch-Verteilung:** Automatische Versionsprüfung für Spiel-Clients (Desktop Launcher & Binaries), SHA256-Prüfsummen-Verifikation, Pflicht-Updates (`mandatory = true`) und Plattform-Unterstützung (Windows x64, Linux x64, macOS, WebGL/Browser).
   - **Server-Verwaltung & Live-Cluster-Monitor:** Starten, Stoppen und Neustarten von Spieleservern lokal (Windows Task / Linux Daemon) oder remote via SSH (Passwort- und Key-Authentifizierung).
-  - **Parameterübergabe:** Flexible Übergabe von Startargumenten für Windows und Linux (Ports, Welten, max. Spieler, Tickrate, D&D Monster-Klassen).
-  - **Multi-Game-Support:** Konzipiert für Server/Client-Spiele (wie das Fastadun Voxel RPG), Dedicated Game-Servers sowie direkte Browsergames (inkl. nativ spielbarem Space Orbit HTML5 Canvas Mini-Game).
+  - **Parameterübergabe:** Flexible Übergabe von Startargumenten für Windows und Linux (Ports, Welten, max. Spieler, Tickrate).
+  - **Multi-Game-Support:** Konzipiert für Server/Client-Spiele (wie Voxel- und Multiplayer-RPGs), Dedicated Game-Servers sowie direkte Browsergames (inkl. nativ spielbarem Space Orbit HTML5 Canvas Mini-Game).
 
 - 🛡️ **Neues Plugin: Weave Helpdesk (`weave-helpdesk`):**
   - **Autonome Web-App & Portal (`?page=games`):** Vollständiges Service-Desk- und Ticketsystem im responsiven Petrol/Teal-Design mit Rücksprungmöglichkeit zur Hauptwebsite.

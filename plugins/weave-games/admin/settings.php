@@ -40,7 +40,7 @@ $totalReleases = count($releases);
             <div>
                 <h3 style="margin: 0; font-size: 1.4rem; font-weight: 800; color: #fff;">Weave Games – Gaming-Plattform & Server-Manager</h3>
                 <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 0.88rem;">
-                    Serversteuerung (Start/Stop, Windows/Linux Parameter, SSH), Fastadun Rollouts, Client-Updates und Spieler-Accounts.
+                    Serversteuerung (Start/Stop, Windows/Linux Parameter, SSH), Release-Rollouts, Client-Updates und Spieler-Accounts.
                 </p>
             </div>
         </div>
@@ -211,7 +211,7 @@ $totalReleases = count($releases);
                     <div style="display: flex; gap: 12px; margin-bottom: 12px;">
                         <div style="flex: 2;">
                             <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Servername *</label>
-                            <input type="text" name="name" required class="form-control" style="width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="z. B. Fastadun Voxel World 1">
+                            <input type="text" name="name" required class="form-control" style="width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="z. B. Dedicated Server 01">
                         </div>
                         <div style="flex: 1;">
                             <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Spiel *</label>
@@ -257,13 +257,13 @@ $totalReleases = count($releases);
 
                     <div style="margin-bottom: 12px;">
                         <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Start-Parameter (Windows & Linux)</label>
-                        <input type="text" name="custom_parameters" class="form-control" style="width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="--port 7777 --world world_01 --max-players 32 --pvp false" value="--port 7777 --world unterreich_ebene_01 --max-players 32">
+                        <input type="text" name="custom_parameters" class="form-control" style="width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="--port 7777 --world world_01 --max-players 32 --pvp false" value="--port 7777 --world world_01 --max-players 32">
                         <small style="color: #64748b; font-size: 11px;">Diese Argumente werden beim Serverstart an das Binary übergeben.</small>
                     </div>
 
                     <div style="margin-bottom: 12px;">
                         <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Pfad zur Server-Ausführungsdatei</label>
-                        <input type="text" name="executable_path" class="form-control" style="width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="C:\Games\fastadun_server.exe oder /opt/fastadun/fastadun_server">
+                        <input type="text" name="executable_path" class="form-control" style="width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="C:\Games\server.exe oder /opt/gameserver/server">
                     </div>
 
                     <fieldset style="border: 1px dashed #cbd5e1; border-radius: 6px; padding: 10px 14px; margin-bottom: 14px;">
@@ -410,7 +410,7 @@ $totalReleases = count($releases);
 
                     <div style="margin-bottom: 12px;">
                         <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Download-URL / Dateipfad *</label>
-                        <input type="text" name="download_url" required class="form-control" style="width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="downloads/fastadun/fastadun-v1.0.0.zip">
+                        <input type="text" name="download_url" required class="form-control" style="width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="downloads/games/client-v1.0.0.zip">
                     </div>
 
                     <div style="display: flex; gap: 12px; margin-bottom: 12px;">
@@ -558,7 +558,7 @@ $totalReleases = count($releases);
                         <strong>Online-Registrierung für Spieler im Webportal & Client erlauben</strong>
                     </label>
                     <p style="margin: 4px 0 0 25px; font-size: 12px; color: #64748b;">
-                        Ermöglicht neuen Spielern, sich direkt über die Website oder den Fastadun Launcher zu registrieren.
+                        Ermöglicht neuen Spielern, sich direkt über die Website oder den Game Launcher zu registrieren.
                     </p>
                 </div>
 

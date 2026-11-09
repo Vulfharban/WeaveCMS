@@ -39,8 +39,8 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - 🎮 **Weave Games Plugin (`plugins/weave-games/`):**
   - **Online-Spielerverwaltung & Authentifizierung:** Registrierung, Login, Rollen (`player`, `moderator`, `admin`), Whitelisting und API-Token-Generierung (`gtkn_...`).
   - **Client-Update-Rollout & Patch-Verteilung:** Release-Kanäle (`stable`, `beta`, `nightly`), Plattform-Filter (Windows x64, Linux x64, macOS ARM/Intel), semantische Versionsprüfung (`version_compare`), SHA256-Prüfsummen und Pflichtupdate-Flags.
-  - **Server-Management & Remote-Steuerung:** Dedizierte Serverinstanzen für Fastadun (Rust Voxel Game) und externe Spiele, Live Socket-Ping mit Latenzanzeige (ms), lokale Prozesssteuerung (`proc_open`) sowie Remote-Execution via SSH (`ssh2_exec` / CLI SSH).
-  - **Frontend-Portal & Web-Gaming:** Reaktives Dark Gaming Portal (`?page=games`), Fastadun Client-Download, Live-Servermonitor und direkt spielbares HTML5/WebGL Canvas-Arcade-Game ("Space Orbit").
+  - **Server-Management & Remote-Steuerung:** Dedizierte Serverinstanzen für eigene Game-Server und externe Spiele, Live Socket-Ping mit Latenzanzeige (ms), lokale Prozesssteuerung (`proc_open`) sowie Remote-Execution via SSH (`ssh2_exec` / CLI SSH).
+  - **Frontend-Portal & Web-Gaming:** Reaktives Dark Gaming Portal (`?page=games`), Client-Download-Bereich, Live-Servermonitor und direkt spielbares HTML5/WebGL Canvas-Arcade-Game ("Space Orbit").
   - **Headless REST API (`/api/games.php`):** Endpunkte für Versionsprüfung (`check_update`), Manifest (`get_manifest`), Auth (`login`, `register`, `verify_token`) und Server-Status (`server_status`).
 - 🎧 **Weave Helpdesk Plugin (`plugins/weave-helpdesk/`):**
   - Vollwertiges Ticket- und Supportsystem mit Mitarbeiter- und Kundenrollen, SLA/Inklusivminuten-Vertragsauswertung, Zeiterfassung pro Tätigkeit und Abrechnungsstatus.

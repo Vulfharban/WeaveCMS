@@ -8,7 +8,7 @@
  * - Serverstart / Stop / Neustart lokal & remote
  * - Parameterübergabe für Windows & Linux (Ports, Worlds, Max Players, Seed)
  * - SSH-Fernsteuerung für externe Linux- & Windows-Server
- * - Geeignet für Fastadun (Rust Voxel RPG), Browsergame-Hosts & Dedicated Servers
+ * - Geeignet für Desktop-Spiele (Multiplayer RPGs), Browsergame-Hosts & Dedicated Servers
  * ============================================================================
  */
 
@@ -54,17 +54,17 @@ class GameServerManager {
     public static function getDefaultServers(): array {
         return [
             [
-                'id'                => 'srv_fastadun_alpha',
-                'name'              => 'Fastadun Unterreich Alpha (Server 01)',
-                'game_slug'         => 'fastadun',
+                'id'                => 'srv_voxel_01',
+                'name'              => 'Voxel World Alpha (Server 01)',
+                'game_slug'         => 'voxel-adventure',
                 'host'              => '127.0.0.1',
                 'port'              => 7777,
                 'query_port'        => 7778,
                 'os_type'           => self::OS_WINDOWS,
                 'connection_type'   => self::CONN_LOCAL,
-                'executable_path'   => 'C:/Dev/rust/Voxelproject/target/release/fastadun_server.exe',
-                'working_dir'       => 'C:/Dev/rust/Voxelproject',
-                'custom_parameters' => '--port 7777 --world unterreich_ebene_01 --max-players 32 --drow-cities true --monsters high',
+                'executable_path'   => 'C:/Games/VoxelWorld/server.exe',
+                'working_dir'       => 'C:/Games/VoxelWorld',
+                'custom_parameters' => '--port 7777 --world world_01 --max-players 32 --monsters normal',
                 'start_command'     => '',
                 'stop_command'      => '',
                 'ssh_host'          => '',
@@ -82,22 +82,22 @@ class GameServerManager {
                 'active'            => true
             ],
             [
-                'id'                => 'srv_fastadun_linux_cloud',
-                'name'              => 'Fastadun Linux Cloud Cluster (Frankfurt)',
-                'game_slug'         => 'fastadun',
+                'id'                => 'srv_voxel_cloud',
+                'name'              => 'Voxel Cloud Cluster (Frankfurt)',
+                'game_slug'         => 'voxel-adventure',
                 'host'              => '195.201.10.42',
                 'port'              => 7777,
                 'query_port'        => 7778,
                 'os_type'           => self::OS_LINUX,
                 'connection_type'   => self::CONN_SSH,
-                'executable_path'   => '/opt/fastadun/fastadun_server',
-                'working_dir'       => '/opt/fastadun',
-                'custom_parameters' => '--port 7777 --world unterreich_ebenen_all --tick-rate 60 --max-players 64',
-                'start_command'     => 'systemctl start fastadun.service',
-                'stop_command'      => 'systemctl stop fastadun.service',
+                'executable_path'   => '/opt/gameserver/server',
+                'working_dir'       => '/opt/gameserver',
+                'custom_parameters' => '--port 7777 --world world_cloud --tick-rate 60 --max-players 64',
+                'start_command'     => 'systemctl start gameserver.service',
+                'stop_command'      => 'systemctl stop gameserver.service',
                 'ssh_host'          => '195.201.10.42',
                 'ssh_port'          => 22,
-                'ssh_user'          => 'fastadun_admin',
+                'ssh_user'          => 'game_admin',
                 'ssh_auth'          => 'key',
                 'ssh_pass'          => '',
                 'ssh_key'           => '~/.ssh/id_rsa',
@@ -167,7 +167,7 @@ class GameServerManager {
             $servers[] = [
                 'id'                => $id,
                 'name'              => trim($data['name'] ?? 'Neuer Game Server'),
-                'game_slug'         => trim($data['game_slug'] ?? 'fastadun'),
+                'game_slug'         => trim($data['game_slug'] ?? 'voxel-adventure'),
                 'host'              => trim($data['host'] ?? '127.0.0.1'),
                 'port'              => (int)($data['port'] ?? 7777),
                 'query_port'        => (int)($data['query_port'] ?? 7778),

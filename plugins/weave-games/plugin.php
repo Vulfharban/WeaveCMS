@@ -5,7 +5,7 @@
  * ============================================================================
  * Verwaltet:
  * - Admin-Aktionen für Game-Server (Start/Stop, Windows/Linux, SSH)
- * - Client-Update-Rollout & Patch-Verteilung (Fastadun / Rust Voxel RPG)
+ * - Client-Update-Rollout & Patch-Verteilung (Desktop Games / Voxel RPG)
  * - Spieler-Registrierung & Session-Management
  * - Eigenständige Frontend-Portal-Route (?page=games)
  * - Modulare Sektions- & Shortcode-Integration
@@ -208,7 +208,7 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
             <div style='background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; border-radius: 10px; padding: 24px; text-align: center; margin: 24px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.15);'>
                 <h3 style='margin: 0 0 8px 0; color: #38bdf8;'>🎮 {$title}</h3>
                 <p style='color: #cbd5e1; max-width: 600px; margin: 0 auto 16px auto; font-size: 14px;'>
-                    Live Fastadun Voxel-Server ({$online} online), Client-Updates und Browsergames direkt im Web.
+                    Live Game-Server ({$online} online), Client-Updates und Browsergames direkt im Web.
                 </p>
                 <a href='{$portalUrl}' class='btn' style='background: #38bdf8; color: #0f172a; padding: 10px 22px; font-weight: 800; text-decoration: none; border-radius: 6px; display: inline-block;'>
                     🚀 Zum Gaming-Portal
@@ -233,7 +233,7 @@ PluginManager::addFilter('registered_sections', function($sections, $data) {
     $sections[] = [
         'id'         => 'games',
         'type'       => 'games',
-        'title'      => $cfg['section_title'] ?? 'Gaming & Fastadun',
+        'title'      => $cfg['section_title'] ?? 'Gaming & Spieleserver',
         'nav_label'  => 'Games',
         'url'        => '?page=games',
         'visible'    => true,
@@ -266,7 +266,7 @@ PluginManager::addFilter('visible_sections', function($sections, $data) {
         $sections[] = [
             'id'        => 'games',
             'type'      => 'games',
-            'title'     => $cfg['section_title'] ?? 'Gaming & Fastadun',
+            'title'     => $cfg['section_title'] ?? 'Gaming & Spieleserver',
             'nav_label' => 'Games',
             'url'       => '?page=games',
             'visible'   => true,

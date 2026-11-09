@@ -22,7 +22,7 @@ class GameConfigManager {
         $default = [
             'allow_self_registration'     => true,
             'show_in_main_nav'            => true,
-            'section_title'               => 'Gaming, Fastadun & Server',
+            'section_title'               => 'Gaming & Spieleserver',
             'section_subtitle'            => 'Online-Registrierung, Server-Status, Client-Updates und Web-Browsergames.',
             'enable_public_server_status' => true,
             'default_ssh_port'            => 22,

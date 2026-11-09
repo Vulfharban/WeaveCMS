@@ -4,7 +4,7 @@
  * Weave Games – REST API Endpoint (api/games.php)
  * ============================================================================
  * Zentrale Programmierschnittstelle für:
- * - Spiel-Clients (z. B. Fastadun Voxel Launcher & Client)
+ * - Spiel-Clients (Desktop Launcher & Games)
  * - Online-Registrierung & Login via REST
  * - Versionsprüfung & Update-Rollout (Check Update, Manifest, Patch-Download)
  * - Live Server-Statusabfragen & Heartbeats
@@ -38,7 +38,7 @@ switch ($action) {
     // 1. UPDATE ROLLOUT: Client-Versionsprüfung
     // -------------------------------------------------------------------------
     case 'check_update':
-        $game = trim($_GET['game'] ?? ($jsonBody['game'] ?? 'fastadun'));
+        $game = trim($_GET['game'] ?? ($jsonBody['game'] ?? 'voxel-adventure'));
         $version = trim($_GET['version'] ?? ($jsonBody['version'] ?? '0.0.0'));
         $platform = trim($_GET['platform'] ?? ($jsonBody['platform'] ?? 'windows_x64'));
         $channel = trim($_GET['channel'] ?? ($jsonBody['channel'] ?? 'stable'));
@@ -51,7 +51,7 @@ switch ($action) {
     // 2. MANIFEST: Alle Releases eines Spiels abrufen
     // -------------------------------------------------------------------------
     case 'get_manifest':
-        $game = trim($_GET['game'] ?? 'fastadun');
+        $game = trim($_GET['game'] ?? 'voxel-adventure');
         $gameInfo = GameRolloutManager::getGame($game);
         if (!$gameInfo) {
             http_response_code(404);

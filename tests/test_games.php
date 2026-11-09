@@ -27,27 +27,27 @@ echo "1. Rollout & Release Management:\n";
 $games = GameRolloutManager::getGames();
 run_game_test("Spiele-Katalog nicht leer", count($games) >= 2);
 
-$fastadun = GameRolloutManager::getGame('fastadun');
-run_game_test("Fastadun Voxel Game registriert", $fastadun !== null && $fastadun['category'] === 'client_server');
+$voxelGame = GameRolloutManager::getGame('voxel-adventure');
+run_game_test("Voxel Adventure Game registriert", $voxelGame !== null && $voxelGame['category'] === 'client_server');
 
 // Update-Prüfung
-$checkOld = GameRolloutManager::checkUpdate('fastadun', '0.8.0', 'windows_x64');
+$checkOld = GameRolloutManager::checkUpdate('voxel-adventure', '0.8.0', 'windows_x64');
 run_game_test("Client mit v0.8.0 erhält Update-Meldung", $checkOld['update_available'] === true);
 
-$checkCurrent = GameRolloutManager::checkUpdate('fastadun', '0.9.0', 'windows_x64');
+$checkCurrent = GameRolloutManager::checkUpdate('voxel-adventure', '0.9.0', 'windows_x64');
 run_game_test("Client mit v0.9.0 ist auf dem neuesten Stand", $checkCurrent['update_available'] === false);
 
 // 2. Spieler-Accounts & Registrierung
 echo "\n2. Spieler-Accounts & Authentifizierung:\n";
 $testUser = 'testplayer_' . bin2hex(random_bytes(2));
-$testEmail = $testUser . '@fastadun.local';
+$testEmail = $testUser . '@gameportal.local';
 $err = null;
 
 $newPlayer = GameUserManager::createPlayer([
     'username' => $testUser,
     'email'    => $testEmail,
     'password' => 'secret123',
-    'nickname' => 'Sir Fastadun'
+    'nickname' => 'Voxel Hero'
 ], $err);
 
 run_game_test("Neuen Spieler-Account erstellt", $newPlayer !== null && empty($err));
