@@ -1,0 +1,432 @@
+/**
+ * Weave Games – Portal Stylesheet
+ */
+
+:root {
+    --wg-bg: #0f172a;
+    --wg-card-bg: #1e293b;
+    --wg-primary: #38bdf8;
+    --wg-primary-hover: #0ea5e9;
+    --wg-accent: #6366f1;
+    --wg-text: #f8fafc;
+    --wg-text-muted: #94a3b8;
+    --wg-border: #334155;
+    --wg-success: #10b981;
+    --wg-danger: #ef4444;
+}
+
+body.wg-portal-body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--wg-bg);
+    color: var(--wg-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+}
+
+.wg-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+
+/* Header */
+.wg-header {
+    background: #090d16;
+    border-bottom: 1px solid var(--wg-border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.wg-header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.wg-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--wg-text);
+    font-size: 1.25rem;
+    font-weight: 800;
+    text-decoration: none;
+}
+.wg-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.wg-nav-link {
+    color: var(--wg-text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.15s;
+}
+.wg-nav-link:hover {
+    color: var(--wg-primary);
+}
+.wg-user-badge {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid var(--wg-border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+}
+.wg-role-tag {
+    background: #3b82f6;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    text-transform: uppercase;
+}
+.wg-logout-btn {
+    text-decoration: none;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Buttons */
+.wg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.wg-btn-primary {
+    background: var(--wg-primary);
+    color: #0f172a;
+}
+.wg-btn-primary:hover {
+    background: var(--wg-primary-hover);
+}
+.wg-btn-outline {
+    background: transparent;
+    color: var(--wg-text);
+    border: 1px solid var(--wg-border);
+}
+.wg-btn-outline:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: var(--wg-text-muted);
+}
+.wg-btn-large {
+    padding: 10px 22px;
+    font-size: 1rem;
+}
+.wg-btn-full {
+    width: 100%;
+}
+
+/* Hero */
+.wg-hero {
+    padding: 30px 0 20px 0;
+}
+.wg-badge {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+.wg-hero h1 {
+    font-size: 2.2rem;
+    margin: 0 0 8px 0;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.wg-hero p {
+    color: var(--wg-text-muted);
+    font-size: 1.05rem;
+    max-width: 700px;
+    margin: 0;
+}
+
+/* Player Panel */
+.wg-player-panel {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid var(--wg-border);
+    border-left: 4px solid var(--wg-primary);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+.wg-player-panel-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+.wg-token-box {
+    display: flex;
+    align-items: center;
+    background: #090d16;
+    border: 1px solid var(--wg-border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    gap: 10px;
+}
+.wg-token-box code {
+    color: #38bdf8;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+.wg-btn-copy {
+    background: #334155;
+    border: none;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+/* Sections */
+.wg-section {
+    margin-bottom: 36px;
+}
+.wg-section-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--wg-border);
+    padding-bottom: 8px;
+}
+
+/* Game Card */
+.wg-game-card {
+    background: var(--wg-card-bg);
+    border: 1px solid var(--wg-border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.wg-game-body {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+.wg-game-details {
+    flex: 3;
+    min-width: 280px;
+}
+.wg-game-details h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.35rem;
+    color: #fff;
+}
+.wg-game-desc {
+    color: var(--wg-text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+}
+.wg-release-info {
+    font-size: 0.9rem;
+    color: var(--wg-text);
+    margin-bottom: 16px;
+}
+.wg-version-pill {
+    background: #1e3a8a;
+    color: #93c5fd;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+.wg-file-size {
+    color: var(--wg-text-muted);
+    font-size: 0.85rem;
+    margin-left: 4px;
+}
+.wg-game-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Server Box */
+.wg-server-box {
+    flex: 2;
+    min-width: 260px;
+    background: #0f172a;
+    border: 1px solid var(--wg-border);
+    border-radius: 8px;
+    padding: 16px;
+}
+.wg-server-item {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--wg-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+}
+.wg-server-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.wg-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.dot-online {
+    background: var(--wg-success);
+    box-shadow: 0 0 6px var(--wg-success);
+}
+.dot-offline {
+    background: var(--wg-danger);
+}
+.wg-server-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--wg-text-muted);
+}
+.wg-ping-badge {
+    background: #1e293b;
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--wg-primary);
+}
+
+/* Browser Game Card */
+.wg-browser-game-card {
+    background: var(--wg-card-bg);
+    border: 1px solid var(--wg-border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* Modals */
+.wg-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.wg-modal-card {
+    background: var(--wg-card-bg);
+    border: 1px solid var(--wg-border);
+    border-radius: 10px;
+    width: 400px;
+    max-width: 95%;
+    padding: 24px;
+    box-sizing: border-box;
+}
+.wg-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.wg-modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+.wg-close-btn {
+    color: var(--wg-text-muted);
+    text-decoration: none;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+.wg-form-group {
+    margin-bottom: 14px;
+}
+.wg-form-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--wg-text-muted);
+    margin-bottom: 4px;
+}
+.wg-form-group input {
+    width: 100%;
+    padding: 8px 12px;
+    background: #0f172a;
+    border: 1px solid var(--wg-border);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+}
+.wg-form-group input:focus {
+    border-color: var(--wg-primary);
+    outline: none;
+}
+.wg-auth-switch {
+    font-size: 0.8rem;
+    color: var(--wg-text-muted);
+    text-align: center;
+    margin-top: 12px;
+}
+.wg-auth-switch a {
+    color: var(--wg-primary);
+    text-decoration: none;
+}
+.wg-alert-error {
+    background: rgba(239, 68, 68, 0.15);
+    border-left: 3px solid var(--wg-danger);
+    color: #fca5a5;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+}
+
+/* Footer */
+.wg-footer {
+    border-top: 1px solid var(--wg-border);
+    padding: 24px 0;
+    text-align: center;
+    color: var(--wg-text-muted);
+    font-size: 0.85rem;
+    margin-top: 40px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .wg-hero h1 {
+        font-size: 1.7rem;
+    }
+    .wg-game-body {
+        flex-direction: column;
+    }
+    .wg-server-box {
+        width: 100%;
+    }
+}

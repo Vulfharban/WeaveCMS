@@ -86,5 +86,10 @@
     "captcha.prompt_nut": "a avelã",
     "captcha.prompt_blossom": "a flor rosa",
     "captcha.prompt_sunflower": "o girassol",
-    "captcha.prompt_tulip": "a tulipa"
+    "captcha.prompt_tulip": "a tulipa",
+    "nav.shop": "Loja",
+    "nav.helpdesk": "Suporte",
+    "nav.games": "Jogos & Fastadun",
+    "btn.play_now": "Jogar agora",
+    "btn.download_client": "Baixar cliente"
 }

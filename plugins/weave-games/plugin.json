@@ -1,0 +1,12 @@
+{
+    "name": "Weave Games",
+    "slug": "weave-games",
+    "version": "1.0.0",
+    "author": "WeaveCMS Core Team",
+    "description": "Gaming-Plattform & Server-Management: Online-Registrierung/Anmeldung für Spieler, Client-Update-Rollout & Patch-Verteilung, Serververwaltung (Start/Stop, Healthcheck, Windows & Linux Parameterübergabe, SSH-Fernsteuerung) für Fastadun (Server/Client), Browsergames und Dedicated Servers.",
+    "category": "gaming",
+    "icon": "sports_esports",
+    "entry_file": "plugin.php",
+    "requires_core": ">=0.4.0",
+    "settings_tab": "weave-games"
+}

@@ -86,5 +86,10 @@
     "captcha.prompt_nut": "hasselpähkinää",
     "captcha.prompt_blossom": "vaaleanpunaista kukkaa",
     "captcha.prompt_sunflower": "auringonkukkaa",
-    "captcha.prompt_tulip": "tulppaania"
+    "captcha.prompt_tulip": "tulppaania",
+    "nav.shop": "Kauppa",
+    "nav.helpdesk": "Tukikeskus",
+    "nav.games": "Pelit & Fastadun",
+    "btn.play_now": "Pelaa nyt",
+    "btn.download_client": "Lataa peliohjelma"
 }

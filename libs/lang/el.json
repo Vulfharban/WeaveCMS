@@ -86,5 +86,10 @@
     "captcha.prompt_nut": "το φουντούκι",
     "captcha.prompt_blossom": "το ροζ άνθος",
     "captcha.prompt_sunflower": "το ηλιοτρόπιο",
-    "captcha.prompt_tulip": "την τουλίπα"
+    "captcha.prompt_tulip": "την τουλίπα",
+    "nav.shop": "Κατάστημα",
+    "nav.helpdesk": "Υποστήριξη",
+    "nav.games": "Παιχνίδια & Fastadun",
+    "btn.play_now": "Παίξτε τώρα",
+    "btn.download_client": "Λήψη προγράμματος-πελάτη"
 }

@@ -86,5 +86,10 @@
     "captcha.prompt_nut": "hasselnødden",
     "captcha.prompt_blossom": "den lyserøde blomst",
     "captcha.prompt_sunflower": "solsikken",
-    "captcha.prompt_tulip": "tulipanen"
+    "captcha.prompt_tulip": "tulipanen",
+    "nav.shop": "Butik",
+    "nav.helpdesk": "Helpdesk",
+    "nav.games": "Spil & Fastadun",
+    "btn.play_now": "Spil nu",
+    "btn.download_client": "Download klient"
 }

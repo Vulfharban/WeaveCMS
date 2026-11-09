@@ -86,5 +86,10 @@
     "captcha.prompt_nut": "la avellana",
     "captcha.prompt_blossom": "la flor rosa",
     "captcha.prompt_sunflower": "el girasol",
-    "captcha.prompt_tulip": "el tulipán"
+    "captcha.prompt_tulip": "el tulipán",
+    "nav.shop": "Tienda",
+    "nav.helpdesk": "Soporte",
+    "nav.games": "Juegos & Fastadun",
+    "btn.play_now": "Jugar ahora",
+    "btn.download_client": "Descargar cliente"
 }

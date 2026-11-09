@@ -98,5 +98,10 @@
     "frontend.tag.sec_courses": "Events & Dates",
     "frontend.tag.sec_gallery": "Gallery & Portfolio",
     "frontend.tag.sec_downloads": "Downloads & Documents",
-    "btn.view_page": "View Page"
+    "btn.view_page": "View Page",
+    "nav.shop": "Shop",
+    "nav.helpdesk": "Helpdesk",
+    "nav.games": "Games & Fastadun",
+    "btn.play_now": "Play now",
+    "btn.download_client": "Download Client"
 }

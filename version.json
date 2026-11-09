@@ -1,7 +1,7 @@
 {
-    "latest_version": "1.3.3.1",
-    "download_url": "https://github.com/Vulfharban/WeaveCMS/releases/tag/v1.3.3.1",
-    "update_download_url": "https://github.com/Vulfharban/WeaveCMS/releases/download/v1.3.3.1/update-v1.3.3.1.zip",
-    "changelog": "WeaveCMS v1.3.3.1 – Sandbox Isolation, Security Hardening & Admin Translations (UTF-8 BOM Hotfix)",
-    "update_sha256": "update: 6b93cbae43129d3dcff0f1ce70987eef75f31b16eb429c008504aece6b1cd45d"
+    "latest_version": "1.3.4",
+    "download_url": "https://github.com/Vulfharban/WeaveCMS/releases/tag/v1.3.4",
+    "update_download_url": "https://github.com/Vulfharban/WeaveCMS/releases/download/v1.3.4/update-v1.3.4.zip",
+    "changelog": "WeaveCMS v1.3.4 – Weave Games Plugin, Weave Helpdesk, Plugin Documentation & Multilingual i18n Audit",
+    "update_sha256": "update: 2cb2c0c60765a4aab995fc545096e327f8c7d031e1898511a6dfb8fe465d50be"
 }

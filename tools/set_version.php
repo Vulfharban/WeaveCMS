@@ -71,7 +71,7 @@ if (file_exists($versionJsonPath)) {
     $vData['latest_version'] = $newVersion;
     $vData['download_url'] = "https://github.com/Vulfharban/WeaveCMS/releases/tag/v{$newVersion}";
     $vData['update_download_url'] = "https://github.com/Vulfharban/WeaveCMS/releases/download/v{$newVersion}/update-v{$newVersion}.zip";
-    $vData['changelog'] = "WeaveCMS v{$newVersion} – Sandbox Isolation, Security Hardening & Admin Translations (UTF-8 BOM Hotfix)";
+    $vData['changelog'] = "WeaveCMS v{$newVersion} – Weave Games Plugin, Weave Helpdesk, Plugin Documentation & Multilingual i18n Audit";
     file_put_contents($versionJsonPath, json_encode($vData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
     echo "✓ version.json: Aktualisiert auf v{$newVersion}\n";
 }

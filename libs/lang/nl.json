@@ -86,5 +86,10 @@
     "captcha.prompt_nut": "de hazelnoot",
     "captcha.prompt_blossom": "de roze bloesem",
     "captcha.prompt_sunflower": "de zonnebloem",
-    "captcha.prompt_tulip": "de tulp"
+    "captcha.prompt_tulip": "de tulp",
+    "nav.shop": "Winkel",
+    "nav.helpdesk": "Helpdesk",
+    "nav.games": "Games & Fastadun",
+    "btn.play_now": "Nu spelen",
+    "btn.download_client": "Client downloaden"
 }

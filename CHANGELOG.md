@@ -6,6 +6,39 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ---
 
+## [v1.3.4] - 09. November 2026
+
+### 🎮 Weave Games, Weave Helpdesk, Plugin-Refactoring & Mehrsprachigkeits-Prüfung
+
+- 🎮 **Neues Plugin: Weave Games (`weave-games`):**
+  - **Online-Registrierung & Spieler-Accounts:** Webportal (`?page=games`) und REST-API (`api/games.php`) zur Registrierung und Anmeldung von Spielern mit kryptografischen Client-Authentifizierungs-Tokens (`auth_token`).
+  - **Client-Update-Rollout & Patch-Verteilung:** Automatische Versionsprüfung für Spiel-Clients (Fastadun Voxel Launcher), SHA256-Prüfsummen-Verifikation, Pflicht-Updates (`mandatory = true`) und Plattform-Unterstützung (Windows x64, Linux x64, macOS, WebGL/Browser).
+  - **Server-Verwaltung & Live-Cluster-Monitor:** Starten, Stoppen und Neustarten von Spieleservern lokal (Windows Task / Linux Daemon) oder remote via SSH (Passwort- und Key-Authentifizierung).
+  - **Parameterübergabe:** Flexible Übergabe von Startargumenten für Windows und Linux (Ports, Welten, max. Spieler, Tickrate, D&D Monster-Klassen).
+  - **Multi-Game-Support:** Konzipiert für Server/Client-Spiele (wie das Fastadun Voxel RPG), Dedicated Game-Servers sowie direkte Browsergames (inkl. nativ spielbarem Space Orbit HTML5 Canvas Mini-Game).
+
+- 🛡️ **Neues Plugin: Weave Helpdesk (`weave-helpdesk`):**
+  - **Autonome Web-App & Portal (`?page=games`):** Vollständiges Service-Desk- und Ticketsystem im responsiven Petrol/Teal-Design mit Rücksprungmöglichkeit zur Hauptwebsite.
+  - **Ticket- und Aufgabenmanagement:** Formatierte Ticketnummern (`YY` + 6 Ziffern), Status-Workflow und Tätigkeitserfassung mit Minutenprotokoll.
+  - **Wartungsverträge & Inklusivminuten:** Automatische Verrechnung von Arbeitszeiten gegen vertragliche Inklusivminuten (`Verfügbar - Verbraucht = Differenz`).
+  - **Buchhaltungssperre:** Der Status *„Abgerechnet“* sperrt Tickets revisionssicher gegen erneutes Öffnen oder Bearbeiten.
+  - **Menüsteuerung & Mobile UI:** Im Backend frei wählbare Menüsichtbarkeit und optimierte Ansichten für Smartphones und Tablets.
+
+- 🛍️ **Plugin-Refactoring & Umbenennung:**
+  - `shop` umbenannt in **Weave Shop** (`weave-shop`).
+  - `inventory` umbenannt in **Weave Inventory** (`weave-inventory`).
+  - Vollständige Aktualisierung aller Hooks, REST-APIs und Konfigurationsschlüssel unter Beibehaltung nahtloser Abwärtskompatibilität.
+  - Neue automatisierte Test-Suite [`tests/test_shop.php`](tests/test_shop.php) prüft Katalog, Warenkorb mit 19 % MwSt., steuerfreie Kleinunternehmer (§ 19 UStG), Versandkostenfreigrenzen und Zahlungs-Gateways (Kreditkarte mit Luhn-Prüfung, PayPal, WERO, Vorkasse).
+
+- 🌐 **Mehrsprachigkeits-Audit (Frontend & Backend i18n):**
+  - Vollständige Prüfung aller 12 europäischen Sprachkataloge (DE, EN, FR, IT, NL, ES, PT, EL, DA, NO, SV, FI) auf JSON-Validität und strikte UTF-8-Codierung (ohne BOM).
+  - Sämtliche Navigations- und Interaktions-Schlüssel für alle neuen und refaktorierten Plugins (`nav.shop`, `nav.helpdesk`, `nav.games`, `btn.play_now`, `btn.download_client`) in allen 12 Sprachen nachgepflegt.
+
+- 📚 **Dedizierte Plugin-Dokumentation:**
+  - Neues Handbuch [`docs/PLUGINS.md`](docs/PLUGINS.md) mit detaillierter Übersicht über alle WeaveCMS-Plugins, Kernfeatures, REST-APIs, Parameter und Hook-Events.
+
+---
+
 ## [v1.3.3.1] - 03. November 2026
 
 ### 🛡️ Sicherheits-Härtung, Sandbox-Isolation & Fehlerbehebungen

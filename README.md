@@ -23,17 +23,32 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 - **Feature catalog & update portal (Deutsch):** [`libs/docs/features.md`](libs/docs/features.md)
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
+- **Plugin-Dokumentation & Referenz:** [`docs/PLUGINS.md`](docs/PLUGINS.md)
 - **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 - **Complete Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 
-## Releases & Downloads (v1.3.3.1)
+## Releases & Downloads (v1.3.4)
 
 - 📦 **[WeaveCMS v1.3.3.1 Full Package](releases/weavecms-v1.3.3.1.zip)** (`releases/weavecms-v1.3.3.1.zip`) – Complete installation archive for new websites.
 - 🔄 **[WeaveCMS v1.3.3.1 Update Package](releases/update-v1.3.3.1.zip)** (`releases/update-v1.3.3.1.zip`) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
 
-### v1.3.3.1 (3. November 2026)
+### v1.3.4 (9. November 2026)
+
+- 🎮 **Weave Games Plugin (`plugins/weave-games/`):**
+  - **Online-Spielerverwaltung & Authentifizierung:** Registrierung, Login, Rollen (`player`, `moderator`, `admin`), Whitelisting und API-Token-Generierung (`gtkn_...`).
+  - **Client-Update-Rollout & Patch-Verteilung:** Release-Kanäle (`stable`, `beta`, `nightly`), Plattform-Filter (Windows x64, Linux x64, macOS ARM/Intel), semantische Versionsprüfung (`version_compare`), SHA256-Prüfsummen und Pflichtupdate-Flags.
+  - **Server-Management & Remote-Steuerung:** Dedizierte Serverinstanzen für Fastadun (Rust Voxel Game) und externe Spiele, Live Socket-Ping mit Latenzanzeige (ms), lokale Prozesssteuerung (`proc_open`) sowie Remote-Execution via SSH (`ssh2_exec` / CLI SSH).
+  - **Frontend-Portal & Web-Gaming:** Reaktives Dark Gaming Portal (`?page=games`), Fastadun Client-Download, Live-Servermonitor und direkt spielbares HTML5/WebGL Canvas-Arcade-Game ("Space Orbit").
+  - **Headless REST API (`/api/games.php`):** Endpunkte für Versionsprüfung (`check_update`), Manifest (`get_manifest`), Auth (`login`, `register`, `verify_token`) und Server-Status (`server_status`).
+- 🎧 **Weave Helpdesk Plugin (`plugins/weave-helpdesk/`):**
+  - Vollwertiges Ticket- und Supportsystem mit Mitarbeiter- und Kundenrollen, SLA/Inklusivminuten-Vertragsauswertung, Zeiterfassung pro Tätigkeit und Abrechnungsstatus.
+  - E-Mail-Benachrichtigungen bei Ticketerstellung und Statuswechsel, mobile-optimiertes Frontend (`?page=helpdesk`) und anpassbare Pflichtfelder.
+- 📚 **Dedizierte Plugin-Dokumentation (`docs/PLUGINS.md`):**
+  - Vollständige Feature-Übersicht aller 6 WeaveCMS-Plugins: *Weave Games*, *Weave Shop*, *Weave Inventory*, *Weave Helpdesk*, *Webtrees Genealogy*, *Universal Integrations*.
+- 🌐 **Mehrsprachigkeits-Audit (i18n):**
+  - Vollständige Prüfung aller 12 Sprachen (`de`, `en`, `da`, `el`, `es`, `fi`, `fr`, `it`, `nl`, `no`, `pt`, `sv`) auf BOM-Freiheit und Ergänzung fehlender Navigations- und Button-Schlüssel.
 
 - 🛡️ **Sandbox-Modus & Session-Isolation:**
   - **Reale Admin-Session-Sicherung:** Nahtlose Sicherung bestehender Administrator-Sitzungen (`weave_real_admin_backup`) beim Betreten der Sandbox und automatische Wiederherstellung beim Verlassen oder Pausieren.
@@ -178,7 +193,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.3.3.1.zip](releases/weavecms-v1.3.3.1.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.4.zip](releases/weavecms-v1.3.4.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

@@ -86,5 +86,10 @@
     "captcha.prompt_nut": "la nocciola",
     "captcha.prompt_blossom": "il fiore rosa",
     "captcha.prompt_sunflower": "il girasole",
-    "captcha.prompt_tulip": "il tulipano"
+    "captcha.prompt_tulip": "il tulipano",
+    "nav.shop": "Negozio",
+    "nav.helpdesk": "Assistenza",
+    "nav.games": "Giochi & Fastadun",
+    "btn.play_now": "Gioca ora",
+    "btn.download_client": "Scarica il client"
 }
