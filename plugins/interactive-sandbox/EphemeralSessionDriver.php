@@ -307,7 +307,17 @@ class EphemeralSessionDriver implements StorageDriverInterface {
             unset($_SESSION['weave_demo_data']);
         }
         if (file_exists($this->sandboxFile)) {
-            return @unlink($this->sandboxFile);
+            @unlink($this->sandboxFile);
+        }
+        $helpdeskFiles = [
+            $this->sandboxDir . '/helpdesk_users_' . $this->sessionToken . '.json',
+            $this->sandboxDir . '/helpdesk_tickets_' . $this->sessionToken . '.json',
+            $this->sandboxDir . '/helpdesk_config_' . $this->sessionToken . '.json',
+        ];
+        foreach ($helpdeskFiles as $hf) {
+            if (file_exists($hf)) {
+                @unlink($hf);
+            }
         }
         return true;
     }
