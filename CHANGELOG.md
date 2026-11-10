@@ -6,6 +6,21 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ---
 
+## [v1.3.4.1] - 10. November 2026
+
+### 🔧 Fix: CoreUpdater Plugin-Verteilung & Auto-Synchronisation fehlender Plugins
+
+- 🐛 **CoreUpdater Pfad-Freigabe (`CORE_PATHS`):**
+  - `'plugins/'` und `'.htaccess'` wurden in `CoreUpdater::CORE_PATHS` aufgenommen. Bei automatischen 1-Klick-Core-Updates wurden bisher fälschlicherweise alle Dateien im Ordner `plugins/` herausgefiltert, wodurch neue Plugins (wie `weave-games` und `weave-helpdesk`) nicht auf dem Server entpackt wurden.
+- 🔄 **Automatische Synchronisation fehlender Plugins (`syncMissingOfficialPlugins`):**
+  - Neue Methode `CoreUpdater::syncMissingOfficialPlugins()` stellt fehlende offizielle Plugins direkt aus dem Update-Paket wieder her.
+  - Automatische Ausführung in `finishPendingUpdate()` nach jedem Core-Update.
+  - Neuer Hinweis-Banner in der Plugin-Verwaltung (`admin/views/tab_plugins.php`) mit 1-Klick-Aktion *„Fehlende Plugins jetzt nachinstallieren“*.
+- 🧪 **Test-Suite:**
+  - Neue automatisierte Test-Suite `tests/test_core_updater.php` mit 27 Prüfungen für Whitelisting, Zip-Slip-Schutz und Schutz aller Nutzerdaten.
+
+---
+
 ## [v1.3.4] - 09. November 2026
 
 ### 🎮 Weave Games, Weave Helpdesk, Plugin-Refactoring & Mehrsprachigkeits-Prüfung

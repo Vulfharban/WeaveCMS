@@ -97,6 +97,7 @@ class AdminController {
 
             case 'toggle_plugin':
             case 'save_plugin_settings':
+            case 'sync_missing_plugins':
                 self::handlePluginAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
@@ -339,6 +340,20 @@ class AdminController {
      * Verarbeitet Plugin-Aktionen (Aktivieren, Deaktivieren, Konfiguration speichern) - Phase 13.
      */
     protected static function handlePluginAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if ($action === 'sync_missing_plugins') {
+            if (class_exists('CoreUpdater')) {
+                $res = CoreUpdater::syncMissingOfficialPlugins();
+                if ($res['success']) {
+                    $success_msg = '✓ ' . htmlspecialchars($res['message']);
+                } else {
+                    $error_msg = htmlspecialchars($res['message']);
+                }
+            } else {
+                $error_msg = 'CoreUpdater-Klasse nicht verfügbar.';
+            }
+            return;
+        }
+
         $slug = preg_replace('/[^a-z0-9_-]/', '', strtolower($_POST['plugin_slug'] ?? ''));
         if (empty($slug)) {
             $error_msg = 'Ungültige Plugin-Kennung.';

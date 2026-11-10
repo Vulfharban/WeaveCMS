@@ -34,6 +34,54 @@ class PluginManager {
     protected static ?array $discoveredCache = null;
 
     /**
+     * Liste aller offiziellen WeaveCMS-Plugins (im Release gebundelt).
+     */
+    public const OFFICIAL_PLUGINS = [
+        'interactive-sandbox',
+        'universal-integrations',
+        'weave-downloads',
+        'weave-forum',
+        'weave-forum-users',
+        'weave-games',
+        'weave-helpdesk',
+        'weave-inventory',
+        'weave-shop',
+        'weave-workshops',
+        'webtrees-genealogy',
+    ];
+
+    /**
+     * Liefert die Liste aller bekannten offiziellen Plugin-Slugs.
+     * @return string[]
+     */
+    public static function getOfficialPluginSlugs(): array {
+        return self::OFFICIAL_PLUGINS;
+    }
+
+    /**
+     * Ermittelt alle offiziellen Plugins, deren Verzeichnis oder Manifest (plugin.json) noch nicht auf dem Server existiert.
+     * @return string[]
+     */
+    public static function getMissingOfficialPlugins(): array {
+        $baseDir = self::getPluginsDir();
+        $missing = [];
+        foreach (self::OFFICIAL_PLUGINS as $slug) {
+            $manifest = $baseDir . '/' . $slug . '/plugin.json';
+            if (!file_exists($manifest)) {
+                $missing[] = $slug;
+            }
+        }
+        return $missing;
+    }
+
+    /**
+     * Leert den internen Discovery-Cache.
+     */
+    public static function clearCache(): void {
+        self::$discoveredCache = null;
+    }
+
+    /**
      * Ermittelt den absoluten Pfad zum Plugins-Verzeichnis.
      * @return string
      */

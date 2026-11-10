@@ -15,7 +15,7 @@
  *  5. Wartungsmodus beenden; Migrationen laufen beim nächsten Admin-Aufruf
  *     (dann mit dem neuen Code) – siehe finishPendingUpdate()
  *
- * Nutzerdaten (data.json, data/, images/, backups/, plugins/, config.local.php,
+ * Nutzerdaten (data.json, data/, images/, backups/, config.local.php,
  * installed.lock) werden nie überschrieben.
  *
  * @package WeaveCMS\Update
@@ -31,8 +31,8 @@ class CoreUpdater {
 
     /** Freigegebene Pfade des Kerns (Verzeichnisse mit Slash am Ende, sonst exakte Dateien). */
     public const CORE_PATHS = [
-        'libs/', 'admin/', 'views/', 'api/',
-        'config.php', 'index.php', 'sitemap.php', 'robots.php', 'send_mail.php',
+        'libs/', 'admin/', 'views/', 'api/', 'plugins/',
+        'config.php', 'index.php', 'sitemap.php', 'robots.php', 'send_mail.php', '.htaccess',
     ];
 
     /** Niemals überschreibbare Pfade & Dateien (Schutz von Nutzerdaten und Installer-Sperre). */
@@ -254,13 +254,158 @@ class CoreUpdater {
             }
         }
 
+        // Fehlende offizielle Plugins automatisch aus dem Update nachziehen
+        $syncedPlugins = [];
+        if (class_exists('PluginManager') && !empty(PluginManager::getMissingOfficialPlugins())) {
+            $syncRes = self::syncMissingOfficialPlugins();
+            if (!empty($syncRes['installed'])) {
+                $syncedPlugins = $syncRes['installed'];
+            }
+        }
+
         if (class_exists('PluginManager') && method_exists('PluginManager', 'doAction')) {
             PluginManager::doAction('core_updated', $from, $to, $data);
         }
         if ($changed) {
             save_data($dataFile, $data);
         }
-        return "✓ Update auf v{$to} abgeschlossen (Schema-Prüfung durchgeführt, versionierte Migrationen: {$ran}).";
+        $pluginMsg = !empty($syncedPlugins) ? ' Plugins synchronisiert: ' . implode(', ', $syncedPlugins) . '.' : '';
+        return "✓ Update auf v{$to} abgeschlossen (Schema-Prüfung durchgeführt, versionierte Migrationen: {$ran}.{$pluginMsg})";
+    }
+
+    /**
+     * Prüft, ob offizielle Plugins im Verzeichnis /plugins fehlen, und stellt diese aus dem aktuellen
+     * Update-Paket (lokal oder Remote) wieder her.
+     *
+     * @return array ['success' => bool, 'message' => string, 'installed' => string[]]
+     */
+    public static function syncMissingOfficialPlugins(): array {
+        if (!class_exists('PluginManager') || !class_exists('ZipArchive')) {
+            return ['success' => false, 'message' => 'Voraussetzungen (PluginManager / ZipArchive) nicht erfüllt.', 'installed' => []];
+        }
+
+        $missing = PluginManager::getMissingOfficialPlugins();
+        if (empty($missing)) {
+            return ['success' => true, 'message' => 'Alle offiziellen Plugins sind bereits vollständig installiert.', 'installed' => []];
+        }
+
+        $root = self::getRootDir();
+        $version = defined('WEAVE_VERSION') ? WEAVE_VERSION : (class_exists('Installer') ? Installer::getVersion() : '1.3.4');
+        $localZip = $root . '/releases/update-v' . $version . '.zip';
+        $tempZip = null;
+
+        // 1. Prüfe auf lokales Update-Paket in releases/
+        if (file_exists($localZip) && is_readable($localZip)) {
+            $zipPath = $localZip;
+        } else {
+            // 2. Remote Download versuchen
+            $info = class_exists('UpdateManager') ? UpdateManager::checkCoreUpdate(false) : [];
+            $zipUrl = $info['zip_url'] ?? '';
+            if (empty($zipUrl)) {
+                $zipUrl = 'https://github.com/Vulfharban/WeaveCMS/releases/download/v' . $version . '/update-v' . $version . '.zip';
+            }
+            $workDir = $root . '/cache/updates';
+            if (!is_dir($workDir)) {
+                @mkdir($workDir, 0755, true);
+            }
+            $tempZip = $workDir . '/sync_plugins_' . time() . '.zip';
+            $err = self::download($zipUrl, $tempZip);
+            if ($err !== null || !file_exists($tempZip)) {
+                @unlink($tempZip);
+                return ['success' => false, 'message' => 'Paket-Download fehlgeschlagen: ' . ($err ?? 'Datei nicht gefunden'), 'installed' => []];
+            }
+            $zipPath = $tempZip;
+        }
+
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath) !== true) {
+            if ($tempZip) @unlink($tempZip);
+            return ['success' => false, 'message' => 'Update-Archiv konnte nicht geöffnet werden.', 'installed' => []];
+        }
+
+        // Gemeinsames Präfix ermitteln (z.B. bei Zipball)
+        $prefix = '';
+        $first = $zip->getNameIndex(0);
+        if ($first !== false) {
+            $firstNorm = str_replace('\\', '/', (string)$first);
+            if (strpos($firstNorm, '/') !== false) {
+                $cand = substr($firstNorm, 0, strpos($firstNorm, '/') + 1);
+                $isCoreTop = false;
+                foreach (self::CORE_PATHS as $p) {
+                    if (strpos($p, $cand) === 0) {
+                        $isCoreTop = true;
+                    }
+                }
+                if (!$isCoreTop) {
+                    $prefix = $cand;
+                }
+            }
+        }
+
+        $installed = [];
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $rawName = (string)$zip->getNameIndex($i);
+            $name = str_replace('\\', '/', $rawName);
+            if (substr($name, -1) === '/') {
+                continue;
+            }
+            $rel = substr($name, strlen($prefix));
+
+            // Nur Dateien von fehlenden offiziellen Plugins extrahieren
+            $matchSlug = null;
+            foreach ($missing as $slug) {
+                if (str_starts_with($rel, 'plugins/' . $slug . '/')) {
+                    $matchSlug = $slug;
+                    break;
+                }
+            }
+
+            if (!$matchSlug || !self::isAllowedPath($rel)) {
+                continue;
+            }
+
+            $target = $root . '/' . $rel;
+            $dir = dirname($target);
+            if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+                continue;
+            }
+
+            $stream = $zip->getStream($rawName);
+            if ($stream) {
+                $out = @fopen($target, 'wb');
+                if ($out) {
+                    stream_copy_to_stream($stream, $out);
+                    fclose($out);
+                    if (!in_array($matchSlug, $installed, true)) {
+                        $installed[] = $matchSlug;
+                    }
+                }
+                fclose($stream);
+            }
+        }
+
+        $zip->close();
+        if ($tempZip) {
+            @unlink($tempZip);
+        }
+
+        if (class_exists('PluginManager')) {
+            PluginManager::clearCache();
+        }
+
+        if (!empty($installed)) {
+            return [
+                'success' => true,
+                'message' => 'Folgende fehlende Plugins wurden erfolgreich synchronisiert und installiert: ' . implode(', ', $installed),
+                'installed' => $installed
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Im Update-Paket wurden keine Dateien für die fehlenden Plugins (' . implode(', ', $missing) . ') gefunden.',
+            'installed' => []
+        ];
     }
 
     // ------------------------------------------------------------------

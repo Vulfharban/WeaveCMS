@@ -30,6 +30,33 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
         </div>
     </div>
 
+    <?php 
+    $missing_official = class_exists('PluginManager') ? PluginManager::getMissingOfficialPlugins() : [];
+    if (!empty($missing_official)): 
+    ?>
+        <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 14px 18px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span class="material-icons" style="font-size: 28px; color: #2563eb;">download_for_offline</span>
+                <div>
+                    <strong style="color: #1e40af; font-size: 0.95rem;">
+                        <?php echo __a('admin.plugins.missing_official_title', 'Offizielle Plugins nachinstallieren ({count})', null, ['count' => count($missing_official)]); ?>
+                    </strong>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px;">
+                        <?php echo __a('admin.plugins.missing_official_desc', 'Folgende im Release enthaltene Plugins sind noch nicht auf diesem Server vorhanden: {plugins}', null, ['plugins' => '<code>' . htmlspecialchars(implode(', ', $missing_official)) . '</code>']); ?>
+                    </div>
+                </div>
+            </div>
+            <form method="POST" action="" style="margin: 0;">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="action" value="sync_missing_plugins">
+                <button type="submit" class="btn btn-primary" style="padding: 7px 16px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="material-icons" style="font-size: 16px;">cloud_download</span>
+                    <?php echo __a('admin.plugins.btn_sync_missing', 'Fehlende Plugins jetzt nachinstallieren'); ?>
+                </button>
+            </form>
+        </div>
+    <?php endif; ?>
+
     <?php if (empty($all_plugins)): ?>
         <div style="background: rgba(0,0,0,0.02); border: 2px dashed var(--border-color); border-radius: 16px; padding: 3rem 2rem; text-align:center;">
             <span class="material-icons" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 1rem;">extension_off</span>
