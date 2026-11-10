@@ -78,3 +78,4 @@ if ($testsPassed === $testsTotal) {
     echo "EINIGE TESTS SIND FEHLGESCHLAGEN! ✗\n";
     exit(1);
 }
+

@@ -98,6 +98,8 @@ class AdminController {
             case 'toggle_plugin':
             case 'save_plugin_settings':
             case 'sync_missing_plugins':
+            case 'update_plugin':
+            case 'check_plugin_update':
                 self::handlePluginAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
@@ -357,6 +359,35 @@ class AdminController {
         $slug = preg_replace('/[^a-z0-9_-]/', '', strtolower($_POST['plugin_slug'] ?? ''));
         if (empty($slug)) {
             $error_msg = 'Ungültige Plugin-Kennung.';
+            return;
+        }
+
+        if ($action === 'update_plugin') {
+            if (!class_exists('PluginUpdater')) {
+                require_once dirname(__DIR__) . '/php/PluginUpdater.php';
+            }
+            $res = PluginUpdater::run($slug, null, $data);
+            if ($res['success']) {
+                $success_msg = '✓ ' . htmlspecialchars($res['message']);
+            } else {
+                $error_msg = htmlspecialchars($res['message']);
+            }
+            return;
+        }
+
+        if ($action === 'check_plugin_update') {
+            if (class_exists('UpdateManager')) {
+                $res = UpdateManager::checkSinglePluginUpdate($slug, null, true);
+                if ($res && !empty($res['update_available'])) {
+                    $success_msg = "✓ Neues Update für Plugin '{$res['name']}' verfügbar: v{$res['latest_version']}!";
+                } elseif ($res) {
+                    $success_msg = "✓ Plugin '{$res['name']}' (v{$res['installed_version']}) ist auf dem neuesten Stand.";
+                } else {
+                    $error_msg = "Für das Plugin '{$slug}' ist kein Update-Repository (github_repo) in plugin.json hinterlegt.";
+                }
+            } else {
+                $error_msg = 'UpdateManager-Klasse nicht verfügbar.';
+            }
             return;
         }
 

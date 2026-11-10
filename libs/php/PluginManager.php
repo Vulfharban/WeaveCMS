@@ -75,6 +75,46 @@ class PluginManager {
     }
 
     /**
+     * Prüft, ob die angegebene Mindestanforderung mit der aktuellen WeaveCMS-Version kompatibel ist.
+     * Unterstützt '*', '>=X.Y.Z', '>X.Y.Z', '^X.Y', '~X.Y' etc.
+     *
+     * @param string $requirement z.B. '>=1.3.0', '^1.3', '*'
+     * @param string|null $currentVersion Optionale Version (Standard: WEAVE_VERSION)
+     * @return bool
+     */
+    public static function isCoreCompatible(string $requirement, ?string $currentVersion = null): bool {
+        $cur = $currentVersion ?? (defined('WEAVE_VERSION') ? WEAVE_VERSION : '1.0.0');
+        $req = trim($requirement);
+        if ($req === '' || $req === '*') {
+            return true;
+        }
+
+        if (preg_match('/^>=?\s*([0-9a-zA-Z.\-]+)$/', $req, $m)) {
+            $op = str_starts_with($req, '>=') ? '>=' : '>';
+            return version_compare($cur, $m[1], $op);
+        }
+        if (preg_match('/^<=?\s*([0-9a-zA-Z.\-]+)$/', $req, $m)) {
+            $op = str_starts_with($req, '<=') ? '<=' : '<';
+            return version_compare($cur, $m[1], $op);
+        }
+        if (preg_match('/^\^([0-9]+)\.([0-9]+)(?:\.([0-9]+))?$/', $req, $m)) {
+            $major = (int)$m[1];
+            $minVer = $m[1] . '.' . $m[2] . '.' . ($m[3] ?? '0');
+            $maxVer = ($major + 1) . '.0.0';
+            return version_compare($cur, $minVer, '>=') && version_compare($cur, $maxVer, '<');
+        }
+        if (preg_match('/^~([0-9]+)\.([0-9]+)(?:\.([0-9]+))?$/', $req, $m)) {
+            $major = (int)$m[1];
+            $minor = (int)$m[2];
+            $minVer = $m[1] . '.' . $m[2] . '.' . ($m[3] ?? '0');
+            $maxVer = $major . '.' . ($minor + 1) . '.0';
+            return version_compare($cur, $minVer, '>=') && version_compare($cur, $maxVer, '<');
+        }
+
+        return version_compare($cur, $req, '>=');
+    }
+
+    /**
      * Leert den internen Discovery-Cache.
      */
     public static function clearCache(): void {

@@ -173,17 +173,45 @@ class UpdateManager {
     }
 
     /**
-     * Prüft alle installierten Plugins auf verfügbare Git-Updates.
-     * @param array $allPlugins Ergebnis aus PluginManager::getAllPlugins($data)
-     * @param bool $forceRefresh
-     * @return array [ slug => [ 'update_available' => bool, 'installed_version' => string, 'latest_version' => string, 'repo' => string, 'release_url' => string ], ... ]
+     * Normalisiert ein GitHub-Repository (akzeptiert 'owner/repo', GitHub-URLs etc.).
      */
-    public static function checkPluginUpdates(array $allPlugins, bool $forceRefresh = false): array {
-        $updates = [];
+    public static function normalizeGitHubRepo(?string $repo): ?string {
+        if (empty($repo) || !is_string($repo)) {
+            return null;
+        }
+        $repo = trim($repo);
+        if (preg_match('~github\.com[:/]([^/]+/[^/]+?)(?:\.git|/|#|$)~i', $repo, $m)) {
+            $repo = $m[1];
+        }
+        $clean = trim($repo, '/');
+        if (preg_match('/^[a-zA-Z0-9_\.-]+\/[a-zA-Z0-9_\.-]+$/', $clean)) {
+            return $clean;
+        }
+        return null;
+    }
+
+    /**
+     * Prüft ein einzelnes Plugin auf verfügbare Updates (GitHub Releases oder Update-URL).
+     * @param string $slug Eindeutiger Slug des Plugins
+     * @param array|null $plugin Optionale Manifestdaten des Plugins
+     * @param bool $forceRefresh
+     * @return array|null
+     */
+    public static function checkSinglePluginUpdate(string $slug, ?array $plugin = null, bool $forceRefresh = false): ?array {
+        if ($plugin === null && class_exists('PluginManager')) {
+            $plugin = PluginManager::getPlugin($slug);
+        }
+        if (!$plugin || !is_array($plugin)) {
+            return null;
+        }
+
+        $repo = self::normalizeGitHubRepo($plugin['github_repo'] ?? $plugin['repository'] ?? null);
+        $updateUrl = $plugin['update_url'] ?? null;
+        $installedVer = (string)($plugin['version'] ?? '1.0.0');
         $cacheFile = self::getCacheDir() . '/plugins_version.json';
         $cachedAll = [];
 
-        if (!$forceRefresh && file_exists($cacheFile)) {
+        if (file_exists($cacheFile)) {
             $cachedRaw = json_decode((string)@file_get_contents($cacheFile), true);
             if (is_array($cachedRaw)) {
                 $cachedAll = $cachedRaw;
@@ -191,31 +219,66 @@ class UpdateManager {
         }
 
         $now = time();
-        $cacheModified = false;
 
-        foreach ($allPlugins as $slug => $plugin) {
-            $repo = $plugin['github_repo'] ?? $plugin['repository'] ?? null;
-            $installedVer = $plugin['version'] ?? '1.0.0';
+        // Cache prüfen
+        if (!$forceRefresh && isset($cachedAll[$slug]) && ($now - ($cachedAll[$slug]['checked_at'] ?? 0)) < self::CACHE_LIFETIME) {
+            $item = $cachedAll[$slug];
+            $item['installed_version'] = $installedVer;
+            $item['update_available'] = version_compare($installedVer, $item['latest_version'] ?? '1.0.0', '<');
+            return $item;
+        }
 
-            if (empty($repo) || !is_string($repo)) {
-                continue;
-            }
+        $item = null;
 
-            // Prüfen ob Cache für dieses Plugin noch gültig ist
-            if (!$forceRefresh && isset($cachedAll[$slug]) && ($now - ($cachedAll[$slug]['checked_at'] ?? 0)) < self::CACHE_LIFETIME) {
-                $item = $cachedAll[$slug];
-                $item['update_available'] = version_compare($installedVer, $item['latest_version'] ?? '1.0.0', '<');
-                $item['installed_version'] = $installedVer;
-                if ($item['update_available']) {
-                    $updates[$slug] = $item;
-                }
-                continue;
-            }
-
-            // Remote prüfen
+        // 1. GitHub Releases abfragen
+        if (!empty($repo)) {
             $remoteData = self::fetchGitHubLatestRelease($repo);
             if ($remoteData && !empty($remoteData['tag_name'])) {
                 $latestVer = ltrim($remoteData['tag_name'], 'vV');
+
+                // Asset-ZIP oder Zipball suchen
+                $zipUrl = '';
+                $sha256 = '';
+                $updateAsset = null;
+                $fallbackZip = null;
+
+                foreach ($remoteData['assets'] ?? [] as $asset) {
+                    if (!is_array($asset) || empty($asset['browser_download_url'])) {
+                        continue;
+                    }
+                    $assetName = (string)($asset['name'] ?? '');
+
+                    $assetDigest = '';
+                    if (!empty($asset['digest']) && preg_match('/(?:sha256:)?([a-f0-9]{64})/i', (string)$asset['digest'], $dm)) {
+                        $assetDigest = strtolower($dm[1]);
+                    }
+
+                    if (preg_match('/\.zip$/i', $assetName)) {
+                        if (preg_match('/(^|[\-_])' . preg_quote($slug, '/') . '([\-_]|\.zip$)/i', $assetName) || preg_match('/(^|[\-_])plugin([\-_]|\.zip$)/i', $assetName) || preg_match('/(^|[\-_])update([\-_]|\.zip$)/i', $assetName)) {
+                            $updateAsset = $asset['browser_download_url'];
+                            if ($assetDigest !== '') $sha256 = $assetDigest;
+                            break;
+                        }
+                        if ($fallbackZip === null) {
+                            $fallbackZip = $asset['browser_download_url'];
+                            if ($assetDigest !== '') $sha256 = $assetDigest;
+                        }
+                    }
+                }
+
+                if ($updateAsset !== null) {
+                    $zipUrl = $updateAsset;
+                } elseif ($fallbackZip !== null) {
+                    $zipUrl = $fallbackZip;
+                } elseif (!empty($remoteData['zipball_url'])) {
+                    // Fallback: GitHub Source Code Zipball
+                    $zipUrl = $remoteData['zipball_url'];
+                }
+
+                if ($sha256 === '') {
+                    $sha256 = self::extractSha256((string)($remoteData['body'] ?? ''));
+                }
+
                 $item = [
                     'slug'              => $slug,
                     'name'              => $plugin['name'] ?? ucfirst($slug),
@@ -223,23 +286,128 @@ class UpdateManager {
                     'latest_version'    => $latestVer,
                     'repo'              => $repo,
                     'release_url'       => $remoteData['html_url'] ?? "https://github.com/{$repo}/releases",
+                    'zip_url'           => $zipUrl,
+                    'sha256'            => $sha256,
+                    'changelog'         => (string)($remoteData['body'] ?? ''),
                     'update_available'  => version_compare($installedVer, $latestVer, '<'),
                     'checked_at'        => $now
                 ];
-                $cachedAll[$slug] = $item;
-                $cacheModified = true;
+            }
+        } elseif (!empty($updateUrl) && preg_match('~^https://~i', $updateUrl)) {
+            // 2. Custom JSON Manifest abfragen
+            $remoteData = self::fetchJsonFromUrl($updateUrl);
+            if ($remoteData && !empty($remoteData['latest_version'])) {
+                $latestVer = ltrim((string)$remoteData['latest_version'], 'vV');
+                $item = [
+                    'slug'              => $slug,
+                    'name'              => $plugin['name'] ?? ucfirst($slug),
+                    'installed_version' => $installedVer,
+                    'latest_version'    => $latestVer,
+                    'repo'              => '',
+                    'release_url'       => $remoteData['changelog_url'] ?? $remoteData['release_url'] ?? $updateUrl,
+                    'zip_url'           => $remoteData['download_url'] ?? $remoteData['zip_url'] ?? '',
+                    'sha256'            => self::extractSha256((string)($remoteData['sha256'] ?? $remoteData['checksum'] ?? '')),
+                    'changelog'         => (string)($remoteData['changelog'] ?? ''),
+                    'update_available'  => version_compare($installedVer, $latestVer, '<'),
+                    'checked_at'        => $now
+                ];
+            }
+        }
 
-                if ($item['update_available']) {
-                    $updates[$slug] = $item;
+        if ($item) {
+            $cachedAll[$slug] = $item;
+            @file_put_contents($cacheFile, json_encode($cachedAll));
+            return $item;
+        }
+
+        return null;
+    }
+
+    /**
+     * Leert den Plugin-Update-Cache (optional für ein bestimmtes Plugin).
+     */
+    public static function clearPluginUpdateCache(?string $slug = null): void {
+        $cacheFile = self::getCacheDir() . '/plugins_version.json';
+        if (!file_exists($cacheFile)) {
+            return;
+        }
+        if ($slug === null) {
+            @unlink($cacheFile);
+            return;
+        }
+        $cached = json_decode((string)@file_get_contents($cacheFile), true);
+        if (is_array($cached) && isset($cached[$slug])) {
+            unset($cached[$slug]);
+            @file_put_contents($cacheFile, json_encode($cached));
+        }
+    }
+
+    /**
+     * Prüft alle installierten Plugins auf verfügbare Git-Updates.
+     * @param array $allPlugins Ergebnis aus PluginManager::getAllPlugins($data)
+     * @param bool $forceRefresh
+     * @return array [ slug => [ 'update_available' => bool, 'installed_version' => string, 'latest_version' => string, 'repo' => string, 'release_url' => string, 'zip_url' => string, 'sha256' => string ], ... ]
+     */
+    public static function checkPluginUpdates(array $allPlugins, bool $forceRefresh = false): array {
+        $updates = [];
+
+        foreach ($allPlugins as $slug => $plugin) {
+            $item = self::checkSinglePluginUpdate($slug, $plugin, $forceRefresh);
+            if ($item && !empty($item['update_available'])) {
+                $updates[$slug] = $item;
+            }
+        }
+
+        return $updates;
+    }
+
+    /**
+     * Lädt JSON-Metadaten sicher von einer beliebigen HTTPS-URL.
+     */
+    protected static function fetchJsonFromUrl(string $url): ?array {
+        if (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            $curlOpts = [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_USERAGENT      => 'WeaveCMS-PluginUpdateChecker/' . (defined('WEAVE_VERSION') ? WEAVE_VERSION : '1.0.0'),
+                CURLOPT_TIMEOUT        => 4,
+                CURLOPT_CONNECTTIMEOUT => 3,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_FOLLOWLOCATION => true
+            ];
+            if (defined('CURLOPT_SSL_OPTIONS') && defined('CURLSSLOPT_NATIVE_CA')) {
+                $curlOpts[CURLOPT_SSL_OPTIONS] = CURLSSLOPT_NATIVE_CA;
+            }
+            curl_setopt_array($ch, $curlOpts);
+            $body = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($httpCode === 200 && is_string($body)) {
+                $parsed = json_decode($body, true);
+                if (is_array($parsed)) {
+                    return $parsed;
                 }
             }
         }
 
-        if ($cacheModified) {
-            @file_put_contents($cacheFile, json_encode($cachedAll));
+        if (ini_get('allow_url_fopen')) {
+            $ctx = stream_context_create([
+                'http' => [
+                    'method'  => 'GET',
+                    'header'  => "User-Agent: WeaveCMS-PluginUpdateChecker\r\n",
+                    'timeout' => 4
+                ],
+                'ssl' => [
+                    'verify_peer' => true
+                ]
+            ]);
+            $body = @file_get_contents($url, false, $ctx);
+            if ($body !== false) {
+                $parsed = json_decode($body, true);
+                return is_array($parsed) ? $parsed : null;
+            }
         }
 
-        return $updates;
+        return null;
     }
 
     /**

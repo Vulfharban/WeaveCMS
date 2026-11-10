@@ -21,6 +21,9 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
             </p>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
+            <a href="?tab=tab-plugins&check_updates=1" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem; display:inline-flex; align-items:center; gap:5px;" title="<?php echo htmlspecialchars(__a('admin.plugins.btn_check_all_updates', 'Alle Plugins auf Updates prüfen')); ?>">
+                <span class="material-icons" style="font-size:15px;">sync</span> <?php echo __a('admin.plugins.btn_check_all_updates', 'Updates prüfen'); ?>
+            </a>
             <span style="background: rgba(46,98,72,0.1); color: var(--primary); font-size: 0.85rem; font-weight: 700; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(46,98,72,0.2);">
                 <?php 
                     $active_count = count(array_filter($all_plugins, fn($p) => !empty($p['active'])));
@@ -106,13 +109,33 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
                                         'author' => '<strong>' . htmlspecialchars($plugin['author']) . '</strong>',
                                         'slug' => '<code>' . htmlspecialchars($slug) . '</code>'
                                     ]); ?>
+                                    <?php 
+                                    $repoTarget = $plugin['github_repo'] ?? $plugin['repository'] ?? null;
+                                    if (!empty($repoTarget)): 
+                                        $repoUrl = str_starts_with($repoTarget, 'http') ? $repoTarget : 'https://github.com/' . ltrim($repoTarget, '/');
+                                    ?>
+                                        • <a href="<?php echo htmlspecialchars($repoUrl); ?>" target="_blank" rel="noopener noreferrer" style="color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:3px;">
+                                            <span class="material-icons" style="font-size:13px;">code</span> <?php echo htmlspecialchars(basename(parse_url($repoUrl, PHP_URL_PATH) ?? 'Repo')); ?>
+                                        </a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Status & Toggle -->
-                        <div style="display:flex; align-items:center; gap: 10px;">
-                            <form method="POST" action="" style="display:inline;">
+                        <div style="display:flex; align-items:center; gap: 10px; flex-wrap:wrap;">
+                            <?php if (!empty($plugin['github_repo']) || !empty($plugin['repository']) || !empty($plugin['update_url'])): ?>
+                                <form method="POST" action="" style="display:inline; margin:0;">
+                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                    <input type="hidden" name="action" value="check_plugin_update">
+                                    <input type="hidden" name="plugin_slug" value="<?php echo htmlspecialchars($slug); ?>">
+                                    <button type="submit" class="btn btn-outline" style="display:inline-flex; align-items:center; gap:5px; font-size:0.85rem; padding: 7px 11px;" title="<?php echo htmlspecialchars(__a('admin.plugins.btn_check_plugin_update_tip', 'Dieses Plugin auf GitHub/Server nach Updates prüfen')); ?>">
+                                        <span class="material-icons" style="font-size:15px;">sync</span> <?php echo __a('admin.plugins.btn_check_plugin_update', 'Update prüfen'); ?>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+
+                            <form method="POST" action="" style="display:inline; margin:0;">
                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                 <input type="hidden" name="action" value="toggle_plugin">
                                 <input type="hidden" name="plugin_slug" value="<?php echo htmlspecialchars($slug); ?>">
@@ -136,6 +159,31 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
                             <?php endif; ?>
                         </div>
                     </div>
+
+                    <?php if (!empty($plugin_updates[$slug]) && !empty($plugin_updates[$slug]['update_available'])): 
+                        $pUp = $plugin_updates[$slug];
+                    ?>
+                        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; padding: 10px 14px; margin-bottom: 1rem; font-size: 0.88rem; color: #92400e; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="material-icons" style="font-size: 20px; color: #d97706; flex-shrink: 0;">system_update_alt</span>
+                                <div>
+                                    <strong><?php echo __a('admin.plugins.update_available_title', 'Update verfügbar:'); ?> v<?php echo htmlspecialchars($plugin['version']); ?> &rarr; v<?php echo htmlspecialchars($pUp['latest_version']); ?></strong>
+                                    <?php if (!empty($pUp['release_url'])): ?>
+                                        <a href="<?php echo htmlspecialchars($pUp['release_url']); ?>" target="_blank" rel="noopener noreferrer" style="color: #b45309; text-decoration: underline; margin-left: 8px; font-size: 0.82rem;"><?php echo __a('admin.plugins.view_changelog', 'Changelog ansehen →'); ?></a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <form method="POST" action="" onsubmit="return confirm('<?php echo htmlspecialchars(addslashes(__a('admin.plugins.confirm_update', 'Möchtest du das Plugin jetzt wirklich auf die neue Version aktualisieren? Ein automatisches Backup wird vor dem Update erstellt.'))); ?>');" style="margin: 0;">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                <input type="hidden" name="action" value="update_plugin">
+                                <input type="hidden" name="plugin_slug" value="<?php echo htmlspecialchars($slug); ?>">
+                                <button type="submit" class="btn" style="background: #f59e0b; color: #fff; font-weight: 600; padding: 6px 14px; font-size: 0.85rem; border: none; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                    <span class="material-icons" style="font-size: 16px;">download</span>
+                                    <?php echo __a('admin.plugins.btn_install_update', 'Jetzt auf v{version} aktualisieren', null, ['version' => htmlspecialchars($pUp['latest_version'])]); ?>
+                                </button>
+                            </form>
+                        </div>
+                    <?php endif; ?>
 
                     <?php if (!empty($pluginIssues)): ?>
                         <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 8px 12px; margin-bottom: 1rem; font-size: 0.85rem; color: #92400e; display: flex; align-items: center; gap: 8px;">

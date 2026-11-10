@@ -11,17 +11,18 @@ Diese Dokumentation bietet eine strukturierte Übersicht über alle offiziellen 
 ## Inhaltsverzeichnis
 
 1. [Plugin-Architektur & Manifest-Standard](#plugin-architektur--manifest-standard)
-2. [Weave Games (`weave-games`)](#1-weave-games-weave-games)
-3. [Weave Shop (`weave-shop`)](#2-weave-shop-weave-shop)
-4. [Weave Inventory (`weave-inventory`)](#3-weave-inventory-weave-inventory)
-5. [Weave Helpdesk (`weave-helpdesk`)](#4-weave-helpdesk-weave-helpdesk)
-6. [Weave Forum (`weave-forum`)](#5-weave-forum-weave-forum)
-7. [Weave Forum-Benutzerverwaltung (`weave-forum-users`)](#6-weave-forum-benutzerverwaltung-weave-forum-users)
-8. [Weave Downloads & Dokumente (`weave-downloads`)](#7-weave-downloads--dokumente-weave-downloads)
-9. [Weave Workshops & Kursbuchungen (`weave-workshops`)](#8-weave-workshops--kursbuchungen-weave-workshops)
-10. [webtrees Genealogie (`webtrees-genealogy`)](#9-webtrees-genealogie-webtrees-genealogy)
-11. [Universal Integrations (`universal-integrations`)](#10-universal-integrations-universal-integrations)
-12. [Interaktive Sandbox & Live-Demo (`interactive-sandbox`)](#11-interaktive-sandbox--live-demo-interactive-sandbox)
+2. [Automatische Updates via GitHub & 3rd-Party-Repositories](#automatische-updates-via-github--3rd-party-repositories)
+3. [Weave Games (`weave-games`)](#1-weave-games-weave-games)
+4. [Weave Shop (`weave-shop`)](#2-weave-shop-weave-shop)
+5. [Weave Inventory (`weave-inventory`)](#3-weave-inventory-weave-inventory)
+6. [Weave Helpdesk (`weave-helpdesk`)](#4-weave-helpdesk-weave-helpdesk)
+7. [Weave Forum (`weave-forum`)](#5-weave-forum-weave-forum)
+8. [Weave Forum-Benutzerverwaltung (`weave-forum-users`)](#6-weave-forum-benutzerverwaltung-weave-forum-users)
+9. [Weave Downloads & Dokumente (`weave-downloads`)](#7-weave-downloads--dokumente-weave-downloads)
+10. [Weave Workshops & Kursbuchungen (`weave-workshops`)](#8-weave-workshops--kursbuchungen-weave-workshops)
+11. [webtrees Genealogie (`webtrees-genealogy`)](#9-webtrees-genealogie-webtrees-genealogy)
+12. [Universal Integrations (`universal-integrations`)](#10-universal-integrations-universal-integrations)
+13. [Interaktive Sandbox & Live-Demo (`interactive-sandbox`)](#11-interaktive-sandbox--live-demo-interactive-sandbox)
 
 ---
 
@@ -39,9 +40,11 @@ Jedes WeaveCMS-Plugin ist als eigenständiger Ordner in `/plugins/<slug>/` gekap
     "category": "e-commerce | gaming | service | community | tools | media | events",
     "icon": "material_icon_name",
     "entry_file": "plugin.php",
-    "requires_core": ">=1.0.0",
+    "requires_core": ">=1.3.0",
     "requires_plugins": [],
-    "settings_tab": "weave-plugin-slug"
+    "settings_tab": "weave-plugin-slug",
+    "github_repo": "owner/repository",
+    "update_url": "https://example.com/plugin_manifest.json"
 }
 ```
 
@@ -49,6 +52,75 @@ Jedes WeaveCMS-Plugin ist als eigenständiger Ordner in `/plugins/<slug>/` gekap
 * **Ereignis-Hooks (Actions):** `PluginManager::addAction('hook_name', callable $callback, int $priority = 10)`
 * **Filter-Hooks (Filters):** `PluginManager::addFilter('filter_name', callable $callback, int $priority = 10)`
 * **Aktivierung & Status:** Verwaltet in `data.json` unter `plugins.active` und `plugins.configs.<slug>`.
+* **Core-Kompatibilitätsprüfung:** `PluginManager::isCoreCompatible($requirement)` prüft SemVer-Bedingungen (`>=1.3.0`, `^1.3`, `*`).
+
+---
+
+## Automatische Updates via GitHub & 3rd-Party-Repositories
+
+Jedes Plugin kann unabhängig vom CMS-Core aktualisiert werden. Die Update-Logik orientiert sich am GitHub-Release-Standard des Core-Updaters und wird vom [`PluginUpdater`](../php/PluginUpdater.php) und [`UpdateManager`](../php/UpdateManager.php) gesteuert.
+
+### 1. Update-Quelle in `plugin.json` deklarieren
+
+In `plugin.json` wird entweder ein GitHub-Repository oder eine benutzerdefinierte JSON-Manifest-URL angegeben:
+
+```json
+{
+    "github_repo": "acme-corp/weave-my-plugin"
+}
+```
+*Unterstützte Formate:*
+* `owner/repository`
+* `https://github.com/owner/repository`
+* `https://github.com/owner/repository.git`
+
+Alternativ für eigene Update-Server:
+```json
+{
+    "update_url": "https://updates.example.com/weave-my-plugin.json"
+}
+```
+
+Format des Custom JSON-Manifests:
+```json
+{
+    "version": "1.4.0",
+    "zip_url": "https://updates.example.com/packages/weave-my-plugin-1.4.0.zip",
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "requires_core": ">=1.3.0",
+    "release_url": "https://updates.example.com/releases/v1.4.0.html",
+    "changelog": "Neue Zahlungs-Schnittstelle und Leistungsoptimierung."
+}
+```
+
+### 2. GitHub-Releases veröffentlichen (Best Practices)
+
+1. **Semantische Versions-Tags:**  
+   Erstelle ein GitHub Release mit einem semantischen Tag, z. B. `v1.4.0` oder `1.4.0`.
+2. **Release-Paket (ZIP):**
+   * **Bevorzugt:** Lade als Release-Asset ein ZIP-Archiv hoch (z. B. `weave-my-plugin-v1.4.0.zip`), das den Plugin-Inhalt enthält.
+   * **Fallback:** Falls kein Asset angehängt wird, nutzt WeaveCMS automatisch den GitHub-Quellcode-Zipball (`zipball_url`). Der `PluginUpdater` erkennt automatisch die verschachtelte Verzeichnisstruktur `<owner>-<repo>-<sha>/` und navigiert zum Stammverzeichnis der `plugin.json`.
+3. **SHA-256 Prüfsumme (Optional, dringend empfohlen):**  
+   Füge in den Beschreibungstext (Release Body) des GitHub Releases die SHA-256 Prüfsumme des ZIP-Archivs ein:
+   ```markdown
+   ## Änderungen in v1.4.0
+   - Feature X hinzugefügt
+   - Bugfix Y behoben
+
+   SHA256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+   ```
+   WeaveCMS parst diese Prüfsumme automatisch und verifiziert das heruntergeladene Paket vor der Installation.
+4. **Mindestversion des CMS angeben (`requires_core`):**  
+   Stelle sicher, dass die neue `plugin.json` im Release-Archiv das Feld `"requires_core"` pflegt (z. B. `">=1.3.0"`). WeaveCMS bricht das Update vorab sicher ab, falls der Server noch eine veraltete CMS-Core-Version nutzt.
+
+### 3. Der Update-Ablauf im WeaveCMS-Backend
+
+1. **Prüfung:** Der Administrator klickt im Adminbereich unter *Plugins* auf **Updates prüfen** (oder gezielt neben dem Plugin). WeaveCMS fragt die GitHub API (`/repos/{owner}/{repo}/releases/latest`) ab und cacht das Ergebnis.
+2. **Benachrichtigung:** Wenn eine neuere Version verfügbar ist, erscheint ein gelbes Update-Banner mit Versionssprung, Link zum Changelog und 1-Klick-Button **Jetzt auf v{version} aktualisieren**.
+3. **Automatisches Pre-Update-Backup:** Vor dem Überschreiben archiviert `PluginUpdater` den aktuellen Plugin-Ordner vollständig unter `backups/plugins/plugin_<slug>_<datum>_v<alt>.zip`.
+4. **Atomarer Dateiaustausch:** Die Dateien werden temporär bereitgestellt und atomar ersetzt.
+5. **Rollback im Fehlerfall:** Sollte während des Austauschs ein Schreibfehler auftreten, wird das Plugin automatisch aus dem Pre-Update-Backup wiederhergestellt.
+6. **Cache-Invalidierung & Audit-Log:** `PluginManager::clearCache()` und OPCache werden zurückgesetzt und ein Audit-Event (`PLUGIN_UPDATE`) wird protokolliert.
 
 ---
 

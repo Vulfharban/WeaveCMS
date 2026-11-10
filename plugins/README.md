@@ -34,8 +34,10 @@ Jedes Plugin muss eine gültige `plugin.json` enthalten:
   "category": "integration",
   "icon": "extension",
   "entry_file": "plugin.php",
-  "requires_core": ">=0.4.0",
-  "settings_tab": "mein_plugin_tab"
+  "requires_core": ">=1.3.0",
+  "settings_tab": "mein_plugin_tab",
+  "github_repo": "owner/repository",
+  "update_url": "https://example.com/plugin_manifest.json"
 }
 ```
 
@@ -112,3 +114,24 @@ $config = PluginManager::getPluginConfig('mein-plugin', $data, ['default_key' =>
 PluginManager::savePluginConfig('mein-plugin', $newConfig, $data);
 save_data($dataFile, $data);
 ```
+
+---
+
+## 5. Automatische Updates via GitHub & Remote-Endpunkte
+
+Jedes 3rd-Party Plugin kann sich unabhängig vom CMS-Core über GitHub Releases oder alternative JSON-Manifeste aktualisieren:
+
+### Deklaration in `plugin.json`
+```json
+{
+  "github_repo": "mein-user/mein-plugin"
+}
+```
+*Optional für eigene Update-Server:* `"update_url": "https://mein-server.de/update.json"`
+
+### GitHub Release Richtlinien
+1. **Tag & Release:** Erstelle ein GitHub Release mit SemVer-Tag (z. B. `v1.1.0`).
+2. **Release ZIP:** Lade entweder ein Release-Asset ZIP hoch oder nutze den automatischen Quellcode-Zipball von GitHub. WeaveCMS erkennt das Verzeichnis der `plugin.json` automatisch und schützt vor Zip-Slip.
+3. **Integritätsprüfung:** Gib im Release-Text optional `SHA256: <hash>` an – WeaveCMS prüft die Prüfsumme vor dem Entpacken.
+4. **Core-Kompatibilität:** Definiere `"requires_core": ">=1.3.0"`, um inkompatible CMS-Installationen vor Fehlern zu schützen.
+5. **Pre-Update-Backup:** WeaveCMS sichert das bestehende Plugin vor jedem Update automatisch unter `backups/plugins/` und führt bei Fehlern ein sofortiges Rollback durch.
