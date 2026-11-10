@@ -137,20 +137,22 @@ function buildReleaseZip(string $root, string $version, string $buildType): arra
 
     $zip->close();
     $sizeMb = round(filesize($zipPath) / (1024 * 1024), 2);
+    $sha256 = hash_file('sha256', $zipPath);
 
     return [
         'type' => $buildType,
         'filename' => $filename,
         'path' => $zipPath,
         'files' => $fileCount,
-        'sizeMb' => $sizeMb
+        'sizeMb' => $sizeMb,
+        'sha256' => $sha256
     ];
 }
 
 /**
  * Synchronisiert die Versionsangaben und Dateigrößen automatisch mit der README.md.
  */
-function syncReadmeVersion(string $root, string $version): array {
+function syncReadmeVersion(string $root, string $version, array $hashes = []): array {
     $readmePath = $root . '/README.md';
     if (!file_exists($readmePath)) {
         return ['success' => false, 'error' => 'README.md nicht gefunden'];
@@ -167,6 +169,8 @@ function syncReadmeVersion(string $root, string $version): array {
 
     $fullMb = file_exists($fullZip) ? round(filesize($fullZip) / (1024 * 1024), 2) : null;
     $updateMb = file_exists($updateZip) ? round(filesize($updateZip) / (1024 * 1024), 2) : null;
+    $fullSha = $hashes['full'] ?? (file_exists($fullZip) ? hash_file('sha256', $fullZip) : '');
+    $updateSha = $hashes['update'] ?? (file_exists($updateZip) ? hash_file('sha256', $updateZip) : '');
 
     // 1. Überschrift: ## Releases & Downloads (vX.Y.Z)
     $content = preg_replace(
@@ -176,22 +180,16 @@ function syncReadmeVersion(string $root, string $version): array {
     );
 
     // 2. Full Package Download-Link & Größe
-    $content = preg_replace_callback(
-        '/^-\s*📦\s*\*\*\[WeaveCMS\s+v[^\s\]]+\s+Full\s+Package\]\([^)]+\)\*\*\s*\(`[^`]+`,\s*([0-9.]+)\s*MB\)/m',
-        function ($matches) use ($version, $fullMb) {
-            $mbStr = ($fullMb !== null) ? number_format($fullMb, 2, '.', '') : $matches[1];
-            return "- 📦 **[WeaveCMS v{$version} Full Package](releases/weavecms-v{$version}.zip)** (`releases/weavecms-v{$version}.zip`, {$mbStr} MB)";
-        },
+    $content = preg_replace(
+        '/^-\s*📦\s*\*\*\[WeaveCMS\s+v[^\s\]]+\s+Full\s+Package\].*$/m',
+        "- 📦 **[WeaveCMS v{$version} Full Package](releases/weavecms-v{$version}.zip)** (`releases/weavecms-v{$version}.zip`, {$fullMb} MB) – Complete installation archive for new websites.",
         $content
     );
 
     // 3. Update Package Download-Link & Größe
-    $content = preg_replace_callback(
-        '/^-\s*🔄\s*\*\*\[WeaveCMS\s+v[^\s\]]+\s+Update\s+Package\]\([^)]+\)\*\*\s*\(`[^`]+`,\s*([0-9.]+)\s*MB\)/m',
-        function ($matches) use ($version, $updateMb) {
-            $mbStr = ($updateMb !== null) ? number_format($updateMb, 2, '.', '') : $matches[1];
-            return "- 🔄 **[WeaveCMS v{$version} Update Package](releases/update-v{$version}.zip)** (`releases/update-v{$version}.zip`, {$mbStr} MB)";
-        },
+    $content = preg_replace(
+        '/^-\s*🔄\s*\*\*\[WeaveCMS\s+v[^\s\]]+\s+Update\s+Package\].*$/m',
+        "- 🔄 **[WeaveCMS v{$version} Update Package](releases/update-v{$version}.zip)** (`releases/update-v{$version}.zip`, {$updateMb} MB) – Core system files for upgrading existing installations.",
         $content
     );
 
@@ -208,13 +206,31 @@ function syncReadmeVersion(string $root, string $version): array {
         'success' => true,
         'version' => $version,
         'fullMb' => $fullMb,
-        'updateMb' => $updateMb
+        'updateMb' => $updateMb,
+        'fullSha' => $fullSha,
+        'updateSha' => $updateSha
     ];
+}
+
+/**
+ * Aktualisiert version.json
+ */
+function syncVersionJson(string $root, string $version, ?string $updateSha256): void {
+    $versionJsonPath = $root . '/version.json';
+    $data = [
+        'latest_version' => $version,
+        'download_url' => "https://github.com/Vulfharban/WeaveCMS/releases/tag/v{$version}",
+        'update_download_url' => "https://github.com/Vulfharban/WeaveCMS/releases/download/v{$version}/update-v{$version}.zip",
+        'changelog' => "WeaveCMS v{$version} – Autonomes 3rd-Party Plugin-Update-System via GitHub Releases & CoreUpdater Pfad-Fix",
+        'update_sha256' => $updateSha256 ? "update: {$updateSha256}" : ""
+    ];
+    file_put_contents($versionJsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 }
 
 // Ausführung je nach Zieltyp
 $typesToBuild = ($targetType === 'all') ? ['full', 'update'] : [$targetType];
 $results = [];
+$hashes = [];
 
 echo "========================================================\n";
 echo "WeaveCMS Release Packaging (v{$version})\n";
@@ -223,23 +239,29 @@ echo "========================================================\n";
 foreach ($typesToBuild as $type) {
     $res = buildReleaseZip($root, $version, $type);
     $results[] = $res;
+    $hashes[$type] = $res['sha256'];
     echo "✓ Paket (" . strtoupper($res['type']) . "): {$res['filename']}\n";
     echo "  Dateien: {$res['files']} | Größe: {$res['sizeMb']} MB\n";
+    echo "  SHA-256: {$res['sha256']}\n";
 }
 
 // README automatisch synchronisieren
-$sync = syncReadmeVersion($root, $version);
+$sync = syncReadmeVersion($root, $version, $hashes);
 if ($sync['success']) {
     echo "--------------------------------------------------------\n";
     echo "✓ README.md automatisch auf v{$version} synchronisiert!\n";
     if ($sync['fullMb'] !== null) {
-        echo "  - Full Package:   {$sync['fullMb']} MB\n";
+        echo "  - Full Package:   {$sync['fullMb']} MB (SHA256: {$sync['fullSha']})\n";
     }
     if ($sync['updateMb'] !== null) {
-        echo "  - Update Package: {$sync['updateMb']} MB\n";
+        echo "  - Update Package: {$sync['updateMb']} MB (SHA256: {$sync['updateSha']})\n";
     }
 } else {
     echo "! Warnung: README.md Synchronisation fehlgeschlagen ({$sync['error']})\n";
 }
+
+// version.json synchronisieren
+syncVersionJson($root, $version, $hashes['update'] ?? ($sync['updateSha'] ?? null));
+echo "✓ version.json automatisch aktualisiert!\n";
 
 echo "========================================================\n";

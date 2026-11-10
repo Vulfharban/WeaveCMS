@@ -8,16 +8,26 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ## [v1.3.4.1] - 10. November 2026
 
-### 🔧 Fix: CoreUpdater Plugin-Verteilung & Auto-Synchronisation fehlender Plugins
+### 🚀 Autonomes 3rd-Party Plugin-Update-System & CoreUpdater-Fix
 
+- 🧩 **Autonomes 1-Klick-Update-System für 3rd-Party Plugins (`PluginUpdater`):**
+  - Jedes Plugin kann unabhängig vom CMS-Kern nach Updates suchen und sich per 1-Klick aktualisieren, ohne das gesamte CMS updaten zu müssen.
+  - Deklaration via `"github_repo": "owner/repo"` oder `"update_url": "https://..."` in `plugin.json`.
+  - **Sicherheit & Integrität:** HTTPS-Download (Native CA), Zip-Slip-Schutz, automatische Erkennung verschachtelter GitHub-Zipball-Verzeichnisse (`<owner>-<repo>-<sha>/`), optionale SHA-256 Validierung aus dem GitHub-Release-Body (`SHA256: <hash>`) und Core-Kompatibilitätsprüfung via `requires_core` (`PluginManager::isCoreCompatible`).
+  - **Pre-Update-Backup & Rollback:** Automatisches ZIP-Backup unter `backups/plugins/plugin_<slug>_<datum>_v<alt>.zip` vor jedem Überschreiben mit sofortigem automatischem Rollback im Fehlerfall.
+  - **Admin-UI:** Globaler Button *„Updates prüfen“*, *„Update prüfen“* je Plugin, Update-Banner mit Versionssprung, Changelog-Link und 1-Klick-Installationsbutton.
+- 📚 **Umfassende Dokumentation für Plugin-Entwickler:**
+  - Ausführlicher Leitfaden in [`libs/docs/PLUGINS.md`](libs/docs/PLUGINS.md) und [`plugins/README.md`](plugins/README.md) zu Manifest-Konfiguration, GitHub Releases, Assets, Prüfsummen und Update-Lifecycle.
+- 🧪 **Neue Test-Suite für Plugin-Updates:**
+  - Automatisierte Test-Suite [`tests/test_plugin_updater.php`](tests/test_plugin_updater.php) (28 von 28 Tests bestanden) für GitHub-Repo-Normalisierung, Zipball-Erkennung, Backup-Integrität, atomaren Dateiaustausch, Rollback und Core-Kompatibilität.
 - 🐛 **CoreUpdater Pfad-Freigabe (`CORE_PATHS`):**
   - `'plugins/'` und `'.htaccess'` wurden in `CoreUpdater::CORE_PATHS` aufgenommen. Bei automatischen 1-Klick-Core-Updates wurden bisher fälschlicherweise alle Dateien im Ordner `plugins/` herausgefiltert, wodurch neue Plugins (wie `weave-games` und `weave-helpdesk`) nicht auf dem Server entpackt wurden.
 - 🔄 **Automatische Synchronisation fehlender Plugins (`syncMissingOfficialPlugins`):**
   - Neue Methode `CoreUpdater::syncMissingOfficialPlugins()` stellt fehlende offizielle Plugins direkt aus dem Update-Paket wieder her.
   - Automatische Ausführung in `finishPendingUpdate()` nach jedem Core-Update.
   - Neuer Hinweis-Banner in der Plugin-Verwaltung (`admin/views/tab_plugins.php`) mit 1-Klick-Aktion *„Fehlende Plugins jetzt nachinstallieren“*.
-- 🧪 **Test-Suite:**
-  - Neue automatisierte Test-Suite `tests/test_core_updater.php` mit 27 Prüfungen für Whitelisting, Zip-Slip-Schutz und Schutz aller Nutzerdaten.
+- 🧪 **Test-Suite für Core-Updates:**
+  - Automatisierte Test-Suite [`tests/test_core_updater.php`](tests/test_core_updater.php) mit 27 Prüfungen für Pfad-Whitelisting, Zip-Slip-Schutz und Schutz aller Nutzerdaten.
 
 ---
 

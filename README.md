@@ -29,10 +29,26 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Releases & Downloads (v1.3.4.1)
 
-- 📦 **[WeaveCMS v1.3.3.1 Full Package](releases/weavecms-v1.3.3.1.zip)** (`releases/weavecms-v1.3.3.1.zip`) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.3.1 Update Package](releases/update-v1.3.3.1.zip)** (`releases/update-v1.3.3.1.zip`) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.4.1 Full Package](releases/weavecms-v1.3.4.1.zip)** (`releases/weavecms-v1.3.4.1.zip`, 12.37 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.4.1 Update Package](releases/update-v1.3.4.1.zip)** (`releases/update-v1.3.4.1.zip`, 0.91 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.4.1 (10. November 2026)
+
+- 🚀 **Autonomes 3rd-Party Plugin-Update-System (`libs/php/PluginUpdater.php`):**
+  - Jedes Plugin kann unabhängig vom CMS-Kern nach Updates suchen und sich per 1-Klick aktualisieren, ohne das gesamte CMS updaten zu müssen.
+  - Deklaration via `"github_repo": "owner/repo"` oder `"update_url": "https://..."` in `plugin.json`.
+  - **Sicherheit & Integrität:** HTTPS-Download (Native CA), Zip-Slip-Schutz, automatische Erkennung verschachtelter GitHub-Zipball-Verzeichnisse (`<owner>-<repo>-<sha>/`), optionale SHA-256 Validierung (`SHA256: <hash>`) und Core-Kompatibilitätsprüfung via `requires_core` (`PluginManager::isCoreCompatible`).
+  - **Pre-Update-Backup & Rollback:** Automatisches ZIP-Backup unter `backups/plugins/plugin_<slug>_<datum>_v<alt>.zip` vor jedem Überschreiben mit sofortigem automatischem Rollback im Fehlerfall.
+  - **Admin-UI:** Globaler Button *„Updates prüfen“*, *„Update prüfen“* je Plugin, Update-Banner mit Versionssprung, Changelog-Link und 1-Klick-Installationsbutton.
+- 📚 **Entwickler-Dokumentation für Plugins:**
+  - Ausführlicher Leitfaden in [`libs/docs/PLUGINS.md`](libs/docs/PLUGINS.md) und [`plugins/README.md`](plugins/README.md) zu Manifest-Konfiguration, GitHub Releases, Assets, Prüfsummen und Update-Lifecycle.
+- 🧪 **Neue Test-Suite für Plugin-Updates:**
+  - Automatisierte Test-Suite [`tests/test_plugin_updater.php`](tests/test_plugin_updater.php) (28 von 28 Tests bestanden).
+- 🐛 **CoreUpdater Pfad-Freigabe & Plugin-Synchronisation:**
+  - `'plugins/'` und `'.htaccess'` in `CoreUpdater::CORE_PATHS` aufgenommen; neue Methode `CoreUpdater::syncMissingOfficialPlugins()` zur 1-Klick-Nachinstallation fehlender offizieller Plugins.
+  - Automatisierte Test-Suite [`tests/test_core_updater.php`](tests/test_core_updater.php) (27 von 27 Tests bestanden).
 
 ### v1.3.4 (9. November 2026)
 
