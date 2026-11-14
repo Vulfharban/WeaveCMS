@@ -24,43 +24,43 @@ class QuickActionManager {
         return [
             'content' => [
                 'id'    => 'content',
-                'name'  => 'Inhalte & Redaktion',
+                'name'  => (function_exists('__a') ? __a('admin.qa.cat_content', 'Inhalte & Redaktion') : 'Inhalte & Redaktion'),
                 'icon'  => 'article',
                 'color' => '#2563eb'
             ],
             'media' => [
                 'id'    => 'media',
-                'name'  => 'Medien & Assets',
+                'name'  => (function_exists('__a') ? __a('admin.qa.cat_media', 'Medien & Assets') : 'Medien & Assets'),
                 'icon'  => 'perm_media',
                 'color' => '#7c3aed'
             ],
             'communication' => [
                 'id'    => 'communication',
-                'name'  => 'Kommunikation & Postfach',
+                'name'  => (function_exists('__a') ? __a('admin.qa.cat_communication', 'Kommunikation & Postfach') : 'Kommunikation & Postfach'),
                 'icon'  => 'inbox',
                 'color' => '#d97706'
             ],
             'design' => [
                 'id'    => 'design',
-                'name'  => 'Design & Layout',
+                'name'  => (function_exists('__a') ? __a('admin.qa.cat_design', 'Design & Layout') : 'Design & Layout'),
                 'icon'  => 'palette',
                 'color' => '#db2777'
             ],
             'system' => [
                 'id'    => 'system',
-                'name'  => 'System, Sicherheit & Wartung',
+                'name'  => (function_exists('__a') ? __a('admin.qa.cat_system', 'System, Sicherheit & Wartung') : 'System, Sicherheit & Wartung'),
                 'icon'  => 'security',
                 'color' => '#16a34a'
             ],
             'plugins' => [
                 'id'    => 'plugins',
-                'name'  => 'Plugins & Integrationen',
+                'name'  => (function_exists('__a') ? __a('admin.qa.cat_plugins', 'Plugins & Integrationen') : 'Plugins & Integrationen'),
                 'icon'  => 'extension',
                 'color' => '#8b5cf6'
             ],
             'general' => [
                 'id'    => 'general',
-                'name'  => 'Allgemein & Navigation',
+                'name'  => (function_exists('__a') ? __a('admin.qa.cat_general', 'Allgemein & Navigation') : 'Allgemein & Navigation'),
                 'icon'  => 'public',
                 'color' => '#2e6248'
             ]
@@ -76,8 +76,8 @@ class QuickActionManager {
             // ──────────────── INHALTE & REDAKTION ────────────────
             'new_blog_post' => [
                 'id'          => 'new_blog_post',
-                'title'       => 'Neuer Blogbeitrag',
-                'description' => 'Neuen Artikel für das Journal verfassen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_new_blog_post_title', 'Neuer Blogbeitrag') : 'Neuer Blogbeitrag'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_new_blog_post_desc', 'Neuen Artikel für das Journal verfassen') : 'Neuen Artikel für das Journal verfassen'),
                 'category'    => 'content',
                 'icon'        => 'article',
                 'color'       => '#2563eb',
@@ -87,8 +87,8 @@ class QuickActionManager {
             ],
             'new_page' => [
                 'id'          => 'new_page',
-                'title'       => 'Neue Einzelseite',
-                'description' => 'Eigene Unterseite mit Seiteneditor erstellen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_new_page_title', 'Neue Einzelseite') : 'Neue Einzelseite'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_new_page_desc', 'Eigene Unterseite mit Seiteneditor erstellen') : 'Eigene Unterseite mit Seiteneditor erstellen'),
                 'category'    => 'content',
                 'icon'        => 'post_add',
                 'color'       => '#0d9488',
@@ -98,8 +98,8 @@ class QuickActionManager {
             ],
             'edit_texts' => [
                 'id'          => 'edit_texts',
-                'title'       => 'Texte bearbeiten',
-                'description' => 'Startseiten- und Sektionstexte pflegen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_edit_texts_title', 'Texte bearbeiten') : 'Texte bearbeiten'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_edit_texts_desc', 'Startseiten- und Sektionstexte pflegen') : 'Startseiten- und Sektionstexte pflegen'),
                 'category'    => 'content',
                 'icon'        => 'edit_note',
                 'color'       => '#16a34a',
@@ -109,8 +109,8 @@ class QuickActionManager {
             ],
             'manage_gallery' => [
                 'id'          => 'manage_gallery',
-                'title'       => 'Galerie pflegen',
-                'description' => 'Galeriebilder, Filter und Kategorien verwalten',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_manage_gallery_title', 'Galerie pflegen') : 'Galerie pflegen'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_manage_gallery_desc', 'Galeriebilder, Filter und Kategorien verwalten') : 'Galeriebilder, Filter und Kategorien verwalten'),
                 'category'    => 'content',
                 'icon'        => 'add_photo_alternate',
                 'color'       => '#8b5cf6',
@@ -120,8 +120,8 @@ class QuickActionManager {
             ],
             'manage_courses' => [
                 'id'          => 'manage_courses',
-                'title'       => 'Kurse & Workshops',
-                'description' => 'Termine, Kursdaten und Teilnehmer verwalten',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_manage_courses_title', 'Kurse & Workshops') : 'Kurse & Workshops'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_manage_courses_desc', 'Termine, Kursdaten und Teilnehmer verwalten') : 'Termine, Kursdaten und Teilnehmer verwalten'),
                 'category'    => 'content',
                 'icon'        => 'school',
                 'color'       => '#ea580c',
@@ -131,8 +131,8 @@ class QuickActionManager {
             ],
             'manage_faqs' => [
                 'id'          => 'manage_faqs',
-                'title'       => 'FAQ-Einträge',
-                'description' => 'Häufig gestellte Fragen und Antworten pflegen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_manage_faqs_title', 'FAQ-Einträge') : 'FAQ-Einträge'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_manage_faqs_desc', 'Häufig gestellte Fragen und Antworten pflegen') : 'Häufig gestellte Fragen und Antworten pflegen'),
                 'category'    => 'content',
                 'icon'        => 'quiz',
                 'color'       => '#0284c7',
@@ -142,8 +142,8 @@ class QuickActionManager {
             ],
             'manage_team' => [
                 'id'          => 'manage_team',
-                'title'       => 'Team & Profile',
-                'description' => 'Teammitglieder und Ansprechpartner verwalten',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_manage_team_title', 'Team & Profile') : 'Team & Profile'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_manage_team_desc', 'Teammitglieder und Ansprechpartner verwalten') : 'Teammitglieder und Ansprechpartner verwalten'),
                 'category'    => 'content',
                 'icon'        => 'badge',
                 'color'       => '#4f46e5',
@@ -153,8 +153,8 @@ class QuickActionManager {
             ],
             'manage_pricing' => [
                 'id'          => 'manage_pricing',
-                'title'       => 'Preistabellen',
-                'description' => 'Leistungspakete und Konditionen konfigurieren',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_manage_pricing_title', 'Preistabellen') : 'Preistabellen'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_manage_pricing_desc', 'Leistungspakete und Konditionen konfigurieren') : 'Leistungspakete und Konditionen konfigurieren'),
                 'category'    => 'content',
                 'icon'        => 'payments',
                 'color'       => '#059669',
@@ -164,8 +164,8 @@ class QuickActionManager {
             ],
             'manage_downloads' => [
                 'id'          => 'manage_downloads',
-                'title'       => 'Downloads & Software',
-                'description' => 'Dateien, Versionen und Downloads verwalten',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_manage_downloads_title', 'Downloads & Software') : 'Downloads & Software'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_manage_downloads_desc', 'Dateien, Versionen und Downloads verwalten') : 'Dateien, Versionen und Downloads verwalten'),
                 'category'    => 'content',
                 'icon'        => 'file_download',
                 'color'       => '#0891b2',
@@ -175,8 +175,8 @@ class QuickActionManager {
             ],
             'view_revisions' => [
                 'id'          => 'view_revisions',
-                'title'       => 'Revisionshistorie',
-                'description' => 'Änderungsverlauf und Versionen einsehen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_view_revisions_title', 'Revisionshistorie') : 'Revisionshistorie'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_view_revisions_desc', 'Änderungsverlauf und Versionen einsehen') : 'Änderungsverlauf und Versionen einsehen'),
                 'category'    => 'content',
                 'icon'        => 'history',
                 'color'       => '#64748b',
@@ -188,8 +188,8 @@ class QuickActionManager {
             // ──────────────── MEDIEN & ASSETS ────────────────
             'upload_media' => [
                 'id'          => 'upload_media',
-                'title'       => 'Datei hochladen',
-                'description' => 'Bilder, PDFs oder Archive direkt hochladen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_upload_media_title', 'Datei hochladen') : 'Datei hochladen'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_upload_media_desc', 'Bilder, PDFs oder Archive direkt hochladen') : 'Bilder, PDFs oder Archive direkt hochladen'),
                 'category'    => 'media',
                 'icon'        => 'cloud_upload',
                 'color'       => '#0284c7',
@@ -200,8 +200,8 @@ class QuickActionManager {
             ],
             'media_library' => [
                 'id'          => 'media_library',
-                'title'       => 'Mediathek öffnen',
-                'description' => 'Dateien organisieren, filtern und Alt-Texte pflegen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_media_library_title', 'Mediathek öffnen') : 'Mediathek öffnen'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_media_library_desc', 'Dateien organisieren, filtern und Alt-Texte pflegen') : 'Dateien organisieren, filtern und Alt-Texte pflegen'),
                 'category'    => 'media',
                 'icon'        => 'perm_media',
                 'color'       => '#7c3aed',
@@ -213,8 +213,8 @@ class QuickActionManager {
             // ──────────────── KOMMUNIKATION & POSTFACH ────────────────
             'inbox' => [
                 'id'          => 'inbox',
-                'title'       => 'Kontaktpostfach',
-                'description' => 'Eingehende Nachrichten und Anfragen einsehen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_inbox_title', 'Kontaktpostfach') : 'Kontaktpostfach'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_inbox_desc', 'Eingehende Nachrichten und Anfragen einsehen') : 'Eingehende Nachrichten und Anfragen einsehen'),
                 'category'    => 'communication',
                 'icon'        => 'inbox',
                 'color'       => '#d97706',
@@ -225,8 +225,8 @@ class QuickActionManager {
             ],
             'smtp_settings' => [
                 'id'          => 'smtp_settings',
-                'title'       => 'SMTP- & Mail-Setup',
-                'description' => 'E-Mail-Server und Benachrichtigungen einrichten',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_smtp_settings_title', 'SMTP- & Mail-Setup') : 'SMTP- & Mail-Setup'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_smtp_settings_desc', 'E-Mail-Server und Benachrichtigungen einrichten') : 'E-Mail-Server und Benachrichtigungen einrichten'),
                 'category'    => 'communication',
                 'icon'        => 'mark_email_read',
                 'color'       => '#2563eb',
@@ -236,8 +236,8 @@ class QuickActionManager {
             ],
             'edit_impressum' => [
                 'id'          => 'edit_impressum',
-                'title'       => 'Impressum & Kontakt',
-                'description' => 'Kontaktdaten, Anschrift und Rechtstexte pflegen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_edit_impressum_title', 'Impressum & Kontakt') : 'Impressum & Kontakt'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_edit_impressum_desc', 'Kontaktdaten, Anschrift und Rechtstexte pflegen') : 'Kontaktdaten, Anschrift und Rechtstexte pflegen'),
                 'category'    => 'communication',
                 'icon'        => 'contact_mail',
                 'color'       => '#4b5563',
@@ -249,8 +249,8 @@ class QuickActionManager {
             // ──────────────── DESIGN & LAYOUT ────────────────
             'theme_colors' => [
                 'id'          => 'theme_colors',
-                'title'       => 'Design & Farben',
-                'description' => 'Farben, Typografie und Farbmodus anpassen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_theme_colors_title', 'Design & Farben') : 'Design & Farben'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_theme_colors_desc', 'Farben, Typografie und Farbmodus anpassen') : 'Farben, Typografie und Farbmodus anpassen'),
                 'category'    => 'design',
                 'icon'        => 'palette',
                 'color'       => '#db2777',
@@ -260,8 +260,8 @@ class QuickActionManager {
             ],
             'menu_styles' => [
                 'id'          => 'menu_styles',
-                'title'       => 'Menüstil & Navigation',
-                'description' => 'Navigationsleiste, Menüstil und Optionen wählen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_menu_styles_title', 'Menüstil & Navigation') : 'Menüstil & Navigation'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_menu_styles_desc', 'Navigationsleiste, Menüstil und Optionen wählen') : 'Navigationsleiste, Menüstil und Optionen wählen'),
                 'category'    => 'design',
                 'icon'        => 'menu_open',
                 'color'       => '#9333ea',
@@ -271,8 +271,8 @@ class QuickActionManager {
             ],
             'manage_logo' => [
                 'id'          => 'manage_logo',
-                'title'       => 'Logo & Favicon',
-                'description' => 'Website-Logo, Motiv und Favicon austauschen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_manage_logo_title', 'Logo & Favicon') : 'Logo & Favicon'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_manage_logo_desc', 'Website-Logo, Motiv und Favicon austauschen') : 'Website-Logo, Motiv und Favicon austauschen'),
                 'category'    => 'design',
                 'icon'        => 'image',
                 'color'       => '#059669',
@@ -282,8 +282,8 @@ class QuickActionManager {
             ],
             'section_order' => [
                 'id'          => 'section_order',
-                'title'       => 'Sektionen-Reihenfolge',
-                'description' => 'Sektionen der Startseite per Kanban ordnen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_section_order_title', 'Sektionen-Reihenfolge') : 'Sektionen-Reihenfolge'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_section_order_desc', 'Sektionen der Startseite per Kanban ordnen') : 'Sektionen der Startseite per Kanban ordnen'),
                 'category'    => 'design',
                 'icon'        => 'view_kanban',
                 'color'       => '#ea580c',
@@ -293,8 +293,8 @@ class QuickActionManager {
             ],
             'seo_settings' => [
                 'id'          => 'seo_settings',
-                'title'       => 'SEO & Social Media',
-                'description' => 'Suchmaschinen-Titel, Meta-Tags und OpenGraph',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_seo_settings_title', 'SEO & Social Media') : 'SEO & Social Media'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_seo_settings_desc', 'Suchmaschinen-Titel, Meta-Tags und OpenGraph') : 'Suchmaschinen-Titel, Meta-Tags und OpenGraph'),
                 'category'    => 'design',
                 'icon'        => 'travel_explore',
                 'color'       => '#0284c7',
@@ -306,8 +306,8 @@ class QuickActionManager {
             // ──────────────── SYSTEM, SICHERHEIT & WARTUNG ────────────────
             'create_backup' => [
                 'id'          => 'create_backup',
-                'title'       => '1-Klick-Sicherung',
-                'description' => 'Vollständiges ZIP-Backup des Systems erstellen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_create_backup_title', '1-Klick-Sicherung') : '1-Klick-Sicherung'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_create_backup_desc', 'Vollständiges ZIP-Backup des Systems erstellen') : 'Vollständiges ZIP-Backup des Systems erstellen'),
                 'category'    => 'system',
                 'icon'        => 'folder_zip',
                 'color'       => '#16a34a',
@@ -317,8 +317,8 @@ class QuickActionManager {
             ],
             'system_logs' => [
                 'id'          => 'system_logs',
-                'title'       => 'Sicherheits-Logs',
-                'description' => 'Ereignis- und Login-Protokolle einsehen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_system_logs_title', 'Sicherheits-Logs') : 'Sicherheits-Logs'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_system_logs_desc', 'Ereignis- und Login-Protokolle einsehen') : 'Ereignis- und Login-Protokolle einsehen'),
                 'category'    => 'system',
                 'icon'        => 'receipt_long',
                 'color'       => '#dc2626',
@@ -328,8 +328,8 @@ class QuickActionManager {
             ],
             'database_status' => [
                 'id'          => 'database_status',
-                'title'       => 'Datenbank & Storage',
-                'description' => 'Speicher-Engine prüfen (JSON / MySQL)',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_database_status_title', 'Datenbank & Storage') : 'Datenbank & Storage'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_database_status_desc', 'Speicher-Engine prüfen (JSON / MySQL)') : 'Speicher-Engine prüfen (JSON / MySQL)'),
                 'category'    => 'system',
                 'icon'        => 'storage',
                 'color'       => '#4f46e5',
@@ -339,8 +339,8 @@ class QuickActionManager {
             ],
             'user_management' => [
                 'id'          => 'user_management',
-                'title'       => 'Benutzerverwaltung',
-                'description' => 'Admin-, Moderator- und Redakteurkonten verwalten',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_user_management_title', 'Benutzerverwaltung') : 'Benutzerverwaltung'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_user_management_desc', 'Admin-, Moderator- und Redakteurkonten verwalten') : 'Admin-, Moderator- und Redakteurkonten verwalten'),
                 'category'    => 'system',
                 'icon'        => 'group',
                 'color'       => '#6366f1',
@@ -350,8 +350,8 @@ class QuickActionManager {
             ],
             'check_updates' => [
                 'id'          => 'check_updates',
-                'title'       => 'Updates prüfen',
-                'description' => 'Online auf neue Core- und Plugin-Updates prüfen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_check_updates_title', 'Updates prüfen') : 'Updates prüfen'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_check_updates_desc', 'Online auf neue Core- und Plugin-Updates prüfen') : 'Online auf neue Core- und Plugin-Updates prüfen'),
                 'category'    => 'system',
                 'icon'        => 'system_update',
                 'color'       => '#2563eb',
@@ -363,8 +363,8 @@ class QuickActionManager {
             // ──────────────── PLUGINS & INTEGRATIONEN ────────────────
             'plugin_manager' => [
                 'id'          => 'plugin_manager',
-                'title'       => 'Plugin-Manager',
-                'description' => 'Erweiterungen verwalten, aktivieren und updaten',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_plugin_manager_title', 'Plugin-Manager') : 'Plugin-Manager'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_plugin_manager_desc', 'Erweiterungen verwalten, aktivieren und updaten') : 'Erweiterungen verwalten, aktivieren und updaten'),
                 'category'    => 'plugins',
                 'icon'        => 'extension',
                 'color'       => '#8b5cf6',
@@ -374,8 +374,8 @@ class QuickActionManager {
             ],
             'forum_admin' => [
                 'id'          => 'forum_admin',
-                'title'       => 'Forum administrieren',
-                'description' => 'Kategorien, Forenbeiträge und Moderation',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_forum_admin_title', 'Forum administrieren') : 'Forum administrieren'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_forum_admin_desc', 'Kategorien, Forenbeiträge und Moderation') : 'Kategorien, Forenbeiträge und Moderation'),
                 'category'    => 'plugins',
                 'icon'        => 'forum',
                 'color'       => '#0d9488',
@@ -386,8 +386,8 @@ class QuickActionManager {
             ],
             'shop_admin' => [
                 'id'          => 'shop_admin',
-                'title'       => 'Shop & Bestellungen',
-                'description' => 'Artikel, Bestellungen und Zahlungen verwalten',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_shop_admin_title', 'Shop & Bestellungen') : 'Shop & Bestellungen'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_shop_admin_desc', 'Artikel, Bestellungen und Zahlungen verwalten') : 'Artikel, Bestellungen und Zahlungen verwalten'),
                 'category'    => 'plugins',
                 'icon'        => 'shopping_bag',
                 'color'       => '#ea580c',
@@ -398,8 +398,8 @@ class QuickActionManager {
             ],
             'inventory_admin' => [
                 'id'          => 'inventory_admin',
-                'title'       => 'Warenwirtschaft',
-                'description' => 'Lagerbestände und Artikelkatalog öffnen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_inventory_admin_title', 'Warenwirtschaft') : 'Warenwirtschaft'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_inventory_admin_desc', 'Lagerbestände und Artikelkatalog öffnen') : 'Lagerbestände und Artikelkatalog öffnen'),
                 'category'    => 'plugins',
                 'icon'        => 'inventory_2',
                 'color'       => '#7c3aed',
@@ -412,8 +412,8 @@ class QuickActionManager {
             // ──────────────── ALLGEMEIN ────────────────
             'live_website' => [
                 'id'          => 'live_website',
-                'title'       => 'Live-Website',
-                'description' => 'Öffentliche Website im neuen Browser-Tab öffnen',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_live_website_title', 'Live-Website') : 'Live-Website'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_live_website_desc', 'Öffentliche Website im neuen Browser-Tab öffnen') : 'Öffentliche Website im neuen Browser-Tab öffnen'),
                 'category'    => 'general',
                 'icon'        => 'open_in_new',
                 'color'       => '#2e6248',
@@ -433,8 +433,8 @@ class QuickActionManager {
         return [
             'preset_allrounder' => [
                 'id'          => 'preset_allrounder',
-                'name'        => 'Allrounder / Standard',
-                'description' => 'Ausgewogene Mischung der wichtigsten täglichen Handgriffe für Admins & Teams.',
+                'name'        => (function_exists('__a') ? __a('admin.qa.preset_allrounder_name', 'Allrounder / Standard') : 'Allrounder / Standard'),
+                'description' => (function_exists('__a') ? __a('admin.qa.preset_allrounder_desc', 'Ausgewogene Mischung der wichtigsten täglichen Handgriffe für Admins & Teams.') : 'Ausgewogene Mischung der wichtigsten täglichen Handgriffe für Admins & Teams.'),
                 'icon'        => 'tune',
                 'actions'     => [
                     'new_blog_post', 'manage_gallery', 'upload_media', 'inbox',
@@ -443,8 +443,8 @@ class QuickActionManager {
             ],
             'preset_editor' => [
                 'id'          => 'preset_editor',
-                'name'        => 'Redakteur / Content-Fokus',
-                'description' => 'Fokus auf Beiträge, neue Seiten, Medien-Upload und Bildgalerien.',
+                'name'        => (function_exists('__a') ? __a('admin.qa.preset_editor_name', 'Redakteur / Content-Fokus') : 'Redakteur / Content-Fokus'),
+                'description' => (function_exists('__a') ? __a('admin.qa.preset_editor_desc', 'Fokus auf Beiträge, neue Seiten, Medien-Upload und Bildgalerien.') : 'Fokus auf Beiträge, neue Seiten, Medien-Upload und Bildgalerien.'),
                 'icon'        => 'edit',
                 'actions'     => [
                     'new_blog_post', 'new_page', 'edit_texts', 'manage_gallery',
@@ -453,8 +453,8 @@ class QuickActionManager {
             ],
             'preset_admin' => [
                 'id'          => 'preset_admin',
-                'name'        => 'Administrator / Wartung',
-                'description' => 'Fokus auf Backups, Logs, User-Management, System-Audit und Updates.',
+                'name'        => (function_exists('__a') ? __a('admin.qa.preset_admin_name', 'Administrator / Wartung') : 'Administrator / Wartung'),
+                'description' => (function_exists('__a') ? __a('admin.qa.preset_admin_desc', 'Fokus auf Backups, Logs, User-Management, System-Audit und Updates.') : 'Fokus auf Backups, Logs, User-Management, System-Audit und Updates.'),
                 'icon'        => 'admin_panel_settings',
                 'actions'     => [
                     'create_backup', 'user_management', 'system_logs', 'database_status',
@@ -463,8 +463,8 @@ class QuickActionManager {
             ],
             'preset_minimal' => [
                 'id'          => 'preset_minimal',
-                'name'        => 'Minimalist',
-                'description' => 'Nur 4 essenzielle Kern-Aktionen für maximale Übersicht und schnelles Arbeiten.',
+                'name'        => (function_exists('__a') ? __a('admin.qa.preset_minimal_name', 'Minimalist') : 'Minimalist'),
+                'description' => (function_exists('__a') ? __a('admin.qa.preset_minimal_desc', 'Nur 4 essenzielle Kern-Aktionen für maximale Übersicht und schnelles Arbeiten.') : 'Nur 4 essenzielle Kern-Aktionen für maximale Übersicht und schnelles Arbeiten.'),
                 'icon'        => 'crop_portrait',
                 'actions'     => [
                     'new_blog_post', 'manage_gallery', 'inbox', 'live_website'
@@ -561,7 +561,7 @@ class QuickActionManager {
                         $act['badge'] = [
                             'text'  => (string)$unread,
                             'color' => '#d97706',
-                            'title' => "{$unread} ungelesene Nachricht(en)"
+                            'title' => (function_exists('__a') ? __a('admin.qa.unread_badge', '{count} ungelesene Nachricht(en)', null, ['count' => $unread]) : "{$unread} ungelesene Nachricht(en)")
                         ];
                     }
                 }

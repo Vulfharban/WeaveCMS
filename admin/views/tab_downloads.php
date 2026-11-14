@@ -666,7 +666,7 @@ $all_languages = LanguageManager::getSupportedLanguages();
                     const mediaVal = document.getElementById('download_media_file').value.trim();
                     if (isMedia && !mediaVal) {
                         e.preventDefault();
-                        alert('Bitte wähle eine Datei aus der Mediathek aus.');
+                        alert(<?php echo json_encode(__a('admin.downloads.alert_select_media', 'Bitte wähle eine Datei aus der Mediathek aus.')); ?>);
                         openDownloadMediaPicker();
                     }
                 });

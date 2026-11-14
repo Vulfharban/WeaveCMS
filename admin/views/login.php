@@ -37,7 +37,7 @@
                 <div style="margin-top: 0.75rem; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; color: #1e40af; text-align: left; display: flex; align-items: center; gap: 8px;">
                     <span class="material-icons" style="font-size: 18px; color: #2563eb;">lock</span>
                     <div>
-                        <strong>Demo-Zugang gesichert:</strong> Zugangsdaten sind vorausgefüllt und schreibgeschützt.
+                        <strong><?php echo __a('admin.login.demo_secured_title', 'Demo-Zugang gesichert:'); ?></strong> <?php echo __a('admin.login.demo_secured_desc', 'Zugangsdaten sind vorausgefüllt und schreibgeschützt.'); ?>
                     </div>
                 </div>
             <?php endif; ?>

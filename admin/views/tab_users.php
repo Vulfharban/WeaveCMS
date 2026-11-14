@@ -183,7 +183,7 @@
                                                 </div>
 
                                                 <div class="form-group" style="margin-bottom:0;">
-                                                    <label style="font-size:0.82rem;">Neues Passwort (optional)</label>
+                                                    <label style="font-size:0.82rem;"><?php echo __a('admin.users.new_password_opt', 'Neues Passwort (optional)'); ?></label>
                                                     <input type="password" name="edit_password" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.users.edit_password_placeholder', 'Nur bei Änderung ausfüllen')); ?>" style="font-size:0.88rem;">
                                                 </div>
                                             </div>
@@ -217,20 +217,20 @@
                     <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
                         <div class="form-group">
                             <label for="new_username"><?php echo __a('admin.users.table_username', 'Benutzername'); ?> <span style="color:#ef4444;">*</span></label>
-                            <input type="text" id="new_username" name="new_username" class="form-control" placeholder="z. B. redakteur1" required autocomplete="off">
-                            <small style="color:var(--text-secondary); display:block; margin-top:4px;">Mindestens 3 Zeichen, eindeutig.</small>
+                            <input type="text" id="new_username" name="new_username" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.users.username_placeholder', 'z. B. redakteur1')); ?>" required autocomplete="off">
+                            <small style="color:var(--text-secondary); display:block; margin-top:4px;"><?php echo __a('admin.users.username_hint', 'Mindestens 3 Zeichen, eindeutig.'); ?></small>
                         </div>
 
                         <div class="form-group">
                             <label for="new_email"><?php echo __a('admin.users.table_email', 'E-Mail-Adresse'); ?></label>
                             <input type="email" id="new_email" name="new_email" class="form-control" placeholder="name@domain.de">
-                            <small style="color:var(--text-secondary); display:block; margin-top:4px;">Optional für Benachrichtigungen.</small>
+                            <small style="color:var(--text-secondary); display:block; margin-top:4px;"><?php echo __a('admin.users.email_hint', 'Optional für Benachrichtigungen.'); ?></small>
                         </div>
 
                         <div class="form-group">
-                            <label for="new_password">Passwort <span style="color:#ef4444;">*</span></label>
-                            <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Mindestens 6 Zeichen" required autocomplete="new-password">
-                            <small style="color:var(--text-secondary); display:block; margin-top:4px;">Sicheres Passwort wählen.</small>
+                            <label for="new_password"><?php echo __a('admin.users.password_label', 'Passwort'); ?> <span style="color:#ef4444;">*</span></label>
+                            <input type="password" id="new_password" name="new_password" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.users.password_placeholder', 'Mindestens 6 Zeichen')); ?>" required autocomplete="new-password">
+                            <small style="color:var(--text-secondary); display:block; margin-top:4px;"><?php echo __a('admin.users.password_hint', 'Sicheres Passwort wählen.'); ?></small>
                         </div>
 
                         <div class="form-group">
@@ -386,8 +386,8 @@
                         <?php echo __a('admin.2fa.disable_desc', 'Bitte gib dein aktuelles Admin-Passwort oder die PIN ein, um 2FA fÃ¼r dein Konto zu deaktivieren:'); ?>
                     </p>
                     <div class="form-group" style="margin-bottom:1rem;">
-                        <label style="font-size:0.82rem; font-weight:700;">Passwort oder PIN:</label>
-                        <input type="password" id="disable-2fa-auth" class="form-control" placeholder="Passwort oder PIN" onkeyup="if(event.key==='Enter') confirm2faDisable();">
+                        <label style="font-size:0.82rem; font-weight:700;"><?php echo __a('admin.2fa.auth_label', 'Passwort oder PIN:'); ?></label>
+                        <input type="password" id="disable-2fa-auth" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.2fa.auth_placeholder', 'Passwort oder PIN')); ?>" onkeyup="if(event.key==='Enter') confirm2faDisable();">
                     </div>
                     <div id="disable-2fa-error" style="display:none; color:#dc2626; font-size:0.82rem; font-weight:600; margin-bottom:0.75rem;"></div>
                     <div style="display:flex; justify-content:flex-end; gap:8px;">
@@ -428,29 +428,29 @@
                                 <div style="padding:6px; background:rgba(255,255,255,0.04); border-radius:6px;"><?php echo htmlspecialchars($bc); ?></div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <div style="grid-column:1/-1; color:var(--text-secondary); font-size:0.85rem; padding:10px;">Keine ungenutzten Codes mehr vorhanden. Bitte generiere neue Codes.</div>
+                            <div style="grid-column:1/-1; color:var(--text-secondary); font-size:0.85rem; padding:10px;"><?php echo __a('admin.2fa.no_unused_codes', 'Keine ungenutzten Codes mehr vorhanden. Bitte generiere neue Codes.'); ?></div>
                         <?php endif; ?>
                     </div>
 
                     <div style="display:flex; gap:10px; margin-bottom:1.25rem; flex-wrap:wrap;">
                         <button type="button" class="btn btn-outline" onclick="copyExistingBackupCodes()" style="flex:1; padding:8px 12px; font-size:0.82rem; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
-                            <span class="material-icons" style="font-size:15px;">content_copy</span> Kopieren
+                            <span class="material-icons" style="font-size:15px;">content_copy</span> <?php echo __a('admin.2fa.btn_copy', 'Kopieren'); ?>
                         </button>
                         <button type="button" class="btn btn-outline" onclick="downloadExistingBackupCodes()" style="flex:1; padding:8px 12px; font-size:0.82rem; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
-                            <span class="material-icons" style="font-size:15px;">file_download</span> Herunterladen (.txt)
+                            <span class="material-icons" style="font-size:15px;">file_download</span> <?php echo __a('admin.2fa.btn_download_txt', 'Herunterladen (.txt)'); ?>
                         </button>
                     </div>
 
                     <!-- Neue Codes generieren -->
                     <div style="border-top:1px solid var(--border-color); padding-top:1.25rem;">
-                        <div style="font-size:0.86rem; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Neue Notfall-Codes erzeugen:</div>
+                        <div style="font-size:0.86rem; font-weight:700; color:var(--text-primary); margin-bottom:6px;"><?php echo __a('admin.2fa.regen_title', 'Neue Notfall-Codes erzeugen:'); ?></div>
                         <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:8px;">
-                            Erzeugt 8 neue Codes. Alle bisherigen ungenutzten Codes werden dabei sofort ungÃ¼ltig.
+                            <?php echo __a('admin.2fa.regen_desc', 'Erzeugt 8 neue Codes. Alle bisherigen ungenutzten Codes werden dabei sofort ungültig.'); ?>
                         </p>
                         <div style="display:flex; gap:8px;">
-                            <input type="password" id="regen-backup-auth" class="form-control" placeholder="Passwort oder PIN" style="font-size:0.85rem;">
+                            <input type="password" id="regen-backup-auth" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.2fa.auth_placeholder', 'Passwort oder PIN')); ?>" style="font-size:0.85rem;">
                             <button type="button" class="btn btn-secondary" onclick="regenerate2faBackupCodes()" style="font-size:0.82rem; padding:8px 14px; white-space:nowrap;">
-                                Neu generieren
+                                <?php echo __a('admin.2fa.btn_regenerate', 'Neu generieren'); ?>
                             </button>
                         </div>
                         <div id="regen-backup-error" style="display:none; color:#dc2626; font-size:0.8rem; font-weight:600; margin-top:6px;"></div>
@@ -501,7 +501,7 @@
                     document.getElementById('setup-2fa-qr-box').innerHTML = res.qr_svg;
                     document.getElementById('setup-2fa-secret-text').value = res.secret;
                 } else {
-                    alert('Fehler: ' + (res.error || 'Initialisierung fehlgeschlagen'));
+                    alert(((window.WeaveI18n && window.WeaveI18n.error_prefix) || 'Fehler: ') + (res.error || ''));
                     close2faModal('modal-2fa-setup');
                 }
             })
@@ -606,7 +606,7 @@
             errEl.style.display = 'none';
 
             if (!authVal) {
-                errEl.textContent = 'Bitte gib dein Passwort oder die PIN ein.';
+                errEl.textContent = <?php echo json_encode(__a('admin.2fa.err_auth_required', 'Bitte gib dein Passwort oder die PIN ein.')); ?>;
                 errEl.style.display = 'block';
                 return;
             }
@@ -625,16 +625,16 @@
             .then(r => r.json())
             .then(res => {
                 if (res.success) {
-                    showToast(res.message || '2FA deaktiviert');
+                    showToast(res.message || <?php echo json_encode(__a('admin.2fa.disabled_toast', '2FA deaktiviert')); ?>);
                     close2faModal('modal-2fa-disable');
                     window.location.reload();
                 } else {
-                    errEl.textContent = res.error || 'Deaktivierung fehlgeschlagen.';
+                    errEl.textContent = res.error || <?php echo json_encode(__a('admin.2fa.disable_failed', 'Deaktivierung fehlgeschlagen.')); ?>;
                     errEl.style.display = 'block';
                 }
             })
             .catch(err => {
-                errEl.textContent = 'Fehler: ' + err;
+                errEl.textContent = ((window.WeaveI18n && window.WeaveI18n.error_prefix) || 'Fehler: ') + err;
                 errEl.style.display = 'block';
             });
         }
@@ -647,17 +647,17 @@
 
         function copyExistingBackupCodes() {
             if (!EXISTING_BACKUP_CODES.length) {
-                alert('Keine Backup-Codes vorhanden.');
+                alert(<?php echo json_encode(__a('admin.2fa.no_backup_codes', 'Keine Backup-Codes vorhanden.')); ?>);
                 return;
             }
             navigator.clipboard.writeText(EXISTING_BACKUP_CODES.join("\n")).then(() => {
-                showToast('Codes kopiert!');
+                showToast(<?php echo json_encode(__a('admin.2fa.codes_copied', 'Codes kopiert!')); ?>);
             });
         }
 
         function downloadExistingBackupCodes() {
             if (!EXISTING_BACKUP_CODES.length) {
-                alert('Keine Backup-Codes vorhanden.');
+                alert(<?php echo json_encode(__a('admin.2fa.no_backup_codes', 'Keine Backup-Codes vorhanden.')); ?>);
                 return;
             }
             const text = "WeaveCMS â€“ Notfall-Wiederherstellungscodes (2FA)\n\n" + EXISTING_BACKUP_CODES.join("\n");
@@ -674,7 +674,7 @@
             errEl.style.display = 'none';
 
             if (!authVal) {
-                errEl.textContent = 'Bitte Passwort oder PIN eingeben.';
+                errEl.textContent = <?php echo json_encode(__a('admin.2fa.err_auth_required', 'Bitte gib dein Passwort oder die PIN ein.')); ?>;
                 errEl.style.display = 'block';
                 return;
             }

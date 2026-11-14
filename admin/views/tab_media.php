@@ -412,7 +412,7 @@ function uploadMediaFiles(files) {
                     showToast('Erfolgreich hochgeladen: ' + (res.uploaded ? res.uploaded.length : 1) + ' Datei(en)');
                     reloadMediaData();
                 } else {
-                    alert('Upload-Fehler: ' + (res.errors ? res.errors.join('\n') : (res.message || 'Fehler beim Upload')));
+                    alert(((window.WeaveI18n && window.WeaveI18n.upload_error) || 'Upload-Fehler: ') + (res.errors ? res.errors.join('\n') : (res.message || '')));
                 }
             } catch (err) {
                 alert('Server-Antwort konnte nicht verarbeitet werden: ' + err);
@@ -818,15 +818,16 @@ function saveCurrentMediaMeta() {
             updatePictureSnippet(fx, fy);
             renderMediaItems();
         } else {
-            alert('Fehler beim Speichern');
+            alert((window.WeaveI18n && window.WeaveI18n.save_error) || 'Fehler beim Speichern');
         }
     })
-    .catch(err => alert('Fehler: ' + err));
+    .catch(err => alert(((window.WeaveI18n && window.WeaveI18n.error_prefix) || 'Fehler: ') + err));
 }
 
 function deleteCurrentMediaItem() {
     if (!ACTIVE_DETAIL_ITEM) return;
-    if (!confirm('Möchtest du die Datei „' + ACTIVE_DETAIL_ITEM.filename + '“ und alle zugehörigen WebP/AVIF-Varianten wirklich unwiderruflich löschen?')) {
+    const confirmMsg = <?php echo json_encode(__a('admin.media.confirm_delete_file', 'Möchtest du die Datei „{filename}“ und alle zugehörigen WebP/AVIF-Varianten wirklich unwiderruflich löschen?')); ?>.replace('{filename}', ACTIVE_DETAIL_ITEM.filename);
+    if (!confirm(confirmMsg)) {
         return;
     }
 
@@ -844,13 +845,13 @@ function deleteCurrentMediaItem() {
     .then(res => {
         if (res.success) {
             closeMediaDetailModal();
-            showToast('Medium erfolgreich gelöscht!');
+            showToast(<?php echo json_encode(__a('admin.media.deleted_toast', 'Medium erfolgreich gelöscht!')); ?>);
             reloadMediaData();
         } else {
-            alert('Löschen fehlgeschlagen: ' + (res.message || 'Unbekannter Fehler'));
+            alert(((window.WeaveI18n && window.WeaveI18n.delete_failed) || 'Löschen fehlgeschlagen: ') + (res.message || ''));
         }
     })
-    .catch(err => alert('Fehler: ' + err));
+    .catch(err => alert(((window.WeaveI18n && window.WeaveI18n.error_prefix) || 'Fehler: ') + err));
 }
 
 function escapeHtml(str) {

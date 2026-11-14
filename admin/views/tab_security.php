@@ -255,11 +255,11 @@
                         </label>
                         <?php $cur_hsts_mode = $prod_sec['hsts_mode'] ?? (!empty($prod_sec['hsts_preload']) ? 'preload' : 'server'); ?>
                         <select name="prod_hsts_mode" class="form-control" style="max-width: 560px;">
-                            <option value="server" <?php echo ($cur_hsts_mode === 'server') ? 'selected' : ''; ?>>🌐 Vom Webserver / Hoster verwaltet (Kein zusätzlicher PHP-Header – empfohlen bei Hostern mit HSTS, verhindert doppelte Header)</option>
-                            <option value="preload" <?php echo ($cur_hsts_mode === 'preload') ? 'selected' : ''; ?>>🔒 WeaveCMS HSTS mit Preload (max-age=31536000; includeSubDomains; preload)</option>
-                            <option value="subdomains" <?php echo ($cur_hsts_mode === 'subdomains') ? 'selected' : ''; ?>>🛡️ WeaveCMS HSTS Standard (max-age=31536000; includeSubDomains)</option>
-                            <option value="standard" <?php echo ($cur_hsts_mode === 'standard') ? 'selected' : ''; ?>>🛡️ WeaveCMS HSTS Basis (max-age=31536000)</option>
-                            <option value="off" <?php echo ($cur_hsts_mode === 'off') ? 'selected' : ''; ?>>🚫 Deaktiviert (kein HSTS)</option>
+                            <option value="server" <?php echo ($cur_hsts_mode === 'server') ? 'selected' : ''; ?>><?php echo __a('admin.security.hsts_mode_server', '🌐 Vom Webserver / Hoster verwaltet (Kein zusätzlicher PHP-Header – empfohlen bei Hostern mit HSTS, verhindert doppelte Header)'); ?></option>
+                            <option value="preload" <?php echo ($cur_hsts_mode === 'preload') ? 'selected' : ''; ?>><?php echo __a('admin.security.hsts_mode_preload', '🔒 WeaveCMS HSTS mit Preload (max-age=31536000; includeSubDomains; preload)'); ?></option>
+                            <option value="subdomains" <?php echo ($cur_hsts_mode === 'subdomains') ? 'selected' : ''; ?>><?php echo __a('admin.security.hsts_mode_subdomains', '🛡️ WeaveCMS HSTS Standard (max-age=31536000; includeSubDomains)'); ?></option>
+                            <option value="standard" <?php echo ($cur_hsts_mode === 'standard') ? 'selected' : ''; ?>><?php echo __a('admin.security.hsts_mode_standard', '🛡️ WeaveCMS HSTS Basis (max-age=31536000)'); ?></option>
+                            <option value="off" <?php echo ($cur_hsts_mode === 'off') ? 'selected' : ''; ?>><?php echo __a('admin.security.hsts_mode_off', '🚫 Deaktiviert (kein HSTS)'); ?></option>
                         </select>
                         <small style="color:var(--text-secondary); display:block; margin-top:4px;">
                             <?php echo __a('admin.security.hsts_desc', 'Wenn dein Webserver oder Hosting-Paket bereits einen HSTS-Header liefert (wie auf weavecms.de), wähle „Vom Webserver / Hoster verwaltet“, um die Warnung vor doppelten Headern auf SecurityHeaders.com zu vermeiden.'); ?>
@@ -756,7 +756,7 @@
                     <div>
                         <a href="?tab=tab-users" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px; padding:10px 18px; text-decoration:none;">
                             <span class="material-icons" style="font-size:18px;">manage_accounts</span>
-                            <span>2FA im Benutzer-Profil verwalten</span>
+                            <span><?php echo __a('admin.security.manage_2fa_profile', '2FA im Benutzer-Profil verwalten'); ?></span>
                         </a>
                     </div>
                 </div>

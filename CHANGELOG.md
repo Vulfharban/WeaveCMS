@@ -6,6 +6,22 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ---
 
+## [v1.3.4.2] - 14. November 2026
+
+### 🌍 Vollständige Admin-Backend Internationalisierung (DE/EN)
+
+- 🧭 **Admin-i18n-Audit & Sprachkatalog-Vervollständigung:**
+  - Alle fehlenden `__a()`-Schlüssel in `libs/lang/admin/de.json` und `libs/lang/admin/en.json` ergänzt (aktuell 1.579 synchronisierte Schlüssel in beiden Sprachen).
+  - Login-, CSRF-, Rate-Limit-, Revisions- und AJAX-Meldungen in `admin/index.php` vollständig lokalisiert.
+- 🛡️ **AdminController & QuickActionManager:**
+  - Alle 185 statischen `$success_msg`- und `$error_msg`-Zuweisungen in `libs/php/AdminController.php` auf `__a('admin.msg.*', ...)` umgestellt.
+  - Alle 7 Kategorien, 30 Schnellaktionen, 4 Presets und Badges in `libs/php/QuickActionManager.php` via `__a('admin.qa.*', ...)` lokalisiert.
+- 🧩 **Admin-Views & JavaScript (`window.WeaveI18n`):**
+  - Zentrale Formular-Labels, Platzhalter, Tabellenköpfe, Buttons und Meldungen in `login.php`, `tab_security.php`, `tab_users.php`, `tab_downloads.php`, `tab_media.php`, `tab_settings.php` und `partials/api_webhooks.php` auf `__a()` umgestellt.
+  - `window.WeaveI18n` in `admin/views/header.php` injiziert und `confirm()`/`alert()`-Dialoge in `libs/js/admin.js` sowie Inline-Skripten lokalisiert.
+
+---
+
 ## [v1.3.4.1] - 10. November 2026
 
 ### 🚀 Autonomes 3rd-Party Plugin-Update-System & CoreUpdater-Fix

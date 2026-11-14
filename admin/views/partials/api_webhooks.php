@@ -72,7 +72,7 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
     <!-- 1. KACHEL: REST-API ENDPUNKTE ÜBERSICHT -->
     <div style="background: rgba(46,98,72,0.04); border: 1px solid rgba(46,98,72,0.25); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
         <h4 style="margin:0 0 0.75rem 0; font-size:1.05rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
-            <span class="material-icons" style="color:var(--primary); font-size:20px;">terminal</span> Verfügbare REST-Lese-Endpunkte
+            <span class="material-icons" style="color:var(--primary); font-size:20px;">terminal</span> <?php echo __a('admin.api.endpoints_title', 'Verfügbare REST-Lese-Endpunkte'); ?>
         </h4>
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
             <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:10px; padding:12px;">
@@ -81,7 +81,7 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                     <span style="font-size:0.78rem; color:var(--text-secondary);">Scope: <code>pages:read</code></span>
                 </div>
                 <code style="font-size:0.85rem; color:var(--text-primary); display:block; margin-bottom:4px;">/api/v1/pages</code>
-                <span style="font-size:0.78rem; color:var(--text-secondary);">Alle Seiten abfragen (Filter: <code>?slug=...</code>)</span>
+                <span style="font-size:0.78rem; color:var(--text-secondary);"><?php echo __a('admin.api.ep_pages', 'Alle Seiten abfragen (Filter: {filter})', null, ['filter' => '<code>?slug=...</code>']); ?></span>
             </div>
 
             <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:10px; padding:12px;">
@@ -90,7 +90,7 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                     <span style="font-size:0.78rem; color:var(--text-secondary);">Scope: <code>posts:read</code></span>
                 </div>
                 <code style="font-size:0.85rem; color:var(--text-primary); display:block; margin-bottom:4px;">/api/v1/posts</code>
-                <span style="font-size:0.78rem; color:var(--text-secondary);">Blog-Artikel abfragen (Filter: <code>?slug=...</code>)</span>
+                <span style="font-size:0.78rem; color:var(--text-secondary);"><?php echo __a('admin.api.ep_posts', 'Blog-Artikel abfragen (Filter: {filter})', null, ['filter' => '<code>?slug=...</code>']); ?></span>
             </div>
 
             <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:10px; padding:12px;">
@@ -99,7 +99,7 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                     <span style="font-size:0.78rem; color:var(--text-secondary);">Scope: <code>products:read</code></span>
                 </div>
                 <code style="font-size:0.85rem; color:var(--text-primary); display:block; margin-bottom:4px;">/api/v1/products</code>
-                <span style="font-size:0.78rem; color:var(--text-secondary);">Shop-Produkte abfragen (Filter: <code>?id=...</code>)</span>
+                <span style="font-size:0.78rem; color:var(--text-secondary);"><?php echo __a('admin.api.ep_products', 'Shop-Produkte abfragen (Filter: {filter})', null, ['filter' => '<code>?id=...</code>']); ?></span>
             </div>
 
             <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:10px; padding:12px;">
@@ -108,12 +108,12 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                     <span style="font-size:0.78rem; color:var(--text-secondary);">Scope: <code>courses:read</code></span>
                 </div>
                 <code style="font-size:0.85rem; color:var(--text-primary); display:block; margin-bottom:4px;">/api/v1/courses</code>
-                <span style="font-size:0.78rem; color:var(--text-secondary);">Termine &amp; Events abfragen</span>
+                <span style="font-size:0.78rem; color:var(--text-secondary);"><?php echo __a('admin.api.ep_courses', 'Termine &amp; Events abfragen'); ?></span>
             </div>
         </div>
         <div style="margin-top:12px; font-size:0.82rem; color:var(--text-secondary); display:flex; align-items:center; gap:8px;">
             <span class="material-icons" style="font-size:16px; color:var(--primary);">info</span>
-            Header für Aufrufe: <code style="color:var(--primary);">Authorization: Bearer wct_...</code> oder Query-Parameter: <code style="color:var(--primary);">?api_token=wct_...</code>
+            <?php echo __a('admin.api.auth_hint', 'Header für Aufrufe: {header} oder Query-Parameter: {query}', null, ['header' => '<code style="color:var(--primary);">Authorization: Bearer wct_...</code>', 'query' => '<code style="color:var(--primary);">?api_token=wct_...</code>']); ?>
         </div>
     </div>
 
@@ -137,7 +137,7 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                             <th style="padding:10px 12px;"><?php echo __a('admin.api.col_scopes', 'Rechte (Scopes)'); ?></th>
                             <th style="padding:10px 12px;"><?php echo __a('admin.api.col_last_used', 'Zuletzt genutzt'); ?></th>
                             <th style="padding:10px 12px;"><?php echo __a('admin.api.col_status', 'Status'); ?></th>
-                            <th style="padding:10px 12px; text-align:right;">Aktionen</th>
+                            <th style="padding:10px 12px; text-align:right;"><?php echo __a('admin.api.col_actions', 'Aktionen'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -166,19 +166,19 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                                         <input type="hidden" name="token_id" value="<?php echo htmlspecialchars($t['id'] ?? ''); ?>">
                                         <button type="submit" class="btn btn-secondary" style="padding:3px 8px; font-size:0.75rem; border-radius:999px;">
                                             <?php if (!empty($t['is_active'])): ?>
-                                                <span style="color:#10b981; display:inline-flex; align-items:center; gap:4px;">● Aktiv</span>
+                                                <span style="color:#10b981; display:inline-flex; align-items:center; gap:4px;"><?php echo __a('admin.api.status_active', '● Aktiv'); ?></span>
                                             <?php else: ?>
-                                                <span style="color:#ef4444; display:inline-flex; align-items:center; gap:4px;">○ Inaktiv</span>
+                                                <span style="color:#ef4444; display:inline-flex; align-items:center; gap:4px;"><?php echo __a('admin.api.status_inactive', '○ Inaktiv'); ?></span>
                                             <?php endif; ?>
                                         </button>
                                     </form>
                                 </td>
                                 <td style="padding:10px 12px; text-align:right;">
-                                    <form method="POST" action="" style="display:inline;" onsubmit="return confirm('API-Token unwiderruflich löschen?');">
+                                    <form method="POST" action="" style="display:inline;" onsubmit="return confirm(<?php echo htmlspecialchars(json_encode(__a('admin.js.confirm_delete_token', 'API-Token unwiderruflich löschen?')), ENT_QUOTES); ?>);">
                                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                         <input type="hidden" name="action" value="delete_api_token">
                                         <input type="hidden" name="token_id" value="<?php echo htmlspecialchars($t['id'] ?? ''); ?>">
-                                        <button type="submit" class="btn btn-danger" style="padding:4px 8px; font-size:0.78rem; background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.25);" title="Löschen">
+                                        <button type="submit" class="btn btn-danger" style="padding:4px 8px; font-size:0.78rem; background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.25);" title="<?php echo htmlspecialchars(__a('admin.btn.delete', 'Löschen')); ?>">
                                             <span class="material-icons" style="font-size:16px;">delete</span>
                                         </button>
                                     </form>
@@ -213,7 +213,7 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                             <th style="padding:10px 12px;"><?php echo __a('admin.webhooks.col_url', 'Ziel-URL'); ?></th>
                             <th style="padding:10px 12px;"><?php echo __a('admin.webhooks.col_events', 'Abonnierte Events'); ?></th>
                             <th style="padding:10px 12px;"><?php echo __a('admin.webhooks.col_status', 'Status'); ?></th>
-                            <th style="padding:10px 12px; text-align:right;">Aktionen</th>
+                            <th style="padding:10px 12px; text-align:right;"><?php echo __a('admin.api.col_actions', 'Aktionen'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -239,9 +239,9 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                                         <input type="hidden" name="webhook_id" value="<?php echo htmlspecialchars($w['id'] ?? ''); ?>">
                                         <button type="submit" class="btn btn-secondary" style="padding:3px 8px; font-size:0.75rem; border-radius:999px;">
                                             <?php if (!empty($w['is_active'])): ?>
-                                                <span style="color:#10b981; display:inline-flex; align-items:center; gap:4px;">● Aktiv</span>
+                                                <span style="color:#10b981; display:inline-flex; align-items:center; gap:4px;"><?php echo __a('admin.api.status_active', '● Aktiv'); ?></span>
                                             <?php else: ?>
-                                                <span style="color:#ef4444; display:inline-flex; align-items:center; gap:4px;">○ Inaktiv</span>
+                                                <span style="color:#ef4444; display:inline-flex; align-items:center; gap:4px;"><?php echo __a('admin.api.status_inactive', '○ Inaktiv'); ?></span>
                                             <?php endif; ?>
                                         </button>
                                     </form>
@@ -258,11 +258,11 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                                     </form>
 
                                     <!-- DELETE BUTTON -->
-                                    <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Webhook unwiderruflich löschen?');">
+                                    <form method="POST" action="" style="display:inline;" onsubmit="return confirm(<?php echo htmlspecialchars(json_encode(__a('admin.js.confirm_delete_webhook', 'Webhook unwiderruflich löschen?')), ENT_QUOTES); ?>);">
                                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                         <input type="hidden" name="action" value="delete_webhook">
                                         <input type="hidden" name="webhook_id" value="<?php echo htmlspecialchars($w['id'] ?? ''); ?>">
-                                        <button type="submit" class="btn btn-danger" style="padding:4px 8px; font-size:0.78rem; background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.25);" title="Löschen">
+                                        <button type="submit" class="btn btn-danger" style="padding:4px 8px; font-size:0.78rem; background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.25);" title="<?php echo htmlspecialchars(__a('admin.btn.delete', 'Löschen')); ?>">
                                             <span class="material-icons" style="font-size:16px;">delete</span>
                                         </button>
                                     </form>
@@ -282,7 +282,7 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                 <span class="material-icons" style="color:var(--primary); font-size:20px;">history</span> <?php echo __a('admin.webhooks.logs_title', 'Webhook-Lieferprotokoll (Delivery Log)'); ?>
             </h4>
             <?php if (!empty($webhook_logs)): ?>
-                <form method="POST" action="" onsubmit="return confirm('Möchtest du das gesamte Webhook-Protokoll leeren?');">
+                <form method="POST" action="" onsubmit="return confirm(<?php echo htmlspecialchars(json_encode(__a('admin.js.confirm_clear_webhook_log', 'Möchtest du das gesamte Webhook-Protokoll leeren?')), ENT_QUOTES); ?>);">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                     <input type="hidden" name="action" value="clear_webhook_logs">
                     <button type="submit" class="btn btn-secondary" style="padding:4px 10px; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px;">
@@ -304,12 +304,12 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
                 <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
                     <thead>
                         <tr style="border-bottom:1px solid var(--border-color); text-align:left; color:var(--text-secondary); font-size:0.75rem; text-transform:uppercase;">
-                            <th style="padding:8px 10px;">Zeitstempel</th>
-                            <th style="padding:8px 10px;">Event</th>
-                            <th style="padding:8px 10px;">Status</th>
-                            <th style="padding:8px 10px;">Dauer</th>
-                            <th style="padding:8px 10px;">Ziel-URL</th>
-                            <th style="padding:8px 10px; text-align:right;">Aktion</th>
+                            <th style="padding:8px 10px;"><?php echo __a('admin.webhooks.col_timestamp', 'Zeitstempel'); ?></th>
+                            <th style="padding:8px 10px;"><?php echo __a('admin.webhooks.col_event', 'Event'); ?></th>
+                            <th style="padding:8px 10px;"><?php echo __a('admin.webhooks.col_status', 'Status'); ?></th>
+                            <th style="padding:8px 10px;"><?php echo __a('admin.webhooks.col_duration', 'Dauer'); ?></th>
+                            <th style="padding:8px 10px;"><?php echo __a('admin.webhooks.col_url', 'Ziel-URL'); ?></th>
+                            <th style="padding:8px 10px; text-align:right;"><?php echo __a('admin.webhooks.col_action', 'Aktion'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -441,7 +441,7 @@ $site_url = (class_exists('SecurityManager') && method_exists('SecurityManager',
             <div style="display:flex; justify-content:flex-end; gap:10px;">
                 <button type="button" class="btn btn-secondary" onclick="toggleWebhookModal(false)"><?php echo __a('admin.btn.cancel', 'Abbrechen'); ?></button>
                 <button type="submit" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px;">
-                    <span class="material-icons" style="font-size:18px;">save</span> Speichern
+                    <span class="material-icons" style="font-size:18px;">save</span> <?php echo __a('admin.btn.save_short', 'Speichern'); ?>
                 </button>
             </div>
         </form>

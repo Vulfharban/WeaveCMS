@@ -27,12 +27,20 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 - **Complete Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 
-## Releases & Downloads (v1.3.4.1)
+## Releases & Downloads (v1.3.4.2)
 
-- 📦 **[WeaveCMS v1.3.4.1 Full Package](releases/weavecms-v1.3.4.1.zip)** (`releases/weavecms-v1.3.4.1.zip`, 12.37 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.4.1 Update Package](releases/update-v1.3.4.1.zip)** (`releases/update-v1.3.4.1.zip`, 0.91 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.4.2 Full Package](releases/weavecms-v1.3.4.2.zip)** (`releases/weavecms-v1.3.4.2.zip`, 12.38 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.4.2 Update Package](releases/update-v1.3.4.2.zip)** (`releases/update-v1.3.4.2.zip`, 0.93 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.4.2 (14. November 2026)
+
+- 🌍 **Vollständige Admin-Backend Internationalisierung (DE/EN):**
+  - Alle fehlenden `__a()`-Schlüssel in `libs/lang/admin/de.json` und `libs/lang/admin/en.json` ergänzt (1.579 synchronisierte Schlüssel je Sprache).
+  - `admin/index.php` (Login, CSRF, Rate-Limit, AJAX) sowie alle 185 statischen `$success_msg`/`$error_msg`-Meldungen in `libs/php/AdminController.php` lokalisiert.
+  - `libs/php/QuickActionManager.php` (7 Kategorien, 30 Aktionen, 4 Presets) und zentrale Admin-Views (`login.php`, `tab_security.php`, `tab_users.php`, `tab_downloads.php`, `tab_media.php`, `tab_settings.php`, `partials/api_webhooks.php`) auf `__a()` umgestellt.
+  - `window.WeaveI18n` in `admin/views/header.php` integriert und `confirm()`/`alert()`-Dialoge in `libs/js/admin.js` sowie Inline-Skripten lokalisiert.
 
 ### v1.3.4.1 (10. November 2026)
 
@@ -209,7 +217,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.3.4.1.zip](releases/weavecms-v1.3.4.1.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.4.2.zip](releases/weavecms-v1.3.4.2.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

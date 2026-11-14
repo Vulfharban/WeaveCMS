@@ -351,14 +351,14 @@ class AdminController {
                     $error_msg = htmlspecialchars($res['message']);
                 }
             } else {
-                $error_msg = 'CoreUpdater-Klasse nicht verfügbar.';
+                $error_msg = __a('admin.msg.core_updater_unavailable', 'CoreUpdater-Klasse nicht verfügbar.');
             }
             return;
         }
 
         $slug = preg_replace('/[^a-z0-9_-]/', '', strtolower($_POST['plugin_slug'] ?? ''));
         if (empty($slug)) {
-            $error_msg = 'Ungültige Plugin-Kennung.';
+            $error_msg = __a('admin.msg.invalid_plugin_slug', 'Ungültige Plugin-Kennung.');
             return;
         }
 
@@ -379,14 +379,14 @@ class AdminController {
             if (class_exists('UpdateManager')) {
                 $res = UpdateManager::checkSinglePluginUpdate($slug, null, true);
                 if ($res && !empty($res['update_available'])) {
-                    $success_msg = "✓ Neues Update für Plugin '{$res['name']}' verfügbar: v{$res['latest_version']}!";
+                    $success_msg = __a('admin.msg.plugin_update_avail', '✓ Neues Update für Plugin \'{name}\' verfügbar: v{version}!', null, ['name' => $res['name'], 'version' => $res['latest_version']]);
                 } elseif ($res) {
-                    $success_msg = "✓ Plugin '{$res['name']}' (v{$res['installed_version']}) ist auf dem neuesten Stand.";
+                    $success_msg = __a('admin.msg.plugin_up_to_date', '✓ Plugin \'{name}\' (v{version}) ist auf dem neuesten Stand.', null, ['name' => $res['name'], 'version' => $res['installed_version']]);
                 } else {
-                    $error_msg = "Für das Plugin '{$slug}' ist kein Update-Repository (github_repo) in plugin.json hinterlegt.";
+                    $error_msg = __a('admin.msg.plugin_no_repo', 'Für das Plugin \'{slug}\' ist kein Update-Repository (github_repo) in plugin.json hinterlegt.', null, ['slug' => $slug]);
                 }
             } else {
-                $error_msg = 'UpdateManager-Klasse nicht verfügbar.';
+                $error_msg = __a('admin.msg.update_manager_unavailable', 'UpdateManager-Klasse nicht verfügbar.');
             }
             return;
         }
@@ -474,7 +474,7 @@ class AdminController {
                     $error_msg = $res['message'];
                 }
             } else {
-                $error_msg = 'Ungültige Sprachauswahl.';
+                $error_msg = __a('admin.msg.invalid_language', 'Ungültige Sprachauswahl.');
             }
         } elseif ($action === 'delete_user') {
             $id = trim($_POST['user_id'] ?? '');
@@ -571,9 +571,9 @@ class AdminController {
         $data['settings']['active_languages'] = $active_langs;
 
         if (save_data($dataFile, $data)) {
-            $success_msg = 'Darstellungseinstellungen erfolgreich gespeichert!';
+            $success_msg = __a('admin.msg.display_saved', 'Darstellungseinstellungen erfolgreich gespeichert!');
         } else {
-            $error_msg = 'Fehler beim Speichern der Darstellungseinstellungen.';
+            $error_msg = __a('admin.msg.display_save_error', 'Fehler beim Speichern der Darstellungseinstellungen.');
         }
     }
 
@@ -600,7 +600,7 @@ class AdminController {
             if ($uploadedLogo) {
                 $data['settings']['logo_image'] = $uploadedLogo;
             } else {
-                $error_msg = 'Fehler beim Hochladen des Logos (nur SVG, PNG, WebP, JPG erlaubt).';
+                $error_msg = __a('admin.msg.logo_upload_error', 'Fehler beim Hochladen des Logos (nur SVG, PNG, WebP, JPG erlaubt).');
             }
         } elseif (!empty($_POST['delete_logo'])) {
             $data['settings']['logo_image'] = '';
@@ -612,7 +612,7 @@ class AdminController {
             if ($uploadedFav) {
                 $data['settings']['favicon'] = $uploadedFav;
             } else {
-                $error_msg = 'Fehler beim Hochladen des Favicons (nur ICO, SVG, PNG erlaubt).';
+                $error_msg = __a('admin.msg.favicon_upload_error', 'Fehler beim Hochladen des Favicons (nur ICO, SVG, PNG erlaubt).');
             }
         } elseif (!empty($_POST['delete_favicon'])) {
             $data['settings']['favicon'] = '';
@@ -673,9 +673,9 @@ class AdminController {
         $data['settings']['font_scale'] = $font_scale;
 
         if (save_data($dataFile, $data)) {
-            $success_msg = 'Design &amp; Farbschema erfolgreich gespeichert!';
+            $success_msg = __a('admin.msg.design_saved', 'Design &amp; Farbschema erfolgreich gespeichert!');
         } else {
-            $error_msg = 'Fehler beim Speichern des Designs.';
+            $error_msg = __a('admin.msg.design_save_error', 'Fehler beim Speichern des Designs.');
         }
     }
 
@@ -709,7 +709,7 @@ class AdminController {
             if ($uploadedLogo) {
                 $data['settings']['logo_image'] = $uploadedLogo;
             } else {
-                $error_msg = 'Fehler beim Hochladen des Logos (nur SVG, PNG, WebP, JPG erlaubt).';
+                $error_msg = __a('admin.msg.logo_upload_error', 'Fehler beim Hochladen des Logos (nur SVG, PNG, WebP, JPG erlaubt).');
             }
         } elseif (!empty($_POST['delete_logo'])) {
             $data['settings']['logo_image'] = '';
@@ -721,7 +721,7 @@ class AdminController {
             if ($uploadedFav) {
                 $data['settings']['favicon'] = $uploadedFav;
             } else {
-                $error_msg = 'Fehler beim Hochladen des Favicons (nur ICO, SVG, PNG erlaubt).';
+                $error_msg = __a('admin.msg.favicon_upload_error', 'Fehler beim Hochladen des Favicons (nur ICO, SVG, PNG erlaubt).');
             }
         } elseif (!empty($_POST['delete_favicon'])) {
             $data['settings']['favicon'] = '';
@@ -853,9 +853,9 @@ class AdminController {
         $data['settings']['active_languages'] = $active_langs;
 
         if (save_data($dataFile, $data)) {
-            $success_msg = 'Darstellung, Design &amp; Spracheinstellungen erfolgreich gespeichert!';
+            $success_msg = __a('admin.msg.display_design_lang_saved', 'Darstellung, Design &amp; Spracheinstellungen erfolgreich gespeichert!');
         } else {
-            $error_msg = 'Fehler beim Speichern der Darstellungseinstellungen.';
+            $error_msg = __a('admin.msg.display_save_error', 'Fehler beim Speichern der Darstellungseinstellungen.');
         }
     }
 
@@ -865,15 +865,15 @@ class AdminController {
     protected static function handleInbox(string $action, string &$success_msg, string &$error_msg): void {
         if ($action === 'inbox_set_status') {
             if (ContactInbox::setStatus($_POST['id'] ?? '', $_POST['status'] ?? '')) {
-                $success_msg = 'Status der Anfrage aktualisiert.';
+                $success_msg = __a('admin.msg.inquiry_status_updated', 'Status der Anfrage aktualisiert.');
             } else {
-                $error_msg = 'Status konnte nicht aktualisiert werden.';
+                $error_msg = __a('admin.msg.inquiry_status_error', 'Status konnte nicht aktualisiert werden.');
             }
         } elseif ($action === 'inbox_delete') {
             if (ContactInbox::delete($_POST['id'] ?? '')) {
-                $success_msg = 'Anfrage gelöscht.';
+                $success_msg = __a('admin.msg.inquiry_deleted', 'Anfrage gelöscht.');
             } else {
-                $error_msg = 'Anfrage nicht gefunden.';
+                $error_msg = __a('admin.msg.inquiry_not_found', 'Anfrage nicht gefunden.');
             }
         }
     }
@@ -918,14 +918,14 @@ class AdminController {
                         ]);
                         exit;
                     }
-                    $success_msg = 'Seiten-Aufbau und Modul-Pool erfolgreich aktualisiert!';
+                    $success_msg = __a('admin.msg.layout_pool_updated', 'Seiten-Aufbau und Modul-Pool erfolgreich aktualisiert!');
                 } else {
                     if (!empty($_POST['is_ajax'])) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => false, 'error' => 'Fehler beim Speichern der Daten.']);
                         exit;
                     }
-                    $error_msg = 'Fehler beim Speichern der Daten.';
+                    $error_msg = __a('admin.msg.data_save_error', 'Fehler beim Speichern der Daten.');
                 }
             } else {
                 if (!empty($_POST['is_ajax'])) {
@@ -933,7 +933,7 @@ class AdminController {
                     echo json_encode(['success' => false, 'error' => 'Fehler beim Verarbeiten des Modul-Pools.']);
                     exit;
                 }
-                $error_msg = 'Fehler beim Verarbeiten des Modul-Pools.';
+                $error_msg = __a('admin.msg.pool_process_error', 'Fehler beim Verarbeiten des Modul-Pools.');
             }
             return;
         }
@@ -943,22 +943,22 @@ class AdminController {
             $dir = $_POST['direction'] ?? 'up';
             if (SectionManager::moveSection($data, $sec_id, $dir)) {
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Sektions-Reihenfolge erfolgreich aktualisiert!';
+                    $success_msg = __a('admin.msg.section_order_updated', 'Sektions-Reihenfolge erfolgreich aktualisiert!');
                 } else {
-                    $error_msg = 'Fehler beim Speichern der Reihenfolge.';
+                    $error_msg = __a('admin.msg.order_save_error', 'Fehler beim Speichern der Reihenfolge.');
                 }
             } else {
-                $error_msg = 'Sektion konnte nicht verschoben werden.';
+                $error_msg = __a('admin.msg.section_move_error', 'Sektion konnte nicht verschoben werden.');
             }
         } elseif ($action === 'toggle_section_visibility') {
             if (SectionManager::setVisibility($data, $sec_id)) {
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Sektions-Sichtbarkeit erfolgreich aktualisiert!';
+                    $success_msg = __a('admin.msg.section_visibility_updated', 'Sektions-Sichtbarkeit erfolgreich aktualisiert!');
                 } else {
-                    $error_msg = 'Fehler beim Speichern der Sichtbarkeit.';
+                    $error_msg = __a('admin.msg.visibility_save_error', 'Fehler beim Speichern der Sichtbarkeit.');
                 }
             } else {
-                $error_msg = 'Sektion nicht gefunden.';
+                $error_msg = __a('admin.msg.section_not_found', 'Sektion nicht gefunden.');
             }
         } elseif ($action === 'update_section') {
             $title = trim($_POST['title'] ?? '');
@@ -1024,12 +1024,12 @@ class AdminController {
                     }
                 }
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Sektion & Menü-Titel „' . htmlspecialchars($nav_label ?: $title) . '“ erfolgreich aktualisiert!';
+                    $success_msg = __a('admin.msg.section_title_updated', 'Sektion & Menü-Titel „{title}“ erfolgreich aktualisiert!', null, ['title' => htmlspecialchars($nav_label ?: $title)]);
                 } else {
-                    $error_msg = 'Fehler beim Speichern der Sektion.';
+                    $error_msg = __a('admin.msg.section_save_error', 'Fehler beim Speichern der Sektion.');
                 }
             } else {
-                $error_msg = 'Sektion nicht gefunden.';
+                $error_msg = __a('admin.msg.section_not_found', 'Sektion nicht gefunden.');
             }
         }
     }
@@ -1039,7 +1039,7 @@ class AdminController {
      */
     protected static function handleStorageMigration(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
         if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
-            $error_msg = '⚠️ Speicher- und Datenbank-Migrationen sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.';
+            $error_msg = __a('admin.msg.sandbox_db_disabled', '⚠️ Speicher- und Datenbank-Migrationen sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.');
             return;
         }
 
@@ -1072,7 +1072,7 @@ class AdminController {
                 $error_msg = $res['message'];
             }
         } else {
-            $error_msg = 'Ungültige Ziel-Engine ausgewählt.';
+            $error_msg = __a('admin.msg.invalid_storage_engine', 'Ungültige Ziel-Engine ausgewählt.');
         }
     }
 
@@ -1102,9 +1102,9 @@ class AdminController {
         }
 
         if (save_data($dataFile, $data)) {
-            $success_msg = 'SEO- &amp; Social-Sharing-Einstellungen erfolgreich gespeichert!';
+            $success_msg = __a('admin.msg.seo_saved', 'SEO- &amp; Social-Sharing-Einstellungen erfolgreich gespeichert!');
         } else {
-            $error_msg = 'Fehler beim Speichern der SEO-Einstellungen.';
+            $error_msg = __a('admin.msg.seo_save_error', 'Fehler beim Speichern der SEO-Einstellungen.');
         }
     }
 
@@ -1117,11 +1117,11 @@ class AdminController {
         $new_pin = trim($_POST['new_pin'] ?? '');
 
         if (empty($new_password) && empty($new_pin)) {
-            $error_msg = 'Bitte gib ein neues Passwort oder eine neue PIN ein, die du setzen möchtest.';
+            $error_msg = __a('admin.msg.enter_new_pw_or_pin', 'Bitte gib ein neues Passwort oder eine neue PIN ein, die du setzen möchtest.');
         } elseif (empty($current_pin)) {
-            $error_msg = 'Sicherheitsabfrage erforderlich: Bitte gib deine aktuell noch gültige PIN ein, um Passwort oder PIN zu ändern!';
+            $error_msg = __a('admin.msg.current_pin_required', 'Sicherheitsabfrage erforderlich: Bitte gib deine aktuell noch gültige PIN ein, um Passwort oder PIN zu ändern!');
         } elseif (!AuthManager::verifyAdminPin($current_pin, $data)) {
-            $error_msg = 'Sicherheitsabfrage fehlgeschlagen: Die eingegebene aktuelle PIN ist nicht korrekt! Die Zugangsdaten wurden NICHT geändert.';
+            $error_msg = __a('admin.msg.current_pin_invalid', 'Sicherheitsabfrage fehlgeschlagen: Die eingegebene aktuelle PIN ist nicht korrekt! Die Zugangsdaten wurden NICHT geändert.');
         } else {
             $credentials_changed = false;
             if (!empty($new_password)) {
@@ -1136,9 +1136,9 @@ class AdminController {
             if ($credentials_changed && save_data($dataFile, $data)) {
                 $auth_hash = AuthManager::getAuthHash($data);
                 setcookie('admin_auth', $auth_hash, time() + 86400 * 30, '/');
-                $success_msg = '✓ Admin-Zugangsdaten (Passwort / PIN) wurden erfolgreich geändert!';
+                $success_msg = __a('admin.msg.credentials_changed', '✓ Admin-Zugangsdaten (Passwort / PIN) wurden erfolgreich geändert!');
             } else {
-                $error_msg = 'Fehler beim Speichern der neuen Zugangsdaten.';
+                $error_msg = __a('admin.msg.credentials_save_error', 'Fehler beim Speichern der neuen Zugangsdaten.');
             }
         }
     }
@@ -1205,7 +1205,7 @@ class AdminController {
                 $data['settings']['captcha_icons'] = $valid_captcha_icons;
             } elseif ($captcha_mode === CaptchaManager::MODE_ICONS) {
                 $captcha_error = true;
-                $error_msg = 'Bitte wähle genau 4 Symbole für den Spamschutz im Kontaktformular aus (aktuell ausgewählt: ' . count($valid_captcha_icons) . ').';
+                $error_msg = __a('admin.msg.captcha_4_icons', 'Bitte wähle genau 4 Symbole für den Spamschutz im Kontaktformular aus (aktuell ausgewählt: {count}).', null, ['count' => count($valid_captcha_icons)]);
             }
         } elseif ($captcha_mode === CaptchaManager::MODE_ICONS && empty($data['settings']['captcha_icons'])) {
             $data['settings']['captcha_icons'] = ['basket', 'branch', 'paw', 'sun'];
@@ -1232,7 +1232,7 @@ class AdminController {
 
         if (!$captcha_error) {
             if (save_data($dataFile, $data)) {
-                $success_msg = '✓ Spamschutz-, SMTP-, Upload- und Produktions-Sicherheitseinstellungen erfolgreich gespeichert.';
+                $success_msg = __a('admin.msg.security_settings_saved', '✓ Spamschutz-, SMTP-, Upload- und Produktions-Sicherheitseinstellungen erfolgreich gespeichert.');
             } else {
                 $reason = StorageManager::getLastError();
                 $error_msg = 'Fehler beim Speichern der Einstellungen: ' . $reason;
@@ -1245,19 +1245,19 @@ class AdminController {
      */
     protected static function handleSmtpTest(array $data, string &$success_msg, string &$error_msg): void {
         if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
-            $success_msg = '✓ Demo-Modus: SMTP-Verbindungstest wurde erfolgreich simuliert (keine reale E-Mail versendet).';
+            $success_msg = __a('admin.msg.smtp_demo_ok', '✓ Demo-Modus: SMTP-Verbindungstest wurde erfolgreich simuliert (keine reale E-Mail versendet).');
             return;
         }
 
         $test_to = trim($_POST['test_to_email'] ?? ($data['texts']['contact_email'] ?? ''));
         if (empty($test_to) || !filter_var($test_to, FILTER_VALIDATE_EMAIL)) {
-            $error_msg = 'Bitte gib eine gültige Ziel-E-Mail-Adresse für den SMTP-Test an.';
+            $error_msg = __a('admin.msg.smtp_invalid_email', 'Bitte gib eine gültige Ziel-E-Mail-Adresse für den SMTP-Test an.');
             return;
         }
 
         $cur_smtp = $data['settings']['smtp'] ?? [];
         if (empty($cur_smtp['enabled']) || empty($cur_smtp['host'])) {
-            $error_msg = 'SMTP ist nicht aktiviert oder es ist kein SMTP-Host eingetragen. Bitte aktiviere SMTP und speichere die Einstellungen zuerst.';
+            $error_msg = __a('admin.msg.smtp_not_configured', 'SMTP ist nicht aktiviert oder es ist kein SMTP-Host eingetragen. Bitte aktiviere SMTP und speichere die Einstellungen zuerst.');
             return;
         }
 
@@ -1281,7 +1281,7 @@ class AdminController {
         );
 
         if ($test_res['success']) {
-            $success_msg = '✓ SMTP-Verbindungstest erfolgreich! Eine Test-E-Mail wurde an ' . htmlspecialchars($test_to) . ' gesendet.';
+            $success_msg = __a('admin.msg.smtp_test_sent', '✓ SMTP-Verbindungstest erfolgreich! Eine Test-E-Mail wurde an {email} gesendet.', null, ['email' => htmlspecialchars($test_to)]);
         } else {
             $error_msg = 'SMTP-Verbindungstest fehlgeschlagen: ' . htmlspecialchars($test_res['error']);
         }
@@ -1292,7 +1292,7 @@ class AdminController {
      */
     protected static function handleCoreUpdate(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
         if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
-            $error_msg = '⚠️ Core-Updates sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.';
+            $error_msg = __a('admin.msg.sandbox_updates_disabled', '⚠️ Core-Updates sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.');
             return;
         }
 
@@ -1317,9 +1317,9 @@ class AdminController {
 
         if ($action === 'reset_quickactions') {
             if (QuickActionManager::resetUserQuickActions($userId, $userRole, $dataFile, $data)) {
-                $success_msg = '✓ Schnellzugriffe wurden erfolgreich auf den Rollen-Standard zurückgesetzt!';
+                $success_msg = __a('admin.msg.qa_reset_ok', '✓ Schnellzugriffe wurden erfolgreich auf den Rollen-Standard zurückgesetzt!');
             } else {
-                $error_msg = 'Fehler beim Zurücksetzen der Schnellzugriffe.';
+                $error_msg = __a('admin.msg.qa_reset_error', 'Fehler beim Zurücksetzen der Schnellzugriffe.');
             }
             return;
         }
@@ -1331,9 +1331,9 @@ class AdminController {
         }
 
         if (QuickActionManager::saveUserQuickActions($userId, $actionIds, $dataFile, $data)) {
-            $success_msg = '✓ Deine persönlichen Schnellzugriffe & Workflows wurden erfolgreich gespeichert!';
+            $success_msg = __a('admin.msg.qa_saved_ok', '✓ Deine persönlichen Schnellzugriffe & Workflows wurden erfolgreich gespeichert!');
         } else {
-            $error_msg = 'Fehler beim Speichern der Schnellzugriffe.';
+            $error_msg = __a('admin.msg.qa_save_error', 'Fehler beim Speichern der Schnellzugriffe.');
         }
     }
 
@@ -1342,7 +1342,7 @@ class AdminController {
      */
     protected static function handleBackupAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
         if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
-            $error_msg = '⚠️ Sicherungs-, Wiederherstellungs- und Release-Funktionen sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.';
+            $error_msg = __a('admin.msg.sandbox_backup_disabled', '⚠️ Sicherungs-, Wiederherstellungs- und Release-Funktionen sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.');
             return;
         }
 
@@ -1350,7 +1350,7 @@ class AdminController {
             $backup_type = $_POST['backup_type'] ?? 'full';
             $res = BackupManager::createBackup($backup_type, $data);
             if ($res['success']) {
-                $success_msg = '✓ Sicherung "' . htmlspecialchars($res['filename']) . '" wurde erfolgreich im geschützten Ordner backups/ erstellt!';
+                $success_msg = __a('admin.msg.backup_created', '✓ Sicherung "{file}" wurde erfolgreich im geschützten Ordner backups/ erstellt!', null, ['file' => htmlspecialchars($res['filename'])]);
             } else {
                 $error_msg = 'Fehler beim Erstellen der Sicherung: ' . htmlspecialchars($res['error']);
             }
@@ -1360,7 +1360,7 @@ class AdminController {
             $res = BackupManager::restoreExistingBackup($file, $pin, $data);
             if ($res['success']) {
                 $data = load_data($dataFile);
-                $success_msg = '✓ Sicherung "' . htmlspecialchars($file) . '" wurde erfolgreich wiederhergestellt! (Ein Notfall-Snapshot wurde vorab angelegt).';
+                $success_msg = __a('admin.msg.backup_restored', '✓ Sicherung "{file}" wurde erfolgreich wiederhergestellt! (Ein Notfall-Snapshot wurde vorab angelegt).', null, ['file' => htmlspecialchars($file)]);
             } else {
                 $error_msg = htmlspecialchars($res['error']);
             }
@@ -1369,16 +1369,16 @@ class AdminController {
             $res = BackupManager::restoreUploadedBackup($_FILES['backup_upload_file'] ?? null, $pin, $data);
             if ($res['success']) {
                 $data = load_data($dataFile);
-                $success_msg = '✓ Die hochgeladene Sicherung wurde erfolgreich wiederhergestellt! (Ein Notfall-Snapshot wurde vorab angelegt).';
+                $success_msg = __a('admin.msg.backup_upload_restored', '✓ Die hochgeladene Sicherung wurde erfolgreich wiederhergestellt! (Ein Notfall-Snapshot wurde vorab angelegt).');
             } else {
                 $error_msg = htmlspecialchars($res['error']);
             }
         } elseif ($action === 'delete_backup') {
             $file = $_POST['backup_file'] ?? '';
             if (BackupManager::deleteBackup($file)) {
-                $success_msg = 'Sicherungsdatei "' . htmlspecialchars($file) . '" wurde erfolgreich gelöscht.';
+                $success_msg = __a('admin.msg.backup_deleted', 'Sicherungsdatei "{file}" wurde erfolgreich gelöscht.', null, ['file' => htmlspecialchars($file)]);
             } else {
-                $error_msg = 'Fehler beim Löschen der Sicherungsdatei.';
+                $error_msg = __a('admin.msg.backup_delete_error', 'Fehler beim Löschen der Sicherungsdatei.');
             }
         } elseif ($action === 'build_release_package') {
             $pkgType = ($_POST['package_type'] ?? 'full') === 'update' ? 'update' : 'full';
@@ -1388,9 +1388,9 @@ class AdminController {
                 $_GET['type'] = $pkgType;
                 include $script;
                 $out = ob_get_clean();
-                $success_msg = '✓ Distributions-Paket (' . strtoupper($pkgType) . ') erfolgreich generiert! Siehe Ordner releases/.';
+                $success_msg = __a('admin.msg.release_created', '✓ Distributions-Paket ({type}) erfolgreich generiert! Siehe Ordner releases/.', null, ['type' => strtoupper($pkgType)]);
             } else {
-                $error_msg = 'Build-Skript nicht gefunden.';
+                $error_msg = __a('admin.msg.build_script_not_found', 'Build-Skript nicht gefunden.');
             }
         }
     }
@@ -1406,7 +1406,7 @@ class AdminController {
         if ($action === 'add_category') {
             $new_cat = trim($_POST['category_name'] ?? '');
             if (empty($new_cat)) {
-                $error_msg = 'Bitte gib einen Namen für die Kategorie ein.';
+                $error_msg = __a('admin.msg.category_name_required', 'Bitte gib einen Namen für die Kategorie ein.');
                 return;
             }
             $exists = false;
@@ -1419,12 +1419,12 @@ class AdminController {
             if (!$exists) {
                 $data['categories'][] = $new_cat;
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Kategorie "' . htmlspecialchars($new_cat) . '" erfolgreich angelegt!';
+                    $success_msg = __a('admin.msg.category_created', 'Kategorie "{name}" erfolgreich angelegt!', null, ['name' => htmlspecialchars($new_cat)]);
                 } else {
-                    $error_msg = 'Fehler beim Speichern der Kategorie.';
+                    $error_msg = __a('admin.msg.category_save_error', 'Fehler beim Speichern der Kategorie.');
                 }
             } else {
-                $error_msg = 'Diese Kategorie existiert bereits.';
+                $error_msg = __a('admin.msg.category_exists', 'Diese Kategorie existiert bereits.');
             }
         } elseif ($action === 'delete_category') {
             $del_cat = trim($_POST['category_name'] ?? '');
@@ -1433,12 +1433,12 @@ class AdminController {
                 if ($pos !== false) {
                     array_splice($data['categories'], $pos, 1);
                     if (save_data($dataFile, $data)) {
-                        $success_msg = 'Kategorie "' . htmlspecialchars($del_cat) . '" gelöscht. Zugeordnete Galerie-Elemente bleiben erhalten, werden aber im Frontend nicht mehr angezeigt.';
+                        $success_msg = __a('admin.msg.category_deleted', 'Kategorie "{name}" gelöscht. Zugeordnete Galerie-Elemente bleiben erhalten, werden aber im Frontend nicht mehr angezeigt.', null, ['name' => htmlspecialchars($del_cat)]);
                     } else {
-                        $error_msg = 'Fehler beim Löschen der Kategorie.';
+                        $error_msg = __a('admin.msg.category_delete_error', 'Fehler beim Löschen der Kategorie.');
                     }
                 } else {
-                    $error_msg = 'Kategorie nicht gefunden.';
+                    $error_msg = __a('admin.msg.category_not_found', 'Kategorie nicht gefunden.');
                 }
             }
         }
@@ -1527,9 +1527,9 @@ class AdminController {
         }
 
         if (save_data($dataFile, $data)) {
-            $success_msg = 'Inhaltstexte und Sprachübersetzungen erfolgreich gespeichert!';
+            $success_msg = __a('admin.msg.texts_saved', 'Inhaltstexte und Sprachübersetzungen erfolgreich gespeichert!');
         } else {
-            $error_msg = 'Fehler beim Speichern der Texte.';
+            $error_msg = __a('admin.msg.texts_save_error', 'Fehler beim Speichern der Texte.');
         }
     }
 
@@ -1554,9 +1554,9 @@ class AdminController {
         $data['texts']['privacy_policy_text'] = $privacy_text;
 
         if (save_data($dataFile, $data)) {
-            $success_msg = 'Impressum, Kontaktdaten &amp; Datenschutzerklärung erfolgreich gespeichert!';
+            $success_msg = __a('admin.msg.impressum_saved', 'Impressum, Kontaktdaten &amp; Datenschutzerklärung erfolgreich gespeichert!');
         } else {
-            $error_msg = 'Fehler beim Speichern des Impressums.';
+            $error_msg = __a('admin.msg.impressum_save_error', 'Fehler beim Speichern des Impressums.');
         }
     }
 
@@ -1571,9 +1571,9 @@ class AdminController {
             $image_path = ImageUploader::upload('gallery_image', $data);
 
             if (empty($title)) {
-                $error_msg = 'Bitte gib einen Titel für das Galerie-Element an.';
+                $error_msg = __a('admin.msg.gallery_title_required', 'Bitte gib einen Titel für das Galerie-Element an.');
             } elseif (empty($image_path)) {
-                $error_msg = 'Fehler beim Upload des Bildes (nur JPG, PNG, WebP und GIF erlaubt).';
+                $error_msg = __a('admin.msg.image_upload_error', 'Fehler beim Upload des Bildes (nur JPG, PNG, WebP und GIF erlaubt).');
             } else {
                 $next_id = 1;
                 $next_sort = 1;
@@ -1609,9 +1609,9 @@ class AdminController {
                 ];
 
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Galerie-Element erfolgreich hinzugefügt!';
+                    $success_msg = __a('admin.msg.gallery_added', 'Galerie-Element erfolgreich hinzugefügt!');
                 } else {
-                    $error_msg = 'Fehler beim Speichern der Galerie-Daten.';
+                    $error_msg = __a('admin.msg.gallery_save_error', 'Fehler beim Speichern der Galerie-Daten.');
                 }
             }
         } elseif ($action === 'edit_gallery') {
@@ -1624,13 +1624,13 @@ class AdminController {
                 }
             }
             if ($found_idx === -1) {
-                $error_msg = 'Galerie-Element nicht gefunden.';
+                $error_msg = __a('admin.msg.gallery_not_found', 'Galerie-Element nicht gefunden.');
                 return;
             }
 
             $title = trim($_POST['title'] ?? '');
             if (empty($title)) {
-                $error_msg = 'Bitte gib einen Titel für das Galerie-Element an.';
+                $error_msg = __a('admin.msg.gallery_title_required', 'Bitte gib einen Titel für das Galerie-Element an.');
                 return;
             }
 
@@ -1665,9 +1665,9 @@ class AdminController {
             $data['gallery'][$found_idx]['translations'] = $translations;
 
             if (save_data($dataFile, $data)) {
-                $success_msg = 'Galerie-Element erfolgreich aktualisiert!';
+                $success_msg = __a('admin.msg.gallery_updated', 'Galerie-Element erfolgreich aktualisiert!');
             } else {
-                $error_msg = 'Fehler beim Speichern der Galerie-Daten.';
+                $error_msg = __a('admin.msg.gallery_save_error', 'Fehler beim Speichern der Galerie-Daten.');
             }
         } elseif ($action === 'delete_gallery') {
             $id = (int)($_POST['id'] ?? 0);
@@ -1691,9 +1691,9 @@ class AdminController {
             if ($found) {
                 $data['gallery'] = array_values($data['gallery']);
                 save_data($dataFile, $data);
-                $success_msg = 'Galerie-Element erfolgreich gelöscht!';
+                $success_msg = __a('admin.msg.gallery_deleted', 'Galerie-Element erfolgreich gelöscht!');
             } else {
-                $error_msg = 'Galerie-Element nicht gefunden.';
+                $error_msg = __a('admin.msg.gallery_not_found', 'Galerie-Element nicht gefunden.');
             }
         } elseif ($action === 'reorder_gallery') {
             $orders = $_POST['order'] ?? [];
@@ -1709,9 +1709,9 @@ class AdminController {
             });
 
             if (save_data($dataFile, $data)) {
-                $success_msg = 'Galerie-Reihenfolge erfolgreich aktualisiert!';
+                $success_msg = __a('admin.msg.gallery_order_updated', 'Galerie-Reihenfolge erfolgreich aktualisiert!');
             } else {
-                $error_msg = 'Fehler beim Speichern der Reihenfolge.';
+                $error_msg = __a('admin.msg.order_save_error', 'Fehler beim Speichern der Reihenfolge.');
             }
         }
     }
@@ -1732,7 +1732,7 @@ class AdminController {
             $available = isset($_POST['available']);
 
             if (empty($title) || empty($date_string)) {
-                $error_msg = 'Bitte gib mindestens einen Kurstitel und ein Datum an.';
+                $error_msg = __a('admin.msg.course_fields_required', 'Bitte gib mindestens einen Kurstitel und ein Datum an.');
             } else {
                 $next_id = 1;
                 foreach ($data['courses'] as $c) {
@@ -1780,9 +1780,9 @@ class AdminController {
                 ];
 
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Flechtkurs erfolgreich angelegt und Einladungslink generiert!';
+                    $success_msg = __a('admin.msg.course_created', 'Flechtkurs erfolgreich angelegt und Einladungslink generiert!');
                 } else {
-                    $error_msg = 'Fehler beim Speichern des Kurses.';
+                    $error_msg = __a('admin.msg.course_save_error', 'Fehler beim Speichern des Kurses.');
                 }
             }
         } elseif ($action === 'edit_course') {
@@ -1835,9 +1835,9 @@ class AdminController {
             }
 
             if ($found && save_data($dataFile, $data)) {
-                $success_msg = 'Flechtkurs erfolgreich aktualisiert!';
+                $success_msg = __a('admin.msg.course_updated', 'Flechtkurs erfolgreich aktualisiert!');
             } else {
-                $error_msg = 'Fehler beim Aktualisieren des Kurses.';
+                $error_msg = __a('admin.msg.course_update_error', 'Fehler beim Aktualisieren des Kurses.');
             }
         } elseif ($action === 'delete_course') {
             $id = (int)($_POST['id'] ?? 0);
@@ -1853,9 +1853,9 @@ class AdminController {
             if ($found) {
                 $data['courses'] = array_values($data['courses']);
                 save_data($dataFile, $data);
-                $success_msg = 'Flechtkurs erfolgreich gelöscht!';
+                $success_msg = __a('admin.msg.course_deleted', 'Flechtkurs erfolgreich gelöscht!');
             } else {
-                $error_msg = 'Flechtkurs nicht gefunden.';
+                $error_msg = __a('admin.msg.course_not_found', 'Flechtkurs nicht gefunden.');
             }
         }
     }
@@ -1869,12 +1869,12 @@ class AdminController {
             if (!empty($image_path)) {
                 $data['past_courses'][] = $image_path;
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Bild vergangener Kurse erfolgreich hochgeladen!';
+                    $success_msg = __a('admin.msg.past_course_img_uploaded', 'Bild vergangener Kurse erfolgreich hochgeladen!');
                 } else {
-                    $error_msg = 'Fehler beim Speichern der Kursbilder.';
+                    $error_msg = __a('admin.msg.past_course_save_error', 'Fehler beim Speichern der Kursbilder.');
                 }
             } else {
-                $error_msg = 'Fehler beim Bildupload.';
+                $error_msg = __a('admin.msg.img_upload_error', 'Fehler beim Bildupload.');
             }
         } elseif ($action === 'delete_past_course_image') {
             $img_path = trim($_POST['image_path'] ?? '');
@@ -1902,9 +1902,9 @@ class AdminController {
             if ($found) {
                 $data['past_courses'] = array_values($data['past_courses']);
                 save_data($dataFile, $data);
-                $success_msg = 'Bild erfolgreich gelöscht!';
+                $success_msg = __a('admin.msg.img_deleted', 'Bild erfolgreich gelöscht!');
             } else {
-                $error_msg = 'Bild nicht in der Liste gefunden.';
+                $error_msg = __a('admin.msg.img_not_found', 'Bild nicht in der Liste gefunden.');
             }
         }
     }
@@ -1943,7 +1943,7 @@ class AdminController {
         if ($action === 'add_blog_post') {
             $title = trim($_POST['title'] ?? '');
             if (empty($title)) {
-                $error_msg = 'Bitte gib einen Titel für den Blog-Artikel ein.';
+                $error_msg = __a('admin.msg.blog_title_required', 'Bitte gib einen Titel für den Blog-Artikel ein.');
                 return;
             }
 
@@ -1968,7 +1968,7 @@ class AdminController {
                 if ($uploaded) {
                     $image_path = $upload_cfg['rel'] . '/' . $uploaded;
                 } else {
-                    $error_msg = 'Das Beitragsbild konnte nicht hochgeladen werden.';
+                    $error_msg = __a('admin.msg.blog_image_upload_error', 'Das Beitragsbild konnte nicht hochgeladen werden.');
                     return;
                 }
             } elseif (!empty($_POST['image_url'])) {
@@ -2022,9 +2022,9 @@ class AdminController {
                         'published_at' => $date
                     ]);
                 }
-                $success_msg = 'Blog-Artikel „' . htmlspecialchars($title) . '“ erfolgreich erstellt!';
+                $success_msg = __a('admin.msg.blog_created', 'Blog-Artikel „{title}“ erfolgreich erstellt!', null, ['title' => htmlspecialchars($title)]);
             } else {
-                $error_msg = 'Fehler beim Speichern des Artikels.';
+                $error_msg = __a('admin.msg.blog_save_error', 'Fehler beim Speichern des Artikels.');
             }
 
         } elseif ($action === 'edit_blog_post') {
@@ -2038,13 +2038,13 @@ class AdminController {
             }
 
             if ($found_idx === -1) {
-                $error_msg = 'Artikel nicht gefunden.';
+                $error_msg = __a('admin.msg.blog_not_found', 'Artikel nicht gefunden.');
                 return;
             }
 
             $title = trim($_POST['title'] ?? '');
             if (empty($title)) {
-                $error_msg = 'Bitte gib einen Titel ein.';
+                $error_msg = __a('admin.msg.title_required', 'Bitte gib einen Titel ein.');
                 return;
             }
 
@@ -2117,9 +2117,9 @@ class AdminController {
                         'published_at' => $date
                     ]);
                 }
-                $success_msg = 'Blog-Artikel „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
+                $success_msg = __a('admin.msg.blog_updated', 'Blog-Artikel „{title}“ erfolgreich aktualisiert!', null, ['title' => htmlspecialchars($title)]);
             } else {
-                $error_msg = 'Fehler beim Speichern der Änderungen.';
+                $error_msg = __a('admin.msg.changes_save_error', 'Fehler beim Speichern der Änderungen.');
             }
 
         } elseif ($action === 'delete_blog_post') {
@@ -2131,12 +2131,12 @@ class AdminController {
 
             if (count($data['blog']) < $original_count) {
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Blog-Artikel gelöscht.';
+                    $success_msg = __a('admin.msg.blog_deleted', 'Blog-Artikel gelöscht.');
                 } else {
-                    $error_msg = 'Fehler beim Speichern.';
+                    $error_msg = __a('admin.msg.save_error', 'Fehler beim Speichern.');
                 }
             } else {
-                $error_msg = 'Artikel nicht gefunden.';
+                $error_msg = __a('admin.msg.blog_not_found', 'Artikel nicht gefunden.');
             }
 
         } elseif ($action === 'toggle_blog_status') {
@@ -2162,9 +2162,9 @@ class AdminController {
                         break;
                     }
                 }
-                $success_msg = 'Veröffentlichungsstatus geändert.';
+                $success_msg = __a('admin.msg.publish_status_changed', 'Veröffentlichungsstatus geändert.');
             } else {
-                $error_msg = 'Artikel nicht gefunden oder Fehler beim Speichern.';
+                $error_msg = __a('admin.msg.blog_not_found_or_error', 'Artikel nicht gefunden oder Fehler beim Speichern.');
             }
         }
     }
@@ -2180,7 +2180,7 @@ class AdminController {
         if ($action === 'add_page') {
             $title = trim($_POST['title'] ?? '');
             if (empty($title)) {
-                $error_msg = 'Bitte gib einen Seitentitel an.';
+                $error_msg = __a('admin.msg.page_title_required', 'Bitte gib einen Seitentitel an.');
                 return;
             }
             $slug = trim($_POST['slug'] ?? '');
@@ -2264,9 +2264,9 @@ class AdminController {
             if (save_data($dataFile, $data)) {
                 $userAuthor = $_SESSION['admin_user'] ?? 'Admin';
                 RevisionManager::createRevision('page', $newPage['id'], $newPage, $userAuthor, 'Einzelseite neu angelegt');
-                $success_msg = 'Einzelseite „' . htmlspecialchars($title) . '“ erfolgreich erstellt!';
+                $success_msg = __a('admin.msg.page_created', 'Einzelseite „{title}“ erfolgreich erstellt!', null, ['title' => htmlspecialchars($title)]);
             } else {
-                $error_msg = 'Fehler beim Speichern der Einzelseite.';
+                $error_msg = __a('admin.msg.page_save_error', 'Fehler beim Speichern der Einzelseite.');
             }
 
         } elseif ($action === 'edit_page') {
@@ -2279,13 +2279,13 @@ class AdminController {
                 }
             }
             if ($found_idx === -1) {
-                $error_msg = 'Einzelseite nicht gefunden.';
+                $error_msg = __a('admin.msg.page_not_found', 'Einzelseite nicht gefunden.');
                 return;
             }
 
             $title = trim($_POST['title'] ?? '');
             if (empty($title)) {
-                $error_msg = 'Bitte gib einen Seitentitel an.';
+                $error_msg = __a('admin.msg.page_title_required', 'Bitte gib einen Seitentitel an.');
                 return;
             }
 
@@ -2371,9 +2371,9 @@ class AdminController {
                 $userAuthor = $_SESSION['admin_user'] ?? 'Admin';
                 $revNote = trim($_POST['revision_note'] ?? 'Einzelseite aktualisiert');
                 RevisionManager::createRevision('page', $page_id, $data['pages'][$found_idx], $userAuthor, $revNote);
-                $success_msg = 'Einzelseite „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
+                $success_msg = __a('admin.msg.page_updated', 'Einzelseite „{title}“ erfolgreich aktualisiert!', null, ['title' => htmlspecialchars($title)]);
             } else {
-                $error_msg = 'Fehler beim Speichern der Einzelseite.';
+                $error_msg = __a('admin.msg.page_save_error', 'Fehler beim Speichern der Einzelseite.');
             }
 
         } elseif ($action === 'delete_page') {
@@ -2385,12 +2385,12 @@ class AdminController {
 
             if (count($data['pages']) < $orig_count) {
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Einzelseite gelöscht.';
+                    $success_msg = __a('admin.msg.page_deleted', 'Einzelseite gelöscht.');
                 } else {
-                    $error_msg = 'Fehler beim Speichern.';
+                    $error_msg = __a('admin.msg.save_error', 'Fehler beim Speichern.');
                 }
             } else {
-                $error_msg = 'Seite nicht gefunden.';
+                $error_msg = __a('admin.msg.page_not_found_short', 'Seite nicht gefunden.');
             }
         }
     }
@@ -2407,7 +2407,7 @@ class AdminController {
             $question = trim($_POST['question'] ?? '');
             $answer = trim($_POST['answer'] ?? '');
             if (empty($question) || empty($answer)) {
-                $error_msg = 'Bitte gib sowohl eine Frage als auch eine Antwort an.';
+                $error_msg = __a('admin.msg.faq_fields_required', 'Bitte gib sowohl eine Frage als auch eine Antwort an.');
                 return;
             }
 
@@ -2436,9 +2436,9 @@ class AdminController {
 
             $data['faqs'][] = $newFaq;
             if (save_data($dataFile, $data)) {
-                $success_msg = 'FAQ-Frage erfolgreich hinzugefügt!';
+                $success_msg = __a('admin.msg.faq_added', 'FAQ-Frage erfolgreich hinzugefügt!');
             } else {
-                $error_msg = 'Fehler beim Speichern der FAQ-Frage.';
+                $error_msg = __a('admin.msg.faq_save_error', 'Fehler beim Speichern der FAQ-Frage.');
             }
 
         } elseif ($action === 'edit_faq') {
@@ -2469,9 +2469,9 @@ class AdminController {
                 }
             }
             if ($found && save_data($dataFile, $data)) {
-                $success_msg = 'FAQ-Frage erfolgreich aktualisiert!';
+                $success_msg = __a('admin.msg.faq_updated', 'FAQ-Frage erfolgreich aktualisiert!');
             } else {
-                $error_msg = 'FAQ-Frage nicht gefunden oder Fehler beim Speichern.';
+                $error_msg = __a('admin.msg.faq_not_found_or_error', 'FAQ-Frage nicht gefunden oder Fehler beim Speichern.');
             }
 
         } elseif ($action === 'delete_faq') {
@@ -2483,12 +2483,12 @@ class AdminController {
 
             if (count($data['faqs']) < $orig_count) {
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'FAQ-Frage gelöscht.';
+                    $success_msg = __a('admin.msg.faq_deleted', 'FAQ-Frage gelöscht.');
                 } else {
-                    $error_msg = 'Fehler beim Speichern.';
+                    $error_msg = __a('admin.msg.save_error', 'Fehler beim Speichern.');
                 }
             } else {
-                $error_msg = 'FAQ-Frage nicht gefunden.';
+                $error_msg = __a('admin.msg.faq_not_found', 'FAQ-Frage nicht gefunden.');
             }
         }
     }
@@ -2505,7 +2505,7 @@ class AdminController {
             $name = trim($_POST['name'] ?? '');
             $role = trim($_POST['role'] ?? '');
             if (empty($name) || empty($role)) {
-                $error_msg = 'Bitte gib Name und Rolle des Teammitglieds an.';
+                $error_msg = __a('admin.msg.team_fields_required', 'Bitte gib Name und Rolle des Teammitglieds an.');
                 return;
             }
 
@@ -2546,9 +2546,9 @@ class AdminController {
 
             $data['team'][] = $newMember;
             if (save_data($dataFile, $data)) {
-                $success_msg = 'Teammitglied „' . htmlspecialchars($name) . '“ erfolgreich hinzugefügt!';
+                $success_msg = __a('admin.msg.team_added', 'Teammitglied „{name}“ erfolgreich hinzugefügt!', null, ['name' => htmlspecialchars($name)]);
             } else {
-                $error_msg = 'Fehler beim Speichern des Teammitglieds.';
+                $error_msg = __a('admin.msg.team_save_error', 'Fehler beim Speichern des Teammitglieds.');
             }
 
         } elseif ($action === 'edit_team_member') {
@@ -2561,14 +2561,14 @@ class AdminController {
                 }
             }
             if ($found_idx === -1) {
-                $error_msg = 'Teammitglied nicht gefunden.';
+                $error_msg = __a('admin.msg.team_not_found', 'Teammitglied nicht gefunden.');
                 return;
             }
 
             $name = trim($_POST['name'] ?? '');
             $role = trim($_POST['role'] ?? '');
             if (empty($name) || empty($role)) {
-                $error_msg = 'Bitte gib Name und Rolle an.';
+                $error_msg = __a('admin.msg.name_role_required', 'Bitte gib Name und Rolle an.');
                 return;
             }
 
@@ -2608,9 +2608,9 @@ class AdminController {
             $data['team'][$found_idx]['translations'] = $translations;
 
             if (save_data($dataFile, $data)) {
-                $success_msg = 'Teammitglied „' . htmlspecialchars($name) . '“ erfolgreich aktualisiert!';
+                $success_msg = __a('admin.msg.team_updated', 'Teammitglied „{name}“ erfolgreich aktualisiert!', null, ['name' => htmlspecialchars($name)]);
             } else {
-                $error_msg = 'Fehler beim Speichern.';
+                $error_msg = __a('admin.msg.save_error', 'Fehler beim Speichern.');
             }
 
         } elseif ($action === 'delete_team_member') {
@@ -2622,12 +2622,12 @@ class AdminController {
 
             if (count($data['team']) < $orig_count) {
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Teammitglied gelöscht.';
+                    $success_msg = __a('admin.msg.team_deleted', 'Teammitglied gelöscht.');
                 } else {
-                    $error_msg = 'Fehler beim Speichern.';
+                    $error_msg = __a('admin.msg.save_error', 'Fehler beim Speichern.');
                 }
             } else {
-                $error_msg = 'Mitglied nicht gefunden.';
+                $error_msg = __a('admin.msg.member_not_found', 'Mitglied nicht gefunden.');
             }
         }
     }
@@ -2661,7 +2661,7 @@ class AdminController {
         if ($action === 'add_download') {
             $title = trim($_POST['title'] ?? '');
             if (empty($title)) {
-                $error_msg = 'Bitte gib einen Dokumenttitel oder Software-Namen an.';
+                $error_msg = __a('admin.msg.download_title_required', 'Bitte gib einen Dokumenttitel oder Software-Namen an.');
                 return;
             }
 
@@ -2674,14 +2674,14 @@ class AdminController {
             if ($fileSource === 'media') {
                 $mediaFile = trim($_POST['media_file'] ?? '');
                 if (empty($mediaFile)) {
-                    $error_msg = 'Bitte wähle eine Datei aus der Mediathek aus.';
+                    $error_msg = __a('admin.msg.download_pick_media', 'Bitte wähle eine Datei aus der Mediathek aus.');
                     return;
                 }
                 $mediaFileClean = ltrim(str_replace(['../', '..\\'], '', $mediaFile), '/\\');
                 $rootPath = realpath(self::rootPath());
                 $fullPath = realpath($rootPath . '/' . $mediaFileClean);
                 if (!$fullPath || !file_exists($fullPath) || !is_file($fullPath) || strpos($fullPath, $rootPath) !== 0) {
-                    $error_msg = 'Die ausgewählte Datei aus der Mediathek existiert nicht oder liegt außerhalb des Webroot.';
+                    $error_msg = __a('admin.msg.download_media_invalid', 'Die ausgewählte Datei aus der Mediathek existiert nicht oder liegt außerhalb des Webroot.');
                     return;
                 }
                 $filePath = $mediaFileClean;
@@ -2690,13 +2690,13 @@ class AdminController {
                 }
             } elseif ($fileSource === 'external') {
                 if (empty($externalUrl) || !filter_var($externalUrl, FILTER_VALIDATE_URL)) {
-                    $error_msg = 'Bitte gib eine gültige externe Download-URL an (z. B. GitHub Release oder Cloud-Speicher).';
+                    $error_msg = __a('admin.msg.download_url_invalid', 'Bitte gib eine gültige externe Download-URL an (z. B. GitHub Release oder Cloud-Speicher).');
                     return;
                 }
             } else {
                 $docInfo = ImageUploader::uploadDocument('download_file');
                 if (!$docInfo) {
-                    $error_msg = 'Bitte wähle eine gültige Datei aus (Erlaubt: PDF, ZIP, DOCX, TXT etc.).';
+                    $error_msg = __a('admin.msg.download_file_invalid', 'Bitte wähle eine gültige Datei aus (Erlaubt: PDF, ZIP, DOCX, TXT etc.).');
                     return;
                 }
                 $filePath = $docInfo['path'];
@@ -2748,9 +2748,9 @@ class AdminController {
 
             $data['downloads'][] = $newDl;
             if (save_data($dataFile, $data)) {
-                $success_msg = 'Download-Eintrag „' . htmlspecialchars($title) . '“ erfolgreich angelegt!';
+                $success_msg = __a('admin.msg.download_created', 'Download-Eintrag „{title}“ erfolgreich angelegt!', null, ['title' => htmlspecialchars($title)]);
             } else {
-                $error_msg = 'Fehler beim Speichern.';
+                $error_msg = __a('admin.msg.save_error', 'Fehler beim Speichern.');
             }
 
         } elseif ($action === 'edit_download') {
@@ -2763,13 +2763,13 @@ class AdminController {
                 }
             }
             if ($found_idx === -1) {
-                $error_msg = 'Download-Eintrag nicht gefunden.';
+                $error_msg = __a('admin.msg.download_not_found', 'Download-Eintrag nicht gefunden.');
                 return;
             }
 
             $title = trim($_POST['title'] ?? '');
             if (empty($title)) {
-                $error_msg = 'Bitte gib einen Dokumenttitel oder Software-Namen an.';
+                $error_msg = __a('admin.msg.download_title_required', 'Bitte gib einen Dokumenttitel oder Software-Namen an.');
                 return;
             }
 
@@ -2837,9 +2837,9 @@ class AdminController {
             }
 
             if (save_data($dataFile, $data)) {
-                $success_msg = 'Download-Eintrag „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
+                $success_msg = __a('admin.msg.download_updated', 'Download-Eintrag „{title}“ erfolgreich aktualisiert!', null, ['title' => htmlspecialchars($title)]);
             } else {
-                $error_msg = 'Fehler beim Speichern.';
+                $error_msg = __a('admin.msg.save_error', 'Fehler beim Speichern.');
             }
 
         } elseif ($action === 'reset_download_counter') {
@@ -2853,9 +2853,9 @@ class AdminController {
                 }
             }
             if ($found && save_data($dataFile, $data)) {
-                $success_msg = 'Download-Zähler erfolgreich auf 0 zurückgesetzt.';
+                $success_msg = __a('admin.msg.download_counter_reset', 'Download-Zähler erfolgreich auf 0 zurückgesetzt.');
             } else {
-                $error_msg = 'Eintrag nicht gefunden.';
+                $error_msg = __a('admin.msg.entry_not_found', 'Eintrag nicht gefunden.');
             }
 
         } elseif ($action === 'delete_download') {
@@ -2867,12 +2867,12 @@ class AdminController {
 
             if (count($data['downloads']) < $orig_count) {
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Download-Eintrag gelöscht.';
+                    $success_msg = __a('admin.msg.download_deleted', 'Download-Eintrag gelöscht.');
                 } else {
-                    $error_msg = 'Fehler beim Speichern.';
+                    $error_msg = __a('admin.msg.save_error', 'Fehler beim Speichern.');
                 }
             } else {
-                $error_msg = 'Download-Eintrag nicht gefunden.';
+                $error_msg = __a('admin.msg.download_not_found', 'Download-Eintrag nicht gefunden.');
             }
         }
     }
@@ -2889,7 +2889,7 @@ class AdminController {
             $title = trim($_POST['title'] ?? '');
             $price = trim($_POST['price'] ?? '');
             if (empty($title) || empty($price)) {
-                $error_msg = 'Bitte gib Paketname und Preis an.';
+                $error_msg = __a('admin.msg.pricing_fields_required', 'Bitte gib Paketname und Preis an.');
                 return;
             }
 
@@ -2939,9 +2939,9 @@ class AdminController {
 
             $data['pricing'][] = $newPlan;
             if (save_data($dataFile, $data)) {
-                $success_msg = 'Preispaket „' . htmlspecialchars($title) . '“ erfolgreich erstellt!';
+                $success_msg = __a('admin.msg.pricing_created', 'Preispaket „{title}“ erfolgreich erstellt!', null, ['title' => htmlspecialchars($title)]);
             } else {
-                $error_msg = 'Fehler beim Speichern des Preispakets.';
+                $error_msg = __a('admin.msg.pricing_save_error', 'Fehler beim Speichern des Preispakets.');
             }
 
         } elseif ($action === 'edit_pricing_plan') {
@@ -2954,14 +2954,14 @@ class AdminController {
                 }
             }
             if ($found_idx === -1) {
-                $error_msg = 'Preispaket nicht gefunden.';
+                $error_msg = __a('admin.msg.pricing_not_found', 'Preispaket nicht gefunden.');
                 return;
             }
 
             $title = trim($_POST['title'] ?? '');
             $price = trim($_POST['price'] ?? '');
             if (empty($title) || empty($price)) {
-                $error_msg = 'Bitte gib Paketname und Preis an.';
+                $error_msg = __a('admin.msg.pricing_fields_required', 'Bitte gib Paketname und Preis an.');
                 return;
             }
 
@@ -3008,9 +3008,9 @@ class AdminController {
             $data['pricing'][$found_idx]['translations'] = $translations;
 
             if (save_data($dataFile, $data)) {
-                $success_msg = 'Preispaket „' . htmlspecialchars($title) . '“ erfolgreich aktualisiert!';
+                $success_msg = __a('admin.msg.pricing_updated', 'Preispaket „{title}“ erfolgreich aktualisiert!', null, ['title' => htmlspecialchars($title)]);
             } else {
-                $error_msg = 'Fehler beim Speichern des Preispakets.';
+                $error_msg = __a('admin.msg.pricing_save_error', 'Fehler beim Speichern des Preispakets.');
             }
 
         } elseif ($action === 'delete_pricing_plan') {
@@ -3022,12 +3022,12 @@ class AdminController {
 
             if (count($data['pricing']) < $orig_count) {
                 if (save_data($dataFile, $data)) {
-                    $success_msg = 'Preispaket gelöscht.';
+                    $success_msg = __a('admin.msg.pricing_deleted', 'Preispaket gelöscht.');
                 } else {
-                    $error_msg = 'Fehler beim Speichern.';
+                    $error_msg = __a('admin.msg.save_error', 'Fehler beim Speichern.');
                 }
             } else {
-                $error_msg = 'Preispaket nicht gefunden.';
+                $error_msg = __a('admin.msg.pricing_not_found', 'Preispaket nicht gefunden.');
             }
         }
     }
@@ -3038,7 +3038,7 @@ class AdminController {
     protected static function handleApplyPreset(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
         $presetKey = trim($_POST['project_preset'] ?? '');
         if (empty($presetKey)) {
-            $error_msg = 'Ungültiges Projekt-Profil ausgewählt.';
+            $error_msg = __a('admin.msg.profile_invalid', 'Ungültiges Projekt-Profil ausgewählt.');
             return;
         }
 
@@ -3051,12 +3051,12 @@ class AdminController {
             $missingCount = count($missing);
             if ($missingCount > 0) {
                 $missingNames = array_map(fn($m) => $m['plugin_name'], $missing);
-                $success_msg = "Projekt-Profil „{$pName}“ erfolgreich aktiviert! Die sichtbaren Module und Menüs wurden angepasst. Hinweis: Bei " . implode(', ', $missingNames) . " fehlen noch erforderliche Einstellungen (siehe Hinweis unten).";
+                $success_msg = __a('admin.msg.profile_activated_missing', 'Projekt-Profil „{name}“ erfolgreich aktiviert! Die sichtbaren Module und Menüs wurden angepasst. Hinweis: Bei {missing} fehlen noch erforderliche Einstellungen (siehe Hinweis unten).', null, ['name' => $pName, 'missing' => implode(', ', $missingNames)]);
             } else {
-                $success_msg = "Projekt-Profil „{$pName}“ erfolgreich aktiviert! Die sichtbaren Sektionen und Module wurden angepasst.";
+                $success_msg = __a('admin.msg.profile_activated', 'Projekt-Profil „{name}“ erfolgreich aktiviert! Die sichtbaren Sektionen und Module wurden angepasst.', null, ['name' => $pName]);
             }
         } else {
-            $error_msg = 'Das ausgewählte Profil konnte nicht angewendet werden.';
+            $error_msg = __a('admin.msg.profile_apply_error', 'Das ausgewählte Profil konnte nicht angewendet werden.');
         }
     }
 
@@ -3067,21 +3067,21 @@ class AdminController {
         $module = trim((string)($_POST['cf_module'] ?? ''));
         $allowed = ['pages', 'blog', 'courses', 'downloads'];
         if (!in_array($module, $allowed, true)) {
-            $error_msg = 'Ungültiges Modul für Zusatzfelder.';
+            $error_msg = __a('admin.msg.cf_invalid_module', 'Ungültiges Modul für Zusatzfelder.');
             return;
         }
 
         $raw_json = trim((string)($_POST['cf_definitions_json'] ?? ''));
         $defs = json_decode($raw_json, true);
         if (!is_array($defs)) {
-            $error_msg = 'Fehler beim Verarbeiten der Felddefinitionen (ungültiges Format).';
+            $error_msg = __a('admin.msg.cf_invalid_format', 'Fehler beim Verarbeiten der Felddefinitionen (ungültiges Format).');
             return;
         }
 
         if (CustomFieldManager::saveDefinitions($dataFile, $data, $module, $defs)) {
-            $success_msg = 'Zusatzfelder für Modul „' . htmlspecialchars($module) . '“ erfolgreich aktualisiert!';
+            $success_msg = __a('admin.msg.cf_updated', 'Zusatzfelder für Modul „{module}“ erfolgreich aktualisiert!', null, ['module' => htmlspecialchars($module)]);
         } else {
-            $error_msg = 'Fehler beim Speichern der Zusatzfelder.';
+            $error_msg = __a('admin.msg.cf_save_error', 'Fehler beim Speichern der Zusatzfelder.');
         }
     }
 
@@ -3099,14 +3099,14 @@ class AdminController {
                 if ($res['success']) {
                     $_SESSION['new_api_token_plain'] = $res['plain_token'];
                     $_SESSION['new_api_token_name'] = $res['token']['name'];
-                    $success_msg = 'API-Token erfolgreich erstellt!';
+                    $success_msg = __a('admin.msg.api_token_created', 'API-Token erfolgreich erstellt!');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => true, 'plain_token' => $res['plain_token'], 'token' => $res['token']]);
                         exit;
                     }
                 } else {
-                    $error_msg = 'Fehler beim Erstellen des API-Tokens.';
+                    $error_msg = __a('admin.msg.api_token_create_error', 'Fehler beim Erstellen des API-Tokens.');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => false, 'error' => $error_msg]);
@@ -3118,14 +3118,14 @@ class AdminController {
             case 'delete_api_token':
                 $id = trim((string)($_POST['token_id'] ?? ''));
                 if (ApiTokenManager::deleteToken($id)) {
-                    $success_msg = 'API-Token erfolgreich gelöscht.';
+                    $success_msg = __a('admin.msg.api_token_deleted', 'API-Token erfolgreich gelöscht.');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => true]);
                         exit;
                     }
                 } else {
-                    $error_msg = 'API-Token nicht gefunden.';
+                    $error_msg = __a('admin.msg.api_token_not_found', 'API-Token nicht gefunden.');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => false, 'error' => $error_msg]);
@@ -3137,14 +3137,14 @@ class AdminController {
             case 'toggle_api_token':
                 $id = trim((string)($_POST['token_id'] ?? ''));
                 if (ApiTokenManager::toggleToken($id)) {
-                    $success_msg = 'Status des API-Tokens aktualisiert.';
+                    $success_msg = __a('admin.msg.api_token_status_updated', 'Status des API-Tokens aktualisiert.');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => true]);
                         exit;
                     }
                 } else {
-                    $error_msg = 'API-Token nicht gefunden.';
+                    $error_msg = __a('admin.msg.api_token_not_found', 'API-Token nicht gefunden.');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => false, 'error' => $error_msg]);
@@ -3160,7 +3160,7 @@ class AdminController {
                 $events = isset($_POST['webhook_events']) && is_array($_POST['webhook_events']) ? $_POST['webhook_events'] : ['*'];
                 $res = WebhookManager::addWebhook($name, $url, $secret, $events);
                 if ($res['success']) {
-                    $success_msg = 'Webhook erfolgreich angelegt!';
+                    $success_msg = __a('admin.msg.webhook_created', 'Webhook erfolgreich angelegt!');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => true, 'webhook' => $res['webhook']]);
@@ -3179,14 +3179,14 @@ class AdminController {
             case 'delete_webhook':
                 $id = trim((string)($_POST['webhook_id'] ?? ''));
                 if (WebhookManager::deleteWebhook($id)) {
-                    $success_msg = 'Webhook gelöscht.';
+                    $success_msg = __a('admin.msg.webhook_deleted', 'Webhook gelöscht.');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => true]);
                         exit;
                     }
                 } else {
-                    $error_msg = 'Webhook nicht gefunden.';
+                    $error_msg = __a('admin.msg.webhook_not_found', 'Webhook nicht gefunden.');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => false, 'error' => $error_msg]);
@@ -3198,14 +3198,14 @@ class AdminController {
             case 'toggle_webhook':
                 $id = trim((string)($_POST['webhook_id'] ?? ''));
                 if (WebhookManager::toggleWebhook($id)) {
-                    $success_msg = 'Webhook-Status geändert.';
+                    $success_msg = __a('admin.msg.webhook_status_changed', 'Webhook-Status geändert.');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => true]);
                         exit;
                     }
                 } else {
-                    $error_msg = 'Webhook nicht gefunden.';
+                    $error_msg = __a('admin.msg.webhook_not_found', 'Webhook nicht gefunden.');
                     if ($isAjax) {
                         header('Content-Type: application/json; charset=utf-8');
                         echo json_encode(['success' => false, 'error' => $error_msg]);
@@ -3218,7 +3218,7 @@ class AdminController {
                 $id = trim((string)($_POST['webhook_id'] ?? ''));
                 $res = WebhookManager::testWebhook($id);
                 if ($res['success']) {
-                    $success_msg = "Test-Ping erfolgreich gesendet! HTTP-Status: {$res['response_code']} ({$res['duration_ms']} ms)";
+                    $success_msg = __a('admin.msg.webhook_ping_sent', 'Test-Ping erfolgreich gesendet! HTTP-Status: {code} ({ms} ms)', null, ['code' => $res['response_code'], 'ms' => $res['duration_ms']]);
                 } else {
                     $code = $res['response_code'] ?? 0;
                     $err = $res['error'] ?? 'Verbindung fehlgeschlagen';
@@ -3235,7 +3235,7 @@ class AdminController {
                 $deliveryId = trim((string)($_POST['delivery_id'] ?? ''));
                 $res = WebhookManager::retryDelivery($deliveryId);
                 if ($res['success']) {
-                    $success_msg = "Webhook-Wiederholung erfolgreich gesendet! HTTP-Status: {$res['response_code']} ({$res['duration_ms']} ms)";
+                    $success_msg = __a('admin.msg.webhook_retry_sent', 'Webhook-Wiederholung erfolgreich gesendet! HTTP-Status: {code} ({ms} ms)', null, ['code' => $res['response_code'], 'ms' => $res['duration_ms']]);
                 } else {
                     $code = $res['response_code'] ?? 0;
                     $err = $res['error'] ?? 'Wiederholung fehlgeschlagen';
@@ -3250,7 +3250,7 @@ class AdminController {
 
             case 'clear_webhook_logs':
                 WebhookManager::clearLogs();
-                $success_msg = 'Webhook-Lieferprotokoll geleert.';
+                $success_msg = __a('admin.msg.webhook_log_cleared', 'Webhook-Lieferprotokoll geleert.');
                 if ($isAjax) {
                     header('Content-Type: application/json; charset=utf-8');
                     echo json_encode(['success' => true]);

@@ -925,10 +925,10 @@
                      MEHRSPRACHIGKEIT (i18n) & SPRACHENAUSWAHL (PHASE 8)
                      ========================================================== -->
                 <h3 style="font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
-                    <span class="material-icons" style="color:var(--primary);">language</span> Mehrsprachigkeit &amp; Sprachenauswahl (West-/Südeuropa &amp; Skandinavien)
+                    <span class="material-icons" style="color:var(--primary);">language</span> <?php echo __a('admin.settings.i18n_title', 'Mehrsprachigkeit &amp; Sprachenauswahl (West-/Südeuropa &amp; Skandinavien)'); ?>
                 </h3>
                 <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height:1.5;">
-                    Aktiviere hier zusätzliche Sprachen für deine Website. Sobald mehr als eine Sprache aktiv ist, erscheint im Frontend automatisch ein dezenter Sprachumschalter im Header und im Mobilmenü.
+                    <?php echo __a('admin.settings.i18n_desc', 'Aktiviere hier zusätzliche Sprachen für deine Website. Sobald mehr als eine Sprache aktiv ist, erscheint im Frontend automatisch ein dezenter Sprachumschalter im Header und im Mobilmenü.'); ?>
                 </p>
 
                 <?php 
@@ -940,7 +940,7 @@
                 <!-- 1. Hauptsprache -->
                 <div class="form-group" style="margin-bottom: 1.5rem; max-width: 480px;">
                     <label style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; display:block;">
-                        Primäre Hauptsprache (Standard)
+                        <?php echo __a('admin.settings.primary_lang_label', 'Primäre Hauptsprache (Standard)'); ?>
                     </label>
                     <select name="primary_language" class="form-control" style="padding: 10px 12px; font-size: 0.95rem;">
                         <?php foreach ($all_supported_languages as $code => $info): ?>
@@ -950,14 +950,14 @@
                         <?php endforeach; ?>
                     </select>
                     <small style="color: var(--text-secondary); display:block; margin-top: 5px; font-size: 0.82rem;">
-                        Die Hauptsprache dient als Basis-Inhalt und automatischer Fallback für unvollständige Übersetzungen.
+                        <?php echo __a('admin.settings.primary_lang_hint', 'Die Hauptsprache dient als Basis-Inhalt und automatischer Fallback für unvollständige Übersetzungen.'); ?>
                     </small>
                 </div>
 
                 <!-- 2. Aktivierte Sprachen (Katalog) -->
                 <div style="margin-bottom: 2rem;">
                     <label style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem; display:block;">
-                        Aktivierte Sprachen für Besucher
+                        <?php echo __a('admin.settings.active_langs_label', 'Aktivierte Sprachen für Besucher'); ?>
                     </label>
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px;">
                         <?php foreach ($all_supported_languages as $code => $info): ?>
@@ -1227,12 +1227,12 @@
                     const label = (labelInput.value || '').trim();
 
                     if (!key) {
-                        alert('Bitte gib einen gültigen technischen Schlüssel (Key) ein.');
+                        alert(<?php echo json_encode(__a('admin.custom_fields.err_key_required', 'Bitte gib einen gültigen technischen Schlüssel (Key) ein.')); ?>);
                         keyInput.focus();
                         return;
                     }
                     if (!label) {
-                        alert('Bitte gib eine Bezeichnung (Label) ein.');
+                        alert(<?php echo json_encode(__a('admin.custom_fields.err_label_required', 'Bitte gib eine Bezeichnung (Label) ein.')); ?>);
                         labelInput.focus();
                         return;
                     }
@@ -1243,7 +1243,7 @@
 
                     const exists = ALL_CF_DEFS[activeCfModule].some(f => f.key === key);
                     if (exists) {
-                        alert('Ein Feld mit dem Schlüssel „' + key + '“ existiert in diesem Modul bereits.');
+                        alert(<?php echo json_encode(__a('admin.custom_fields.err_key_exists', 'Ein Feld mit dem Schlüssel „{key}“ existiert in diesem Modul bereits.')); ?>.replace('{key}', key));
                         keyInput.focus();
                         return;
                     }
@@ -1263,7 +1263,7 @@
 
                 function removeCfField(index) {
                     if (!Array.isArray(ALL_CF_DEFS[activeCfModule])) return;
-                    if (confirm('Möchtest du dieses Feld wirklich aus der Definition entfernen?')) {
+                    if (confirm((window.WeaveI18n && window.WeaveI18n.confirm_remove_field) || 'Möchtest du dieses Feld wirklich aus der Definition entfernen?')) {
                         ALL_CF_DEFS[activeCfModule].splice(index, 1);
                         renderCfTable();
                     }

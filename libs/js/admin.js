@@ -99,7 +99,7 @@ function toggleVisibility(fieldId) {
  * @param {number|string} id - ID des zu löschenden Kurses
  */
 function deleteCourse(id) {
-    if (confirm('Möchtest du diesen Kurs wirklich komplett löschen?')) {
+    if (confirm((window.WeaveI18n && window.WeaveI18n.confirm_delete_course) || 'Möchtest du diesen Kurs wirklich komplett löschen?')) {
         const form = document.getElementById('delete-form-' + id);
         if (form) form.submit();
     }
@@ -347,7 +347,8 @@ function validateSystemForm(form) {
     if (selectedMode === 'icons') {
         const checkedCaptcha = form.querySelectorAll('input[name="captcha_icons[]"]:checked');
         if (checkedCaptcha.length !== 4) {
-            alert(`⚠️ Spamschutz-Symbole:\n\nBitte wähle genau 4 Symbole für den Spamschutz im Kontaktformular aus!\n(Aktuell ausgewählt: ${checkedCaptcha.length} von 4)`);
+            const msg = ((window.WeaveI18n && window.WeaveI18n.alert_captcha_count) || '⚠️ Spamschutz-Symbole:\n\nBitte wähle genau 4 Symbole für den Spamschutz im Kontaktformular aus!\n(Aktuell ausgewählt: {count} von 4)').replace('{count}', checkedCaptcha.length);
+            alert(msg);
             return false;
         }
     }
@@ -369,13 +370,13 @@ function validateCredentialsForm(form) {
     const hasNewPin = newPin && newPin.value.trim() !== '';
 
     if (!hasNewPw && !hasNewPin) {
-        alert('⚠️ Keine Eingabe:\n\nBitte gib ein neues Passwort oder eine neue PIN ein, die du setzen möchtest.');
+        alert((window.WeaveI18n && window.WeaveI18n.alert_no_credentials) || '⚠️ Keine Eingabe:\n\nBitte gib ein neues Passwort oder eine neue PIN ein, die du setzen möchtest.');
         if (newPw) newPw.focus();
         return false;
     }
 
     if (!curPin || curPin.value.trim() === '') {
-        alert('⚠️ Sicherheitsabfrage:\n\nBitte gib deine aktuell gültige PIN ein, um Passwort oder PIN zu ändern!');
+        alert((window.WeaveI18n && window.WeaveI18n.alert_pin_required) || '⚠️ Sicherheitsabfrage:\n\nBitte gib deine aktuell gültige PIN ein, um Passwort oder PIN zu ändern!');
         if (curPin) {
             curPin.removeAttribute('readonly');
             curPin.focus();
@@ -406,7 +407,7 @@ function updateCaptchaSelection(changedCheckbox) {
         if (changedCheckbox) {
             changedCheckbox.checked = false;
         }
-        alert('⚠️ Maximal 4 Symbole:\n\nEs können genau 4 Symbole für das Kontaktformular ausgewählt werden. Bitte deaktiviere zuerst ein anderes Symbol, bevor du ein neues auswählst.');
+        alert((window.WeaveI18n && window.WeaveI18n.alert_captcha_max) || '⚠️ Maximal 4 Symbole:\n\nEs können genau 4 Symbole für das Kontaktformular ausgewählt werden. Bitte deaktiviere zuerst ein anderes Symbol, bevor du ein neues auswählst.');
         return;
     }
     

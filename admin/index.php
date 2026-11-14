@@ -64,11 +64,11 @@ if (!empty($_SESSION['login_notice'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     $submitted_csrf = $_POST['csrf_token'] ?? '';
     if (!AuthManager::verifyCsrfToken($submitted_csrf)) {
-        $login_error = 'Sicherheitswarnung (CSRF): Das Formular-Token ist abgelaufen. Bitte versuche es erneut.';
+        $login_error = __a('admin.login.csrf_error', 'Sicherheitswarnung (CSRF): Das Formular-Token ist abgelaufen. Bitte versuche es erneut.');
     } elseif (SecurityManager::isRateLimited('admin_login')) {
         $rem = SecurityManager::getLockoutRemaining('admin_login');
         $mins = max(1, ceil($rem / 60));
-        $login_error = "Zu viele Fehlversuche! Der Zugang ist für {$mins} Minute(n) gesperrt ({$rem}s verbleibend).";
+        $login_error = __a('admin.login.rate_limited_wait', 'Zu viele Fehlversuche! Der Zugang ist für {mins} Minute(n) gesperrt ({rem}s verbleibend).', null, ['mins' => $mins, 'rem' => $rem]);
     } else {
         $username = trim($_POST['username'] ?? 'admin');
         $password = $_POST['password'] ?? '';
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             if (SecurityManager::isRateLimited('admin_login')) {
                 $rem = SecurityManager::getLockoutRemaining('admin_login');
                 $mins = max(1, ceil($rem / 60));
-                $login_error = "Zu viele Fehlversuche! Der Zugang wurde für {$mins} Minute(n) gesperrt.";
+                $login_error = __a('admin.login.rate_limited_lock', 'Zu viele Fehlversuche! Der Zugang wurde für {mins} Minute(n) gesperrt.', null, ['mins' => $mins]);
             } else {
             if (!empty($_SESSION["login_2fa_required"])) {
                 unset($_SESSION["login_2fa_required"]);
@@ -153,7 +153,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_revision_diff') {
 
     $rev = RevisionManager::getRevision($type, $id, $revId);
     if (!$rev) {
-        echo json_encode(['success' => false, 'error' => 'Revision nicht gefunden']);
+        echo json_encode(['success' => false, 'error' => __a('admin.revisions.not_found', 'Revision nicht gefunden')]);
         exit;
     }
 
@@ -185,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     header('Content-Type: application/json');
     $submitted_csrf = $_POST['csrf_token'] ?? '';
     if (!AuthManager::verifyCsrfToken($submitted_csrf)) {
-        echo json_encode(['success' => false, 'message' => 'CSRF Token ungültig']);
+        echo json_encode(['success' => false, 'message' => __a('admin.msg.csrf_invalid', 'CSRF Token ungültig')]);
         exit;
     }
     $type = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_POST['item_type'] ?? '');
@@ -421,7 +421,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit;
     }
     if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
-        echo json_encode(['success' => false, 'message' => 'CSRF Token ungültig']);
+        echo json_encode(['success' => false, 'message' => __a('admin.msg.csrf_invalid', 'CSRF Token ungültig')]);
         exit;
     }
 
@@ -478,7 +478,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit;
     }
     if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
-        echo json_encode(['success' => false, 'message' => 'CSRF Token ungültig']);
+        echo json_encode(['success' => false, 'message' => __a('admin.msg.csrf_invalid', 'CSRF Token ungültig')]);
         exit;
     }
     $filename = basename($_POST['filename'] ?? '');
@@ -494,7 +494,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit;
     }
     if (!AuthManager::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
-        echo json_encode(['success' => false, 'message' => 'CSRF Token ungültig']);
+        echo json_encode(['success' => false, 'message' => __a('admin.msg.csrf_invalid', 'CSRF Token ungültig')]);
         exit;
     }
     $filename = basename($_POST['filename'] ?? '');
