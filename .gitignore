@@ -42,8 +42,7 @@ scratch/
 tmp/
 
 # Build releases & Cache
-releases/*
-!releases/*.zip
+releases/
 cache/
 
 # Documentation kept local only
