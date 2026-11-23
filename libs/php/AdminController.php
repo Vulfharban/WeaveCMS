@@ -185,6 +185,7 @@ class AdminController {
             case 'edit_gallery':
             case 'delete_gallery':
             case 'reorder_gallery':
+            case 'delete_demo_gallery':
                 self::handleGalleryAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
@@ -1713,6 +1714,50 @@ class AdminController {
             } else {
                 $error_msg = __a('admin.msg.order_save_error', 'Fehler beim Speichern der Reihenfolge.');
             }
+        } elseif ($action === 'delete_demo_gallery') {
+            $demoFiles = [
+                'korb_fahrrad.png', 'korb_kaminholz.png', 'korb_klassik.png',
+                'deko_kugeln.png', 'deko_windlicht.png', 'deko_rankhilfe.png',
+                'sichtschutz_flechtzaun.png', 'sichtschutz_modern.png', 'sichtschutz_lebendzaun.png',
+                'default_wicker1.png', 'default_wicker2.png'
+            ];
+            $removed = 0;
+            if (!empty($data['gallery']) && is_array($data['gallery'])) {
+                $kept = [];
+                foreach ($data['gallery'] as $item) {
+                    $img = (string)($item['image'] ?? '');
+                    $base = basename(str_replace('\\', '/', $img));
+                    $is_upload = (strpos($img, '/images/uploads/') !== false || strpos($img, 'images/uploads/') !== false);
+                    if (!$is_upload && in_array($base, $demoFiles, true)) {
+                        $removed++;
+                        continue;
+                    }
+                    $kept[] = $item;
+                }
+                $data['gallery'] = array_values($kept);
+            }
+            if (!empty($data['past_courses']) && is_array($data['past_courses'])) {
+                $keptPast = [];
+                foreach ($data['past_courses'] as $pImg) {
+                    $base = basename(str_replace('\\', '/', (string)$pImg));
+                    $is_upload = (strpos((string)$pImg, '/images/uploads/') !== false || strpos((string)$pImg, 'images/uploads/') !== false);
+                    if (!$is_upload && in_array($base, $demoFiles, true)) {
+                        $removed++;
+                        continue;
+                    }
+                    $keptPast[] = $pImg;
+                }
+                $data['past_courses'] = array_values($keptPast);
+            }
+            if ($removed > 0) {
+                if (save_data($dataFile, $data)) {
+                    $success_msg = sprintf('%d Demo-/Testbild(er) erfolgreich entfernt!', $removed);
+                } else {
+                    $error_msg = __a('admin.msg.gallery_save_error', 'Fehler beim Speichern der Galerie-Daten.');
+                }
+            } else {
+                $success_msg = 'Keine Demo-/Testbilder mehr vorhanden.';
+            }
         }
     }
 
@@ -1764,6 +1809,11 @@ class AdminController {
                     }
                 }
 
+                $course_image = trim($_POST['course_image'] ?? '');
+                if (strpos($course_image, '..') !== false) {
+                    $course_image = '';
+                }
+
                 $data['courses'][] = [
                     'id' => $next_id,
                     'title' => $title,
@@ -1776,6 +1826,7 @@ class AdminController {
                     'current_participants' => $current_participants,
                     'available' => $available,
                     'invite_token' => $invite_token,
+                    'image' => $course_image,
                     'translations' => $translations
                 ];
 
@@ -1799,6 +1850,10 @@ class AdminController {
                     $c['max_participants'] = (int)($_POST['max_participants'] ?? 10);
                     $c['current_participants'] = (int)($_POST['current_participants'] ?? 0);
                     $c['available'] = isset($_POST['available']);
+                    $course_image = trim($_POST['course_image'] ?? '');
+                    if (strpos($course_image, '..') === false) {
+                        $c['image'] = $course_image;
+                    }
                     if (empty($c['invite_token'])) {
                         $slug = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $c['title']));
                         $c['invite_token'] = 'kurs-' . $id . '-' . trim($slug, '-');
@@ -1865,16 +1920,22 @@ class AdminController {
      */
     protected static function handlePastCourseAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
         if ($action === 'add_past_course_image') {
-            $image_path = ImageUploader::upload('past_image', $data);
+            $past_media_url = trim($_POST['past_media_url'] ?? '');
+            $image_path = '';
+            if ($past_media_url !== '' && strpos($past_media_url, '..') === false && (strpos($past_media_url, '/images/') === 0 || strpos($past_media_url, 'images/') === 0)) {
+                $image_path = '/' . ltrim($past_media_url, '/');
+            } elseif (!empty($_FILES['past_image']['name'])) {
+                $image_path = ImageUploader::upload('past_image', $data);
+            }
             if (!empty($image_path)) {
                 $data['past_courses'][] = $image_path;
                 if (save_data($dataFile, $data)) {
-                    $success_msg = __a('admin.msg.past_course_img_uploaded', 'Bild vergangener Kurse erfolgreich hochgeladen!');
+                    $success_msg = __a('admin.msg.past_course_img_uploaded', 'Bild vergangener Kurse erfolgreich hinzugefügt!');
                 } else {
                     $error_msg = __a('admin.msg.past_course_save_error', 'Fehler beim Speichern der Kursbilder.');
                 }
             } else {
-                $error_msg = __a('admin.msg.img_upload_error', 'Fehler beim Bildupload.');
+                $error_msg = __a('admin.msg.img_upload_error', 'Bitte ein Bild aus der Mediathek wählen oder eine Datei hochladen.');
             }
         } elseif ($action === 'delete_past_course_image') {
             $img_path = trim($_POST['image_path'] ?? '');
@@ -1884,15 +1945,6 @@ class AdminController {
             }
             foreach ($data['past_courses'] as $idx => $path) {
                 if ($path === $img_path || ltrim((string)$path, '/\\') === ltrim($img_path, '/\\')) {
-                    $cleanRelPath = ltrim((string)$path, '/\\');
-                    $upload_cfg = ImageUploader::getUploadConfig($data);
-                    $cleanUploadRel = trim($upload_cfg['rel'] ?? 'images/uploads', '/\\');
-                    if (!empty($cleanRelPath) && (strpos($cleanRelPath, $cleanUploadRel . '/') === 0 || strpos($cleanRelPath, 'images/uploads/') === 0)) {
-                        $filepath = self::rootPath() . '/' . $cleanRelPath;
-                        if (file_exists($filepath) && is_file($filepath)) {
-                            @unlink($filepath);
-                        }
-                    }
                     unset($data['past_courses'][$idx]);
                     $found = true;
                     break;

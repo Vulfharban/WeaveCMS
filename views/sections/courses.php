@@ -36,6 +36,16 @@
                     $is_highlighted = ($selected_course_id === (int)$c['id']);
                 ?>
                 <div class="course-row <?php echo $is_highlighted ? 'highlighted' : ''; ?>" id="course-<?php echo $c['id']; ?>">
+                    <?php if (!empty($c['image'])):
+                        $course_img_raw = $c['image'];
+                        $course_img_src = (strpos($course_img_raw, 'http://') === 0 || strpos($course_img_raw, 'https://') === 0)
+                            ? $course_img_raw
+                            : ((strpos($course_img_raw, '/') === 0) ? '.' . $course_img_raw : './' . ltrim($course_img_raw, './'));
+                    ?>
+                    <div style="width: 118px; height: 92px; flex-shrink: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); background: rgba(0,0,0,0.06);">
+                        <img src="<?php echo htmlspecialchars($course_img_src); ?>" alt="<?php echo htmlspecialchars($c_title_raw); ?>" style="width: 100%; height: 100%; object-fit: cover; display: block; <?php echo htmlspecialchars(MediaManager::getFocusStyle($c['image'])); ?>" loading="lazy">
+                    </div>
+                    <?php endif; ?>
                     <div style="flex:1; min-width: 290px;">
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom: 0.75rem; flex-wrap:wrap;">
                             <span style="background: rgba(217, 119, 6, 0.12); color: var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; display:inline-flex; align-items:center; gap:5px;">

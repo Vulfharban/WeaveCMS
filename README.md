@@ -27,12 +27,24 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 - **Complete Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 
-## Releases & Downloads (v1.3.4.2)
+## Releases & Downloads (v1.3.4.3)
 
-- 📦 **[WeaveCMS v1.3.4.2 Full Package](releases/weavecms-v1.3.4.2.zip)** (`releases/weavecms-v1.3.4.2.zip`, 12.38 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.4.2 Update Package](releases/update-v1.3.4.2.zip)** (`releases/update-v1.3.4.2.zip`, 0.93 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.4.3 Full Package](releases/weavecms-v1.3.4.3.zip)** (`releases/weavecms-v1.3.4.3.zip`, 12.39 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.4.3 Update Package](releases/update-v1.3.4.3.zip)** (`releases/update-v1.3.4.3.zip`, 0.94 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.4.3 (23. November 2026)
+
+- 🎨 **Kursübersicht-UI & Optionale Kursbilder (`tab_courses.php`, `AdminController.php`, `views/sections/courses.php`):**
+  - Bestehende Kurse erhalten Nummerierungs-Badges (`#1`, `#2`, …), Status-Badges (*Buchbar*, *Ausgebucht*, *Inaktiv* inkl. freier Plätze), farbige `5px`-Akzentränder und alternierende Hintergründe.
+  - Kurse können optional mit einem Bild aus der Mediathek verknüpft werden (kompakte `118 × 92 px`-Darstellung im Frontend ohne Klick-/Lightbox-Aktion; Unterordner-Pfade korrigiert).
+- 🧹 **1-Klick-Bereinigung für Demo-/Testbilder (`tab_gallery.php`, `AdminController.php`):**
+  - Neuer Button *„Demo-/Testbilder entfernen (N)“* entfernt alle Standard-Testbilder aus `gallery` und `past_courses` auf einmal, ohne eigene Uploads in `images/uploads/` anzutasten.
+- ⚡ **Mediathek-Upload-Optimierung & Galerie-Thumbnails (`tab_media.php`, `MediaManager.php`, `views/sections/gallery.php`, `tab_past.php`):**
+  - Clientseitige Bildverkleinerung großer Fotos vor dem Upload (`<canvas>`, max. `1600 px`) und sequenzieller Einzel-Upload verhindern Server-Limit-Fehler (`upload_max_filesize`/`post_max_size`).
+  - `MediaManager::getThumbUrl()` lädt im Galerie-Raster komprimierte `medium`-Thumbnails (bevorzugt `.webp`), das Großbild folgt erst beim Klick in der Lightbox.
+  - Mediathek-Auswahl auch für *„Impressionen vergangener Kurse“* ergänzt; leere Sektion wird im Frontend ausgeblendet; Live-Filter-Zähler und „Durchsuchen“-Dialog in der Mediathek korrigiert.
 
 ### v1.3.4.2 (14. November 2026)
 
@@ -217,7 +229,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.3.4.2.zip](releases/weavecms-v1.3.4.2.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.4.3.zip](releases/weavecms-v1.3.4.3.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

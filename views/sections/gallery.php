@@ -55,9 +55,10 @@
             <?php foreach ($visible_gallery as $idx => $item): ?>
                 <?php 
                     $img_raw = $item['image'] ?? '';
-                    $img_src = (strpos($img_raw, 'http://') === 0 || strpos($img_raw, 'https://') === 0)
-                        ? $img_raw
-                        : ((strpos($img_raw, '/') === 0) ? '.' . $img_raw : './' . $img_raw);
+                    $thumb_raw = class_exists('MediaManager') ? MediaManager::getThumbUrl($img_raw, 'medium') : $img_raw;
+                    $img_src = (strpos($thumb_raw, 'http://') === 0 || strpos($thumb_raw, 'https://') === 0)
+                        ? $thumb_raw
+                        : ((strpos($thumb_raw, '/') === 0) ? '.' . $thumb_raw : './' . $thumb_raw);
                     $is_portrait = false;
                     $local_file = dirname(__DIR__, 2) . '/' . ltrim($item['image'] ?? '', '/\\');
                     if (file_exists($local_file)) {

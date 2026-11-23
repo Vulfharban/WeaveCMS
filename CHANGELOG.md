@@ -6,6 +6,28 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ---
 
+## [v1.3.4.3] - 23. November 2026
+
+### ✨ Kursübersicht-UI, Optionale Kursbilder & Demo-Bild-Bereinigung
+
+- 🎨 **Kursübersicht im Backend optisch verbessert (`admin/views/tab_courses.php`):**
+  - Bestehende Kurse erhalten eine klare Kopfzeile mit Nummerierungs-Badge (`#1`, `#2`, …), Terminanzeige und Status-Badge (*Buchbar*, *Ausgebucht*, *Inaktiv* inkl. freier Plätze).
+  - Farbiger `5px`-Akzentrand links, alternierende Karten-Hintergründe, verstärkte Rahmen und Schatten sorgen für eine deutliche visuelle Trennung zwischen einzelnen Kursen.
+- 🖼️ **Optionales Kursbild aus der Mediathek (`AdminController.php`, `tab_courses.php`, `views/sections/courses.php`):**
+  - Kurse können optional mit einem Bild aus der zentralen Mediathek verknüpft werden (inkl. Mediathek-Auswahl-Modal mit Suche und Direkt-Upload beim Anlegen und Bearbeiten).
+  - Im Frontend wird das Bild kompakt (`118 × 92 px`, `object-fit: cover`, ohne Klick-/Lightbox-Aktion) in der Kurszeile dargestellt; relative Unterordner-Pfade (`/images/...` → `./images/...` bzw. `../images/...`) wurden korrigiert.
+- 🧹 **1-Klick-Bereinigung für Demo-/Testbilder (`admin/views/tab_gallery.php`, `AdminController.php`):**
+  - Neuer Button *„Demo-/Testbilder entfernen (N)“* in der Galerie-Verwaltung (`delete_demo_gallery`), der alle Standard-Testbilder aus `gallery` und `past_courses` auf einmal entfernt und eigene Uploads in `images/uploads/` unberührt lässt.
+- 🖼️ **Mediathek-Auswahl für Impressionen vergangener Kurse (`admin/views/tab_past.php`, `AdminController.php`):**
+  - Im Tab *„Impressionen & Rückblick“* können Bilder nun zusätzlich zum Direkt-Upload bequem aus der zentralen Mediathek ausgewählt werden (`past_media_url`), ohne beim Entfernen aus der Liste die Mediathek-Datei zu löschen.
+  - Die Frontend-Sektion *„Impressionen vergangener Kurse“* (`views/sections/past_courses.php`) wird ausgeblendet, solange keine Bilder hinterlegt sind.
+- ⚡ **Mediathek-Upload-Optimierung & Galerie-Thumbnails (`tab_media.php`, `MediaManager.php`, `views/sections/gallery.php`):**
+  - Automatische clientseitige Bildverkleinerung großer Rasterbilder (`> 1,2 MB` oder `> 1600 px`) per HTML5-`<canvas>` vor dem Upload sowie sequenzieller Einzel-Upload verhindern `upload_max_filesize`/`post_max_size`-Fehler.
+  - Doppelter Upload-Button entfernt, Live-`FileList`-Bug beim „Durchsuchen“-Dialog behoben und Filter-Zähler (*Alle*, *Bilder*, *Dokumente*, *Vektoren*) nach AJAX-Uploads/Löschungen live synchronisiert.
+  - `MediaManager::getThumbUrl()` liefert für das Galerie-Raster komprimierte `medium`-Varianten (bevorzugt `.webp`), während das volle/große Bild erst beim Öffnen in der Lightbox geladen wird.
+
+---
+
 ## [v1.3.4.2] - 14. November 2026
 
 ### 🌍 Vollständige Admin-Backend Internationalisierung (DE/EN)

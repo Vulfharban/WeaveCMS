@@ -46,9 +46,6 @@ $totalSizeFormatted = MediaManager::formatBytes($totalBytes);
             </p>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
-            <button type="button" class="btn btn-primary" onclick="triggerMediaFileInput()" style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px;">
-                <span class="material-icons" style="font-size:18px;">cloud_upload</span> <?php echo __a('admin.media.upload_files', 'Dateien hochladen'); ?>
-            </button>
             <input type="file" id="media-native-input" multiple accept="image/*,.pdf,.zip,.7z,.txt,.csv" style="display:none;" onchange="handleMediaFilesSelected(this.files)">
         </div>
     </div>
@@ -104,16 +101,16 @@ $totalSizeFormatted = MediaManager::formatBytes($totalBytes);
         <!-- Filter Tabs -->
         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             <button type="button" class="btn btn-primary media-filter-btn" data-filter="all" onclick="setMediaFilter('all', this)" style="padding:6px 14px; font-size:0.84rem;">
-                <?php echo __a('admin.media.filter_all', 'Alle'); ?> (<?php echo $totalCount; ?>)
+                <?php echo __a('admin.media.filter_all', 'Alle'); ?> (<span id="filter-count-all"><?php echo $totalCount; ?></span>)
             </button>
             <button type="button" class="btn btn-outline media-filter-btn" data-filter="images" onclick="setMediaFilter('images', this)" style="padding:6px 14px; font-size:0.84rem;">
-                🖼️ <?php echo __a('admin.media.filter_images', 'Bilder'); ?> (<?php echo $imageCount; ?>)
+                🖼️ <?php echo __a('admin.media.filter_images', 'Bilder'); ?> (<span id="filter-count-images"><?php echo $imageCount; ?></span>)
             </button>
             <button type="button" class="btn btn-outline media-filter-btn" data-filter="documents" onclick="setMediaFilter('documents', this)" style="padding:6px 14px; font-size:0.84rem;">
-                📄 <?php echo __a('admin.media.filter_documents', 'Dokumente & PDFs'); ?> (<?php echo $docCount; ?>)
+                📄 <?php echo __a('admin.media.filter_documents', 'Dokumente & PDFs'); ?> (<span id="filter-count-documents"><?php echo $docCount; ?></span>)
             </button>
             <button type="button" class="btn btn-outline media-filter-btn" data-filter="vectors" onclick="setMediaFilter('vectors', this)" style="padding:6px 14px; font-size:0.84rem;">
-                📐 <?php echo __a('admin.media.filter_vectors', 'Vektoren (SVG)'); ?> (<?php echo $vectorCount; ?>)
+                📐 <?php echo __a('admin.media.filter_vectors', 'Vektoren (SVG)'); ?> (<span id="filter-count-vectors"><?php echo $vectorCount; ?></span>)
             </button>
         </div>
 
@@ -369,75 +366,134 @@ function handleFileDrop(e) {
 
 function handleMediaFilesSelected(files) {
     if (!files || files.length === 0) return;
+    const fileCopy = Array.from(files);
     const inp = document.getElementById('media-native-input');
     if (inp) inp.value = '';
-    uploadMediaFiles(files);
+    uploadMediaFiles(fileCopy);
 }
 
-function uploadMediaFiles(files) {
+function resizeImageBeforeUpload(file, maxDim = 1600, quality = 0.86) {
+    return new Promise((resolve) => {
+        const isRaster = file && /^image\/(jpeg|jpg|png|webp)$/i.test(file.type || '');
+        if (!isRaster) {
+            resolve(file);
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const img = new Image();
+            img.onload = function() {
+                const origW = img.naturalWidth || img.width;
+                const origH = img.naturalHeight || img.height;
+                const needsResize = origW > maxDim || origH > maxDim || file.size > 1200000;
+                if (!needsResize || origW <= 0 || origH <= 0) {
+                    resolve(file);
+                    return;
+                }
+                const ratio = Math.min(1, maxDim / origW, maxDim / origH);
+                const w = Math.max(1, Math.round(origW * ratio));
+                const h = Math.max(1, Math.round(origH * ratio));
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                const outType = (file.type === 'image/png' && file.size <= 1500000) ? 'image/png' : 'image/jpeg';
+                canvas.toBlob(function(blob) {
+                    if (!blob || blob.size >= file.size) {
+                        resolve(file);
+                        return;
+                    }
+                    const ext = outType === 'image/png' ? '.png' : '.jpg';
+                    const base = (file.name || 'image').replace(/\.[^.]+$/, '');
+                    resolve(new File([blob], base + ext, { type: outType, lastModified: Date.now() }));
+                }, outType, quality);
+            };
+            img.onerror = () => resolve(file);
+            img.src = ev.target.result;
+        };
+        reader.onerror = () => resolve(file);
+        reader.readAsDataURL(file);
+    });
+}
+
+async function uploadMediaFiles(files) {
     const progressBox = document.getElementById('media-upload-progress-box');
     const progressBar = document.getElementById('media-progress-bar');
     const progressText = document.getElementById('media-progress-text');
     const progressPct = document.getElementById('media-progress-pct');
 
+    const fileList = Array.from(files || []);
+    if (!fileList.length) return;
+
     progressBox.style.display = 'block';
     progressBar.style.width = '0%';
-    progressText.textContent = files.length + ' Datei(en) werden verarbeitet...';
+    progressText.textContent = 'Optimiere & verkleinere ' + fileList.length + ' Datei(en)...';
     progressPct.textContent = '0%';
 
-    const formData = new FormData();
-    formData.append('action', 'upload_media');
-    formData.append('csrf_token', <?php echo json_encode($csrf_token); ?>);
-    for (let i = 0; i < files.length; i++) {
-        formData.append('files[]', files[i]);
+    let uploadedCount = 0;
+    const errors = [];
+
+    for (let i = 0; i < fileList.length; i++) {
+        const prepared = await resizeImageBeforeUpload(fileList[i]);
+        progressText.textContent = `Lade ${i + 1} / ${fileList.length}: ${prepared.name}`;
+
+        const formData = new FormData();
+        formData.append('action', 'upload_media');
+        formData.append('csrf_token', <?php echo json_encode($csrf_token); ?>);
+        formData.append('files[]', prepared);
+
+        try {
+            const res = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'index.php', true);
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable) {
+                        const filePct = e.loaded / e.total;
+                        const totalPct = Math.round(((i + filePct) / fileList.length) * 100);
+                        progressBar.style.width = totalPct + '%';
+                        progressPct.textContent = totalPct + '%';
+                    }
+                };
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        try { resolve(JSON.parse(xhr.responseText)); }
+                        catch (err) { reject('Server-Antwort ungültig (' + err + ')'); }
+                    } else {
+                        reject('HTTP ' + xhr.status);
+                    }
+                };
+                xhr.onerror = () => reject('Netzwerkfehler');
+                xhr.send(formData);
+            });
+            if (res.success) {
+                uploadedCount += (res.uploaded ? res.uploaded.length : 1);
+            } else {
+                errors.push((res.errors && res.errors.length) ? res.errors.join(', ') : (res.message || 'Unbekannter Fehler'));
+            }
+        } catch (err) {
+            errors.push(prepared.name + ': ' + err);
+        }
     }
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'index.php', true);
-
-    xhr.upload.onprogress = function(e) {
-        if (e.lengthComputable) {
-            const pct = Math.round((e.loaded / e.total) * 100);
-            progressBar.style.width = pct + '%';
-            progressPct.textContent = pct + '%';
-        }
-    };
-
-    xhr.onload = function() {
-        progressBox.style.display = 'none';
-        if (xhr.status === 200) {
-            try {
-                const res = JSON.parse(xhr.responseText);
-                if (res.success) {
-                    showToast('Erfolgreich hochgeladen: ' + (res.uploaded ? res.uploaded.length : 1) + ' Datei(en)');
-                    reloadMediaData();
-                } else {
-                    alert(((window.WeaveI18n && window.WeaveI18n.upload_error) || 'Upload-Fehler: ') + (res.errors ? res.errors.join('\n') : (res.message || '')));
-                }
-            } catch (err) {
-                alert('Server-Antwort konnte nicht verarbeitet werden: ' + err);
-            }
-        } else {
-            alert('Upload fehlgeschlagen (HTTP ' + xhr.status + ')');
-        }
-    };
-
-    xhr.onerror = function() {
-        progressBox.style.display = 'none';
-        alert('Netzwerkfehler beim Upload');
-    };
-
-    xhr.send(formData);
+    progressBox.style.display = 'none';
+    if (uploadedCount > 0) {
+        showToast('Erfolgreich hochgeladen: ' + uploadedCount + ' Datei(en)');
+        reloadMediaData();
+    }
+    if (errors.length) {
+        alert(((window.WeaveI18n && window.WeaveI18n.upload_error) || 'Upload-Fehler: ') + errors.join('\n'));
+    }
 }
 
 function reloadMediaData() {
-    fetch('index.php?action=get_media&filter=' + encodeURIComponent(CURRENT_MEDIA_FILTER) + '&sort=' + encodeURIComponent(CURRENT_MEDIA_SORT) + '&search=' + encodeURIComponent(CURRENT_MEDIA_SEARCH))
+    fetch('index.php?action=get_media&filter=all&sort=' + encodeURIComponent(CURRENT_MEDIA_SORT))
         .then(r => r.json())
         .then(res => {
             if (res.success) {
                 MEDIA_ITEMS = res.items || [];
                 renderMediaItems();
-                updateStats(res.items);
+                updateStats(res.items || []);
             }
         })
         .catch(err => console.error(err));
@@ -446,16 +502,32 @@ function reloadMediaData() {
 function updateStats(items) {
     let bytes = 0;
     let webp = 0;
+    let img = 0;
     let doc = 0;
+    let vec = 0;
     items.forEach(i => {
         bytes += i.size_bytes;
-        if (i.type === 'image' && (i.variants.webp || i.extension === 'webp')) webp++;
-        if (i.type === 'document') doc++;
+        if (i.type === 'image') {
+            img++;
+            if (i.variants.webp || i.extension === 'webp') webp++;
+        } else if (i.type === 'document') {
+            doc++;
+        } else if (i.type === 'vector') {
+            vec++;
+        }
     });
     document.getElementById('stat-total-count').textContent = items.length;
     document.getElementById('stat-total-size').textContent = formatBytesJs(bytes);
     document.getElementById('stat-webp-count').textContent = webp;
     document.getElementById('stat-doc-count').textContent = doc;
+    const fcAll = document.getElementById('filter-count-all');
+    const fcImg = document.getElementById('filter-count-images');
+    const fcDoc = document.getElementById('filter-count-documents');
+    const fcVec = document.getElementById('filter-count-vectors');
+    if (fcAll) fcAll.textContent = items.length;
+    if (fcImg) fcImg.textContent = img;
+    if (fcDoc) fcDoc.textContent = doc;
+    if (fcVec) fcVec.textContent = vec;
 }
 
 function formatBytesJs(bytes) {

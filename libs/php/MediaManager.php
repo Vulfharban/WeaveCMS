@@ -416,6 +416,40 @@ class MediaManager {
     }
 
     /**
+     * Liefert für ein Mediathek-Bild die passende komprimierte Variante (z. B. 'medium' 800px oder 'thumb' 350px),
+     * bevorzugt als .webp. Fällt auf die Original-URL zurück, falls keine Variante existiert.
+     */
+    public static function getThumbUrl(string $imageUrl, string $size = 'medium'): string {
+        $clean = trim($imageUrl);
+        if ($clean === '' || strpos($clean, 'http://') === 0 || strpos($clean, 'https://') === 0) {
+            return $imageUrl;
+        }
+        $rel = ltrim(str_replace('\\', '/', $clean), '/');
+        if (strpos($rel, 'images/uploads/') !== 0) {
+            return $imageUrl;
+        }
+        $root = dirname(__DIR__, 2);
+        $dirRel = dirname($rel);
+        $base = pathinfo($rel, PATHINFO_FILENAME);
+        $ext = strtolower(pathinfo($rel, PATHINFO_EXTENSION));
+        $candidates = [
+            $dirRel . '/' . $base . '_' . $size . '.webp',
+            $dirRel . '/' . $base . '_' . $size . '.' . $ext,
+        ];
+        if ($size === 'medium') {
+            $candidates[] = $dirRel . '/' . $base . '_thumb.webp';
+            $candidates[] = $dirRel . '/' . $base . '_thumb.' . $ext;
+        }
+        $leadingSlash = (strpos($clean, '/') === 0) ? '/' : '';
+        foreach ($candidates as $cand) {
+            if (is_file($root . '/' . $cand)) {
+                return $leadingSlash . $cand;
+            }
+        }
+        return $imageUrl;
+    }
+
+    /**
      * Lädt eine einzelne Datei in die Mediathek hoch und stößt die Bild-Pipeline an.
      *
      * @param array $file Das PHP $_FILES['...'] Array-Element
@@ -425,6 +459,9 @@ class MediaManager {
     public static function upload(array $file, ?string $customAlt = ''): array {
         if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
             $errCode = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+            if ($errCode === UPLOAD_ERR_INI_SIZE || $errCode === UPLOAD_ERR_FORM_SIZE) {
+                return ['success' => false, 'item' => null, 'error' => 'Datei überschreitet das Server-Upload-Limit (max. ' . ini_get('upload_max_filesize') . ').'];
+            }
             return ['success' => false, 'item' => null, 'error' => 'Upload-Fehler (Code ' . $errCode . ')'];
         }
 

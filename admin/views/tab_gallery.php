@@ -277,8 +277,40 @@ $all_languages = LanguageManager::getSupportedLanguages();
             </div>
 
             <!-- List and Reorder -->
+            <?php
+                $demoFilesList = [
+                    'korb_fahrrad.png', 'korb_kaminholz.png', 'korb_klassik.png',
+                    'deko_kugeln.png', 'deko_windlicht.png', 'deko_rankhilfe.png',
+                    'sichtschutz_flechtzaun.png', 'sichtschutz_modern.png', 'sichtschutz_lebendzaun.png',
+                    'default_wicker1.png', 'default_wicker2.png'
+                ];
+                $demo_count = 0;
+                foreach (($data['gallery'] ?? []) as $gItem) {
+                    $gImg = (string)($gItem['image'] ?? '');
+                    if (strpos($gImg, 'images/uploads/') === false && in_array(basename(str_replace('\\', '/', $gImg)), $demoFilesList, true)) {
+                        $demo_count++;
+                    }
+                }
+                foreach (($data['past_courses'] ?? []) as $pImg) {
+                    if (strpos((string)$pImg, 'images/uploads/') === false && in_array(basename(str_replace('\\', '/', (string)$pImg)), $demoFilesList, true)) {
+                        $demo_count++;
+                    }
+                }
+            ?>
             <div class="card" style="padding: 2.5rem;">
-                <h2 style="color: var(--primary); margin-bottom: 1.5rem;"><?php echo __a('admin.gallery.manage_heading'); ?></h2>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom: 1.5rem;">
+                    <h2 style="color: var(--primary); margin: 0;"><?php echo __a('admin.gallery.manage_heading'); ?></h2>
+                    <?php if ($demo_count > 0): ?>
+                        <form method="POST" action="" style="margin:0;" onsubmit="return confirm('Möchtest du wirklich alle <?php echo $demo_count; ?> Demo-/Testbilder auf einmal entfernen? Deine eigenen hochgeladenen Bilder bleiben erhalten.');">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                            <input type="hidden" name="action" value="delete_demo_gallery">
+                            <input type="hidden" name="target_tab" value="tab-gallery">
+                            <button type="submit" class="btn btn-outline" style="color:#ef4444; border-color:rgba(239,68,68,0.45); display:inline-flex; align-items:center; gap:6px; padding:7px 14px; font-size:0.85rem;">
+                                <span class="material-icons" style="font-size:16px;">cleaning_services</span> Demo-/Testbilder entfernen (<?php echo $demo_count; ?>)
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                </div>
                 <?php if (empty($data['gallery'])): ?>
                     <p style="color: var(--text-secondary);"><?php echo __a('admin.gallery.empty'); ?></p>
                 <?php else: ?>

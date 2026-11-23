@@ -19,12 +19,28 @@
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <input type="hidden" name="action" value="add_past_course_image">
                 <input type="hidden" name="target_tab" value="tab-past">
+                <input type="hidden" name="past_media_url" id="past-course-image-input" value="">
+
+                <div class="form-group" style="margin-bottom:1.25rem; padding:1rem; border:1px dashed var(--border-color); border-radius:12px; background:rgba(255,255,255,0.015);">
+                    <label style="display:block; margin-bottom:0.5rem;">Bild aus Mediathek auswählen (Empfohlen)</label>
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <img id="past-course-image-preview" src="" alt="" style="display:none; width:64px; height:50px; object-fit:cover; border-radius:8px; border:1px solid var(--border-color); flex-shrink:0;">
+                        <span id="past-course-image-label" style="font-size:0.85rem; color:var(--text-secondary);">Kein Bild gewählt</span>
+                        <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;" onclick="openCourseMediaPicker('past-course-image')">
+                            <span class="material-icons" style="font-size:17px;">perm_media</span> Aus Mediathek wählen
+                        </button>
+                        <button type="button" id="past-course-image-clear" class="btn btn-outline" style="display:none; padding:5px 10px; font-size:0.82rem; color:#ef4444; border-color:rgba(239,68,68,0.35);" onclick="clearCourseMedia('past-course-image')">
+                            Entfernen
+                        </button>
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label><?php echo __a('admin.past.upload_label', 'Neues Bild hochladen (JPG, PNG, WebP)'); ?></label>
-                    <input type="file" name="past_image" class="form-control" accept="image/*" required>
+                    <label><?php echo __a('admin.past.upload_label', 'Oder neues Bild direkt hochladen (JPG, PNG, WebP)'); ?></label>
+                    <input type="file" name="past_image" class="form-control" accept="image/*">
                 </div>
                 <button type="submit" class="btn btn-primary">
-                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">cloud_upload</span> <?php echo __a('admin.past.btn_upload', 'Foto hochladen'); ?>
+                    <span class="material-icons" style="font-size:18px; vertical-align:middle;">add_photo_alternate</span> <?php echo __a('admin.past.btn_upload', 'Foto hinzufügen'); ?>
                 </button>
             </form>
 
