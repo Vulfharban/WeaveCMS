@@ -1569,7 +1569,16 @@ class AdminController {
             $title = $_POST['title'] ?? '';
             $description = $_POST['description'] ?? '';
             $category = $_POST['category'] ?? '';
-            $image_path = ImageUploader::upload('gallery_image', $data);
+            $selected_media_url = trim($_POST['selected_media_url'] ?? '');
+            $image_path = '';
+            if (!empty($_FILES['gallery_image']['name'])) {
+                $image_path = ImageUploader::upload('gallery_image', $data);
+            } elseif ($selected_media_url !== '') {
+                $clean_rel = '/' . ltrim(str_replace('\\', '/', $selected_media_url), '/');
+                if (strpos($clean_rel, '..') === false && is_file(self::rootPath() . $clean_rel)) {
+                    $image_path = $clean_rel;
+                }
+            }
 
             if (empty($title)) {
                 $error_msg = __a('admin.msg.gallery_title_required', 'Bitte gib einen Titel für das Galerie-Element an.');
@@ -1639,6 +1648,11 @@ class AdminController {
                 $image_path = ImageUploader::upload('gallery_image', $data);
                 if ($image_path) {
                     $data['gallery'][$found_idx]['image'] = $image_path;
+                }
+            } elseif (!empty($_POST['selected_media_url'])) {
+                $clean_rel = '/' . ltrim(str_replace('\\', '/', trim((string)$_POST['selected_media_url'])), '/');
+                if (strpos($clean_rel, '..') === false && is_file(self::rootPath() . $clean_rel)) {
+                    $data['gallery'][$found_idx]['image'] = $clean_rel;
                 }
             }
 

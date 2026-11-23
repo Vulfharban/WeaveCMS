@@ -176,7 +176,18 @@ $all_languages = LanguageManager::getSupportedLanguages();
                         </div>
                         <div class="form-group">
                             <label><?php echo __a('admin.gallery.field_image'); ?> *</label>
-                            <input type="file" name="gallery_image" class="form-control" accept="image/*" required>
+                            <input type="hidden" name="selected_media_url" id="add-gal-image-input" value="">
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+                                <img id="add-gal-image-preview" src="" alt="" style="display:none; width:56px; height:44px; object-fit:cover; border-radius:8px; border:1px solid var(--border-color); flex-shrink:0;">
+                                <span id="add-gal-image-label" style="font-size:0.82rem; color:var(--text-secondary);">Kein Mediathek-Bild gewählt</span>
+                                <button type="button" class="btn btn-outline" style="padding:5px 10px; font-size:0.8rem; display:inline-flex; align-items:center; gap:5px;" onclick="openCourseMediaPicker('add-gal-image')">
+                                    <span class="material-icons" style="font-size:16px;">perm_media</span> Aus Mediathek wählen
+                                </button>
+                                <button type="button" id="add-gal-image-clear" class="btn btn-outline" style="display:none; padding:4px 8px; font-size:0.78rem; color:#ef4444;" onclick="clearCourseMedia('add-gal-image')">
+                                    Entfernen
+                                </button>
+                            </div>
+                            <input type="file" name="gallery_image" class="form-control" accept="image/*">
                         </div>
                     </div>
 
@@ -263,6 +274,17 @@ $all_languages = LanguageManager::getSupportedLanguages();
                         </div>
                         <div class="form-group">
                             <label><?php echo __a('admin.gallery.field_new_image'); ?></label>
+                            <input type="hidden" name="selected_media_url" id="edit-gal-image-input" value="">
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+                                <img id="edit-gal-image-preview" src="" alt="" style="display:none; width:56px; height:44px; object-fit:cover; border-radius:8px; border:1px solid var(--border-color); flex-shrink:0;">
+                                <span id="edit-gal-image-label" style="font-size:0.82rem; color:var(--text-secondary);">Aktuelles Bild beibehalten</span>
+                                <button type="button" class="btn btn-outline" style="padding:5px 10px; font-size:0.8rem; display:inline-flex; align-items:center; gap:5px;" onclick="openCourseMediaPicker('edit-gal-image')">
+                                    <span class="material-icons" style="font-size:16px;">perm_media</span> Aus Mediathek wählen
+                                </button>
+                                <button type="button" id="edit-gal-image-clear" class="btn btn-outline" style="display:none; padding:4px 8px; font-size:0.78rem; color:#ef4444;" onclick="clearCourseMedia('edit-gal-image')">
+                                    Entfernen
+                                </button>
+                            </div>
                             <input type="file" name="gallery_image" class="form-control" accept="image/*">
                         </div>
                     </div>
