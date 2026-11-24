@@ -19,6 +19,26 @@ $error = $_SESSION['forum_auth_error'] ?? '';
 unset($_SESSION['forum_auth_error']);
 
 $forumGuidelines = ForumUserManager::getForumGuidelines();
+$fuserCfg = class_exists('PluginManager') ? PluginManager::getPluginConfig('weave-forum-users', $GLOBALS['data'] ?? []) : [];
+$regMode = $fuserCfg['registration_mode'] ?? 'email_verify';
+
+if ($regMode === 'closed') {
+    ?>
+    <div style="max-width: 500px; margin: 36px auto; background: #ffffff; border: 1px solid #cbd5e1; border-top: 5px solid #f59e0b; border-radius: 14px; padding: 30px; text-align: center; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);">
+        <div style="width: 52px; height: 52px; margin: 0 auto 12px auto; border-radius: 50%; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center;">
+            <span class="material-icons" style="font-size: 26px;">lock</span>
+        </div>
+        <h2 style="margin: 0 0 8px 0; font-size: 1.35rem; font-weight: 800; color: #0f172a;">Registrierung derzeit deaktiviert</h2>
+        <p style="margin: 0 0 20px 0; font-size: 13.5px; color: #64748b; line-height: 1.55;">
+            Die Neuregistrierung von Forum-Konten ist momentan geschlossen. Wenn du bereits ein Konto besitzt, kannst du dich hier anmelden.
+        </p>
+        <a href="?page=forum&view=login" class="kunena-btn-primary" style="display:inline-flex; align-items:center; gap:6px; padding: 10px 22px; text-decoration:none;">
+            <span class="material-icons" style="font-size: 18px;">login</span> Zum Login
+        </a>
+    </div>
+    <?php
+    return;
+}
 ?>
 
 <div style="max-width: 500px; margin: 36px auto; background: #ffffff; border: 1px solid #cbd5e1; border-top: 5px solid var(--primary, #2e6248); border-radius: 14px; padding: 30px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);">
@@ -30,10 +50,24 @@ $forumGuidelines = ForumUserManager::getForumGuidelines();
         <p style="margin: 0; font-size: 13px; color: #64748b;">Erstelle dein kostenloses Profil für unsere Community.</p>
     </div>
 
-    <div style="margin-bottom: 18px; padding: 11px 14px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; font-size: 12.5px; line-height: 1.45; display: flex; align-items: flex-start; gap: 9px;">
-        <span class="material-icons" style="font-size: 18px; color: var(--primary, #2e6248); margin-top: 1px; flex-shrink: 0;">mark_email_unread</span>
-        <span>Nach der Registrierung erhältst du eine <strong>Bestätigungs-E-Mail mit einem Aktivierungslink</strong>. Erst nach Klick auf diesen Link wird dein Konto zur Anmeldung freigeschaltet.</span>
-    </div>
+    <?php if ($regMode === 'direct_open'): ?>
+        <div style="margin-bottom: 18px; padding: 11px 14px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 12.5px; line-height: 1.45; display: flex; align-items: flex-start; gap: 9px;">
+            <span class="material-icons" style="font-size: 18px; color: #16a34a; margin-top: 1px; flex-shrink: 0;">bolt</span>
+            <span>Dein Konto wird nach dem Absenden <strong>sofort freigeschaltet</strong> und du kannst direkt im Forum schreiben.</span>
+        </div>
+    <?php else: ?>
+        <div style="margin-bottom: 18px; padding: 11px 14px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; font-size: 12.5px; line-height: 1.45; display: flex; align-items: flex-start; gap: 9px;">
+            <span class="material-icons" style="font-size: 18px; color: var(--primary, #2e6248); margin-top: 1px; flex-shrink: 0;">mark_email_unread</span>
+            <span>
+                Nach der Registrierung erhältst du eine <strong>Bestätigungs-E-Mail mit einem Aktivierungslink</strong>.
+                <?php if ($regMode === 'approval'): ?>
+                    Nach der E-Mail-Bestätigung wird dein Konto zusätzlich durch einen Administrator freigeschaltet.
+                <?php else: ?>
+                    Erst nach Klick auf diesen Link wird dein Konto zur Anmeldung freigeschaltet.
+                <?php endif; ?>
+            </span>
+        </div>
+    <?php endif; ?>
 
     <?php if (!empty($error)): ?>
         <div style="margin-bottom: 18px; padding: 12px 14px; border-radius: 10px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font-size: 13px; display: flex; align-items: center; gap: 8px;">
@@ -88,7 +122,11 @@ $forumGuidelines = ForumUserManager::getForumGuidelines();
         </div>
 
         <button type="submit" class="kunena-btn-primary" style="width: 100%; justify-content: center; padding: 11px; font-size: 14px; cursor: pointer; margin-top: 4px;">
-            <span class="material-icons" style="font-size: 18px;">mark_email_read</span> Registrieren &amp; Bestätigungs-E-Mail anfordern
+            <?php if ($regMode === 'direct_open'): ?>
+                <span class="material-icons" style="font-size: 18px;">person_add</span> Konto jetzt erstellen
+            <?php else: ?>
+                <span class="material-icons" style="font-size: 18px;">mark_email_read</span> Registrieren &amp; Bestätigungs-E-Mail anfordern
+            <?php endif; ?>
         </button>
 
         <div style="text-align: center; margin-top: 8px; font-size: 13px; color: #64748b;">

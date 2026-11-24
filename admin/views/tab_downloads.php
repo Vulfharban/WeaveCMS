@@ -598,8 +598,9 @@ $all_languages = LanguageManager::getSupportedLanguages();
             items.forEach((item, idx) => {
                 const icon = getMediaIcon(item);
                 const isImg = (item.type === 'image' || item.type === 'vector');
+                const thumbRel = (item.variants && (item.variants.thumb_webp || item.variants.thumb || item.variants.medium_webp || item.variants.medium)) || item.rel_url || '';
                 const previewHtml = isImg
-                    ? '<img src="../' + (item.rel_url || '') + '" alt="" style="width:44px; height:44px; object-fit:cover; border-radius:8px; border:1px solid var(--border-color); flex-shrink:0;">'
+                    ? '<img src="../' + thumbRel + '" alt="" loading="lazy" decoding="async" style="width:44px; height:44px; object-fit:cover; border-radius:8px; border:1px solid var(--border-color); flex-shrink:0;">'
                     : '<div style="width:44px; height:44px; border-radius:8px; background:rgba(46,98,72,0.12); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-icons" style="font-size:26px;">' + icon + '</span></div>';
 
                 html += '<div onclick="selectMediaForDownload(' + idx + ')" style="display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border-color); border-radius:12px; cursor:pointer; background:rgba(255,255,255,0.02); transition:all 0.15s ease;" onmouseenter="this.style.background=\'rgba(46,98,72,0.08)\'; this.style.borderColor=\'var(--primary)\';" onmouseleave="this.style.background=\'rgba(255,255,255,0.02)\'; this.style.borderColor=\'var(--border-color)\';">'

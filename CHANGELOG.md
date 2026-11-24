@@ -6,6 +6,24 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ---
 
+## [v1.3.4.4] - 24. November 2026
+
+### 🛡️ Workshop-Haftungsausschluss, Foren-Fixes & Mediathek/Download-Optimierungen
+
+- ⚖️ **Konfigurierbarer Sicherheits- & Haftungshinweis für Kurse/Workshops (`AdminController.php`, `tab_courses.php`, `views/sections/courses.php`, `views/partials/slide_contact.php`, `libs/js/main.js`):**
+  - Neuer Einstellungsbereich im Kurs-Tab (`update_course_safety`) mit allgemein gehaltenem, § 309 Nr. 7 BGB-konformem Standard-Hinweistext und optionaler Pflicht-Checkbox für Kursanfragen im Kontaktformular.
+  - Inline-Detailansicht im Kontakt-Drawer verhindert versehentliches Schließen beim Klicken auf den Hinweis-Link.
+- 💬 **Forum-Plugin (`weave-forum` & `weave-forum-users`):**
+  - **MySQL-Abfrage-Fix (`ForumManager.php`):** `PDO::ATTR_EMULATE_PREPARES => false` sowie explizites `PDO::PARAM_INT`-Binding für `LIMIT ? OFFSET ?` in `getTopics()`, `getPosts()` und `getAuditLogs()`, sodass Themen und Beiträge auch bei MySQL-Treiber korrekt angezeigt werden.
+  - **Registrierungs-Robustheit (`ForumUserManager.php`, `plugin.php`, `views/register.php`):** Fehler beim Versand der Bestätigungs-E-Mail räumen das unbestätigte Konto sauber wieder auf und melden den Fehler; `register.php` berücksichtigt `registration_mode` (`closed`, `direct_open`, `approval`, `email_verify`); CSRF-Fehler im Auth-Handler liefern nun eine klare Fehlermeldung.
+- 🖼️ **Mediathek, Galerie & Downloads (`MediaManager.php`, `ImageUploader.php`, `views/sections/downloads.php`, `views/sections/gallery.php`, `tab_downloads.php`, `tab_media.php`, `tab_gallery.php`, `tab_past.php`):**
+  - **Unterordner-Migration & Windows-ACL-Fix (`MediaManager::migrateLegacyVariants()`, `ImageUploader.php`):** Automatisches Verschieben von `_thumb.webp`/`_medium.webp` in `thumbs/`/`medium/` inkl. ACL-Bereinigung für Bestandsbilder unter Windows.
+  - **Download-Screenshots & Lightbox (`views/sections/downloads.php`, `libs/js/main.js`):** `openLightbox()` unterstützt nun neben Galerie-Indizes auch direkte Bild-URLs; Screenshot-Vorschauen nutzen komprimierte Thumbnails und unterordner-sichere `./`-Pfade.
+  - **Unterordner-Pfade & Performance (`MediaManager.php`, `views/sections/gallery.php`, `tab_downloads.php`, `tab_media.php`):** `renderPictureTag()` nutzt `./` statt `/` für Unterordner-Installationen; statischer In-Memory-Cache in `MediaManager::loadMeta()` verhindert wiederholte `media_meta.json`-Lesezugriffe pro Seite; `gallery.php` prüft Bilddimensionen bevorzugt auf der kleineren Variante und Admin-Picker/Modale laden Thumbnails/Medium-Varianten statt voller Originale.
+  - **Galerie-Verwaltung (`tab_gallery.php`):** Löschen von Galerie-Elementen direkt in „Galerie verwalten & sortieren“ integriert.
+
+---
+
 ## [v1.3.4.3] - 23. November 2026
 
 ### ✨ Kursübersicht-UI, Optionale Kursbilder & Demo-Bild-Bereinigung

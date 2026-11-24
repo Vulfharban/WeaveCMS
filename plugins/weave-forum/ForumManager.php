@@ -173,7 +173,8 @@ class ForumManager {
         $dsn = "mysql:host={$c['host']};port={$c['port']};dbname={$c['database']};charset={$c['charset']}";
         $pdo = new PDO($dsn, $c['user'], $c['password'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false
         ]);
 
         self::initMysqlTables($pdo);
@@ -848,14 +849,17 @@ class ForumManager {
     public static function getTopics(string $boardId, int $page = 1, int $perPage = 25): array {
         if (self::isDatabase()) {
             try {
-                $offset = ($page - 1) * $perPage;
+                $offset = max(0, ($page - 1) * $perPage);
                 $stmt = self::getSqlitePdo()->prepare("
                     SELECT * FROM weave_forum_topics 
                     WHERE board_id = ? AND status = 'published'
                     ORDER BY is_pinned DESC, last_post_at DESC 
                     LIMIT ? OFFSET ?
                 ");
-                $stmt->execute([$boardId, $perPage, $offset]);
+                $stmt->bindValue(1, $boardId, PDO::PARAM_STR);
+                $stmt->bindValue(2, $perPage, PDO::PARAM_INT);
+                $stmt->bindValue(3, $offset, PDO::PARAM_INT);
+                $stmt->execute();
                 return $stmt->fetchAll();
             } catch (Exception $e) {
                 return [];
@@ -932,14 +936,17 @@ class ForumManager {
     public static function getPosts(string $topicId, int $page = 1, int $perPage = 20): array {
         if (self::isDatabase()) {
             try {
-                $offset = ($page - 1) * $perPage;
+                $offset = max(0, ($page - 1) * $perPage);
                 $stmt = self::getSqlitePdo()->prepare("
                     SELECT * FROM weave_forum_posts 
                     WHERE topic_id = ? AND status = 'published'
                     ORDER BY created_at ASC 
                     LIMIT ? OFFSET ?
                 ");
-                $stmt->execute([$topicId, $perPage, $offset]);
+                $stmt->bindValue(1, $topicId, PDO::PARAM_STR);
+                $stmt->bindValue(2, $perPage, PDO::PARAM_INT);
+                $stmt->bindValue(3, $offset, PDO::PARAM_INT);
+                $stmt->execute();
                 return $stmt->fetchAll();
             } catch (Exception $e) {
                 return [];
@@ -1727,7 +1734,8 @@ class ForumManager {
         if (self::isDatabase()) {
             try {
                 $stmt = self::getSqlitePdo()->prepare("SELECT * FROM weave_forum_audit_log ORDER BY timestamp DESC LIMIT ?");
-                $stmt->execute([$limit]);
+                $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+                $stmt->execute();
                 return $stmt->fetchAll();
             } catch (Exception $e) { return []; }
         }

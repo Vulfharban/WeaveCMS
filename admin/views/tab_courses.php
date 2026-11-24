@@ -18,7 +18,38 @@
 $active_langs = LanguageManager::getActiveLanguages($data);
 $primary_lang = LanguageManager::getPrimaryLanguage($data);
 $all_languages = LanguageManager::getSupportedLanguages();
+$default_safety_notice = "1. Eigenverantwortung & Risikoaufklärung\nDie Teilnahme an Kursen und Workshops erfolgt auf eigene Gefahr und Verantwortung. Je nach Kursangebot kann der Umgang mit Werkzeugen, Geräten oder Materialien mit einem erhöhten Verletzungs- oder Verschmutzungsrisiko verbunden sein.\n\n2. Sicherheitsanweisungen\nDie Teilnehmer verpflichten sich, den Sicherheits- und Handhabungshinweisen der Kursleitung Folge zu leisten und bereitgestellte oder eigene Werkzeuge, Geräte und Materialien umsichtig und bestimmungsgemäß zu verwenden. Bei Unsicherheiten ist die Kursleitung vorab zu fragen.\n\n3. Haftungsbeschränkung des Veranstalters\nUnbeschränkte Haftung: Der Veranstalter sowie die Kursleitung haften uneingeschränkt für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit, die auf einer vorsätzlichen oder fahrlässigen Pflichtverletzung beruhen, sowie für sonstige Schäden, die auf einer vorsätzlichen oder grob fahrlässigen Pflichtverletzung beruhen.\nBeschränkte Haftung: Für sonstige Schäden (insbesondere Sach- und Vermögensschäden), die auf einer einfach fahrlässigen Verletzung wesentlicher Vertragspflichten (Kardinalpflichten) beruhen, ist die Haftung auf den vertragstypischen, vorhersehbaren Schaden begrenzt. Im Übrigen ist eine Haftung für einfache Fahrlässigkeit ausgeschlossen.\nPersönliche Gegenstände: Für den Verlust oder die Beschädigung von mitgebrachten Gegenständen, Kleidung oder eigenen Materialien/Werkzeugen der Teilnehmer wird – außer bei Vorsatz oder grober Fahrlässigkeit des Veranstalters – keine Haftung übernommen. Das Tragen geeigneter Kleidung wird empfohlen.\n\n4. Gesundheitliche Voraussetzungen & Minderjährige\nDie Teilnehmer versichern, dass keine gesundheitlichen Bedenken gegen die Teilnahme bestehen. Bei minderjährigen Teilnehmern ist die schriftliche Einverständniserklärung eines Erziehungsberechtigten erforderlich.";
+$cur_safety_notice = array_key_exists('course_safety_notice', $data['texts'] ?? []) ? (string)$data['texts']['course_safety_notice'] : $default_safety_notice;
+$cur_safety_ack = !isset($data['settings']['course_safety_require_ack']) || !empty($data['settings']['course_safety_require_ack']);
 ?>
+            <!-- Workshop Safety & Liability Notice -->
+            <div class="card" style="padding: 2rem 2.5rem; margin-bottom: 2rem;">
+                <h3 style="color: var(--primary); margin: 0 0 0.5rem 0; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons">health_and_safety</span> Sicherheitshinweis &amp; Haftung bei Kursen / Workshops
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.5;">
+                    Dieser allgemeine Hinweis wird im Kursbereich angezeigt. Leer lassen, um den Hinweis komplett auszublenden.
+                </p>
+                <form method="POST" action="">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                    <input type="hidden" name="action" value="update_course_safety">
+                    <input type="hidden" name="target_tab" value="tab-courses">
+                    <div class="form-group">
+                        <label>Hinweistext für Kursteilnehmer</label>
+                        <textarea name="course_safety_notice" class="form-control" rows="10" placeholder="Optionaler Sicherheits- und Haftungshinweis..."><?php echo htmlspecialchars($cur_safety_notice); ?></textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:0.92rem;">
+                            <input type="checkbox" name="course_safety_require_ack" value="1" <?php echo $cur_safety_ack ? 'checked' : ''; ?> style="width:17px; height:17px; accent-color:var(--primary);">
+                            Bestätigungs-Checkbox bei Kursanfragen / Reservierungen im Kontaktformular verpflichtend anzeigen
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-outline" style="display:inline-flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size:18px;">save</span> Sicherheitshinweis speichern
+                    </button>
+                </form>
+            </div>
+
             <!-- Add new Course -->
             <div class="card" style="padding: 2.5rem; margin-bottom: 2.5rem;">
                 <h2 style="color: var(--primary); margin-bottom: 1.5rem;"><?php echo __a('admin.courses.add_heading', 'Neuen Flechtkurs anlegen'); ?></h2>
@@ -172,7 +203,8 @@ $all_languages = LanguageManager::getSupportedLanguages();
                                 $status_bg = $is_bookable ? 'rgba(16,185,129,0.14)' : ($is_active ? 'rgba(245,158,11,0.14)' : 'rgba(100,116,139,0.18)');
                                 $card_bg = ($idx % 2 === 0) ? 'rgba(255,255,255,0.025)' : 'rgba(217,119,6,0.035)';
                                 $c_img = trim($c['image'] ?? '');
-                                $c_img_preview = $c_img !== '' ? ((strpos($c_img, 'http://') === 0 || strpos($c_img, 'https://') === 0) ? $c_img : '../' . ltrim($c_img, './')) : '';
+                                $c_img_thumb = ($c_img !== '' && class_exists('MediaManager')) ? MediaManager::getThumbUrl($c_img, 'thumb') : $c_img;
+                                $c_img_preview = $c_img_thumb !== '' ? ((strpos($c_img_thumb, 'http://') === 0 || strpos($c_img_thumb, 'https://') === 0) ? $c_img_thumb : '../' . ltrim($c_img_thumb, './')) : '';
                                 $picker_prefix = 'edit-course-image-' . $cid;
                             ?>
                             <div style="background:<?php echo $card_bg; ?>; border:1px solid rgba(255,255,255,0.14); border-left:5px solid <?php echo $accent_color; ?>; padding:1.5rem; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,0.12);">
@@ -383,7 +415,7 @@ $all_languages = LanguageManager::getSupportedLanguages();
                     </button>
                     <input type="file" id="course-picker-upload-input" multiple accept="image/*" style="display:none;" onchange="uploadFromCoursePicker(this.files)">
                 </div>
-                <div id="course-picker-grid" style="padding:1.25rem 1.5rem; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px;"></div>
+                <div id="course-picker-grid" style="flex:1; min-height:0; padding:1.25rem 1.5rem 2.25rem 1.5rem; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); grid-auto-rows:max-content; align-content:start; gap:12px;"></div>
             </div>
         </div>
 
@@ -418,15 +450,21 @@ $all_languages = LanguageManager::getSupportedLanguages();
                 return;
             }
             imgs.forEach(m => {
+                const thumbRel = (m.variants && (m.variants.thumb_webp || m.variants.thumb)) ? (m.variants.thumb_webp || m.variants.thumb) : m.rel_url;
+                const hoverRel = (m.variants && (m.variants.medium_webp || m.variants.medium)) ? (m.variants.medium_webp || m.variants.medium) : thumbRel;
                 const card = document.createElement('div');
                 card.style.cssText = 'border:1px solid var(--border-color); border-radius:10px; overflow:hidden; cursor:pointer; background:rgba(255,255,255,0.02);';
+                card.onmouseenter = (e) => { if (typeof showMediaHoverPreview === 'function') showMediaHoverPreview(e, '../' + hoverRel, m.filename, '../' + thumbRel); };
+                card.onmousemove = (e) => { if (typeof moveMediaHoverPreview === 'function') moveMediaHoverPreview(e); };
+                card.onmouseleave = () => { if (typeof hideMediaHoverPreview === 'function') hideMediaHoverPreview(); };
                 card.onclick = () => {
-                    selectCourseMediaItem(m.web_url, m.rel_url, m.filename);
+                    if (typeof hideMediaHoverPreview === 'function') hideMediaHoverPreview();
+                    selectCourseMediaItem(m.web_url, thumbRel, m.filename);
                     closeCourseMediaPicker();
                 };
                 card.innerHTML = `
                     <div style="height:110px; background:#0f172a; overflow:hidden;">
-                        <img src="../${m.rel_url}" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="../${thumbRel}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div style="padding:6px 8px; font-size:0.75rem; font-weight:600; word-break:break-all; color:var(--text-primary);">${escapeCourseHtml(m.filename)}</div>
                 `;

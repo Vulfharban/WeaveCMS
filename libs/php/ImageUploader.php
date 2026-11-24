@@ -240,7 +240,9 @@ class ImageUploader {
         $newFilename = 'img_' . bin2hex(random_bytes(10)) . '.' . $ext;
         $dest = rtrim($uploadDir, '/\\') . '/' . $newFilename;
 
-        if (move_uploaded_file($file['tmp_name'], $dest)) {
+        $copied = is_uploaded_file($file['tmp_name']) && @copy($file['tmp_name'], $dest);
+        if ($copied) {
+            @unlink($file['tmp_name']);
             // 4. GD-Neukompilierung (EXIF-PHP-Bereinigung)
             if (!self::sanitizeImageWithGd($dest, $ext)) {
                 @unlink($dest);
@@ -300,7 +302,9 @@ class ImageUploader {
         $newFilename = $cleanBase . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
         $dest = rtrim($uploadDir, '/\\') . '/' . $newFilename;
 
-        if (move_uploaded_file($file['tmp_name'], $dest)) {
+        $copied = is_uploaded_file($file['tmp_name']) && @copy($file['tmp_name'], $dest);
+        if ($copied) {
+            @unlink($file['tmp_name']);
             $bytes = filesize($dest);
             $sizeStr = ($bytes >= 1048576) ? round($bytes / 1048576, 1) . ' MB' : round($bytes / 1024, 0) . ' KB';
 
@@ -418,7 +422,9 @@ class ImageUploader {
         $newFilename = 'logo_' . bin2hex(random_bytes(6)) . '.' . $ext;
         $dest = $brandDir . $newFilename;
 
-        if (move_uploaded_file($file['tmp_name'], $dest)) {
+        $copied = is_uploaded_file($file['tmp_name']) && @copy($file['tmp_name'], $dest);
+        if ($copied) {
+            @unlink($file['tmp_name']);
             if (class_exists('SecurityManager')) {
                 SecurityManager::logEvent('UPLOAD_LOGO_OK', "Neues Logo hochgeladen: {$newFilename}", 'INFO');
             }
@@ -464,7 +470,9 @@ class ImageUploader {
         $newFilename = 'favicon_' . bin2hex(random_bytes(6)) . '.' . $ext;
         $dest = $brandDir . $newFilename;
 
-        if (move_uploaded_file($file['tmp_name'], $dest)) {
+        $copied = is_uploaded_file($file['tmp_name']) && @copy($file['tmp_name'], $dest);
+        if ($copied) {
+            @unlink($file['tmp_name']);
             if (class_exists('SecurityManager')) {
                 SecurityManager::logEvent('UPLOAD_FAVICON_OK', "Neues Favicon hochgeladen: {$newFilename}", 'INFO');
             }

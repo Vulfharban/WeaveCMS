@@ -50,10 +50,11 @@
             <?php else: ?>
                 <div class="grid-past-images">
                     <?php foreach ($data['past_courses'] as $img_path): 
-                        $img_src = (strpos((string)$img_path, '/') === 0) ? ('..' . $img_path) : ('../' . $img_path);
+                        $img_thumb = class_exists('MediaManager') ? MediaManager::getThumbUrl((string)$img_path, 'thumb') : (string)$img_path;
+                        $img_src = '../' . ltrim($img_thumb, './');
                     ?>
                         <div class="past-image-card">
-                            <img src="<?php echo htmlspecialchars($img_src); ?>" alt="">
+                            <img src="<?php echo htmlspecialchars($img_src); ?>" loading="lazy" decoding="async" alt="">
                             <form method="POST" action="" onsubmit="return confirm(<?php echo json_encode(__a('admin.past.confirm_delete', 'Möchtest du dieses Bild löschen?')); ?>);">
                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                 <input type="hidden" name="action" value="delete_past_course_image">

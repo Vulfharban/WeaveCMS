@@ -306,6 +306,11 @@ if (!empty($_GET['forum_auth'])) {
                 header('Location: ?page=forum&view=profile');
                 exit;
             }
+        } else {
+            $_SESSION['forum_auth_error'] = 'Deine Sitzung ist abgelaufen oder das Sicherheitstoken war ungültig. Bitte versuche es erneut.';
+            $targetView = in_array($authAction, ['login', 'register', 'profile'], true) ? $authAction : 'login';
+            header('Location: ?page=forum&view=' . $targetView);
+            exit;
         }
     }
 }

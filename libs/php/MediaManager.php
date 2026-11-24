@@ -24,9 +24,12 @@ class MediaManager {
      */
     public const SIZES = [
         'thumb'  => 350,
-        'medium' => 800,
-        'large'  => 1400
+        'medium' => 800
     ];
+
+    public static function getVariantSubdir(string $sizeKey): string {
+        return $sizeKey === 'thumb' ? 'thumbs' : ($sizeKey === 'medium' ? 'medium' : 'large');
+    }
 
     /**
      * Ermittelt den absoluten Speicherpfad für Medien-Uploads.
@@ -54,18 +57,25 @@ class MediaManager {
         return $dataDir . '/media_meta.json';
     }
 
+    protected static ?array $metaCache = null;
+
     /**
      * Lädt gespeicherte Metadaten (Alt-Texte, Titel).
      * @return array<string, array>
      */
     public static function loadMeta(): array {
+        if (self::$metaCache !== null) {
+            return self::$metaCache;
+        }
         $file = self::getMetaFile();
         if (!file_exists($file)) {
-            return [];
+            self::$metaCache = [];
+            return self::$metaCache;
         }
         $raw = @file_get_contents($file);
         $data = json_decode((string)$raw, true);
-        return is_array($data) ? $data : [];
+        self::$metaCache = is_array($data) ? $data : [];
+        return self::$metaCache;
     }
 
     /**
@@ -75,7 +85,11 @@ class MediaManager {
      */
     public static function saveMeta(array $meta): bool {
         $file = self::getMetaFile();
-        return (bool)@file_put_contents($file, json_encode($meta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $ok = (bool)@file_put_contents($file, json_encode($meta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        if ($ok) {
+            self::$metaCache = $meta;
+        }
+        return $ok;
     }
 
     /**
@@ -127,6 +141,76 @@ class MediaManager {
     }
 
     /**
+     * Einmalige Migration bestehender Mediathek-Varianten in die Unterordner thumbs/ und medium/
+     * sowie Bereinigung überflüssiger Alt-Varianten (_large, _thumb.jpg, _medium.jpg, .avif, .webp).
+     *
+     * @return array{migrated:bool, moved:int, removed:int}
+     */
+    public static function migrateLegacyVariants(): array {
+        $uploadDir = self::getUploadDir();
+        $marker = $uploadDir . '/.subdirs_migrated';
+        if (is_file($marker)) {
+            return ['migrated' => false, 'moved' => 0, 'removed' => 0];
+        }
+
+        $thumbsDir = $uploadDir . '/thumbs';
+        $mediumDir = $uploadDir . '/medium';
+        if (!is_dir($thumbsDir)) {
+            @mkdir($thumbsDir, 0755, true);
+        }
+        if (!is_dir($mediumDir)) {
+            @mkdir($mediumDir, 0755, true);
+        }
+
+        $moved = 0;
+        $removed = 0;
+        $files = @scandir($uploadDir) ?: [];
+        foreach ($files as $f) {
+            if ($f === '.' || $f === '..' || is_dir($uploadDir . '/' . $f) || strpos($f, '.') === 0) {
+                continue;
+            }
+            $src = $uploadDir . '/' . $f;
+            if (preg_match('/_thumb\.webp$/i', $f)) {
+                if (@rename($src, $thumbsDir . '/' . $f)) {
+                    $moved++;
+                }
+            } elseif (preg_match('/_medium\.webp$/i', $f)) {
+                if (@rename($src, $mediumDir . '/' . $f)) {
+                    $moved++;
+                }
+            } elseif (preg_match('/_(thumb|medium|large)\.(jpe?g|png)$/i', $f) || preg_match('/_large\.webp$/i', $f) || preg_match('/\.avif$/i', $f)) {
+                if (@unlink($src)) {
+                    $removed++;
+                }
+            } elseif (preg_match('/^(.+)\.webp$/i', $f, $m)) {
+                $base = $m[1];
+                if (is_file($uploadDir . '/' . $base . '.jpg') || is_file($uploadDir . '/' . $base . '.jpeg') || is_file($uploadDir . '/' . $base . '.png')) {
+                    if (@unlink($src)) {
+                        $removed++;
+                    }
+                    continue;
+                }
+            }
+            if (is_file($src)) {
+                // Bestehende Originaldatei neu anlegen, damit geerbte Ordner-ACLs unter Windows greifen
+                $mtime = @filemtime($src) ?: time();
+                $tmpCopy = $src . '.aclfix';
+                if (@copy($src, $tmpCopy)) {
+                    @unlink($src);
+                    @rename($tmpCopy, $src);
+                    @touch($src, $mtime);
+                    @chmod($src, 0644);
+                } else {
+                    @unlink($tmpCopy);
+                }
+            }
+        }
+
+        @file_put_contents($marker, date('c') . " moved={$moved} removed={$removed}\n");
+        return ['migrated' => true, 'moved' => $moved, 'removed' => $removed];
+    }
+
+    /**
      * Scannt das Upload-Verzeichnis und liefert alle Medien inklusive Metadaten.
      *
      * @param string|null $filterType 'all', 'images', 'documents', 'vectors'
@@ -135,6 +219,7 @@ class MediaManager {
      * @return array<int, array>
      */
     public static function scanMedia(?string $filterType = 'all', ?string $search = null, string $sort = 'date_desc'): array {
+        self::migrateLegacyVariants();
         $uploadDir = self::getUploadDir();
         $meta = self::loadMeta();
         $files = @scandir($uploadDir) ?: [];
@@ -145,7 +230,7 @@ class MediaManager {
         $vectorExts = ['svg'];
 
         foreach ($files as $file) {
-            if ($file === '.' || $file === '..' || $file === '.htaccess' || $file === '.gitkeep' || $file === 'index.html') {
+            if ($file === '.' || $file === '..' || strpos($file, '.') === 0 || $file === 'index.html') {
                 continue;
             }
 
@@ -209,15 +294,22 @@ class MediaManager {
                     ];
                 }
 
-                // Vorhandene Varianten erkennen
+                // Vorhandene Varianten erkennen (Unterordner thumbs/ und medium/ sowie Altbestand)
                 foreach (self::SIZES as $sizeKey => $maxDim) {
-                    $varFile = $baseName . '_' . $sizeKey . '.' . $ext;
-                    if (file_exists($uploadDir . '/' . $varFile)) {
-                        $variants[$sizeKey] = 'images/uploads/' . $varFile;
+                    $subDir = self::getVariantSubdir($sizeKey);
+                    $varWebpSub = $subDir . '/' . $baseName . '_' . $sizeKey . '.webp';
+                    $varWebpFlat = $baseName . '_' . $sizeKey . '.webp';
+                    if (file_exists($uploadDir . '/' . $varWebpSub)) {
+                        $variants[$sizeKey . '_webp'] = 'images/uploads/' . $varWebpSub;
+                    } elseif (file_exists($uploadDir . '/' . $varWebpFlat)) {
+                        $variants[$sizeKey . '_webp'] = 'images/uploads/' . $varWebpFlat;
                     }
-                    $varWebp = $baseName . '_' . $sizeKey . '.webp';
-                    if (file_exists($uploadDir . '/' . $varWebp)) {
-                        $variants[$sizeKey . '_webp'] = 'images/uploads/' . $varWebp;
+                    $varFileSub = $subDir . '/' . $baseName . '_' . $sizeKey . '.' . $ext;
+                    $varFileFlat = $baseName . '_' . $sizeKey . '.' . $ext;
+                    if (file_exists($uploadDir . '/' . $varFileSub)) {
+                        $variants[$sizeKey] = 'images/uploads/' . $varFileSub;
+                    } elseif (file_exists($uploadDir . '/' . $varFileFlat)) {
+                        $variants[$sizeKey] = 'images/uploads/' . $varFileFlat;
                     }
                 }
 
@@ -334,27 +426,8 @@ class MediaManager {
         $baseName = pathinfo($absOriginalPath, PATHINFO_FILENAME);
         $generated = [];
 
-        // 1. Standalone WebP-Version des Originals erzeugen (falls Original nicht schon WebP ist)
-        if ($ext !== 'webp' && function_exists('imagewebp')) {
-            $webpPath = $dir . '/' . $baseName . '.webp';
-            @imagewebp($srcImg, $webpPath, 85);
-            if (file_exists($webpPath)) {
-                $generated['webp'] = $webpPath;
-            }
-        }
-
-        // 2. Standalone AVIF-Version des Originals (wenn Server unterstützt)
-        if (function_exists('imageavif')) {
-            $avifPath = $dir . '/' . $baseName . '.avif';
-            @imageavif($srcImg, $avifPath, 80);
-            if (file_exists($avifPath)) {
-                $generated['avif'] = $avifPath;
-            }
-        }
-
-        // 3. Responsive Größen berechnen und speichern
+        // Responsive Größen berechnen und in Unterordner (thumbs/, medium/) speichern
         foreach (self::SIZES as $sizeKey => $maxDim) {
-            // Nur verkleinern, wenn das Original größer ist als die Zielgröße
             if ($origW <= $maxDim && $origH <= $maxDim && $sizeKey !== 'thumb') {
                 continue;
             }
@@ -372,40 +445,38 @@ class MediaManager {
                 continue;
             }
 
-            // Alpha-Kanal für Transparenz erhalten
             imagealphablending($dstImg, false);
             imagesavealpha($dstImg, true);
             $transparent = imagecolorallocatealpha($dstImg, 255, 255, 255, 127);
             imagefilledrectangle($dstImg, 0, 0, $newW, $newH, $transparent);
 
-            // Hochwertige Resampling-Skalierung
             imagecopyresampled($dstImg, $srcImg, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
 
-            // WebP-Variante erzeugen
+            $subDirPath = $dir . '/' . self::getVariantSubdir($sizeKey);
+            if (!is_dir($subDirPath)) {
+                @mkdir($subDirPath, 0755, true);
+            }
+
             if (function_exists('imagewebp')) {
-                $variantWebp = $dir . '/' . $baseName . '_' . $sizeKey . '.webp';
+                $variantWebp = $subDirPath . '/' . $baseName . '_' . $sizeKey . '.webp';
                 @imagewebp($dstImg, $variantWebp, 85);
                 if (file_exists($variantWebp)) {
                     $generated[$sizeKey . '_webp'] = $variantWebp;
                 }
-            }
-
-            // Original-Format-Variante erzeugen
-            $variantOriginal = $dir . '/' . $baseName . '_' . $sizeKey . '.' . $ext;
-            switch ($ext) {
-                case 'jpg':
-                case 'jpeg':
-                    @imagejpeg($dstImg, $variantOriginal, 88);
-                    break;
-                case 'png':
-                    @imagepng($dstImg, $variantOriginal, 8);
-                    break;
-                case 'webp':
-                    @imagewebp($dstImg, $variantOriginal, 85);
-                    break;
-            }
-            if (file_exists($variantOriginal)) {
-                $generated[$sizeKey] = $variantOriginal;
+            } else {
+                $variantOriginal = $subDirPath . '/' . $baseName . '_' . $sizeKey . '.' . $ext;
+                switch ($ext) {
+                    case 'jpg':
+                    case 'jpeg':
+                        @imagejpeg($dstImg, $variantOriginal, 88);
+                        break;
+                    case 'png':
+                        @imagepng($dstImg, $variantOriginal, 8);
+                        break;
+                }
+                if (file_exists($variantOriginal)) {
+                    $generated[$sizeKey] = $variantOriginal;
+                }
             }
 
             @imagedestroy($dstImg);
@@ -417,7 +488,7 @@ class MediaManager {
 
     /**
      * Liefert für ein Mediathek-Bild die passende komprimierte Variante (z. B. 'medium' 800px oder 'thumb' 350px),
-     * bevorzugt als .webp. Fällt auf die Original-URL zurück, falls keine Variante existiert.
+     * bevorzugt als .webp (prüft Unterordner thumbs/ und medium/ sowie Altbestand direkt in uploads/).
      */
     public static function getThumbUrl(string $imageUrl, string $size = 'medium'): string {
         $clean = trim($imageUrl);
@@ -432,11 +503,16 @@ class MediaManager {
         $dirRel = dirname($rel);
         $base = pathinfo($rel, PATHINFO_FILENAME);
         $ext = strtolower(pathinfo($rel, PATHINFO_EXTENSION));
+        $subDir = self::getVariantSubdir($size);
         $candidates = [
+            $dirRel . '/' . $subDir . '/' . $base . '_' . $size . '.webp',
+            $dirRel . '/' . $subDir . '/' . $base . '_' . $size . '.' . $ext,
             $dirRel . '/' . $base . '_' . $size . '.webp',
             $dirRel . '/' . $base . '_' . $size . '.' . $ext,
         ];
         if ($size === 'medium') {
+            $candidates[] = $dirRel . '/thumbs/' . $base . '_thumb.webp';
+            $candidates[] = $dirRel . '/thumbs/' . $base . '_thumb.' . $ext;
             $candidates[] = $dirRel . '/' . $base . '_thumb.webp';
             $candidates[] = $dirRel . '/' . $base . '_thumb.' . $ext;
         }
@@ -519,9 +595,10 @@ class MediaManager {
 
         $moved = false;
         if (is_uploaded_file($file['tmp_name'])) {
-            $moved = move_uploaded_file($file['tmp_name'], $destPath);
+            $moved = @copy($file['tmp_name'], $destPath);
+            @unlink($file['tmp_name']);
         } else {
-            $moved = copy($file['tmp_name'], $destPath);
+            $moved = @copy($file['tmp_name'], $destPath);
         }
 
         if (!$moved) {
@@ -545,11 +622,16 @@ class MediaManager {
         ];
         self::saveMeta($meta);
 
-        SecurityManager::logEvent('MEDIA_UPLOAD_OK', "Datei erfolgreich hochgeladen: {$newFilename} (Original: {$origName})", 'INFO');
-
-        // Phase 15: Im Demo-Modus hochgeladene Datei tracken für vollständiges Zurücksetzen
-        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
-            SandboxManager::recordUploadedFile($destPath, 'images/uploads/' . $newFilename);
+        SecurityManager::logEvent('MEDIA_UPLOAD_OK', "Datei erfolgreich hochgeladen: {$newFilename} (Original: {$origName})", 'INFO');
+
+
+
+        // Phase 15: Im Demo-Modus hochgeladene Datei tracken für vollständiges Zurücksetzen
+
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+
+            SandboxManager::recordUploadedFile($destPath, 'images/uploads/' . $newFilename);
+
         }
 
         // Erstelltes Item abrufen
@@ -612,13 +694,16 @@ class MediaManager {
 
         @unlink($target);
 
-        // Abgeleitete Varianten löschen
+        // Abgeleitete Varianten löschen (Unterordner thumbs/, medium/ sowie Altbestand)
         $baseName = pathinfo($safeName, PATHINFO_FILENAME);
-        $files = @scandir($uploadDir) ?: [];
-        foreach ($files as $f) {
-            if ($f === '.' || $f === '..') continue;
-            if (strpos($f, $baseName . '_') === 0 || $f === $baseName . '.webp' || $f === $baseName . '.avif') {
-                @unlink($uploadDir . '/' . $f);
+        foreach ([$uploadDir, $uploadDir . '/thumbs', $uploadDir . '/medium'] as $scanDir) {
+            if (!is_dir($scanDir)) continue;
+            $files = @scandir($scanDir) ?: [];
+            foreach ($files as $f) {
+                if ($f === '.' || $f === '..') continue;
+                if (strpos($f, $baseName . '_') === 0 || $f === $baseName . '.webp' || $f === $baseName . '.avif') {
+                    @unlink($scanDir . '/' . $f);
+                }
             }
         }
 
@@ -724,7 +809,7 @@ class MediaManager {
             $focusStyle = self::getFocusStyle($cleanRel);
             return sprintf(
                 '<img src="%s" alt="%s" class="%s" loading="%s" style="%s">',
-                htmlspecialchars('/' . $cleanRel, ENT_QUOTES),
+                htmlspecialchars('./' . $cleanRel, ENT_QUOTES),
                 htmlspecialchars($alt, ENT_QUOTES),
                 htmlspecialchars($class, ENT_QUOTES),
                 htmlspecialchars($loading, ENT_QUOTES),
@@ -742,15 +827,15 @@ class MediaManager {
 
         // Prüfen, ob AVIF-Version existiert
         if (file_exists($root . '/' . $dir . '/' . $baseName . '.avif')) {
-            $avifSrc = '/' . $dir . '/' . $baseName . '.avif';
+            $avifSrc = './' . $dir . '/' . $baseName . '.avif';
         }
 
         // Prüfen, ob WebP-Version existiert
         if ($ext !== 'webp' && file_exists($root . '/' . $dir . '/' . $baseName . '.webp')) {
-            $webpSrc = '/' . $dir . '/' . $baseName . '.webp';
+            $webpSrc = './' . $dir . '/' . $baseName . '.webp';
         }
 
-        $fallbackSrc = '/' . $cleanRel;
+        $fallbackSrc = './' . $cleanRel;
 
         $html = '<picture' . ($class ? ' class="' . htmlspecialchars($class, ENT_QUOTES) . '"' : '') . '>';
         if ($avifSrc) {

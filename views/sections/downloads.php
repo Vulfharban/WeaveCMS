@@ -139,8 +139,18 @@ foreach ($downloads as $d) {
                         <?php if (!empty($d_screenshots)): ?>
                             <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 1rem;">
                                 <?php foreach ($d_screenshots as $sImg): ?>
-                                    <?php $sClean = htmlspecialchars(trim($sImg)); ?>
-                                    <img src="<?php echo $sClean; ?>" alt="Screenshot" style="height: 52px; width: 85px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.2s;" onclick="openLightbox('<?php echo $sClean; ?>')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                    <?php
+                                        $sRaw = trim((string)$sImg);
+                                        if ($sRaw === '') continue;
+                                        $sFullSrc = (strpos($sRaw, 'http://') === 0 || strpos($sRaw, 'https://') === 0)
+                                            ? $sRaw
+                                            : ((strpos($sRaw, '/') === 0) ? '.' . $sRaw : './' . $sRaw);
+                                        $sThumbRaw = class_exists('MediaManager') ? MediaManager::getThumbUrl($sRaw, 'thumb') : $sRaw;
+                                        $sThumbSrc = (strpos($sThumbRaw, 'http://') === 0 || strpos($sThumbRaw, 'https://') === 0)
+                                            ? $sThumbRaw
+                                            : ((strpos($sThumbRaw, '/') === 0) ? '.' . $sThumbRaw : './' . $sThumbRaw);
+                                    ?>
+                                    <img src="<?php echo htmlspecialchars($sThumbSrc); ?>" alt="Screenshot" loading="lazy" decoding="async" style="height: 52px; width: 85px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.2s;" onclick="openLightbox(<?php echo htmlspecialchars(json_encode($sFullSrc), ENT_QUOTES); ?>)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>

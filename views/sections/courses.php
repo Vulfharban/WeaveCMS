@@ -108,4 +108,20 @@
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
+
+    <?php
+        $cur_safety_default = "1. Eigenverantwortung & Risikoaufklärung\nDie Teilnahme an Kursen und Workshops erfolgt auf eigene Gefahr und Verantwortung. Je nach Kursangebot kann der Umgang mit Werkzeugen, Geräten oder Materialien mit einem erhöhten Verletzungs- oder Verschmutzungsrisiko verbunden sein.\n\n2. Sicherheitsanweisungen\nDie Teilnehmer verpflichten sich, den Sicherheits- und Handhabungshinweisen der Kursleitung Folge zu leisten und bereitgestellte oder eigene Werkzeuge, Geräte und Materialien umsichtig und bestimmungsgemäß zu verwenden. Bei Unsicherheiten ist die Kursleitung vorab zu fragen.\n\n3. Haftungsbeschränkung des Veranstalters\nUnbeschränkte Haftung: Der Veranstalter sowie die Kursleitung haften uneingeschränkt für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit, die auf einer vorsätzlichen oder fahrlässigen Pflichtverletzung beruhen, sowie für sonstige Schäden, die auf einer vorsätzlichen oder grob fahrlässigen Pflichtverletzung beruhen.\nBeschränkte Haftung: Für sonstige Schäden (insbesondere Sach- und Vermögensschäden), die auf einer einfach fahrlässigen Verletzung wesentlicher Vertragspflichten (Kardinalpflichten) beruhen, ist die Haftung auf den vertragstypischen, vorhersehbaren Schaden begrenzt. Im Übrigen ist eine Haftung für einfache Fahrlässigkeit ausgeschlossen.\nPersönliche Gegenstände: Für den Verlust oder die Beschädigung von mitgebrachten Gegenständen, Kleidung oder eigenen Materialien/Werkzeugen der Teilnehmer wird – außer bei Vorsatz oder grober Fahrlässigkeit des Veranstalters – keine Haftung übernommen. Das Tragen geeigneter Kleidung wird empfohlen.\n\n4. Gesundheitliche Voraussetzungen & Minderjährige\nDie Teilnehmer versichern, dass keine gesundheitlichen Bedenken gegen die Teilnahme bestehen. Bei minderjährigen Teilnehmern ist die schriftliche Einverständniserklärung eines Erziehungsberechtigten erforderlich.";
+        $cur_safety_notice = array_key_exists('course_safety_notice', $data['texts'] ?? [])
+            ? trim((string)$data['texts']['course_safety_notice'])
+            : $cur_safety_default;
+    ?>
+    <?php if ($cur_safety_notice !== ''): ?>
+        <div id="course-safety-notice" style="max-width: 900px; margin: 2.5rem auto 0; padding: 1rem 1.25rem; background: var(--surface, #f8fafc); border: 1px solid var(--border, rgba(0,0,0,0.08)); border-left: 4px solid var(--primary, #3f51b5); border-radius: 10px; font-size: 0.9rem; line-height: 1.55; color: var(--text-muted, #4b5563); display: flex; gap: 12px; align-items: flex-start;">
+            <span class="material-icons" style="color: var(--primary, #3f51b5); font-size: 20px; flex-shrink: 0; margin-top: 2px;">health_and_safety</span>
+            <div>
+                <strong style="display: block; color: var(--text-main, #1f2937); margin-bottom: 4px; font-size: 0.95rem;">Sicherheits- &amp; Haftungshinweis</strong>
+                <span><?php echo nl2br(htmlspecialchars($cur_safety_notice)); ?></span>
+            </div>
+        </div>
+    <?php endif; ?>
 </section>

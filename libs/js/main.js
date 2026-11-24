@@ -80,19 +80,50 @@ function getVisibleIndices() {
 }
 
 /**
- * Öffnet die Lightbox-Vollbildansicht für das Bild am übergebenen Index.
- * @param {number} idx - Index des anzuzeigenden Bildes
+ * Öffnet die Lightbox-Vollbildansicht für das Bild am übergebenen Index oder eine direkte Bild-URL.
+ * @param {number|string} idxOrUrl - Index des anzuzeigenden Bildes oder direkte Bild-URL
  */
-function openLightbox(idx) {
-    if (!galleryItems || !galleryItems[idx]) return;
-    activeLightboxIdx = idx;
-    updateLightboxContent();
+function openLightbox(idxOrUrl) {
     const modal = document.getElementById('gallery-lightbox');
-    if (modal) {
+    if (!modal) return;
+
+    const prevBtn = modal.querySelector('.lightbox-prev');
+    const nextBtn = modal.querySelector('.lightbox-next');
+
+    if (typeof idxOrUrl === 'string') {
+        const img = document.getElementById('lightbox-img');
+        const titleEl = document.getElementById('lightbox-title');
+        const catEl = document.getElementById('lightbox-category');
+        const descEl = document.getElementById('lightbox-desc');
+        const counterEl = document.getElementById('lightbox-counter');
+        if (img) {
+            img.src = idxOrUrl;
+            img.alt = 'Vorschau';
+        }
+        if (titleEl) titleEl.textContent = '';
+        if (catEl) { catEl.textContent = ''; catEl.style.display = 'none'; }
+        if (descEl) descEl.textContent = '';
+        if (counterEl) counterEl.textContent = '';
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+
         modal.classList.add('active');
         modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
+        return;
     }
+
+    if (!galleryItems || !galleryItems[idxOrUrl]) return;
+    if (prevBtn) prevBtn.style.display = '';
+    if (nextBtn) nextBtn.style.display = '';
+    const catEl = document.getElementById('lightbox-category');
+    if (catEl) catEl.style.display = '';
+
+    activeLightboxIdx = idxOrUrl;
+    updateLightboxContent();
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
 }
 
 /**
@@ -188,6 +219,26 @@ function requestCourse(courseTitle, courseDate, courseTime, courseLocation) {
     window.CURRENT_COURSE_REF = `${courseTitle} (${courseDate}${courseTime ? ', ' + courseTime : ''})`;
     const toggle = document.getElementById('menu-toggle');
     if (toggle) toggle.checked = true;
+
+    const safetyAckBox = document.getElementById('course-safety-ack-box');
+    const safetyAckCheckbox = document.getElementById('req-course-safety-ack');
+    if (safetyAckBox) {
+        safetyAckBox.style.display = 'block';
+    }
+    if (safetyAckCheckbox) {
+        safetyAckCheckbox.checked = false;
+    }
+    if (toggle && !toggle.dataset.safetyBound) {
+        toggle.dataset.safetyBound = '1';
+        toggle.addEventListener('change', function () {
+            if (!this.checked) {
+                const box = document.getElementById('course-safety-ack-box');
+                const cb = document.getElementById('req-course-safety-ack');
+                if (box) box.style.display = 'none';
+                if (cb) cb.checked = false;
+            }
+        });
+    }
     
     // Statusbox leeren und Spamschutz frisch initialisieren
     const statusBox = document.getElementById('contact-status-box');
@@ -515,6 +566,14 @@ function sendRequestEmail(e, contactEmail) {
     if (!message || message.length < 5) {
         alert('Bitte gib eine Nachricht ein (mindestens 5 Zeichen).');
         if (msgInput) msgInput.focus();
+        return;
+    }
+
+    const safetyAckBox = document.getElementById('course-safety-ack-box');
+    const safetyAckCheckbox = document.getElementById('req-course-safety-ack');
+    if (safetyAckBox && safetyAckBox.style.display !== 'none' && safetyAckCheckbox && !safetyAckCheckbox.checked) {
+        alert('Bitte bestätige den Sicherheits- & Haftungshinweis für die Workshop-Anfrage.');
+        safetyAckCheckbox.focus();
         return;
     }
 

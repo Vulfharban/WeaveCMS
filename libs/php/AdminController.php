@@ -192,6 +192,7 @@ class AdminController {
             case 'add_course':
             case 'edit_course':
             case 'delete_course':
+            case 'update_course_safety':
                 self::handleCourseAction($action, $dataFile, $data, $success_msg, $error_msg);
                 break;
 
@@ -1779,6 +1780,16 @@ class AdminController {
      * Verarbeitet Flechtkurse (Hinzufügen, Bearbeiten, Löschen).
      */
     protected static function handleCourseAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        if ($action === 'update_course_safety') {
+            $data['texts']['course_safety_notice'] = trim((string)($_POST['course_safety_notice'] ?? ''));
+            $data['settings']['course_safety_require_ack'] = !empty($_POST['course_safety_require_ack']);
+            if (save_data($dataFile, $data)) {
+                $success_msg = __a('admin.msg.course_safety_saved', 'Sicherheitshinweis & Teilnahmebedingungen gespeichert!');
+            } else {
+                $error_msg = __a('admin.msg.course_save_error', 'Fehler beim Speichern des Kurses.');
+            }
+            return;
+        }
         if ($action === 'add_course') {
             $title = $_POST['title'] ?? '';
             $date_string = $_POST['date_string'] ?? '';

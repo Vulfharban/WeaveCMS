@@ -235,6 +235,10 @@ class CoreUpdater {
 
         $changed = UpdateManager::ensureSchemaCompatibility($data);
 
+        if (class_exists('MediaManager') && method_exists('MediaManager', 'migrateLegacyVariants')) {
+            MediaManager::migrateLegacyVariants();
+        }
+
         // Versionierte Migrationen: libs/migrations/<version>.php liefert function(array &$data): void
         $dir = self::getRootDir() . '/libs/migrations';
         $ran = 0;

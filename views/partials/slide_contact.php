@@ -195,6 +195,25 @@
                         <div id="spam-feedback" style="display:none; color: #ef4444; font-size: 0.82rem; margin-top: 6px; font-weight: 500;"></div>
                     <?php endif; ?>
 
+                    <?php
+                        $safety_default = "1. Eigenverantwortung & Risikoaufklärung\nDie Teilnahme an Kursen und Workshops erfolgt auf eigene Gefahr und Verantwortung. Je nach Kursangebot kann der Umgang mit Werkzeugen, Geräten oder Materialien mit einem erhöhten Verletzungs- oder Verschmutzungsrisiko verbunden sein.\n\n2. Sicherheitsanweisungen\nDie Teilnehmer verpflichten sich, den Sicherheits- und Handhabungshinweisen der Kursleitung Folge zu leisten und bereitgestellte oder eigene Werkzeuge, Geräte und Materialien umsichtig und bestimmungsgemäß zu verwenden. Bei Unsicherheiten ist die Kursleitung vorab zu fragen.\n\n3. Haftungsbeschränkung des Veranstalters\nUnbeschränkte Haftung: Der Veranstalter sowie die Kursleitung haften uneingeschränkt für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit, die auf einer vorsätzlichen oder fahrlässigen Pflichtverletzung beruhen, sowie für sonstige Schäden, die auf einer vorsätzlichen oder grob fahrlässigen Pflichtverletzung beruhen.\nBeschränkte Haftung: Für sonstige Schäden (insbesondere Sach- und Vermögensschäden), die auf einer einfach fahrlässigen Verletzung wesentlicher Vertragspflichten (Kardinalpflichten) beruhen, ist die Haftung auf den vertragstypischen, vorhersehbaren Schaden begrenzt. Im Übrigen ist eine Haftung für einfache Fahrlässigkeit ausgeschlossen.\nPersönliche Gegenstände: Für den Verlust oder die Beschädigung von mitgebrachten Gegenständen, Kleidung oder eigenen Materialien/Werkzeugen der Teilnehmer wird – außer bei Vorsatz oder grober Fahrlässigkeit des Veranstalters – keine Haftung übernommen. Das Tragen geeigneter Kleidung wird empfohlen.\n\n4. Gesundheitliche Voraussetzungen & Minderjährige\nDie Teilnehmer versichern, dass keine gesundheitlichen Bedenken gegen die Teilnahme bestehen. Bei minderjährigen Teilnehmern ist die schriftliche Einverständniserklärung eines Erziehungsberechtigten erforderlich.";
+                        $safety_notice = array_key_exists('course_safety_notice', $data['texts'] ?? [])
+                            ? trim((string)$data['texts']['course_safety_notice'])
+                            : $safety_default;
+                        $safety_require_ack = $data['settings']['course_safety_require_ack'] ?? true;
+                    ?>
+                    <?php if ($safety_notice !== '' && $safety_require_ack): ?>
+                    <div id="course-safety-ack-box" style="display:none; margin-bottom: 1rem; padding: 10px 12px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; font-size: 0.84rem; line-height: 1.45;">
+                        <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer; margin:0; font-weight:normal;">
+                            <input type="checkbox" id="req-course-safety-ack" style="margin-top:3px; flex-shrink:0; width:16px; height:16px;">
+                            <span>Ich habe den <a href="#course-safety-notice" onclick="event.preventDefault(); event.stopPropagation(); var d=document.getElementById('course-safety-ack-details'); if(d) d.style.display=(d.style.display==='none'?'block':'none');" style="color:var(--primary); text-decoration:underline;">Sicherheits- &amp; Haftungshinweis</a> für Workshops gelesen und akzeptiere diesen für meine Anfrage. *</span>
+                        </label>
+                        <div id="course-safety-ack-details" style="display:none; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(245, 158, 11, 0.25); font-size: 0.8rem; color: var(--text-muted, #4b5563); line-height: 1.45; max-height: 220px; overflow-y: auto;">
+                            <?php echo nl2br(htmlspecialchars($safety_notice)); ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <!-- Status-Meldungsbox für Feedback nach dem Senden -->
                     <div id="contact-status-box" style="display:none; margin-bottom: 1rem; padding: 12px 14px; border-radius: 10px; font-size: 0.88rem; line-height: 1.45;"></div>
 

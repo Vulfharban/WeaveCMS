@@ -60,9 +60,12 @@
                         ? $thumb_raw
                         : ((strpos($thumb_raw, '/') === 0) ? '.' . $thumb_raw : './' . $thumb_raw);
                     $is_portrait = false;
-                    $local_file = dirname(__DIR__, 2) . '/' . ltrim($item['image'] ?? '', '/\\');
-                    if (file_exists($local_file)) {
-                        $size = @getimagesize($local_file);
+                    $size_check_file = dirname(__DIR__, 2) . '/' . ltrim($thumb_raw, '/\\');
+                    if (!is_file($size_check_file)) {
+                        $size_check_file = dirname(__DIR__, 2) . '/' . ltrim($img_raw, '/\\');
+                    }
+                    if (is_file($size_check_file)) {
+                        $size = @getimagesize($size_check_file);
                         if ($size && $size[1] > ($size[0] * 1.1)) {
                             $is_portrait = true;
                         }
@@ -75,7 +78,7 @@
                             $focusStyle = class_exists('MediaManager') ? MediaManager::getFocusStyle($img_raw) : '';
                         ?>
                         <?php if ($gallery_layout === 'ambient_blur'): ?>
-                            <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-bg-blur" alt="" aria-hidden="true" style="<?php echo htmlspecialchars($focusStyle); ?>">
+                            <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-bg-blur" alt="" aria-hidden="true" loading="lazy" decoding="async" style="<?php echo htmlspecialchars($focusStyle); ?>">
                             <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-fg-img" alt="<?php echo $img_alt; ?>" loading="lazy" style="<?php echo htmlspecialchars($focusStyle); ?>">
                         <?php else: ?>
                             <img src="<?php echo htmlspecialchars($img_src); ?>" class="gallery-fg-img" alt="<?php echo $img_alt; ?>" loading="lazy" style="<?php echo htmlspecialchars($focusStyle); ?>">

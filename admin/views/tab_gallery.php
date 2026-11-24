@@ -47,58 +47,6 @@
                 </button>
             </div>
 
-            <!-- Galerie-Kategorien verwalten (Definition & Löschen) -->
-            <div class="card" style="padding: 2.5rem; margin-bottom: 2.5rem;">
-                <h2 style="color: var(--primary); margin-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
-                    <span class="material-icons" style="color:var(--primary);">category</span> <?php echo __a('admin.gallery.categories_heading'); ?>
-                </h2>
-                <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height: 1.5;">
-                    <?php echo __a('admin.gallery.categories_desc'); ?>
-                    <br><em><?php echo __a('admin.gallery.categories_note'); ?></em>
-                </p>
-
-                <!-- Neue Kategorie hinzufügen -->
-                <form method="POST" action="" style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom: 1.75rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color);">
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                    <input type="hidden" name="action" value="add_category">
-                    <div class="form-group" style="flex:1; min-width:240px; margin-bottom:0;">
-                        <label style="font-weight:600; margin-bottom:6px; display:block;"><?php echo __a('admin.gallery.add_cat_label'); ?></label>
-                        <input type="text" name="category_name" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.gallery.placeholder_cat')); ?>" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="height:44px; display:inline-flex; align-items:center; gap:6px;">
-                        <span class="material-icons" style="font-size:18px;">add</span> <?php echo __a('admin.gallery.btn_add_cat'); ?>
-                    </button>
-                </form>
-
-                <!-- Vorhandene Kategorien auflisten -->
-                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.75rem; display:block;">
-                    <?php echo __a('admin.gallery.existing_cats_label'); ?> (<?php echo count($admin_categories); ?>)
-                </label>
-                <div style="display:flex; flex-direction:column; gap:0.75rem;">
-                    <?php foreach ($admin_categories as $catItem): 
-                        $cCount = $cat_counts[$catItem] ?? 0;
-                    ?>
-                        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.02); padding:0.75rem 1.25rem; border-radius:10px; border:1px solid var(--border-color); flex-wrap:wrap; gap:0.75rem;">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span class="material-icons" style="color:var(--primary); font-size:20px;">label</span>
-                                <strong style="font-size:1.02rem;"><?php echo htmlspecialchars($catItem); ?></strong>
-                                <span style="font-size:0.8rem; background:rgba(16,185,129,0.1); color:var(--primary); padding:2px 8px; border-radius:12px; font-weight:600;">
-                                    <?php echo $cCount; ?> <?php echo ($cCount === 1) ? __a('admin.gallery.item_single') : __a('admin.gallery.item_plural'); ?>
-                                </span>
-                            </div>
-                            <form method="POST" action="" onsubmit="return confirmCategoryDelete(<?php echo htmlspecialchars(json_encode($catItem)); ?>, <?php echo (int)$cCount; ?>);" style="margin:0;">
-                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                                <input type="hidden" name="action" value="delete_category">
-                                <input type="hidden" name="category_name" value="<?php echo htmlspecialchars($catItem); ?>">
-                                <button type="submit" class="btn btn-danger" style="padding:6px 14px; font-size:0.82rem; display:inline-flex; align-items:center; gap:4px; background:#dc2626;">
-                                    <span class="material-icons" style="font-size:16px;">delete</span> <?php echo __a('admin.gallery.btn_delete_cat'); ?>
-                                </button>
-                            </form>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-
 <?php
 $active_langs = LanguageManager::getActiveLanguages($data);
 $primary_lang = LanguageManager::getPrimaryLanguage($data);
@@ -195,6 +143,58 @@ $all_languages = LanguageManager::getSupportedLanguages();
                         <span class="material-icons" style="font-size:18px; vertical-align:middle;">add_photo_alternate</span> <?php echo __a('admin.gallery.btn_add'); ?>
                     </button>
                 </form>
+            </div>
+
+            <!-- Galerie-Kategorien verwalten (Definition & Löschen) -->
+            <div class="card" style="padding: 2.5rem; margin-bottom: 2.5rem;">
+                <h2 style="color: var(--primary); margin-bottom: 0.5rem; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons" style="color:var(--primary);">category</span> <?php echo __a('admin.gallery.categories_heading'); ?>
+                </h2>
+                <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                    <?php echo __a('admin.gallery.categories_desc'); ?>
+                    <br><em><?php echo __a('admin.gallery.categories_note'); ?></em>
+                </p>
+
+                <!-- Neue Kategorie hinzufügen -->
+                <form method="POST" action="" style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom: 1.75rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                    <input type="hidden" name="action" value="add_category">
+                    <div class="form-group" style="flex:1; min-width:240px; margin-bottom:0;">
+                        <label style="font-weight:600; margin-bottom:6px; display:block;"><?php echo __a('admin.gallery.add_cat_label'); ?></label>
+                        <input type="text" name="category_name" class="form-control" placeholder="<?php echo htmlspecialchars(__a('admin.gallery.placeholder_cat')); ?>" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="height:44px; display:inline-flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size:18px;">add</span> <?php echo __a('admin.gallery.btn_add_cat'); ?>
+                    </button>
+                </form>
+
+                <!-- Vorhandene Kategorien auflisten -->
+                <label style="font-weight:700; color:var(--text-primary); margin-bottom:0.75rem; display:block;">
+                    <?php echo __a('admin.gallery.existing_cats_label'); ?> (<?php echo count($admin_categories); ?>)
+                </label>
+                <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                    <?php foreach ($admin_categories as $catItem): 
+                        $cCount = $cat_counts[$catItem] ?? 0;
+                    ?>
+                        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.02); padding:0.75rem 1.25rem; border-radius:10px; border:1px solid var(--border-color); flex-wrap:wrap; gap:0.75rem;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span class="material-icons" style="color:var(--primary); font-size:20px;">label</span>
+                                <strong style="font-size:1.02rem;"><?php echo htmlspecialchars($catItem); ?></strong>
+                                <span style="font-size:0.8rem; background:rgba(16,185,129,0.1); color:var(--primary); padding:2px 8px; border-radius:12px; font-weight:600;">
+                                    <?php echo $cCount; ?> <?php echo ($cCount === 1) ? __a('admin.gallery.item_single') : __a('admin.gallery.item_plural'); ?>
+                                </span>
+                            </div>
+                            <form method="POST" action="" onsubmit="return confirmCategoryDelete(<?php echo htmlspecialchars(json_encode($catItem)); ?>, <?php echo (int)$cCount; ?>);" style="margin:0;">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                <input type="hidden" name="action" value="delete_category">
+                                <input type="hidden" name="category_name" value="<?php echo htmlspecialchars($catItem); ?>">
+                                <button type="submit" class="btn btn-danger" style="padding:6px 14px; font-size:0.82rem; display:inline-flex; align-items:center; gap:4px; background:#dc2626;">
+                                    <span class="material-icons" style="font-size:16px;">delete</span> <?php echo __a('admin.gallery.btn_delete_cat'); ?>
+                                </button>
+                            </form>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
 
             <!-- ──────────────── EDIT DRAWER ──────────────── -->
@@ -341,8 +341,9 @@ $all_languages = LanguageManager::getSupportedLanguages();
                         <input type="hidden" name="action" value="reorder_gallery">
                         <div style="display:flex; flex-direction:column; gap:1rem; margin-bottom: 1.5rem;">
                             <?php foreach ($data['gallery'] as $item): ?>
+                                <?php $gal_thumb = class_exists('MediaManager') ? MediaManager::getThumbUrl($item['image'] ?? '', 'thumb') : ($item['image'] ?? ''); ?>
                                 <div style="display:flex; align-items:center; gap:1rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:12px; border:1px solid var(--border-color); flex-wrap:wrap;">
-                                    <img src="..<?php echo htmlspecialchars($item['image']); ?>" class="preview-img" alt="">
+                                    <img src="../<?php echo htmlspecialchars(ltrim($gal_thumb, '/')); ?>" loading="lazy" decoding="async" class="preview-img" alt="">
                                     <div style="flex:1; min-width:200px;">
                                         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                                             <h4 style="margin:0; font-size:1.1rem;"><?php echo htmlspecialchars($item['title']); ?></h4>
@@ -369,6 +370,9 @@ $all_languages = LanguageManager::getSupportedLanguages();
                                             <label style="margin:0; font-size:0.85rem; color:var(--text-secondary);"><?php echo __a('admin.gallery.sort_label'); ?></label>
                                             <input type="number" name="order[<?php echo $item['id']; ?>]" value="<?php echo htmlspecialchars($item['sort_order'] ?? 0); ?>" class="form-control" style="width:60px; padding:6px; margin:0;" min="0">
                                         </div>
+                                        <button type="button" class="btn btn-danger" onclick="deleteGalleryItem(<?php echo (int)$item['id']; ?>)" style="padding:6px 12px; font-size:0.82rem; display:inline-flex; align-items:center; gap:4px; background:#dc2626;" title="<?php echo htmlspecialchars(__a('admin.gallery.btn_delete')); ?>">
+                                            <span class="material-icons" style="font-size:16px;">delete</span> <?php echo __a('admin.gallery.btn_delete'); ?>
+                                        </button>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -378,23 +382,18 @@ $all_languages = LanguageManager::getSupportedLanguages();
                         </button>
                     </form>
 
-                    <h3 style="font-size:1.2rem; margin-top:2rem; margin-bottom:1rem; border-top:1px solid var(--border-color); padding-top:1.5rem;"><?php echo __a('admin.gallery.delete_section_heading'); ?></h3>
-                    <div style="display:flex; flex-direction:column; gap:1rem;">
-                        <?php foreach ($data['gallery'] as $item): ?>
-                            <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(239, 68, 68, 0.02); padding:0.75rem 1rem; border-radius:12px; border:1px solid rgba(239,68,68,0.15); flex-wrap:wrap; gap:1rem;">
-                                <div style="display:flex; align-items:center; gap:1rem;">
-                                    <img src="..<?php echo htmlspecialchars($item['image']); ?>" style="width:40px; height:40px; object-fit:cover; border-radius:6px;" alt="">
-                                    <span style="font-weight:600;"><?php echo htmlspecialchars($item['title']); ?></span>
-                                </div>
-                                <form method="POST" action="" onsubmit="return confirm(<?php echo htmlspecialchars(json_encode(__a('admin.gallery.confirm_delete'))); ?>);">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                                    <input type="hidden" name="action" value="delete_gallery">
-                                    <input type="hidden" name="id" value="<?php echo $item['id']; ?>">
-                                    <button type="submit" class="btn btn-danger" style="padding:6px 12px; font-size:0.85rem;"><?php echo __a('admin.gallery.btn_delete'); ?></button>
-                                </form>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                    <form id="delete-gallery-form" method="POST" action="" style="display:none;">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                        <input type="hidden" name="action" value="delete_gallery">
+                        <input type="hidden" name="id" id="delete-gallery-id" value="">
+                    </form>
+                    <script>
+                    function deleteGalleryItem(id) {
+                        if (!confirm(<?php echo json_encode(__a('admin.gallery.confirm_delete')); ?>)) return;
+                        document.getElementById('delete-gallery-id').value = id;
+                        document.getElementById('delete-gallery-form').submit();
+                    }
+                    </script>
                 <?php endif; ?>
             </div>
         </div>

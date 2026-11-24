@@ -329,7 +329,77 @@ $totalSizeFormatted = MediaManager::formatBytes($totalBytes);
     </div>
 </div>
 
+<!-- Mouseover-Großvorschau für Mediathek & Auswahl-Modals -->
+<div id="media-hover-preview" style="display:none; position:fixed; z-index:9999; pointer-events:none; background:#0f172a; border:1px solid rgba(255,255,255,0.22); border-radius:12px; padding:6px; box-shadow:0 20px 50px rgba(0,0,0,0.55); max-width:50vw; max-height:58vh;">
+    <img id="media-hover-preview-img" src="" alt="" style="display:block; max-width:calc(50vw - 14px); max-height:50vh; width:auto; height:auto; object-fit:contain; border-radius:8px;">
+    <div id="media-hover-preview-label" style="padding:5px 6px 2px 6px; font-size:0.75rem; color:#e2e8f0; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:calc(50vw - 14px);"></div>
+</div>
+
 <script>
+let HOVER_PREVIEW_TOKEN = 0;
+let HOVER_PREVIEW_TIMER = null;
+function showMediaHoverPreview(e, src, label, fallbackSrc) {
+    const box = document.getElementById('media-hover-preview');
+    const img = document.getElementById('media-hover-preview-img');
+    const lbl = document.getElementById('media-hover-preview-label');
+    if (!box || !img || (!src && !fallbackSrc)) return;
+    const token = ++HOVER_PREVIEW_TOKEN;
+    if (HOVER_PREVIEW_TIMER) {
+        clearTimeout(HOVER_PREVIEW_TIMER);
+        HOVER_PREVIEW_TIMER = null;
+    }
+    if (lbl) lbl.textContent = label || '';
+    img.onload = null;
+    img.onerror = null;
+    img.style.visibility = 'visible';
+    img.src = fallbackSrc || src;
+    box.style.display = 'block';
+    moveMediaHoverPreview(e);
+    if (src && fallbackSrc && src !== fallbackSrc) {
+        HOVER_PREVIEW_TIMER = setTimeout(function() {
+            if (token !== HOVER_PREVIEW_TOKEN) return;
+            const hi = new Image();
+            hi.onload = function() {
+                if (token !== HOVER_PREVIEW_TOKEN) return;
+                img.src = src;
+                moveMediaHoverPreview(e);
+            };
+            hi.src = src;
+        }, 120);
+    }
+}
+function moveMediaHoverPreview(e) {
+    const box = document.getElementById('media-hover-preview');
+    if (!box || box.style.display === 'none' || !e) return;
+    const pad = 18;
+    const rect = box.getBoundingClientRect();
+    let x = e.clientX + pad;
+    let y = e.clientY + pad;
+    if (x + rect.width > window.innerWidth - 10) {
+        x = Math.max(10, e.clientX - rect.width - pad);
+    }
+    if (y + rect.height > window.innerHeight - 10) {
+        y = Math.max(10, e.clientY - rect.height - pad);
+    }
+    box.style.left = x + 'px';
+    box.style.top = y + 'px';
+}
+function hideMediaHoverPreview() {
+    HOVER_PREVIEW_TOKEN++;
+    if (HOVER_PREVIEW_TIMER) {
+        clearTimeout(HOVER_PREVIEW_TIMER);
+        HOVER_PREVIEW_TIMER = null;
+    }
+    const box = document.getElementById('media-hover-preview');
+    const img = document.getElementById('media-hover-preview-img');
+    if (img) {
+        img.onload = null;
+        img.onerror = null;
+        img.removeAttribute('src');
+        img.style.visibility = 'hidden';
+    }
+    if (box) box.style.display = 'none';
+}
 let MEDIA_ITEMS = <?php echo json_encode($allMedia, JSON_UNESCAPED_UNICODE); ?>;
 let CURRENT_MEDIA_FILTER = 'all';
 let CURRENT_MEDIA_SEARCH = '';
@@ -625,6 +695,8 @@ function renderMediaItems() {
     emptyState.style.display = 'none';
 
     items.forEach(m => {
+        const thumbRel = (m.variants && (m.variants.thumb_webp || m.variants.thumb)) ? (m.variants.thumb_webp || m.variants.thumb) : m.rel_url;
+        const hoverRel = (m.variants && (m.variants.medium_webp || m.variants.medium)) ? (m.variants.medium_webp || m.variants.medium) : thumbRel;
         // --- 1. Grid Card ---
         const card = document.createElement('div');
         card.style.cssText = 'background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; transition:transform 0.15s ease, box-shadow 0.15s ease; position:relative;';
@@ -634,8 +706,8 @@ function renderMediaItems() {
         // Thumbnail / Visual
         let thumbHtml = '';
         if (m.type === 'image' || m.type === 'vector') {
-            thumbHtml = `<div style="height:140px; background:#0f172a; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; cursor:pointer;" onclick="openMediaDetailModal('${escapeJsStr(m.filename)}')">
-                <img src="../${m.rel_url}" alt="${escapeHtml(m.alt || '')}" style="width:100%; height:100%; object-fit:cover;">
+            thumbHtml = `<div style="height:140px; background:#0f172a; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; cursor:pointer;" onmouseenter="showMediaHoverPreview(event, '../${escapeJsStr(hoverRel)}', '${escapeJsStr(m.filename)}', '../${escapeJsStr(thumbRel)}')" onmousemove="moveMediaHoverPreview(event)" onmouseleave="hideMediaHoverPreview()" onclick="hideMediaHoverPreview(); openMediaDetailModal('${escapeJsStr(m.filename)}')">
+                <img src="../${thumbRel}" loading="lazy" decoding="async" alt="${escapeHtml(m.alt || '')}" style="width:100%; height:100%; object-fit:cover;">
                 <span style="position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); color:#fff; font-size:0.68rem; font-weight:700; padding:2px 6px; border-radius:4px; text-transform:uppercase;">${m.extension}</span>
             </div>`;
         } else {
@@ -682,7 +754,7 @@ function renderMediaItems() {
         tr.innerHTML = `
             <td style="padding:8px 12px;">
                 <div style="width:40px; height:40px; border-radius:6px; overflow:hidden; background:#0f172a; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="openMediaDetailModal('${escapeJsStr(m.filename)}')">
-                    ${(m.type === 'image' || m.type === 'vector') ? `<img src="../${m.rel_url}" style="width:100%; height:100%; object-fit:cover;">` : `<span class="material-icons" style="font-size:22px; color:var(--text-secondary);">description</span>`}
+                    ${(m.type === 'image' || m.type === 'vector') ? `<img src="../${thumbRel}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;">` : `<span class="material-icons" style="font-size:22px; color:var(--text-secondary);">description</span>`}
                 </div>
             </td>
             <td style="padding:8px 12px; font-weight:600; color:var(--text-primary); cursor:pointer;" onclick="openMediaDetailModal('${escapeJsStr(m.filename)}')">
@@ -726,7 +798,8 @@ function openMediaDetailModal(filename) {
     const focalPreviews = document.getElementById('detail-focal-preview-box');
 
     if (item.type === 'image' || item.type === 'vector') {
-        imgEl.src = '../' + item.rel_url;
+        const previewRel = (item.variants && (item.variants.medium_webp || item.variants.medium || item.variants.thumb_webp || item.variants.thumb)) || item.rel_url;
+        imgEl.src = '../' + previewRel;
         imgEl.style.display = 'block';
         iconEl.style.display = 'none';
         if (focalControls) focalControls.style.display = 'block';
@@ -736,9 +809,9 @@ function openMediaDetailModal(filename) {
         const prev169 = document.getElementById('preview-ratio-16-9');
         const prev11 = document.getElementById('preview-ratio-1-1');
         const prev916 = document.getElementById('preview-ratio-9-16');
-        if (prev169) prev169.src = '../' + item.rel_url;
-        if (prev11) prev11.src = '../' + item.rel_url;
-        if (prev916) prev916.src = '../' + item.rel_url;
+        if (prev169) prev169.src = '../' + previewRel;
+        if (prev11) prev11.src = '../' + previewRel;
+        if (prev916) prev916.src = '../' + previewRel;
 
         applyFocalPoint(fx, fy);
     } else {
