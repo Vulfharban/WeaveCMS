@@ -1719,6 +1719,13 @@ class AdminController {
 
             if ($found) {
                 $data['gallery'] = array_values($data['gallery']);
+                usort($data['gallery'], function ($a, $b) {
+                    return ((int)($a['sort_order'] ?? 0)) <=> ((int)($b['sort_order'] ?? 0));
+                });
+                foreach ($data['gallery'] as $pos => &$gItem) {
+                    $gItem['sort_order'] = $pos + 1;
+                }
+                unset($gItem);
                 save_data($dataFile, $data);
                 $success_msg = __a('admin.msg.gallery_deleted', 'Galerie-Element erfolgreich gelöscht!');
             } else {
@@ -1726,16 +1733,34 @@ class AdminController {
             }
         } elseif ($action === 'reorder_gallery') {
             $orders = $_POST['order'] ?? [];
-            foreach ($data['gallery'] as &$item) {
-                $iid = $item['id'];
-                if (isset($orders[$iid])) {
-                    $item['sort_order'] = (int)$orders[$iid];
-                }
+            $indexed = [];
+            foreach (array_values($data['gallery']) as $origIdx => $item) {
+                $iid = $item['id'] ?? null;
+                $oldSort = (int)($item['sort_order'] ?? ($origIdx + 1));
+                $newSort = ($iid !== null && isset($orders[$iid])) ? max(0, (int)$orders[$iid]) : $oldSort;
+                // Bei doppelter Zielnummer: nach oben verschobene Elemente landen VOR, nach unten verschobene NACH dem unveränderten Element
+                $tieBias = ($newSort < $oldSort) ? -1 : (($newSort > $oldSort) ? 1 : 0);
+                $indexed[] = [
+                    'item'     => $item,
+                    'new_sort' => $newSort,
+                    'tie_bias' => $tieBias,
+                    'orig_idx' => $origIdx,
+                ];
             }
 
-            usort($data['gallery'], function($a, $b) {
-                return ($a['sort_order'] ?? 0) <=> ($b['sort_order'] ?? 0);
+            usort($indexed, function ($a, $b) {
+                return ($a['new_sort'] <=> $b['new_sort'])
+                    ?: ($a['tie_bias'] <=> $b['tie_bias'])
+                    ?: ($a['orig_idx'] <=> $b['orig_idx']);
             });
+
+            // Lückenlose, eindeutige Sortiernummern 1..N vergeben (verhindert doppelte Nummern dauerhaft)
+            $normalized = [];
+            foreach ($indexed as $pos => $entry) {
+                $entry['item']['sort_order'] = $pos + 1;
+                $normalized[] = $entry['item'];
+            }
+            $data['gallery'] = $normalized;
 
             if (save_data($dataFile, $data)) {
                 $success_msg = __a('admin.msg.gallery_order_updated', 'Galerie-Reihenfolge erfolgreich aktualisiert!');
