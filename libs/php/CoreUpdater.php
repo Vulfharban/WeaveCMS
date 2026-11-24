@@ -114,6 +114,10 @@ class CoreUpdater {
         if (empty($info['update_available'])) {
             return $fail('Es ist kein neueres Update verfügbar.');
         }
+        $minReq = trim((string)($info['min_core_version'] ?? ''));
+        if ($minReq !== '' && version_compare($from, $minReq, '<')) {
+            return $fail("Dieses Update erfordert mindestens WeaveCMS v{$minReq} (installiert: v{$from}). Bitte aktualisiere zuerst auf v{$minReq}.");
+        }
         if (!class_exists('ZipArchive')) {
             return $fail('Die PHP-Erweiterung ZipArchive ist auf diesem Server nicht verfügbar.');
         }

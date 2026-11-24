@@ -14,6 +14,7 @@
 class UpdateManager {
 
     public const DEFAULT_REPO = 'Vulfharban/WeaveCMS';
+    public const REQUIRED_BASELINE_VERSION = '1.3.4.4';
     public const CACHE_LIFETIME = 43200; // 12 Stunden
 
     /**
@@ -50,20 +51,27 @@ class UpdateManager {
             if (is_array($cached) && (time() - ($cached['checked_at'] ?? 0)) < self::CACHE_LIFETIME) {
                 $cached['update_available'] = version_compare($current, $cached['latest_version'] ?? '1.0.0', '<');
                 $cached['current_version'] = $current;
+                $minReqCached = trim((string)($cached['min_core_version'] ?? ''));
+                if ($minReqCached !== '' && version_compare($current, $minReqCached, '<')) {
+                    $cached['prerequisite_blocked'] = true;
+                }
                 return $cached;
             }
         }
 
         // Standard-Rückgabe bei fehlgeschlagener Remote-Abfrage
         $result = [
-            'update_available' => false,
-            'current_version'  => $current,
-            'latest_version'   => $current,
-            'release_url'      => 'https://github.com/' . self::DEFAULT_REPO . '/releases',
-            'zip_url'          => '',
-            'changelog'        => 'Keine Update-Informationen verfügbar.',
-            'sha256'           => '',
-            'checked_at'       => time()
+            'update_available'      => false,
+            'current_version'       => $current,
+            'latest_version'        => $current,
+            'release_url'           => 'https://github.com/' . self::DEFAULT_REPO . '/releases',
+            'zip_url'               => '',
+            'changelog'             => 'Keine Update-Informationen verfügbar.',
+            'sha256'                => '',
+            'min_core_version'      => '',
+            'prerequisite_required' => false,
+            'prerequisite_blocked'  => false,
+            'checked_at'            => time()
         ];
 
         // 1. Prüfe auf optionale lokale/firmeneigene version.json im Root
@@ -71,7 +79,12 @@ class UpdateManager {
         if (file_exists($localVersionFile)) {
             $localJson = json_decode((string)@file_get_contents($localVersionFile), true);
             if (is_array($localJson) && !empty($localJson['latest_version'])) {
-                $result['latest_version'] = $localJson['latest_version'];
+                $latestVer = (string)$localJson['latest_version'];
+                $minCore = trim((string)($localJson['min_core_version'] ?? $localJson['requires_core'] ?? ''));
+                if ($minCore === '' && version_compare($latestVer, self::REQUIRED_BASELINE_VERSION, '>')) {
+                    $minCore = self::REQUIRED_BASELINE_VERSION;
+                }
+                $result['latest_version'] = $latestVer;
                 $result['release_url'] = $localJson['changelog_url'] ?? $localJson['download_url'] ?? $result['release_url'];
                 $result['zip_url'] = $localJson['update_download_url'] ?? $localJson['update_url'] ?? $localJson['download_url'] ?? '';
                 $result['changelog'] = $localJson['changelog'] ?? 'Release-Notizen in version.json verfügbar.';
@@ -80,77 +93,131 @@ class UpdateManager {
                 if ($result['sha256'] === '') {
                     $result['sha256'] = self::extractSha256($rawSha);
                 }
+                $result['min_core_version'] = $minCore;
+                if ($minCore !== '' && version_compare($current, $minCore, '<')) {
+                    $result['prerequisite_blocked'] = true;
+                }
                 $result['update_available'] = version_compare($current, $result['latest_version'], '<');
                 @file_put_contents($cacheFile, json_encode($result));
                 return $result;
             }
         }
 
-        // 2. GitHub Releases API abfragen (mit Timeout 3 Sekunden)
+        // 2. GitHub Releases API abfragen (mit Timeout 4 Sekunden)
         $remoteData = self::fetchGitHubLatestRelease(self::DEFAULT_REPO);
         if ($remoteData && !empty($remoteData['tag_name'])) {
             $latestVer = ltrim($remoteData['tag_name'], 'vV');
+            $body = (string)($remoteData['body'] ?? '');
+            $parsed = self::parseGitHubReleaseAsset($remoteData);
+
+            $minCore = self::extractMinCoreVersion($body);
+            if ($minCore === '' && version_compare($latestVer, self::REQUIRED_BASELINE_VERSION, '>')) {
+                $minCore = self::REQUIRED_BASELINE_VERSION;
+            }
+
             $result['latest_version'] = $latestVer;
             $result['release_url'] = $remoteData['html_url'] ?? $result['release_url'];
-            $result['zip_url'] = $remoteData['zipball_url'] ?? '';
-            $result['changelog'] = $remoteData['body'] ?? '';
-            $result['sha256'] = self::extractSha256((string)($remoteData['body'] ?? ''), 'update');
-
-            // Bevorzuge explizite Update-Pakete (z. B. update-vX.Y.Z.zip) vor Vollinstallations-Paketen
-            $updateAsset = null;
-            $updateDigest = '';
-            $fallbackZip = null;
-            $fallbackDigest = '';
-            foreach ($remoteData['assets'] ?? [] as $asset) {
-                if (!is_array($asset) || empty($asset['browser_download_url'])) {
-                    continue;
-                }
-                $assetName = (string)($asset['name'] ?? '');
-
-                // GitHub API liefert den SHA-256 Hash direkt im 'digest'-Feld des Assets (z. B. "sha256:367c4f1...")
-                $assetDigest = '';
-                if (!empty($asset['digest']) && preg_match('/(?:sha256:)?([a-f0-9]{64})/i', (string)$asset['digest'], $dm)) {
-                    $assetDigest = strtolower($dm[1]);
-                }
-
-                if (preg_match('/\.zip$/i', $assetName)) {
-                    // Update-Paket erkennen
-                    if (preg_match('/(^|[\-_])update([\-_]|\.zip$)/i', $assetName)) {
-                        $updateAsset = $asset['browser_download_url'];
-                        $updateDigest = $assetDigest;
-                        break;
-                    }
-                    if ($fallbackZip === null) {
-                        $fallbackZip = $asset['browser_download_url'];
-                        $fallbackDigest = $assetDigest;
-                    }
-                }
-            }
-
-            if ($updateAsset !== null) {
-                $result['zip_url'] = $updateAsset;
-                if ($result['sha256'] === '' && $updateDigest !== '') {
-                    $result['sha256'] = $updateDigest;
-                }
-            } elseif ($fallbackZip !== null) {
-                if ($result['sha256'] === '' && $fallbackDigest !== '') {
-                    $result['sha256'] = $fallbackDigest;
-                }
-                if ($result['sha256'] !== '') {
-                    $result['zip_url'] = $fallbackZip;
-                }
-            }
-
-            // Fallback 1: Falls die Release-Notes die Prüfsumme ohne Schlüsselwort 'update' enthalten
-            if ($result['sha256'] === '') {
-                $result['sha256'] = self::extractSha256((string)($remoteData['body'] ?? ''));
-            }
-
+            $result['zip_url'] = $parsed['zip_url'];
+            $result['sha256'] = $parsed['sha256'];
+            $result['changelog'] = $body;
+            $result['min_core_version'] = $minCore;
             $result['update_available'] = version_compare($current, $latestVer, '<');
+
+            // Falls eine Voraussetzung (z. B. v1.3.4.4) noch nicht erfüllt ist, Zwischenschritt-Release anbieten
+            if ($result['update_available'] && $minCore !== '' && version_compare($current, $minCore, '<')) {
+                $prereqData = self::fetchGitHubLatestRelease(self::DEFAULT_REPO, 'v' . ltrim($minCore, 'vV'));
+                if ($prereqData && !empty($prereqData['tag_name'])) {
+                    $prereqParsed = self::parseGitHubReleaseAsset($prereqData);
+                    if ($prereqParsed['zip_url'] !== '' && $prereqParsed['sha256'] !== '') {
+                        $result['final_latest_version'] = $latestVer;
+                        $result['prerequisite_required'] = true;
+                        $result['prerequisite_target'] = $minCore;
+                        $result['min_core_version'] = '';
+                        $result['latest_version'] = ltrim($prereqData['tag_name'], 'vV');
+                        $result['release_url'] = $prereqData['html_url'] ?? $result['release_url'];
+                        $result['zip_url'] = $prereqParsed['zip_url'];
+                        $result['sha256'] = $prereqParsed['sha256'];
+                        $result['changelog'] = (string)($prereqData['body'] ?? $result['changelog']);
+                    } else {
+                        $result['prerequisite_blocked'] = true;
+                    }
+                } else {
+                    $result['prerequisite_blocked'] = true;
+                }
+            }
         }
 
         @file_put_contents($cacheFile, json_encode($result));
         return $result;
+    }
+
+    /**
+     * Ermittelt eine optionale Mindest-Core-Version aus den Release-Notes
+     * (z. B. "Voraussetzung: v1.3.4.4", "Mindestversion: v1.3.4.4" oder "Requires-Core: 1.3.4.4").
+     */
+    public static function extractMinCoreVersion(string $text): string {
+        if (preg_match('/(?:Voraussetzung|Mindestversion|Requires[-_\s]?Core|Min[-_\s]?Version)\s*[:\-]?\s*v?([0-9]+(?:\.[0-9]+){2,3})/i', $text, $m)) {
+            return $m[1];
+        }
+        return '';
+    }
+
+    /**
+     * Extrahiert Update-ZIP-URL und SHA-256-Prüfsumme aus einem GitHub-Release-Objekt.
+     * Bevorzugt explizite Update-Pakete und autoritative Asset-Digests der GitHub API.
+     */
+    protected static function parseGitHubReleaseAsset(array $remoteData): array {
+        $body = (string)($remoteData['body'] ?? '');
+        $zipUrl = (string)($remoteData['zipball_url'] ?? '');
+        $sha256 = self::extractSha256($body, 'update');
+
+        $updateAsset = null;
+        $updateDigest = '';
+        $fallbackZip = null;
+        $fallbackDigest = '';
+
+        foreach ($remoteData['assets'] ?? [] as $asset) {
+            if (!is_array($asset) || empty($asset['browser_download_url'])) {
+                continue;
+            }
+            $assetName = (string)($asset['name'] ?? '');
+            $assetDigest = '';
+            if (!empty($asset['digest']) && preg_match('/(?:sha256:)?([a-f0-9]{64})/i', (string)$asset['digest'], $dm)) {
+                $assetDigest = strtolower($dm[1]);
+            }
+
+            if (preg_match('/\.zip$/i', $assetName)) {
+                if (preg_match('/(^|[\-_])update([\-_]|\.zip$)/i', $assetName)) {
+                    $updateAsset = $asset['browser_download_url'];
+                    $updateDigest = $assetDigest;
+                    break;
+                }
+                if ($fallbackZip === null) {
+                    $fallbackZip = $asset['browser_download_url'];
+                    $fallbackDigest = $assetDigest;
+                }
+            }
+        }
+
+        if ($updateAsset !== null) {
+            $zipUrl = $updateAsset;
+            if ($updateDigest !== '') {
+                $sha256 = $updateDigest;
+            }
+        } elseif ($fallbackZip !== null) {
+            if ($fallbackDigest !== '') {
+                $sha256 = $fallbackDigest;
+            }
+            if ($sha256 !== '') {
+                $zipUrl = $fallbackZip;
+            }
+        }
+
+        if ($sha256 === '') {
+            $sha256 = self::extractSha256($body);
+        }
+
+        return ['zip_url' => $zipUrl, 'sha256' => $sha256];
     }
 
     /**
@@ -411,16 +478,21 @@ class UpdateManager {
     }
 
     /**
-     * Führt eine sichere HTTP-Abfrage an die GitHub API durch (max. 3 Sek. Timeout).
+     * Führt eine sichere HTTP-Abfrage an die GitHub API durch (max. 4 Sek. Timeout).
+     * Optional kann ein bestimmtes Release-Tag (z. B. 'v1.3.4.4') abgefragt werden.
      */
-    protected static function fetchGitHubLatestRelease(string $repo): ?array {
+    protected static function fetchGitHubLatestRelease(string $repo, ?string $tag = null): ?array {
         $cleanRepo = trim($repo, '/');
         // Validierung des GitHub Repo-Formats: owner/repo
         if (!preg_match('/^[a-zA-Z0-9_\.-]+\/[a-zA-Z0-9_\.-]+$/', $cleanRepo)) {
             return null;
         }
 
-        $url = "https://api.github.com/repos/{$cleanRepo}/releases/latest";
+        if ($tag !== null && trim($tag) !== '') {
+            $url = "https://api.github.com/repos/{$cleanRepo}/releases/tags/" . rawurlencode(trim($tag));
+        } else {
+            $url = "https://api.github.com/repos/{$cleanRepo}/releases/latest";
+        }
 
         if (function_exists('curl_init')) {
             $ch = curl_init($url);

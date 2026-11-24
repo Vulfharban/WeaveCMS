@@ -57,13 +57,22 @@
                                 <?php echo __a('admin.dashboard.core_update_installed', 'Installiert: v{version}', null, ['version' => htmlspecialchars($core_update_info['current_version'])]); ?> &bull; 
                                 <?php echo htmlspecialchars($core_update_info['changelog'] ?? 'Release-Notizen online ansehen'); ?>
                             </p>
+                            <?php if (!empty($core_update_info['prerequisite_required'])): ?>
+                                <p style="margin: 0.4rem 0 0 0; font-size: 0.83rem; color: #b45309; font-weight: 600;">
+                                    ⚠️ Zwischenschritt erforderlich: Für v<?php echo htmlspecialchars($core_update_info['final_latest_version'] ?? ''); ?> ist mindestens v<?php echo htmlspecialchars($core_update_info['prerequisite_target'] ?? '1.3.4.4'); ?> Voraussetzung. Es wird zuerst auf v<?php echo htmlspecialchars($core_update_info['latest_version']); ?> aktualisiert.
+                                </p>
+                            <?php elseif (!empty($core_update_info['prerequisite_blocked'])): ?>
+                                <p style="margin: 0.4rem 0 0 0; font-size: 0.83rem; color: #b91c1c; font-weight: 600;">
+                                    ⛔ Voraussetzung nicht erfüllt: Für v<?php echo htmlspecialchars($core_update_info['latest_version']); ?> wird mindestens v<?php echo htmlspecialchars($core_update_info['min_core_version'] ?? '1.3.4.4'); ?> benötigt. Bitte aktualisiere zuerst auf v<?php echo htmlspecialchars($core_update_info['min_core_version'] ?? '1.3.4.4'); ?>.
+                                </p>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <a href="<?php echo htmlspecialchars($core_update_info['release_url']); ?>" target="_blank" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
                             <span class="material-icons" style="font-size: 16px;">open_in_new</span> <?php echo __a('admin.btn.view_details', 'Details ansehen'); ?>
                         </a>
-                        <?php if (($cur_user['role'] ?? '') === UserManager::ROLE_ADMIN): ?>
+                        <?php if (($cur_user['role'] ?? '') === UserManager::ROLE_ADMIN && empty($core_update_info['prerequisite_blocked'])): ?>
                             <form method="POST" action="" style="margin:0;" onsubmit="return confirm('WeaveCMS jetzt auf v<?php echo htmlspecialchars($core_update_info['latest_version'], ENT_QUOTES); ?> aktualisieren?\n\nVorab wird automatisch eine Sicherung erstellt, die Website geht kurz in den Wartungsmodus.');">
                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                                 <input type="hidden" name="action" value="run_core_update">
