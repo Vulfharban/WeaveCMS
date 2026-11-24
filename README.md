@@ -19,20 +19,34 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **Security hardening:** CSRF protection, XSS prevention, brute-force & rate limiting, strict upload validation and security headers.
 - **100 % plain PHP:** No heavy framework dependencies or build tools required on the server.
 
-## Documentation & Roadmap
+## Documentation, Community & Roadmap
 
+- **WeaveCMS Community-Forum:** [https://weavecms.de/?page=forum](https://weavecms.de/?page=forum) – Fragen, Austausch, Release-Ankündigungen & Support
 - **Feature catalog & update portal (Deutsch):** [`libs/docs/features.md`](libs/docs/features.md)
 - **Feature catalog (English):** [`libs/docs/features_en.md`](libs/docs/features_en.md)
 - **Plugin-Dokumentation & Referenz:** [`libs/docs/PLUGINS.md`](libs/docs/PLUGINS.md)
 - **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 - **Complete Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 
-## Releases & Downloads (v1.3.4.3)
+## Releases & Downloads (v1.3.4.4)
 
-- 📦 **[WeaveCMS v1.3.4.3 Full Package](releases/weavecms-v1.3.4.3.zip)** (`releases/weavecms-v1.3.4.3.zip`, 12.39 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.4.3 Update Package](releases/update-v1.3.4.3.zip)** (`releases/update-v1.3.4.3.zip`, 0.94 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.4.4 Full Package](releases/weavecms-v1.3.4.4.zip)** (`releases/weavecms-v1.3.4.4.zip`, 12.4 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.4.4 Update Package](releases/update-v1.3.4.4.zip)** (`releases/update-v1.3.4.4.zip`, 0.95 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.4.4 (24. November 2026)
+
+- ⚖️ **Konfigurierbarer Sicherheits- & Haftungshinweis für Kurse/Workshops (`AdminController.php`, `tab_courses.php`, `views/sections/courses.php`, `views/partials/slide_contact.php`, `libs/js/main.js`):**
+  - Neuer Einstellungsbereich im Kurs-Tab (`update_course_safety`) mit allgemein gehaltenem, § 309 Nr. 7 BGB-konformem Standard-Hinweistext und optionaler Pflicht-Bestätigung bei Kursanfragen.
+  - Aufklappbare Inline-Detailbox im Kontaktformular verhindert versehentliches Schließen beim Anklicken des Hinweis-Links.
+- 💬 **Forum-Plugin Fixes (`weave-forum` & `weave-forum-users`):**
+  - MySQL-Kompatibilität in `ForumManager.php` (`PDO::ATTR_EMULATE_PREPARES => false` und `PDO::PARAM_INT`-Binding für `LIMIT ? OFFSET ?`), sodass Themen und Beiträge auch mit MySQL korrekt angezeigt werden.
+  - Registrierungs-Robustheit in `ForumUserManager.php`, `plugin.php` und `views/register.php` (Aufräumen & Fehlermeldung bei fehlgeschlagenem Verifikations-Mailversand, Berücksichtigung von `registration_mode`, klare CSRF-Fehlermeldung).
+- 🖼️ **Mediathek, Galerie & Downloads (`MediaManager.php`, `ImageUploader.php`, `views/sections/downloads.php`, `views/sections/gallery.php`, `tab_downloads.php`, `tab_media.php`, `tab_gallery.php`, `tab_past.php`):**
+  - Unterordner-Migration für `thumbs/` & `medium/` inkl. Windows-ACL-Korrektur, Löschen von Galerie-Elementen direkt in *„Galerie verwalten & sortieren“*.
+  - Download-Screenshots öffnen nun direkt in der Lightbox (`openLightbox(idxOrUrl)`), nutzen komprimierte Thumbnails und unterordner-sichere `./`-Pfade (`MediaManager::renderPictureTag()`).
+  - Statischer In-Memory-Cache in `MediaManager::loadMeta()`, schnellere Hochformat-Erkennung in `gallery.php` und Thumbnail-/Medium-Vorschauen in den Admin-Modalen.
 
 ### v1.3.4.3 (23. November 2026)
 
@@ -229,7 +243,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.3.4.3.zip](releases/weavecms-v1.3.4.3.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.4.4.zip](releases/weavecms-v1.3.4.4.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License
