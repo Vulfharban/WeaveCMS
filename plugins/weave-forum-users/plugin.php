@@ -22,7 +22,7 @@ if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 }
-if (!empty($_SESSION['admin_logged_in'])) {
+if (!empty($_SESSION['admin_logged_in']) && !(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
     
     // POST-Aktionen
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {

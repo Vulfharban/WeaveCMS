@@ -344,7 +344,13 @@ class AdminController {
      * Verarbeitet Plugin-Aktionen (Aktivieren, Deaktivieren, Konfiguration speichern) - Phase 13.
      */
     protected static function handlePluginAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        $isSandbox = class_exists('SandboxManager') && SandboxManager::isDemoActive();
+
         if ($action === 'sync_missing_plugins') {
+            if ($isSandbox) {
+                $error_msg = __a('admin.msg.sandbox_updates_disabled', '⚠️ Plugin-Synchronisation ist im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.');
+                return;
+            }
             if (class_exists('CoreUpdater')) {
                 $res = CoreUpdater::syncMissingOfficialPlugins();
                 if ($res['success']) {
@@ -365,6 +371,10 @@ class AdminController {
         }
 
         if ($action === 'update_plugin') {
+            if ($isSandbox) {
+                $error_msg = __a('admin.msg.sandbox_updates_disabled', '⚠️ Plugin-Updates sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.');
+                return;
+            }
             if (!class_exists('PluginUpdater')) {
                 require_once dirname(__DIR__) . '/php/PluginUpdater.php';
             }
@@ -1149,15 +1159,18 @@ class AdminController {
      * Verarbeitet Sicherheits- und E-Mail-Konfigurationen (Upload-Pfad, SMTP, Captcha-Icons).
      */
     protected static function handleSecurity(string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
+        $isSandbox = class_exists('SandboxManager') && SandboxManager::isDemoActive();
         $upload_dir = trim($_POST['upload_dir'] ?? 'images/uploads');
         if (empty($upload_dir)) {
             $upload_dir = 'images/uploads';
         }
         $data['settings']['upload_dir'] = $upload_dir;
 
-        $target_abs = self::rootPath() . '/' . trim($upload_dir, '/\\');
-        if (!is_dir($target_abs)) {
-            @mkdir($target_abs, 0755, true);
+        if (!$isSandbox) {
+            $target_abs = self::rootPath() . '/' . trim($upload_dir, '/\\');
+            if (!is_dir($target_abs)) {
+                @mkdir($target_abs, 0755, true);
+            }
         }
 
         $smtp_enabled = !empty($_POST['smtp_enabled']);
@@ -3167,6 +3180,16 @@ class AdminController {
      */
     protected static function handleApiWebhookAction(string $action, string $dataFile, array &$data, string &$success_msg, string &$error_msg): void {
         $isAjax = (!empty($_POST['ajax']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'));
+
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            $error_msg = '⚠️ API-Tokens und Webhooks sind im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.';
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['success' => false, 'error' => $error_msg]);
+                exit;
+            }
+            return;
+        }
 
         switch ($action) {
             case 'create_api_token':

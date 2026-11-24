@@ -24,6 +24,10 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 - 🔄 **Update-System & Voraussetzungsprüfung (`UpdateManager.php`, `CoreUpdater.php`, `tab_dashboard.php`, `tools/set_version.php`):**
   - `v1.3.4.4` als verbindliche Mindestvoraussetzung (`REQUIRED_BASELINE_VERSION`) für alle nachfolgenden Releases (`> 1.3.4.4`) hinterlegt; `UpdateManager::checkCoreUpdate()` bietet bei älteren Installationen automatisch `v1.3.4.4` als Zwischenschritt an und bevorzugt autoritative GitHub-Asset-Digests für die SHA-256-Prüfung.
   - `CoreUpdater::run()` blockiert direkte Sprünge über fehlende Mindestversionen; `tab_dashboard.php` zeigt Zwischenschritt- bzw. Blockierhinweise direkt im Update-Banner an.
+- 🔒 **Sandbox-Härtung & Breakout-Prävention (`config.php`, `admin/index.php`, `AdminController.php`, `ImageUploader.php`, `MediaManager.php`, `SandboxManager.php`, Plugins):**
+  - Backup-Downloads (`download_backup`), DB-Verbindungstests (`test_db_migration`), Revisions-Rollbacks (`rollback_revision`), `update_media_meta`, Plugin-Updates/-Synchronisation (`update_plugin`, `sync_missing_plugins`), API-Tokens/Webhooks sowie Verzeichnisanlagen (`upload_dir`) sind bei aktiver Sandbox hart blockiert.
+  - Admin-Handler in `weave-games`, `weave-forum`, `weave-forum-users` und `weave-helpdesk` blockieren Admin-Mutationen im Sandbox-Modus; `ImageUploader::uploadDocument()` unterliegt dem Sandbox-Limit inkl. Bereinigung, `MediaManager::upload()` schreibt nicht in die produktive `media_meta.json`, und `thumbs/`/`medium/`-Varianten werden bei Reset/Stop/Löschen vollständig entfernt.
+  - `config.php` lädt das Sandbox-Plugin im Flat-File-Modus nur noch, wenn `interactive-sandbox` in `data.json` aktiviert ist.
 
 ---
 

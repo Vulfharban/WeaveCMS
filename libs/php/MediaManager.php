@@ -612,15 +612,17 @@ class MediaManager {
             self::processImagePipeline($destPath, $ext);
         }
 
-        // Metadaten speichern
-        $meta = self::loadMeta();
-        $meta[$newFilename] = [
-            'orig_name' => $origName,
-            'title'     => pathinfo($origName, PATHINFO_FILENAME),
-            'alt'       => trim((string)$customAlt),
-            'uploaded'  => date('Y-m-d H:i:s')
-        ];
-        self::saveMeta($meta);
+        // Metadaten speichern (im Sandbox-Modus nicht in die produktive media_meta.json schreiben)
+        if (!(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
+            $meta = self::loadMeta();
+            $meta[$newFilename] = [
+                'orig_name' => $origName,
+                'title'     => pathinfo($origName, PATHINFO_FILENAME),
+                'alt'       => trim((string)$customAlt),
+                'uploaded'  => date('Y-m-d H:i:s')
+            ];
+            self::saveMeta($meta);
+        }
 
         SecurityManager::logEvent('MEDIA_UPLOAD_OK', "Datei erfolgreich hochgeladen: {$newFilename} (Original: {$origName})", 'INFO');
 
@@ -678,13 +680,16 @@ class MediaManager {
                 unset($_SESSION['weave_demo_uploads'][$foundKey]);
                 $_SESSION['weave_demo_uploads'] = array_values($_SESSION['weave_demo_uploads']);
 
-                // Abgeleitete Varianten löschen
+                // Abgeleitete Varianten löschen (inkl. thumbs/ & medium/)
                 $baseName = pathinfo($safeName, PATHINFO_FILENAME);
-                $files = @scandir($uploadDir) ?: [];
-                foreach ($files as $f) {
-                    if ($f === '.' || $f === '..') continue;
-                    if (strpos($f, $baseName . '_') === 0 || $f === $baseName . '.webp' || $f === $baseName . '.avif') {
-                        @unlink($uploadDir . '/' . $f);
+                foreach ([$uploadDir, $uploadDir . '/thumbs', $uploadDir . '/medium'] as $scanDir) {
+                    if (!is_dir($scanDir)) continue;
+                    $files = @scandir($scanDir) ?: [];
+                    foreach ($files as $f) {
+                        if ($f === '.' || $f === '..') continue;
+                        if (strpos($f, $baseName . '_') === 0 || $f === $baseName . '.webp' || $f === $baseName . '.avif') {
+                            @unlink($scanDir . '/' . $f);
+                        }
                     }
                 }
                 return ['success' => true, 'message' => 'Demo-Medium erfolgreich entfernt.'];

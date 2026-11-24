@@ -48,11 +48,22 @@ require_once __DIR__ . '/libs/php/TaxonomyManager.php';
 require_once __DIR__ . '/libs/php/CustomFieldManager.php';
 require_once __DIR__ . '/libs/php/TotpManager.php';
 
-// Phase 15 & Plugin-Frühinitialisierung: Sandbox-Plugin einbinden, falls vorhanden
+// Phase 15 & Plugin-Frühinitialisierung: Sandbox-Plugin nur einbinden, falls vorhanden und nicht deaktiviert
 if (file_exists(__DIR__ . '/plugins/interactive-sandbox/SandboxManager.php')) {
-    require_once __DIR__ . '/plugins/interactive-sandbox/SandboxManager.php';
-    if (SandboxManager::isDemoActive() || isset($_GET['demo']) || !empty($_SESSION['weave_demo_active']) || !empty($_SESSION['weave_demo_paused'])) {
-        require_once __DIR__ . '/plugins/interactive-sandbox/plugin.php';
+    $sandboxAllowed = true;
+    $localCfgFile = __DIR__ . '/config.local.php';
+    $dataJsonFile = __DIR__ . '/data.json';
+    if (!file_exists($localCfgFile) && file_exists($dataJsonFile)) {
+        $rawBootData = json_decode((string)@file_get_contents($dataJsonFile), true);
+        if (is_array($rawBootData) && isset($rawBootData['plugins']['active']) && is_array($rawBootData['plugins']['active'])) {
+            $sandboxAllowed = in_array('interactive-sandbox', $rawBootData['plugins']['active'], true);
+        }
+    }
+    if ($sandboxAllowed) {
+        require_once __DIR__ . '/plugins/interactive-sandbox/SandboxManager.php';
+        if (SandboxManager::isDemoActive() || isset($_GET['demo']) || !empty($_SESSION['weave_demo_active']) || !empty($_SESSION['weave_demo_paused'])) {
+            require_once __DIR__ . '/plugins/interactive-sandbox/plugin.php';
+        }
     }
 }
 

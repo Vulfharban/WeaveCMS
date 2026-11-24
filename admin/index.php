@@ -113,8 +113,12 @@ if (!empty($_GET['admin_lang'])) {
     }
 }
 
-// 5. Download von Backups verarbeiten (nur autorisiert)
+// 5. Download von Backups verarbeiten (nur autorisiert, in Sandbox gesperrt)
 if (isset($_GET['action']) && $_GET['action'] === 'download_backup') {
+    if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+        http_response_code(403);
+        die('Backup-Downloads sind im Sandbox-/Demo-Modus aus Sicherheitsgründen deaktiviert.');
+    }
     $file = $_GET['file'] ?? '';
     BackupManager::downloadBackup($file);
     exit;
@@ -123,6 +127,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'download_backup') {
 // 6. AJAX Action: test_db_migration (Live-Prüfung der MySQL-Verbindung im Adminbereich)
 if (isset($_GET['action']) && $_GET['action'] === 'test_db_migration') {
     header('Content-Type: application/json');
+    if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+        echo json_encode(['success' => false, 'message' => 'Datenbank-Verbindungstests sind im Sandbox-/Demo-Modus deaktiviert.']);
+        exit;
+    }
     $res = StorageManager::testDbConnection([
         'host' => $_POST['host'] ?? '127.0.0.1',
         'port' => (int)($_POST['port'] ?? 3306),
@@ -183,6 +191,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_revision_diff') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'rollback_revision') {
     header('Content-Type: application/json');
+    if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+        echo json_encode(['success' => false, 'message' => 'Revisions-Wiederherstellung ist im Sandbox-/Demo-Modus deaktiviert.']);
+        exit;
+    }
     $submitted_csrf = $_POST['csrf_token'] ?? '';
     if (!AuthManager::verifyCsrfToken($submitted_csrf)) {
         echo json_encode(['success' => false, 'message' => __a('admin.msg.csrf_invalid', 'CSRF Token ungültig')]);
@@ -489,6 +501,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_media_meta') {
     header('Content-Type: application/json; charset=utf-8');
+    if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+        echo json_encode(['success' => false, 'message' => 'Metadaten von Medien sind im Sandbox-/Demo-Modus schreibgeschützt.']);
+        exit;
+    }
     if (!UserManager::canAccessTab('tab-media')) {
         echo json_encode(['success' => false, 'message' => 'Zugriff verweigert']);
         exit;

@@ -274,14 +274,17 @@ class SandboxManager {
                 // Hauptdatei löschen
                 @unlink($path);
 
-                // Abgeleitete Varianten löschen (_thumb, _medium, _large, .webp, .avif)
-                $files = @scandir($dir) ?: [];
-                foreach ($files as $f) {
-                    if ($f === '.' || $f === '..') {
-                        continue;
-                    }
-                    if (str_starts_with($f, $base . '_') || $f === $base . '.webp' || $f === $base . '.avif') {
-                        @unlink($dir . '/' . $f);
+                // Abgeleitete Varianten löschen (_thumb, _medium, _large, .webp, .avif inkl. thumbs/ & medium/)
+                foreach ([$dir, $dir . '/thumbs', $dir . '/medium'] as $scanDir) {
+                    if (!is_dir($scanDir)) continue;
+                    $files = @scandir($scanDir) ?: [];
+                    foreach ($files as $f) {
+                        if ($f === '.' || $f === '..') {
+                            continue;
+                        }
+                        if (str_starts_with($f, $base . '_') || $f === $base . '.webp' || $f === $base . '.avif') {
+                            @unlink($scanDir . '/' . $f);
+                        }
                     }
                 }
             }

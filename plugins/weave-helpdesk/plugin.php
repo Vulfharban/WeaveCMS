@@ -31,7 +31,7 @@ if (empty($_SESSION['csrf_token'])) {
 // -----------------------------------------------------------------------------
 // 1. Backend-Aktionen (Einstellungen & Benutzerverwaltung)
 // -----------------------------------------------------------------------------
-if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST' && !(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
     $action = $_POST['action'] ?? '';
     $csrf = $_POST['csrf_token'] ?? '';
 

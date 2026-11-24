@@ -272,6 +272,14 @@ class ImageUploader {
             return null;
         }
 
+        // Phase 15: Sandbox-Upload-Beschränkung auch für Dokumente erzwingen
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            if (!SandboxManager::canUploadFile()) {
+                SecurityManager::logEvent('SANDBOX_UPLOAD_LIMIT', "Sandbox-Upload-Limit für Dokumente erreicht (max. 5 Dateien je Sitzung).", 'WARNING');
+                return null;
+            }
+        }
+
         $file = $_FILES[$fileInputName];
         $origName = $file['name'] ?? 'document';
         $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
@@ -310,8 +318,13 @@ class ImageUploader {
 
             SecurityManager::logEvent('UPLOAD_DOC_OK', "Dokument erfolgreich hochgeladen: {$newFilename} (Original: {$origName})", 'INFO');
 
+            $docRel = $webPrefix . '/' . $newFilename;
+            if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+                SandboxManager::recordUploadedFile($dest, $docRel);
+            }
+
             return [
-                'path' => $webPrefix . '/' . $newFilename,
+                'path' => $docRel,
                 'size' => $sizeStr,
                 'orig_name' => $origName
             ];

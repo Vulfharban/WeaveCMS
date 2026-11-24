@@ -24,7 +24,7 @@ require_once __DIR__ . '/GameConfigManager.php';
 // -----------------------------------------------------------------------------
 // 1. Admin-Aktionen (Server, Releases, Spieler, Konfiguration)
 // -----------------------------------------------------------------------------
-if (!empty($_SESSION['admin_logged_in'])) {
+if (!empty($_SESSION['admin_logged_in']) && !(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
 
     // Server-Ping-Aktion via GET
     if (isset($_GET['action']) && $_GET['action'] === 'ping_all') {
