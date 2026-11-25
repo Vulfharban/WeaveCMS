@@ -16,15 +16,61 @@ unset($_SESSION['game_auth_error']);
 // Server statuses auffrischen
 GameServerManager::refreshAllServerStatuses();
 $servers = GameServerManager::getServers();
+
+// CMS Design-Variablen aus data.json übernehmen (helles/dunkles Theme & Primärfarben)
+$cmsData = $GLOBALS['data'] ?? ($data ?? []);
+$designSettings = $cmsData['settings']['design'] ?? [];
+$cmsBgColor = $designSettings['bg_color'] ?? '#fbf9f6';
+$cmsPrimaryColor = $designSettings['primary_color'] ?? '#2e6248';
+$cmsAccentColor = $designSettings['accent_color'] ?? '#b26c39';
+$cmsContainerWidth = $designSettings['container_width'] ?? '1200px';
+$cmsFontScale = $designSettings['font_scale'] ?? '100%';
+$cmsCardRadius = $designSettings['card_radius'] ?? '16px';
+$cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de"<?= ($cmsThemeMode === 'dark') ? ' data-theme="dark"' : '' ?>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($cfg['section_title']) ?> – Weave Games</title>
-    <link rel="stylesheet" href="plugins/weave-games/assets/css/games.css">
-    <script src="plugins/weave-games/assets/js/games.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="libs/css/styles.css?v=<?= file_exists(dirname(__DIR__, 3) . '/libs/css/styles.css') ? filemtime(dirname(__DIR__, 3) . '/libs/css/styles.css') : time() ?>">
+    <style id="dynamic-design-variables">
+        :root {
+            --bg-dark: <?= htmlspecialchars($cmsBgColor, ENT_QUOTES, 'UTF-8') ?>;
+            --primary: <?= htmlspecialchars($cmsPrimaryColor, ENT_QUOTES, 'UTF-8') ?>;
+            --accent: <?= htmlspecialchars($cmsAccentColor, ENT_QUOTES, 'UTF-8') ?>;
+            --container-max-width: <?= htmlspecialchars($cmsContainerWidth, ENT_QUOTES, 'UTF-8') ?>;
+            --font-scale: <?= htmlspecialchars($cmsFontScale, ENT_QUOTES, 'UTF-8') ?>;
+            --card-radius: <?= htmlspecialchars($cmsCardRadius, ENT_QUOTES, 'UTF-8') ?>;
+        }
+        [data-theme="dark"] {
+            --bg-dark: #0f0d0b;
+            --bg-card: rgba(22, 19, 17, 0.95);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --text-primary: #f8f6f4;
+            --text-secondary: #c5b8ac;
+            --primary: #4ade80;
+            --accent: #f09a5c;
+            --header-bg: rgba(15, 13, 11, 0.92);
+        }
+    </style>
+    <script>
+        (function() {
+            try {
+                var t = localStorage.getItem('weave_user_theme');
+                if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+                else if (t === 'light') document.documentElement.removeAttribute('data-theme');
+                var z = localStorage.getItem('weave_user_zoom');
+                if (z && parseInt(z, 10) >= 85 && parseInt(z, 10) <= 125) {
+                    document.documentElement.style.fontSize = z + '%';
+                }
+            } catch(e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="plugins/weave-games/assets/css/games.css?v=<?= filemtime(dirname(__DIR__) . '/assets/css/games.css') ?>">
+    <script src="plugins/weave-games/assets/js/games.js?v=<?= filemtime(dirname(__DIR__) . '/assets/js/games.js') ?>" defer></script>
 </head>
 <body class="wg-portal-body">
 
@@ -129,8 +175,8 @@ $servers = GameServerManager::getServers();
         <section class="wg-player-panel">
             <div class="wg-player-panel-inner">
                 <div>
-                    <h3 style="margin: 0; color: #38bdf8;">🎮 Angemeldet als: <?= htmlspecialchars($player['nickname']) ?></h3>
-                    <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 13px;">
+                    <h3 style="margin: 0; color: var(--wg-primary);">🎮 Angemeldet als: <?= htmlspecialchars($player['nickname']) ?></h3>
+                    <p style="margin: 4px 0 0 0; color: var(--wg-text-muted); font-size: 13px;">
                         Verwende diesen Token in deinem Game-Client (Game Launcher / Config) für automatisches Login:
                     </p>
                 </div>
@@ -185,12 +231,12 @@ $servers = GameServerManager::getServers();
 
                 <!-- Server-Status für Voxel Adventure -->
                 <div class="wg-server-box">
-                    <h4 style="margin: 0 0 10px 0; color: #f8fafc; font-size: 14px;">📡 Live Server-Status</h4>
+                    <h4 style="margin: 0 0 10px 0; color: var(--wg-text); font-size: 14px;">📡 Live Server-Status</h4>
                     <?php 
                     $voxelServers = array_filter($servers, fn($s) => $s['game_slug'] === 'voxel-adventure' && !empty($s['active']));
                     ?>
                     <?php if (empty($voxelServers)): ?>
-                        <div style="color: #94a3b8; font-size: 12px;">Keine aktiven Game-Server eingetragen.</div>
+                        <div style="color: var(--wg-text-muted); font-size: 12px;">Keine aktiven Game-Server eingetragen.</div>
                     <?php else: ?>
                         <?php foreach ($voxelServers as $fs): 
                             $isOnline = (($fs['status'] ?? '') === 'online');
@@ -222,8 +268,8 @@ $servers = GameServerManager::getServers();
         <div class="wg-browser-game-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <div>
-                    <h3 style="margin: 0; color: #38bdf8;">Space Orbit – 2D Arcade Space Shooter</h3>
-                    <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 13px;">3 Kampagnen-Level mit Sektor-Bossen (Viper Frigate, Dreadnought & Titan Mothership) – direkt im Browser per HTML5 Canvas spielbar.</p>
+                    <h3 style="margin: 0; color: var(--wg-primary);">Space Orbit – 2D Arcade Space Shooter</h3>
+                    <p style="margin: 4px 0 0 0; color: var(--wg-text-muted); font-size: 13px;">5 Kampagnen-Level (Weltraum, Asteroiden-Canyon, Planeten-Oberfläche, Planeten-Basis &amp; Orbital-Zitadelle) mit zerstörbaren Rand-Geschützen, Waffen-Upgrades und 2-Phasen-Bossen.</p>
                 </div>
                 <div>
                     <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">▶ Kampagne starten</button>
@@ -231,13 +277,13 @@ $servers = GameServerManager::getServers();
             </div>
 
             <!-- Canvas Container -->
-            <div id="spaceOrbitContainer" style="width: 100%; height: 360px; background: #020617; border-radius: 8px; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
-                <canvas id="spaceOrbitCanvas" width="800" height="360" style="display: none; width: 100%; height: 100%; cursor: crosshair;"></canvas>
-                <div id="spaceOrbitIntro" style="text-align: center; color: #94a3b8;">
+            <div id="spaceOrbitContainer" style="width: 100%; height: 460px; background: #020617; border-radius: 8px; border: 1px solid var(--wg-border); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                <canvas id="spaceOrbitCanvas" width="800" height="460" style="display: none; width: 100%; height: 100%; cursor: crosshair;"></canvas>
+                <div id="spaceOrbitIntro" style="text-align: center; color: #94a3b8; padding: 16px;">
                     <span style="font-size: 48px; display: block; margin-bottom: 8px;">🛸</span>
-                    <strong style="color: #f8fafc; font-size: 16px;">Space Orbit – 3 Level Boss-Kampagne</strong><br>
-                    <span style="font-size: 13px;">Besiege alle 3 Sektor-Bosse für den finalen Sieg!</span><br>
-                    <span style="font-size: 12px; color: #64748b;">Steuerung: Maus / Cursor (Bewegen & Zielen), Klick oder Leertaste (Feuern) &bull; Alternativ: Pfeiltasten / A & D</span><br><br>
+                    <strong style="color: #f8fafc; font-size: 16px;">Space Orbit – 5-Level Boss-Kampagne</strong><br>
+                    <span style="font-size: 13px;">Fliege frei im Raum, zerstöre Rand-Geschütze, sammle Waffen-Upgrades (W) &amp; besiege alle 5 Sektor-Bosse!</span><br>
+                    <span style="font-size: 12px; color: #64748b;">Steuerung: Maus / Touch oder WASD / Pfeiltasten (2D-Flug) &bull; Schießen: Klick oder Leertaste (Einzelschuss, kein Dauerfeuer)</span><br><br>
                     <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">Kampagne jetzt starten</button>
                 </div>
             </div>

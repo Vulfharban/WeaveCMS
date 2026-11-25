@@ -6,6 +6,24 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ---
 
+## [v1.3.4.5] - 25. November 2026
+
+### 🎮 Forum-DSGVO-Link, Weave-Games Theme-Anpassung & Space Orbit 5-Level-Ausbau
+
+- 🛡️ **Forum-Neuregistrierung – Klickbare Datenschutzrichtlinien (`plugins/weave-forum-users/views/register.php`):**
+  - *Datenschutzrichtlinien* in der DSGVO-Einwilligung (`Art. 6 Abs. 1 lit. a`) ist nun als klickbarer Link umgesetzt (ohne versehentliches Umschalten der Checkbox).
+  - Neues `<dialog id="forumPrivacyModal">` zeigt direkt die im CMS hinterlegte Datenschutzerklärung (`privacy_policy_text` bzw. Standard-DSGVO-Vorlage per `MarkdownParser`) sowie einen Direkt-Button zum Slide-In-Menü *Impressum & Datenschutz*.
+- 🎨 **Weave Games – Automatische Design- & Theme-Anpassung (`plugins/weave-games/views/portal.php`, `assets/css/games.css`, `plugin.php`):**
+  - Das Gaming-Portal übernimmt nun automatisch die aktiven WeaveCMS-Design-Variablen (`--bg-dark`, `--bg-card`, `--primary`, `--accent`, `--text-primary`, `--text-secondary`, `--border-color`, `--card-radius`, Schriftart `Outfit`) sowie den Besucher-Hell-/Dunkelmodus (`weave_user_theme`), sodass die Games-Seite nicht mehr fest dunkel bleibt, wenn die Website hell gestaltet ist.
+  - Auch der Shortcode `[weave_games]` und die eingebettete Games-Sektion folgen nun den CMS-Farbvariablen.
+- 🚀 **Space Orbit Arcade – Große 5-Level-Kampagnen-Erweiterung (`plugins/weave-games/assets/js/games.js`, `views/portal.php`):**
+  - **5 Level mit wechselnden Hintergründen:** Tiefraum & Nebel-Orbit, Asteroiden-Canyon, Planeten-Oberfläche, Planeten-Basis (Bunkergraben) und Orbital-Zitadelle (Kern).
+  - **Kurvige Seitenränder & zerstörbare Rand-Geschütztürme:** Dynamisch geschwungene Canyon-/Basiswände statt gerader Kanten sowie gegnerische Geschütztürme direkt an beiden Rändern mit eigenem HP-Balken und Power-Up-Drops.
+  - **Volle 2D-Steuerung & kein Leertasten-Dauerfeuer:** Freier Flug in X & Y (`WASD` / Pfeiltasten / Maus / Touch, vergrößertes `800×460 px`-Spielfeld); gehaltene Leertaste löst kein Dauerfeuer mehr aus (Einzelschuss pro Tastendruck + Cooldown).
+  - **4 einsammelbare Waffen-Stufen & schwerere 2-Phasen-Bosse:** Doppel-Laser → Dreifach-Streulaser → Plasma-Fächer → Hyper-Blaster sowie 5 deutlich anspruchsvollere Sektor-Bosse mit Enrage-Phase ab 50 % HP und Eskort-Drohnen.
+
+---
+
 ## [v1.3.4.4] - 24. November 2026
 
 ### 🛡️ Workshop-Haftungsausschluss, Foren-Fixes & Mediathek/Download-Optimierungen

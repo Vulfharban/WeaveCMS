@@ -19,7 +19,21 @@ $error = $_SESSION['forum_auth_error'] ?? '';
 unset($_SESSION['forum_auth_error']);
 
 $forumGuidelines = ForumUserManager::getForumGuidelines();
-$fuserCfg = class_exists('PluginManager') ? PluginManager::getPluginConfig('weave-forum-users', $GLOBALS['data'] ?? []) : [];
+$siteData = $GLOBALS['data'] ?? ($data ?? []);
+$privacyPolicyRaw = !empty($siteData['settings']['privacy_policy_text'])
+    ? $siteData['settings']['privacy_policy_text']
+    : (!empty($siteData['texts']['privacy_policy_text'])
+        ? $siteData['texts']['privacy_policy_text']
+        : (function_exists('get_default_privacy_policy_text') ? get_default_privacy_policy_text($siteData) : ''));
+$privacyPolicyHtml = '';
+if (trim($privacyPolicyRaw) !== '') {
+    $privacyPolicyHtml = class_exists('MarkdownParser')
+        ? MarkdownParser::parse($privacyPolicyRaw)
+        : nl2br(htmlspecialchars($privacyPolicyRaw));
+} else {
+    $privacyPolicyHtml = '<p>Informationen zur Verarbeitung Ihrer personenbezogenen Daten (Benutzername, E-Mail-Adresse, Beiträge) gemäß Art. 6 Abs. 1 lit. a DSGVO finden Sie in unserer Datenschutzerklärung im Impressum-/Datenschutz-Bereich dieser Website.</p>';
+}
+$fuserCfg = class_exists('PluginManager') ? PluginManager::getPluginConfig('weave-forum-users', $siteData) : [];
 $regMode = $fuserCfg['registration_mode'] ?? 'email_verify';
 
 if ($regMode === 'closed') {
@@ -116,7 +130,7 @@ if ($regMode === 'closed') {
             <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px; line-height: 1.45; color: #1e293b; cursor: pointer;">
                 <input type="checkbox" name="accept_privacy_dsgvo" value="1" required style="margin-top: 3px; width: 16px; height: 16px; accent-color: var(--primary, #2e6248); flex-shrink: 0;">
                 <span>
-                    Ich habe die <strong>Datenschutzrichtlinien</strong> zur Kenntnis genommen und stimme der Speicherung und Verarbeitung meiner personenbezogenen Daten (Benutzername, E-Mail-Adresse, Beiträge) gemäß <strong>DSGVO (Art. 6 Abs. 1 lit. a)</strong> für die Nutzung des Forums zu. *
+                    Ich habe die <a href="#datenschutz" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('forumPrivacyModal').showModal(); return false;" style="color: var(--primary, #2e6248); font-weight: 700; text-decoration: underline;">Datenschutzrichtlinien</a> zur Kenntnis genommen und stimme der Speicherung und Verarbeitung meiner personenbezogenen Daten (Benutzername, E-Mail-Adresse, Beiträge) gemäß <strong>DSGVO (Art. 6 Abs. 1 lit. a)</strong> für die Nutzung des Forums zu. *
                 </span>
             </label>
         </div>
@@ -148,6 +162,26 @@ if ($regMode === 'closed') {
     </div>
     <div style="padding: 22px; font-size: 13.5px; line-height: 1.65; color: #334155; max-height: 60vh; overflow-y: auto; white-space: pre-line;"><?= htmlspecialchars($forumGuidelines) ?></div>
     <div style="padding: 14px 22px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: right;">
+        <button type="button" class="kunena-btn-primary" onclick="this.closest('dialog').close()" style="cursor: pointer;">Verstanden &amp; Schließen</button>
+    </div>
+</dialog>
+
+<!-- Modal für Datenschutzrichtlinien (DSGVO) -->
+<dialog id="forumPrivacyModal" style="border: none; border-radius: 16px; padding: 0; width: 92%; max-width: 640px; background: #ffffff; color: #0f172a; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <span class="material-icons" style="color: var(--primary, #2e6248);">shield</span>
+            <span>Datenschutzrichtlinien (DSGVO)</span>
+        </h3>
+        <button type="button" onclick="this.closest('dialog').close()" style="background: transparent; border: none; cursor: pointer; color: #64748b; display: flex;">
+            <span class="material-icons">close</span>
+        </button>
+    </div>
+    <div style="padding: 22px; font-size: 13.5px; line-height: 1.65; color: #334155; max-height: 60vh; overflow-y: auto;"><?= $privacyPolicyHtml ?></div>
+    <div style="padding: 14px 22px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="kunena-btn-secondary" style="cursor: pointer;" onclick="this.closest('dialog').close(); var t = document.getElementById('menu-toggle-impressum'); if (t) { t.checked = true; } if (typeof switchLegalTab === 'function') { switchLegalTab('datenschutz'); }">
+            <span class="material-icons" style="font-size: 16px;">open_in_new</span> Impressum &amp; Datenschutz öffnen
+        </button>
         <button type="button" class="kunena-btn-primary" onclick="this.closest('dialog').close()" style="cursor: pointer;">Verstanden &amp; Schließen</button>
     </div>
 </dialog>

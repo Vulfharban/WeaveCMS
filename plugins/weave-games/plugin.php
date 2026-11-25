@@ -205,12 +205,12 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
         $title = htmlspecialchars($cfg['section_title']);
 
         $html = "
-            <div style='background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; border-radius: 10px; padding: 24px; text-align: center; margin: 24px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.15);'>
-                <h3 style='margin: 0 0 8px 0; color: #38bdf8;'>🎮 {$title}</h3>
-                <p style='color: #cbd5e1; max-width: 600px; margin: 0 auto 16px auto; font-size: 14px;'>
+            <div style='background: var(--bg-card, #ffffff); color: var(--text-primary, #3c342e); border: 1px solid var(--border-color, rgba(62,50,40,0.14)); border-radius: var(--card-radius, 14px); padding: 24px; text-align: center; margin: 24px 0; box-shadow: 0 6px 20px rgba(0,0,0,0.06);'>
+                <h3 style='margin: 0 0 8px 0; color: var(--primary, #2e6248);'>🎮 {$title}</h3>
+                <p style='color: var(--text-secondary, #7a6e65); max-width: 600px; margin: 0 auto 16px auto; font-size: 14px;'>
                     Live Game-Server ({$online} online), Client-Updates und Browsergames direkt im Web.
                 </p>
-                <a href='{$portalUrl}' class='btn' style='background: #38bdf8; color: #0f172a; padding: 10px 22px; font-weight: 800; text-decoration: none; border-radius: 6px; display: inline-block;'>
+                <a href='{$portalUrl}' class='btn btn-primary' style='padding: 10px 22px; font-weight: 700; text-decoration: none; border-radius: 8px; display: inline-block;'>
                     🚀 Zum Gaming-Portal
                 </a>
             </div>
@@ -288,11 +288,11 @@ PluginManager::addAction('frontend_render_custom_section', function($sectionKey,
         $sub = htmlspecialchars($cfg['section_subtitle']);
         echo "
             <div class='container' style='padding: 40px 15px; text-align: center;'>
-                <h2 style='color: #1e3a8a;'>🎮 {$title}</h2>
-                <p style='max-width: 650px; margin: 0 auto 20px auto; color: #64748b;'>
+                <h2 style='color: var(--primary, #2e6248);'>🎮 {$title}</h2>
+                <p style='max-width: 650px; margin: 0 auto 20px auto; color: var(--text-secondary, #7a6e65);'>
                     {$sub} ({$online} Server aktuell erreichbar).
                 </p>
-                <a href='?page=games' class='btn' style='background: #1e3a8a; color: #fff; padding: 12px 28px; font-weight: 700; text-decoration: none; border-radius: 6px; display: inline-block;'>
+                <a href='?page=games' class='btn btn-primary' style='padding: 12px 28px; font-weight: 700; text-decoration: none; border-radius: 8px; display: inline-block;'>
                     🚀 Gaming-Portal & Serverübersicht öffnen
                 </a>
             </div>

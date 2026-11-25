@@ -28,12 +28,21 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 - **Complete Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 
-## Releases & Downloads (v1.3.4.4)
+## Releases & Downloads (v1.3.4.5)
 
-- 📦 **[WeaveCMS v1.3.4.4 Full Package](releases/weavecms-v1.3.4.4.zip)** (`releases/weavecms-v1.3.4.4.zip`, 12.4 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.4.4 Update Package](releases/update-v1.3.4.4.zip)** (`releases/update-v1.3.4.4.zip`, 0.95 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.4.5 Full Package](releases/weavecms-v1.3.4.5.zip)** (`releases/weavecms-v1.3.4.5.zip`, 12.41 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.4.5 Update Package](releases/update-v1.3.4.5.zip)** (`releases/update-v1.3.4.5.zip`, 0.96 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.4.5 (25. November 2026)
+
+- 🛡️ **Forum-Registrierung – DSGVO-Datenschutz-Link & Modal (`plugins/weave-forum-users/views/register.php`):**
+  - Klickbarer Link auf *Datenschutzrichtlinien* öffnet ein eigenes DSGVO-Modal (`#forumPrivacyModal`) mit der im CMS gepflegten Datenschutzerklärung sowie Schnellzugang zum Slide-In-Menü *Impressum & Datenschutz*.
+- 🎨 **Weave Games – Automatische Theme-Synchronisation (`plugins/weave-games/`):**
+  - Gaming-Portal, Shortcode `[weave_games]` und Games-Sektion übernehmen nun automatisch das aktive helle oder dunkle WeaveCMS-Design (`data.json` & `weave_user_theme`).
+- 🚀 **Space Orbit Arcade – 5-Level-Kampagne (`plugins/weave-games/assets/js/games.js`):**
+  - 5 Level mit wechselnden Hintergründen (Weltraum → Asteroiden-Canyon → Planeten-Oberfläche → Planeten-Basis → Orbital-Zitadelle), kurvigen Seitenrändern, zerstörbaren Rand-Geschütztürmen, freiem 2D-Flug, unterbundenem Leertasten-Dauerfeuer, 4 einsammelbaren Waffen-Upgrades und schwereren 2-Phasen-Endbossen.
 
 ### v1.3.4.4 (24. November 2026)
 
@@ -243,7 +252,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.3.4.4.zip](releases/weavecms-v1.3.4.4.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.4.5.zip](releases/weavecms-v1.3.4.5.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

@@ -1,18 +1,28 @@
 /**
  * Weave Games – Portal Stylesheet
+ * Passt sich automatisch an das aktive WeaveCMS-Design (Hell- & Dunkelmodus) an.
  */
 
 :root {
-    --wg-bg: #0f172a;
-    --wg-card-bg: #1e293b;
-    --wg-primary: #38bdf8;
-    --wg-primary-hover: #0ea5e9;
-    --wg-accent: #6366f1;
-    --wg-text: #f8fafc;
-    --wg-text-muted: #94a3b8;
-    --wg-border: #334155;
+    --wg-bg: var(--bg-dark, #fbf9f6);
+    --wg-card-bg: var(--bg-card, #ffffff);
+    --wg-surface-bg: rgba(0, 0, 0, 0.03);
+    --wg-header-bg: var(--header-bg, rgba(255, 255, 255, 0.92));
+    --wg-primary: var(--primary, #2e6248);
+    --wg-primary-hover: var(--primary, #24503a);
+    --wg-accent: var(--accent, #b26c39);
+    --wg-text: var(--text-primary, #3c342e);
+    --wg-text-muted: var(--text-secondary, #7a6e65);
+    --wg-border: var(--border-color, rgba(62, 50, 40, 0.14));
+    --wg-radius: var(--card-radius, 14px);
     --wg-success: #10b981;
     --wg-danger: #ef4444;
+    --wg-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] {
+    --wg-surface-bg: rgba(255, 255, 255, 0.04);
+    --wg-shadow: 0 8px 24px rgba(0, 0, 0, 0.30);
 }
 
 body.wg-portal-body {
@@ -20,12 +30,12 @@ body.wg-portal-body {
     padding: 0;
     background-color: var(--wg-bg);
     color: var(--wg-text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
 }
 
 .wg-container {
-    max-width: 1100px;
+    max-width: var(--container-max-width, 1140px);
     margin: 0 auto;
     padding: 0 16px;
     box-sizing: border-box;
@@ -33,7 +43,8 @@ body.wg-portal-body {
 
 /* Header */
 .wg-header {
-    background: #090d16;
+    background: var(--wg-header-bg);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--wg-border);
     padding: 12px 0;
     position: sticky;
@@ -65,13 +76,14 @@ body.wg-portal-body {
     color: var(--wg-text-muted);
     text-decoration: none;
     font-size: 0.9rem;
+    font-weight: 600;
     transition: color 0.15s;
 }
 .wg-nav-link:hover {
     color: var(--wg-primary);
 }
 .wg-user-badge {
-    background: rgba(56, 189, 248, 0.1);
+    background: var(--wg-surface-bg);
     border: 1px solid var(--wg-border);
     border-radius: 20px;
     padding: 4px 12px;
@@ -79,13 +91,14 @@ body.wg-portal-body {
     align-items: center;
     gap: 8px;
     font-size: 0.85rem;
+    color: var(--wg-text);
 }
 .wg-role-tag {
-    background: #3b82f6;
+    background: var(--wg-primary);
     color: #fff;
     font-size: 0.7rem;
     font-weight: 700;
-    padding: 2px 6px;
+    padding: 2px 7px;
     border-radius: 10px;
     text-transform: uppercase;
 }
@@ -101,8 +114,8 @@ body.wg-portal-body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 7px 16px;
-    border-radius: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
     font-size: 0.88rem;
     font-weight: 700;
     text-decoration: none;
@@ -112,10 +125,14 @@ body.wg-portal-body {
 }
 .wg-btn-primary {
     background: var(--wg-primary);
+    color: #ffffff;
+}
+[data-theme="dark"] .wg-btn-primary {
     color: #0f172a;
 }
 .wg-btn-primary:hover {
-    background: var(--wg-primary-hover);
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 .wg-btn-outline {
     background: transparent;
@@ -123,8 +140,9 @@ body.wg-portal-body {
     border: 1px solid var(--wg-border);
 }
 .wg-btn-outline:hover {
-    background: rgba(255,255,255,0.05);
-    border-color: var(--wg-text-muted);
+    background: var(--wg-surface-bg);
+    border-color: var(--wg-primary);
+    color: var(--wg-primary);
 }
 .wg-btn-large {
     padding: 10px 22px;
@@ -136,26 +154,26 @@ body.wg-portal-body {
 
 /* Hero */
 .wg-hero {
-    padding: 30px 0 20px 0;
+    padding: 32px 0 22px 0;
 }
 .wg-badge {
-    background: rgba(99, 102, 241, 0.2);
-    color: #a5b4fc;
+    background: var(--wg-surface-bg);
+    border: 1px solid var(--wg-border);
+    color: var(--wg-primary);
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 12px;
+    letter-spacing: 0.04em;
+    padding: 4px 12px;
+    border-radius: 20px;
     display: inline-block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 .wg-hero h1 {
     font-size: 2.2rem;
     margin: 0 0 8px 0;
-    font-weight: 900;
-    background: linear-gradient(135deg, #fff 0%, #38bdf8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    color: var(--wg-text);
 }
 .wg-hero p {
     color: var(--wg-text-muted);
@@ -166,12 +184,13 @@ body.wg-portal-body {
 
 /* Player Panel */
 .wg-player-panel {
-    background: rgba(30, 41, 59, 0.8);
+    background: var(--wg-card-bg);
     border: 1px solid var(--wg-border);
     border-left: 4px solid var(--wg-primary);
-    border-radius: 8px;
+    border-radius: var(--wg-radius);
     padding: 16px 20px;
     margin-bottom: 24px;
+    box-shadow: var(--wg-shadow);
 }
 .wg-player-panel-inner {
     display: flex;
@@ -183,25 +202,30 @@ body.wg-portal-body {
 .wg-token-box {
     display: flex;
     align-items: center;
-    background: #090d16;
+    background: var(--wg-surface-bg);
     border: 1px solid var(--wg-border);
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 6px 10px;
     gap: 10px;
 }
 .wg-token-box code {
-    color: #38bdf8;
+    color: var(--wg-primary);
     font-family: monospace;
     font-size: 0.85rem;
+    font-weight: 600;
 }
 .wg-btn-copy {
-    background: #334155;
+    background: var(--wg-primary);
     border: none;
     color: #fff;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 4px 10px;
+    border-radius: 5px;
     font-size: 0.75rem;
+    font-weight: 700;
     cursor: pointer;
+}
+[data-theme="dark"] .wg-btn-copy {
+    color: #0f172a;
 }
 
 /* Sections */
@@ -211,6 +235,7 @@ body.wg-portal-body {
 .wg-section-title {
     font-size: 1.4rem;
     font-weight: 800;
+    color: var(--wg-text);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -223,9 +248,9 @@ body.wg-portal-body {
 .wg-game-card {
     background: var(--wg-card-bg);
     border: 1px solid var(--wg-border);
-    border-radius: 12px;
+    border-radius: var(--wg-radius);
     padding: 24px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    box-shadow: var(--wg-shadow);
 }
 .wg-game-body {
     display: flex;
@@ -239,7 +264,7 @@ body.wg-portal-body {
 .wg-game-details h3 {
     margin: 0 0 8px 0;
     font-size: 1.35rem;
-    color: #fff;
+    color: var(--wg-text);
 }
 .wg-game-desc {
     color: var(--wg-text-muted);
@@ -252,12 +277,15 @@ body.wg-portal-body {
     margin-bottom: 16px;
 }
 .wg-version-pill {
-    background: #1e3a8a;
-    color: #93c5fd;
-    padding: 2px 8px;
-    border-radius: 4px;
+    background: var(--wg-primary);
+    color: #ffffff;
+    padding: 2px 9px;
+    border-radius: 6px;
     font-weight: 700;
     font-size: 0.8rem;
+}
+[data-theme="dark"] .wg-version-pill {
+    color: #0f172a;
 }
 .wg-file-size {
     color: var(--wg-text-muted);
@@ -274,18 +302,19 @@ body.wg-portal-body {
 .wg-server-box {
     flex: 2;
     min-width: 260px;
-    background: #0f172a;
+    background: var(--wg-surface-bg);
     border: 1px solid var(--wg-border);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 16px;
 }
 .wg-server-item {
-    background: rgba(255,255,255,0.02);
+    background: var(--wg-card-bg);
     border: 1px solid var(--wg-border);
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 10px 12px;
     margin-bottom: 8px;
     font-size: 0.85rem;
+    color: var(--wg-text);
 }
 .wg-server-info {
     display: flex;
@@ -313,18 +342,21 @@ body.wg-portal-body {
     color: var(--wg-text-muted);
 }
 .wg-ping-badge {
-    background: #1e293b;
-    padding: 1px 6px;
-    border-radius: 3px;
+    background: var(--wg-surface-bg);
+    border: 1px solid var(--wg-border);
+    padding: 1px 7px;
+    border-radius: 4px;
     color: var(--wg-primary);
+    font-weight: 600;
 }
 
 /* Browser Game Card */
 .wg-browser-game-card {
     background: var(--wg-card-bg);
     border: 1px solid var(--wg-border);
-    border-radius: 12px;
+    border-radius: var(--wg-radius);
     padding: 20px;
+    box-shadow: var(--wg-shadow);
 }
 
 /* Modals */
@@ -334,7 +366,8 @@ body.wg-portal-body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -343,11 +376,13 @@ body.wg-portal-body {
 .wg-modal-card {
     background: var(--wg-card-bg);
     border: 1px solid var(--wg-border);
-    border-radius: 10px;
-    width: 400px;
+    border-radius: var(--wg-radius);
+    width: 420px;
     max-width: 95%;
     padding: 24px;
     box-sizing: border-box;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    color: var(--wg-text);
 }
 .wg-modal-header {
     display: flex;
@@ -358,6 +393,7 @@ body.wg-portal-body {
 .wg-modal-header h3 {
     margin: 0;
     font-size: 1.25rem;
+    color: var(--wg-text);
 }
 .wg-close-btn {
     color: var(--wg-text-muted);
@@ -371,16 +407,17 @@ body.wg-portal-body {
 .wg-form-group label {
     display: block;
     font-size: 0.85rem;
-    color: var(--wg-text-muted);
+    font-weight: 600;
+    color: var(--wg-text);
     margin-bottom: 4px;
 }
 .wg-form-group input {
     width: 100%;
-    padding: 8px 12px;
-    background: #0f172a;
+    padding: 9px 12px;
+    background: var(--wg-surface-bg);
     border: 1px solid var(--wg-border);
-    border-radius: 6px;
-    color: #fff;
+    border-radius: 8px;
+    color: var(--wg-text);
     font-size: 0.95rem;
     box-sizing: border-box;
 }
@@ -389,23 +426,27 @@ body.wg-portal-body {
     outline: none;
 }
 .wg-auth-switch {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     color: var(--wg-text-muted);
     text-align: center;
     margin-top: 12px;
 }
 .wg-auth-switch a {
     color: var(--wg-primary);
+    font-weight: 700;
     text-decoration: none;
 }
 .wg-alert-error {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.12);
     border-left: 3px solid var(--wg-danger);
-    color: #fca5a5;
+    color: #dc2626;
     padding: 8px 12px;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 0.85rem;
     margin-bottom: 14px;
+}
+[data-theme="dark"] .wg-alert-error {
+    color: #fca5a5;
 }
 
 /* Footer */
@@ -430,4 +471,3 @@ body.wg-portal-body {
         width: 100%;
     }
 }
-
