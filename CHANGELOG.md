@@ -13,7 +13,8 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 - 🛡️ **Forum-Neuregistrierung – Klickbare Datenschutzrichtlinien (`plugins/weave-forum-users/views/register.php`):**
   - *Datenschutzrichtlinien* in der DSGVO-Einwilligung (`Art. 6 Abs. 1 lit. a`) ist nun als klickbarer Link umgesetzt (ohne versehentliches Umschalten der Checkbox).
   - Neues `<dialog id="forumPrivacyModal">` zeigt direkt die im CMS hinterlegte Datenschutzerklärung (`privacy_policy_text` bzw. Standard-DSGVO-Vorlage per `MarkdownParser`) sowie einen Direkt-Button zum Slide-In-Menü *Impressum & Datenschutz*.
-- 🔧 **Forum Zitieren/Bearbeiten & Shortcode-Schutz (`plugins/weave-forum/views/forum_topic.php`, `plugins/weave-games/plugin.php`):**
+- 🔧 **Forum-Editor (Überschrift `H`), Zitieren/Bearbeiten & Shortcode-Schutz (`plugins/weave-forum/ForumManager.php`, `views/forum_new_topic.php`, `views/forum_topic.php`, `plugins/weave-games/plugin.php`):**
+  - Neuer **Überschrift (`H`)**-Button direkt neben **Fett (`B`)** und **Kursiv (`I`)** in der Markdown-Formatierungsleiste (Neues Thema, Antwort-Editor & Beitrag-Bearbeiten-Modal) inkl. vollständiger Markdown-Überschriften-Unterstützung (`#`, `##`, `###`) in Live-Vorschau und Foren-Renderer.
   - *Zitieren*- und *Bearbeiten*-Buttons übergeben Beitragstexte nun sicher UTF-8-Base64-codiert über `data-*-b64`-Attribute statt roh im `onclick`-Attribut (behebt `Uncaught SyntaxError: Invalid or unexpected token` bei Sonderzeichen/Shortcodes).
   - Der `content_shortcodes`-Filter von `weave-games` überspringt nun `<code>`, `<pre>`, `<textarea>`, `<script>` sowie HTML-Tags/Attribute, sodass `` `[weave_games]` `` in Code-Spans oder Forenbeiträgen unverändert als Text bleibt.
 - 🎨 **Weave Games – Automatische Design- & Theme-Anpassung (`plugins/weave-games/views/portal.php`, `assets/css/games.css`, `plugin.php`):**

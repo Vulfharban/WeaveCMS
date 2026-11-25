@@ -107,6 +107,44 @@ dialog.kunena-dialog::backdrop {
     background: rgba(15, 23, 42, 0.55);
     backdrop-filter: blur(3px);
 }
+.kunena-editor-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+}
+.kunena-md-tools {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.kunena-md-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.kunena-md-btn:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: var(--primary, #2e6248);
+}
 </style>
 
 <!-- Topic Header -->
@@ -470,10 +508,35 @@ dialog.kunena-dialog::backdrop {
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
             <div style="margin-bottom: 14px;">
+                <div class="kunena-editor-bar">
+                    <div class="kunena-md-tools">
+                        <button type="button" class="kunena-md-btn" title="Überschrift (## Überschrift)" onclick="insertForumMarkdown('reply_textarea', '## ', '', 'Überschrift')">
+                            <strong style="font-size: 13.5px; font-weight: 800; line-height: 1; min-width: 14px; text-align: center;">H</strong>
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Fett (**Text**)" onclick="insertForumMarkdown('reply_textarea', '**', '**', 'Fetter Text')">
+                            <span class="material-icons" style="font-size: 16px;">format_bold</span>
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Kursiv (*Text*)" onclick="insertForumMarkdown('reply_textarea', '*', '*', 'Kursiver Text')">
+                            <span class="material-icons" style="font-size: 16px;">format_italic</span>
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Zitat einfügen" onclick="insertForumMarkdown('reply_textarea', '> ', '', 'Zitattext')">
+                            <span class="material-icons" style="font-size: 16px;">format_quote</span> Zitat
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Inline-Code (`code`)" onclick="insertForumMarkdown('reply_textarea', '`', '`', 'code')">
+                            <span class="material-icons" style="font-size: 16px;">code</span> Inline
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Mehrzeiliger Code-Block" onclick="insertForumMarkdown('reply_textarea', '```php\n', '\n```', '// Dein Code hier')">
+                            <span class="material-icons" style="font-size: 16px;">terminal</span> Code-Block
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Link einfügen" onclick="insertForumMarkdown('reply_textarea', '[', '](https://)', 'Linkbeschreibung')">
+                            <span class="material-icons" style="font-size: 16px;">link</span> Link
+                        </button>
+                    </div>
+                </div>
                 <textarea id="reply_textarea" name="content" rows="6" required 
-                          style="width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; font-family:inherit; outline:none; box-sizing:border-box;"
-                          placeholder="Schreibe deine Antwort... (Markdown und Zitate unterstützt)"></textarea>
-                <div id="reply_preview_box" style="display:none; width:100%; min-height:140px; padding:14px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; box-sizing:border-box;"></div>
+                          style="width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:0 0 10px 10px; font-size:14px; font-family:inherit; outline:none; box-sizing:border-box;"
+                          placeholder="Schreibe deine Antwort... (Markdown, Überschriften und Zitate unterstützt)"></textarea>
+                <div id="reply_preview_box" style="display:none; width:100%; min-height:140px; padding:14px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:0 0 10px 10px; box-sizing:border-box;"></div>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -513,7 +576,29 @@ dialog.kunena-dialog::backdrop {
         
         <h3 style="margin:0 0 14px 0; font-size:1.1rem; font-weight:800;">Beitrag bearbeiten</h3>
         <div style="margin-bottom:16px;">
-            <textarea name="content" id="edit_post_content" rows="6" required style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13.5px; font-family:inherit; box-sizing:border-box;"></textarea>
+            <div class="kunena-editor-bar" style="border-radius: 8px 8px 0 0;">
+                <div class="kunena-md-tools">
+                    <button type="button" class="kunena-md-btn" title="Überschrift (## Überschrift)" onclick="insertForumMarkdown('edit_post_content', '## ', '', 'Überschrift')">
+                        <strong style="font-size: 13.5px; font-weight: 800; line-height: 1; min-width: 14px; text-align: center;">H</strong>
+                    </button>
+                    <button type="button" class="kunena-md-btn" title="Fett (**Text**)" onclick="insertForumMarkdown('edit_post_content', '**', '**', 'Fetter Text')">
+                        <span class="material-icons" style="font-size: 16px;">format_bold</span>
+                    </button>
+                    <button type="button" class="kunena-md-btn" title="Kursiv (*Text*)" onclick="insertForumMarkdown('edit_post_content', '*', '*', 'Kursiver Text')">
+                        <span class="material-icons" style="font-size: 16px;">format_italic</span>
+                    </button>
+                    <button type="button" class="kunena-md-btn" title="Zitat einfügen" onclick="insertForumMarkdown('edit_post_content', '> ', '', 'Zitattext')">
+                        <span class="material-icons" style="font-size: 16px;">format_quote</span>
+                    </button>
+                    <button type="button" class="kunena-md-btn" title="Inline-Code (`code`)" onclick="insertForumMarkdown('edit_post_content', '`', '`', 'code')">
+                        <span class="material-icons" style="font-size: 16px;">code</span>
+                    </button>
+                    <button type="button" class="kunena-md-btn" title="Link einfügen" onclick="insertForumMarkdown('edit_post_content', '[', '](https://)', 'Linkbeschreibung')">
+                        <span class="material-icons" style="font-size: 16px;">link</span>
+                    </button>
+                </div>
+            </div>
+            <textarea name="content" id="edit_post_content" rows="6" required style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:0 0 8px 8px; font-size:13.5px; font-family:inherit; box-sizing:border-box;"></textarea>
         </div>
         <div style="display:flex; justify-content:flex-end; gap:10px;">
             <button type="button" class="kunena-btn-secondary" style="cursor:pointer;" onclick="this.closest('dialog').close()">Abbrechen</button>
@@ -569,6 +654,24 @@ function openEditPostFromButton(btn) {
     const postId = btn.getAttribute('data-post-id') || '';
     const content = decodeBase64Utf8(btn.getAttribute('data-content-b64') || '');
     openEditPostModal(postId, content);
+}
+
+function insertForumMarkdown(textareaId, prefix, suffix, placeholder) {
+    const area = document.getElementById(textareaId);
+    if (!area) return;
+    if (textareaId === 'reply_textarea' && area.style.display === 'none') {
+        switchEditorTab('write', 'reply_textarea', 'reply_preview_box', 'tab_reply_write', 'tab_reply_preview');
+    }
+    const start = area.selectionStart || 0;
+    const end = area.selectionEnd || 0;
+    const selected = area.value.substring(start, end);
+    const insertText = selected.length > 0 ? selected : placeholder;
+    const effectivePrefix = (prefix.startsWith('#') && start > 0 && area.value[start - 1] !== '\n') ? ('\n' + prefix) : prefix;
+    const replacement = effectivePrefix + insertText + suffix;
+
+    area.value = area.value.substring(0, start) + replacement + area.value.substring(end);
+    area.focus();
+    area.setSelectionRange(start + effectivePrefix.length, start + effectivePrefix.length + insertText.length);
 }
 
 function insertQuote(author, text) {
@@ -646,6 +749,11 @@ function renderMarkdownPreview(raw, targetEl) {
     // 7. Bold & Italic
     s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+
+    // 7b. Headings: #, ##, ###
+    s = s.replace(/^###[ \t]+([^\r\n]+)(?:\r?\n)?/gm, '<h4 class="forum-heading forum-heading-3" style="margin:0.85em 0 0.35em 0; font-size:1.05em; font-weight:700; line-height:1.35;">$1</h4>');
+    s = s.replace(/^##[ \t]+([^\r\n]+)(?:\r?\n)?/gm, '<h3 class="forum-heading forum-heading-2" style="margin:1em 0 0.4em 0; font-size:1.2em; font-weight:800; line-height:1.3;">$1</h3>');
+    s = s.replace(/^#[ \t]+([^\r\n]+)(?:\r?\n)?/gm, '<h2 class="forum-heading forum-heading-1" style="margin:1.1em 0 0.45em 0; font-size:1.38em; font-weight:800; line-height:1.25; border-bottom:1px solid rgba(148,163,184,0.3); padding-bottom:0.25em;">$1</h2>');
 
     // 8. Line breaks
     s = s.replace(/\n/g, '<br>');

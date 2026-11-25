@@ -210,6 +210,9 @@ unset($_SESSION['forum_error']);
                     <!-- Editor Toolbar & Write/Preview Tabs -->
                     <div class="kunena-editor-bar">
                         <div class="kunena-md-tools">
+                            <button type="button" class="kunena-md-btn" title="Überschrift (## Überschrift)" onclick="insertTopicMarkdown('## ', '', 'Überschrift')">
+                                <strong style="font-size: 13.5px; font-weight: 800; line-height: 1; min-width: 14px; text-align: center;">H</strong>
+                            </button>
                             <button type="button" class="kunena-md-btn" title="Fett (**Text**)" onclick="insertTopicMarkdown('**', '**', 'Fetter Text')">
                                 <span class="material-icons" style="font-size: 16px;">format_bold</span>
                             </button>
@@ -249,7 +252,7 @@ unset($_SESSION['forum_error']);
 
                 <div style="font-size: 12px; color: #64748b; margin-bottom: 18px; display: flex; align-items: center; gap: 6px;">
                     <span class="material-icons" style="font-size: 15px; color: var(--primary, #2e6248);">tips_and_updates</span>
-                    <span>Tipp: Nutze die Formatierungsleiste oben für <strong>**Fett**</strong>, <em>*Kursiv*</em>, Zitate oder <code>```Code-Blöcke```</code> und prüfe deinen Beitrag vorab über <strong>Vorschau</strong>.</span>
+                    <span>Tipp: Nutze die Formatierungsleiste oben für <strong>## Überschrift</strong>, <strong>**Fett**</strong>, <em>*Kursiv*</em>, Zitate oder <code>```Code-Blöcke```</code> und prüfe deinen Beitrag vorab über <strong>Vorschau</strong>.</span>
                 </div>
 
                 <!-- Footer Buttons -->
@@ -278,11 +281,12 @@ function insertTopicMarkdown(prefix, suffix, placeholder) {
     const end = area.selectionEnd || 0;
     const selected = area.value.substring(start, end);
     const insertText = selected.length > 0 ? selected : placeholder;
-    const replacement = prefix + insertText + suffix;
+    const effectivePrefix = (prefix.startsWith('#') && start > 0 && area.value[start - 1] !== '\n') ? ('\n' + prefix) : prefix;
+    const replacement = effectivePrefix + insertText + suffix;
 
     area.value = area.value.substring(0, start) + replacement + area.value.substring(end);
     area.focus();
-    area.setSelectionRange(start + prefix.length, start + prefix.length + insertText.length);
+    area.setSelectionRange(start + effectivePrefix.length, start + effectivePrefix.length + insertText.length);
 }
 
 function renderMarkdownPreview(raw, targetEl) {
@@ -345,6 +349,11 @@ function renderMarkdownPreview(raw, targetEl) {
     // 7. Bold & Italic
     s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+
+    // 7b. Headings: #, ##, ###
+    s = s.replace(/^###[ \t]+([^\r\n]+)(?:\r?\n)?/gm, '<h4 class="forum-heading forum-heading-3" style="margin:0.85em 0 0.35em 0; font-size:1.05em; font-weight:700; line-height:1.35;">$1</h4>');
+    s = s.replace(/^##[ \t]+([^\r\n]+)(?:\r?\n)?/gm, '<h3 class="forum-heading forum-heading-2" style="margin:1em 0 0.4em 0; font-size:1.2em; font-weight:800; line-height:1.3;">$1</h3>');
+    s = s.replace(/^#[ \t]+([^\r\n]+)(?:\r?\n)?/gm, '<h2 class="forum-heading forum-heading-1" style="margin:1.1em 0 0.45em 0; font-size:1.38em; font-weight:800; line-height:1.25; border-bottom:1px solid rgba(148,163,184,0.3); padding-bottom:0.25em;">$1</h2>');
 
     // 8. Line breaks
     s = s.replace(/\n/g, '<br>');
