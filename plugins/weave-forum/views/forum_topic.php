@@ -366,9 +366,12 @@ dialog.kunena-dialog::backdrop {
                     </div>
 
                     <!-- Post Content -->
-                    <div class="forum-post-content" style="font-size: 14px; line-height: 1.65; margin-bottom: 20px;">
+                    <div id="post-content-<?= htmlspecialchars($post['id']) ?>" class="forum-post-content" style="font-size: 14px; line-height: 1.65; margin-bottom: 20px;">
                         <?= ForumManager::renderFormattedContent($post['content']) ?>
                     </div>
+                    <?php if ($canEdit): ?>
+                        <div id="post-edit-slot-<?= htmlspecialchars($post['id']) ?>" style="display:none; margin-bottom: 20px;"></div>
+                    <?php endif; ?>
 
                     <!-- User Signature (nur für eingeloggte Mitglieder und wenn vom Autor freigegeben) -->
                     <?php if ($currentUser && !empty($author['signature']) && !empty($authorPriv['show_signature'])): ?>
@@ -567,45 +570,73 @@ dialog.kunena-dialog::backdrop {
     <?php endif; ?>
 </div>
 
-<!-- Modal: Edit Post -->
-<dialog id="modal_edit_post" class="kunena-dialog">
-    <form method="post" action="?forum_action=edit_post" style="padding:24px; margin:0;">
-        <input type="hidden" name="post_id" id="edit_post_id" value="">
-        <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-        
-        <h3 style="margin:0 0 14px 0; font-size:1.1rem; font-weight:800;">Beitrag bearbeiten</h3>
-        <div style="margin-bottom:16px;">
-            <div class="kunena-editor-bar" style="border-radius: 8px 8px 0 0;">
-                <div class="kunena-md-tools">
-                    <button type="button" class="kunena-md-btn" title="Überschrift (## Überschrift)" onclick="insertForumMarkdown('edit_post_content', '## ', '', 'Überschrift')">
-                        <strong style="font-size: 13.5px; font-weight: 800; line-height: 1; min-width: 14px; text-align: center;">H</strong>
+<!-- Inline Edit Container (wird beim Klick auf "Bearbeiten" direkt in den jeweiligen Beitrag verschoben) -->
+<div id="inline_edit_host" style="display:none;">
+    <div id="inline_edit_card" style="background:#ffffff; border:2px solid var(--primary, #2e6248); border-radius:12px; padding:16px; box-shadow:0 6px 20px rgba(15,23,42,0.08);">
+        <form method="post" action="?forum_action=edit_post" style="margin:0;">
+            <input type="hidden" name="post_id" id="edit_post_id" value="">
+            <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                <span style="font-size:14px; font-weight:800; color:var(--primary, #2e6248); display:inline-flex; align-items:center; gap:6px;">
+                    <span class="material-icons" style="font-size:18px;">edit_note</span> Beitrag bearbeiten
+                </span>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <button type="button" id="tab_edit_write" class="kunena-btn-primary" style="cursor:pointer; padding:4px 11px; font-size:12px;"
+                            onclick="switchEditorTab('write', 'edit_post_content', 'edit_post_preview_box', 'tab_edit_write', 'tab_edit_preview')">
+                        Schreiben
                     </button>
-                    <button type="button" class="kunena-md-btn" title="Fett (**Text**)" onclick="insertForumMarkdown('edit_post_content', '**', '**', 'Fetter Text')">
-                        <span class="material-icons" style="font-size: 16px;">format_bold</span>
-                    </button>
-                    <button type="button" class="kunena-md-btn" title="Kursiv (*Text*)" onclick="insertForumMarkdown('edit_post_content', '*', '*', 'Kursiver Text')">
-                        <span class="material-icons" style="font-size: 16px;">format_italic</span>
-                    </button>
-                    <button type="button" class="kunena-md-btn" title="Zitat einfügen" onclick="insertForumMarkdown('edit_post_content', '> ', '', 'Zitattext')">
-                        <span class="material-icons" style="font-size: 16px;">format_quote</span>
-                    </button>
-                    <button type="button" class="kunena-md-btn" title="Inline-Code (`code`)" onclick="insertForumMarkdown('edit_post_content', '`', '`', 'code')">
-                        <span class="material-icons" style="font-size: 16px;">code</span>
-                    </button>
-                    <button type="button" class="kunena-md-btn" title="Link einfügen" onclick="insertForumMarkdown('edit_post_content', '[', '](https://)', 'Linkbeschreibung')">
-                        <span class="material-icons" style="font-size: 16px;">link</span>
+                    <button type="button" id="tab_edit_preview" class="kunena-btn-secondary" style="cursor:pointer; padding:4px 11px; font-size:12px;"
+                            onclick="switchEditorTab('preview', 'edit_post_content', 'edit_post_preview_box', 'tab_edit_write', 'tab_edit_preview')">
+                        Vorschau
                     </button>
                 </div>
             </div>
-            <textarea name="content" id="edit_post_content" rows="6" required style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:0 0 8px 8px; font-size:13.5px; font-family:inherit; box-sizing:border-box;"></textarea>
-        </div>
-        <div style="display:flex; justify-content:flex-end; gap:10px;">
-            <button type="button" class="kunena-btn-secondary" style="cursor:pointer;" onclick="this.closest('dialog').close()">Abbrechen</button>
-            <button type="submit" class="kunena-btn-primary" style="cursor:pointer;">Speichern</button>
-        </div>
-    </form>
-</dialog>
+
+            <div style="margin-bottom:14px;">
+                <div class="kunena-editor-bar">
+                    <div class="kunena-md-tools">
+                        <button type="button" class="kunena-md-btn" title="Überschrift (## Überschrift)" onclick="insertForumMarkdown('edit_post_content', '## ', '', 'Überschrift')">
+                            <strong style="font-size: 13.5px; font-weight: 800; line-height: 1; min-width: 14px; text-align: center;">H</strong>
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Fett (**Text**)" onclick="insertForumMarkdown('edit_post_content', '**', '**', 'Fetter Text')">
+                            <span class="material-icons" style="font-size: 16px;">format_bold</span>
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Kursiv (*Text*)" onclick="insertForumMarkdown('edit_post_content', '*', '*', 'Kursiver Text')">
+                            <span class="material-icons" style="font-size: 16px;">format_italic</span>
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Zitat einfügen" onclick="insertForumMarkdown('edit_post_content', '> ', '', 'Zitattext')">
+                            <span class="material-icons" style="font-size: 16px;">format_quote</span> Zitat
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Inline-Code (`code`)" onclick="insertForumMarkdown('edit_post_content', '`', '`', 'code')">
+                            <span class="material-icons" style="font-size: 16px;">code</span> Inline
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Mehrzeiliger Code-Block" onclick="insertForumMarkdown('edit_post_content', '```php\n', '\n```', '// Dein Code hier')">
+                            <span class="material-icons" style="font-size: 16px;">terminal</span> Code-Block
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Link einfügen" onclick="insertForumMarkdown('edit_post_content', '[', '](https://)', 'Linkbeschreibung')">
+                            <span class="material-icons" style="font-size: 16px;">link</span> Link
+                        </button>
+                    </div>
+                </div>
+                <textarea name="content" id="edit_post_content" rows="12" required
+                          style="width:100%; min-height:220px; padding:12px 14px; border:1px solid #cbd5e1; border-radius:0 0 10px 10px; font-size:14px; line-height:1.55; font-family:inherit; outline:none; box-sizing:border-box; resize:vertical; overflow-x:hidden;"></textarea>
+                <div id="edit_post_preview_box" class="forum-post-content"
+                     style="display:none; width:100%; min-height:220px; padding:14px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:0 0 10px 10px; box-sizing:border-box; font-size:14px; line-height:1.65;"></div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; flex-wrap:wrap;">
+                <button type="button" class="kunena-btn-secondary" style="cursor:pointer; padding:8px 16px; font-size:13px;" onclick="cancelInlineEdit()">
+                    Abbrechen
+                </button>
+                <button type="submit" class="kunena-btn-primary" style="cursor:pointer; padding:8px 18px; font-size:13px;">
+                    <span class="material-icons" style="font-size:16px;">save</span> Änderungen speichern
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- Modal: Report Post -->
 <dialog id="modal_report_post" class="kunena-dialog">
@@ -661,6 +692,8 @@ function insertForumMarkdown(textareaId, prefix, suffix, placeholder) {
     if (!area) return;
     if (textareaId === 'reply_textarea' && area.style.display === 'none') {
         switchEditorTab('write', 'reply_textarea', 'reply_preview_box', 'tab_reply_write', 'tab_reply_preview');
+    } else if (textareaId === 'edit_post_content' && area.style.display === 'none') {
+        switchEditorTab('write', 'edit_post_content', 'edit_post_preview_box', 'tab_edit_write', 'tab_edit_preview');
     }
     const start = area.selectionStart || 0;
     const end = area.selectionEnd || 0;
@@ -788,10 +821,48 @@ function switchEditorTab(mode, editorId, previewId, btnWriteId, btnPreviewId) {
     }
 }
 
+let activeInlineEditPostId = null;
+
+function cancelInlineEdit() {
+    if (!activeInlineEditPostId) return;
+    const prevContent = document.getElementById('post-content-' + activeInlineEditPostId);
+    const prevSlot = document.getElementById('post-edit-slot-' + activeInlineEditPostId);
+    const card = document.getElementById('inline_edit_card');
+    const host = document.getElementById('inline_edit_host');
+
+    if (card && host) host.appendChild(card);
+    if (prevSlot) prevSlot.style.display = 'none';
+    if (prevContent) prevContent.style.display = '';
+    activeInlineEditPostId = null;
+}
+
 function openEditPostModal(postId, content) {
-    document.getElementById('edit_post_id').value = postId;
-    document.getElementById('edit_post_content').value = content;
-    document.getElementById('modal_edit_post').showModal();
+    if (activeInlineEditPostId && activeInlineEditPostId !== postId) {
+        cancelInlineEdit();
+    }
+    const contentEl = document.getElementById('post-content-' + postId);
+    const slotEl = document.getElementById('post-edit-slot-' + postId);
+    const card = document.getElementById('inline_edit_card');
+    const idInput = document.getElementById('edit_post_id');
+    const textarea = document.getElementById('edit_post_content');
+    if (!contentEl || !slotEl || !card || !idInput || !textarea) return;
+
+    idInput.value = postId;
+    textarea.value = content;
+    switchEditorTab('write', 'edit_post_content', 'edit_post_preview_box', 'tab_edit_write', 'tab_edit_preview');
+
+    contentEl.style.display = 'none';
+    slotEl.appendChild(card);
+    slotEl.style.display = 'block';
+    activeInlineEditPostId = postId;
+
+    // Höhe dynamisch an die Textlänge anpassen (mind. 220px, max. 520px)
+    textarea.style.height = 'auto';
+    const targetH = Math.min(520, Math.max(220, textarea.scrollHeight + 12));
+    textarea.style.height = targetH + 'px';
+
+    slotEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    textarea.focus();
 }
 
 function openReportModal(postId) {

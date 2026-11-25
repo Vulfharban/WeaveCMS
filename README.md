@@ -40,7 +40,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - 🛡️ **Forum-Registrierung, Zitieren/Bearbeiten & Shortcode-Schutz (`plugins/weave-forum-users/views/register.php`, `plugins/weave-forum/views/forum_topic.php`, `plugins/weave-games/plugin.php`):**
   - Klickbarer Link auf *Datenschutzrichtlinien* öffnet ein eigenes DSGVO-Modal (`#forumPrivacyModal`) mit der im CMS gepflegten Datenschutzerklärung sowie Schnellzugang zum Slide-In-Menü *Impressum & Datenschutz*.
   - *Zitieren*- und *Bearbeiten*-Buttons übergeben Beitragstexte jetzt sicher UTF-8-Base64-codiert (kein JS-Syntaxfehler mehr durch Shortcodes/Sonderzeichen); `weave-games`-Shortcode schützt `<code>`/`<pre>`/HTML-Attribute.
-  - Neuer **Überschrift (`H`)**-Button direkt neben **B** und **I** im Forum-Editor (Neues Thema, Antwort-Editor & Bearbeiten-Modal) inkl. Markdown-Überschriften (`#`, `##`, `###`) in Live-Vorschau und Foren-Renderer.
+  - Neuer **Überschrift (`H`)**-Button direkt neben **B** und **I** im Forum-Editor sowie komfortable **Inline-Beitragsbearbeitung** direkt im Beitrag in voller Breite inkl. Toolbar, Live-Vorschau und Markdown-Überschriften (`#`, `##`, `###`).
 - 🎨 **Weave Games – Automatische Theme-Synchronisation (`plugins/weave-games/`):**
   - Gaming-Portal, Shortcode `[weave_games]` und Games-Sektion übernehmen nun automatisch das aktive helle oder dunkle WeaveCMS-Design (`data.json` & `weave_user_theme`).
 - 🚀 **Space Orbit Arcade – 5-Level-Kampagne (`plugins/weave-games/assets/js/games.js`):**
