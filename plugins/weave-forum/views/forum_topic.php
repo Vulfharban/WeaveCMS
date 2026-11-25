@@ -370,10 +370,16 @@ dialog.kunena-dialog::backdrop {
                     </div>
 
                     <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                        <?php
+                        $authorB64 = base64_encode($authorDisplayName);
+                        $contentB64 = base64_encode((string)($post['content'] ?? ''));
+                        ?>
                         <!-- Zitat-Button -->
                         <?php if ($currentUser): ?>
                             <button type="button" class="kunena-btn-secondary" style="padding:4px 10px; font-size:11.5px; cursor:pointer;"
-                                    onclick="insertQuote('<?= htmlspecialchars(addslashes($authorDisplayName)) ?>', <?= htmlspecialchars(json_encode($post['content'])) ?>)">
+                                    data-author-b64="<?= $authorB64 ?>"
+                                    data-content-b64="<?= $contentB64 ?>"
+                                    onclick="insertQuoteFromButton(this)">
                                 <span class="material-icons" style="font-size:14px;">format_quote</span> Zitieren
                             </button>
                         <?php endif; ?>
@@ -381,7 +387,9 @@ dialog.kunena-dialog::backdrop {
                         <!-- Edit Button -->
                         <?php if ($canEdit): ?>
                             <button type="button" class="kunena-btn-secondary" style="padding:4px 10px; font-size:11.5px; cursor:pointer;"
-                                    onclick="openEditPostModal('<?= htmlspecialchars($post['id']) ?>', <?= htmlspecialchars(json_encode($post['content'])) ?>)">
+                                    data-post-id="<?= htmlspecialchars($post['id']) ?>"
+                                    data-content-b64="<?= $contentB64 ?>"
+                                    onclick="openEditPostFromButton(this)">
                                 <span class="material-icons" style="font-size:14px;">edit</span> Bearbeiten
                             </button>
                         <?php endif; ?>
@@ -537,6 +545,32 @@ dialog.kunena-dialog::backdrop {
 </dialog>
 
 <script>
+function decodeBase64Utf8(b64) {
+    if (!b64) return '';
+    try {
+        const binStr = atob(b64);
+        const bytes = new Uint8Array(binStr.length);
+        for (let i = 0; i < binStr.length; i++) {
+            bytes[i] = binStr.charCodeAt(i);
+        }
+        return new TextDecoder('utf-8').decode(bytes);
+    } catch (e) {
+        try { return decodeURIComponent(escape(atob(b64))); } catch (_) { return ''; }
+    }
+}
+
+function insertQuoteFromButton(btn) {
+    const author = decodeBase64Utf8(btn.getAttribute('data-author-b64') || '');
+    const text = decodeBase64Utf8(btn.getAttribute('data-content-b64') || '');
+    insertQuote(author, text);
+}
+
+function openEditPostFromButton(btn) {
+    const postId = btn.getAttribute('data-post-id') || '';
+    const content = decodeBase64Utf8(btn.getAttribute('data-content-b64') || '');
+    openEditPostModal(postId, content);
+}
+
 function insertQuote(author, text) {
     const area = document.getElementById('reply_textarea');
     if (!area) {

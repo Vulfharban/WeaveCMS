@@ -215,7 +215,21 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
                 </a>
             </div>
         ";
+        // Shortcodes innerhalb von <code>, <pre>, <textarea>, <script>, HTML-Tags/Attributen oder Forum-Beiträgen nicht ersetzen
+        $protected = [];
+        $content = preg_replace_callback(
+            '~<(code|pre|textarea|script)\b[^>]*>.*?</\1>|<[^>]+>~is',
+            function ($m) use (&$protected) {
+                $key = '%%WG_PROTECTED_' . count($protected) . '%%';
+                $protected[$key] = $m[0];
+                return $key;
+            },
+            $content
+        );
         $content = str_replace(['[weave_games]', '[games]'], $html, $content);
+        if (!empty($protected)) {
+            $content = strtr($content, $protected);
+        }
     }
 
     return $content;

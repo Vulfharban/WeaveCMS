@@ -30,15 +30,16 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Releases & Downloads (v1.3.4.5)
 
-- 📦 **[WeaveCMS v1.3.4.5 Full Package](releases/weavecms-v1.3.4.5.zip)** (`releases/weavecms-v1.3.4.5.zip`, 12.41 MB) – Complete installation archive for new websites.
+- 📦 **[WeaveCMS v1.3.4.5 Full Package](releases/weavecms-v1.3.4.5.zip)** (`releases/weavecms-v1.3.4.5.zip`, 12.42 MB) – Complete installation archive for new websites.
 - 🔄 **[WeaveCMS v1.3.4.5 Update Package](releases/update-v1.3.4.5.zip)** (`releases/update-v1.3.4.5.zip`, 0.96 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
 
 ### v1.3.4.5 (25. November 2026)
 
-- 🛡️ **Forum-Registrierung – DSGVO-Datenschutz-Link & Modal (`plugins/weave-forum-users/views/register.php`):**
+- 🛡️ **Forum-Registrierung, Zitieren/Bearbeiten & Shortcode-Schutz (`plugins/weave-forum-users/views/register.php`, `plugins/weave-forum/views/forum_topic.php`, `plugins/weave-games/plugin.php`):**
   - Klickbarer Link auf *Datenschutzrichtlinien* öffnet ein eigenes DSGVO-Modal (`#forumPrivacyModal`) mit der im CMS gepflegten Datenschutzerklärung sowie Schnellzugang zum Slide-In-Menü *Impressum & Datenschutz*.
+  - *Zitieren*- und *Bearbeiten*-Buttons übergeben Beitragstexte jetzt sicher UTF-8-Base64-codiert (kein JS-Syntaxfehler mehr durch Shortcodes/Sonderzeichen); `weave-games`-Shortcode schützt `<code>`/`<pre>`/HTML-Attribute.
 - 🎨 **Weave Games – Automatische Theme-Synchronisation (`plugins/weave-games/`):**
   - Gaming-Portal, Shortcode `[weave_games]` und Games-Sektion übernehmen nun automatisch das aktive helle oder dunkle WeaveCMS-Design (`data.json` & `weave_user_theme`).
 - 🚀 **Space Orbit Arcade – 5-Level-Kampagne (`plugins/weave-games/assets/js/games.js`):**
