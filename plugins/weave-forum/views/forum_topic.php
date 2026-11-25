@@ -359,18 +359,38 @@ dialog.kunena-dialog::backdrop {
                         </span>
                         <div style="display:flex; align-items:center; gap:8px;">
                             <?php if (!empty($post['updated_at'])): ?>
-                                <span style="font-style:italic; font-size: 10.5px;">Bearbeitet am <?= htmlspecialchars(substr($post['updated_at'], 0, 16)) ?></span>
+                                <?php
+                                $editedTsTop = strtotime($post['updated_at']);
+                                $editedFmtTop = $editedTsTop ? date('d.m.Y, H:i', $editedTsTop) . ' Uhr' : substr($post['updated_at'], 0, 16);
+                                ?>
+                                <span style="display:inline-flex; align-items:center; gap:3px; font-style:italic; font-size: 11px; color:#64748b;" title="Zuletzt bearbeitet am <?= htmlspecialchars($post['updated_at']) ?>">
+                                    <span class="material-icons" style="font-size:13px;">edit</span>
+                                    Bearbeitet am <?= htmlspecialchars($editedFmtTop) ?>
+                                </span>
                             <?php endif; ?>
                             <a href="#post-<?= htmlspecialchars($post['id']) ?>" style="color:#64748b; text-decoration:none; font-weight:600;">#<?= $idx + 1 ?></a>
                         </div>
                     </div>
 
                     <!-- Post Content -->
-                    <div id="post-content-<?= htmlspecialchars($post['id']) ?>" class="forum-post-content" style="font-size: 14px; line-height: 1.65; margin-bottom: 20px;">
+                    <div id="post-content-<?= htmlspecialchars($post['id']) ?>" class="forum-post-content" style="font-size: 14px; line-height: 1.65; margin-bottom: 16px;">
                         <?= ForumManager::renderFormattedContent($post['content']) ?>
                     </div>
                     <?php if ($canEdit): ?>
                         <div id="post-edit-slot-<?= htmlspecialchars($post['id']) ?>" style="display:none; margin-bottom: 20px;"></div>
+                    <?php endif; ?>
+
+                    <!-- Bearbeitungs-Zeitstempel direkt unter dem Beitrag -->
+                    <?php if (!empty($post['updated_at'])): ?>
+                        <?php
+                        $editedTs = strtotime($post['updated_at']);
+                        $editedFormatted = $editedTs ? date('d.m.Y \u\m H:i', $editedTs) . ' Uhr' : substr($post['updated_at'], 0, 16);
+                        $editedBy = trim((string)($post['edited_by'] ?? ''));
+                        ?>
+                        <div class="kunena-post-edited" style="display:inline-flex; align-items:center; gap:5px; margin-top:2px; margin-bottom:14px; padding:4px 10px; border-radius:6px; background:#f8fafc; border:1px solid #e2e8f0; font-size:11.5px; color:#64748b;">
+                            <span class="material-icons" style="font-size:14px; color:var(--primary, #2e6248);">edit_note</span>
+                            <span>Zuletzt bearbeitet am <strong><?= htmlspecialchars($editedFormatted) ?></strong><?php if ($editedBy !== '' && $currentUser): ?> von <strong><?= htmlspecialchars($editedBy) ?></strong><?php endif; ?></span>
+                        </div>
                     <?php endif; ?>
 
                     <!-- User Signature (nur für eingeloggte Mitglieder und wenn vom Autor freigegeben) -->
@@ -544,9 +564,14 @@ dialog.kunena-dialog::backdrop {
 
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <span style="font-size:12px; color:#64748b;">Tipp: Mit Zitat-Buttons oben kannst du Textstellen direkt zitieren.</span>
-                <button type="submit" class="kunena-btn-primary" style="padding:10px 22px; font-size:13.5px; cursor:pointer;">
-                    <span class="material-icons" style="font-size:16px;">send</span> Antwort absenden
-                </button>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <button type="button" class="kunena-btn-secondary" style="padding:10px 16px; font-size:13.5px; cursor:pointer;" onclick="cancelReply()">
+                        <span class="material-icons" style="font-size:16px;">close</span> Abbrechen
+                    </button>
+                    <button type="submit" class="kunena-btn-primary" style="padding:10px 22px; font-size:13.5px; cursor:pointer;">
+                        <span class="material-icons" style="font-size:16px;">send</span> Antwort absenden
+                    </button>
+                </div>
             </div>
         </form>
     <?php else: ?>
@@ -707,6 +732,20 @@ function insertForumMarkdown(textareaId, prefix, suffix, placeholder) {
     area.setSelectionRange(start + effectivePrefix.length, start + effectivePrefix.length + insertText.length);
 }
 
+function cancelReply() {
+    const area = document.getElementById('reply_textarea');
+    const preview = document.getElementById('reply_preview_box');
+    if (area) {
+        area.value = '';
+        if (area.style.display === 'none') {
+            switchEditorTab('write', 'reply_textarea', 'reply_preview_box', 'tab_reply_write', 'tab_reply_preview');
+        }
+    }
+    if (preview) {
+        preview.innerHTML = '';
+    }
+}
+
 function insertQuote(author, text) {
     const area = document.getElementById('reply_textarea');
     if (!area) {
@@ -715,6 +754,9 @@ function insertQuote(author, text) {
             replyBox.scrollIntoView({ behavior: 'smooth' });
         }
         return;
+    }
+    if (area.style.display === 'none') {
+        switchEditorTab('write', 'reply_textarea', 'reply_preview_box', 'tab_reply_write', 'tab_reply_preview');
     }
     const cleanText = text.replace(/\[quote.*?\[\/quote\]/gs, '').trim();
     area.value += `[quote="${author}"]${cleanText}[/quote]\n\n`;
