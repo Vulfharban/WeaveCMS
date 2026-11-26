@@ -992,3 +992,22 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
   - Datenbank-Vererbung gemäß Installationswahl über `StorageManager` (MySQL mit Tabellen-Prefix oder atomare JSON-Speicherung) inkl. sicherer Trennung sensibler Sync-Zugangsdaten.
   - Verschlüsselte Speicherung von OAuth-Refresh-Tokens und CalDAV-Passwörtern (über Application Key / OpenSSL), strikte CSRF-/XSS-Absicherung und DSGVO-konforme Freigabesteuerung (Verbergen privater Mitarbeiter-Details in öffentlichen Frontend-Kalendern).
 
+### Phase 37: Weave Shop – Rechnungsdaten, PDF-/E-Rechnung (ZUGFeRD EN 16931 & XRechnung) & doppelte Archivierung
+*Ziel: Optional zuschaltbare Rechnungsverwaltung für `weave-shop` mit strukturierter Übergabe an Zahlungsanbieter, GoBD-konformer PDF- und E-Rechnungserstellung nach EN 16931 (wahlweise ZUGFeRD oder XRechnung) sowie revisionssicherer doppelter Archivierung (Online & Lokal).*
+
+- [ ] **37.1 Optionale Rechnungsdaten im Checkout & Zahlungs-Übergabe:**
+  - Im Shop-Admin optional aktivierbare Rechnungsfelder im Checkout: **Firma**, **USt-IdNr.**, **Leitweg-ID** (für B2G/XRechnung) sowie **abweichende Rechnungsadresse** neben der Lieferadresse.
+  - Strukturierte Speicherung von `billing_address` und `shipping_address` direkt an der Bestellung sowie saubere Übergabe an alle Zahlungs-Hooks (`shop_process_payment`, z. B. für Stripe, PayPal oder Mollie).
+- [ ] **37.2 GoBD-konforme PDF-Rechnungserstellung & fortlaufende Nummernkreise (`InvoiceManager`):**
+  - Konfigurierbare, lückenlose und fortlaufende Rechnungsnummern (z. B. `RE-{YYYY}-{NNNN}`), automatische Rechnungskorrektur-/Storno-Belege sowie alle Pflichtangaben nach § 14 UStG (Nettobeträge, MwSt.-Aufschlüsselung 0 % / 7 % / 19 % bzw. § 19 UStG-Kleinunternehmerhinweis, Leistungs-/Lieferdatum, Bankverbindung & Zahlungsreferenz).
+  - Automatische PDF-Generierung nach Bestellabschluss bzw. Zahlungseingang mit optionalem automatischem E-Mail-Versand als Anhang über `SimpleMailer` (`libs/php/Mailer.php`) sowie manuellem Download-/Vorschau-Button im Bestell-Admin.
+- [ ] **37.3 E-Rechnung wahlweise als PDF + ZUGFeRD (EN 16931) oder PDF + XRechnung:**
+  - Im Shop-Admin konfigurierbares Standardformat (sowie optional durch Kunden/B2B-Checkout wählbar):
+    - **Klassisches PDF:** Standard-Rechnungsdokument für Privatkunden.
+    - **PDF + ZUGFeRD (EN 16931 / PDF/A-3):** Hybride E-Rechnung mit direkt in der PDF/A-3-Datei eingebettetem, EN-16931-konformem CII-XML (`factur-x.xml`).
+    - **PDF + XRechnung (EN 16931 / UBL oder CII XML):** Generierung einer separaten strukturierten XRechnung-XML-Datei (inkl. `BuyerReference` / Leitweg-ID für Behörden und B2B-Portale) parallel zur lesbaren PDF-Sichtkomponente.
+  - Integrierte Pflichtfeld- und Schema-Prüfung (u. a. Verkäufer-Steuernummer/USt-IdNr., Handelsregister/Anschrift, EN-16931-Business-Terms) vor Ausgabe und Versand.
+- [ ] **37.4 Doppelte Archivierung (Online & Lokal) & Buchhaltungs-Export:**
+  - **Online-Archiv (Server):** Unveränderliche Ablage aller erzeugten Rechnungsdateien (PDF, ZUGFeRD-PDF/A-3, XRechnung-XML) in einem vor Direktaufruf geschützten Server-Verzeichnis (`data/invoices/YYYY/MM/` mit Zugriffssperre) inkl. SHA-256-Integritätshash und Metadaten-Index über `StorageManager` (MySQL/JSON-Vererbung).
+  - **Lokale / Externe Archivierung:** Ein-Klick-Monats-/Jahres-ZIP-Download (alle PDFs & XMLs inkl. CSV-/DATEV-Buchungsjournal für lokale Buchhaltung/Steuerberater), optionale automatische Kopie (BCC) an ein Buchhaltungs-Postfach sowie optionaler Sync auf lokalen/externen Zielspeicher (z. B. WebDAV / Nextcloud).
+
