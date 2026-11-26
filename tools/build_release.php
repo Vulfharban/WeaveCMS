@@ -69,7 +69,8 @@ function buildReleaseZip(string $root, string $version, string $buildType): arra
         '~^data/stats\.json$~',
         '~^data/.*\.sqlite$~',
         '~^images/uploads/(?!(\.gitkeep|\.htaccess)$).*~',
-        '~^downloads/(?!(\.gitkeep|\.htaccess)$).*~'
+        '~^downloads/(?!(\.gitkeep|\.htaccess)$).*~',
+        '~^uploads/games/(?!(\.gitkeep|\.htaccess)$).*~'
     ];
 
     // Für Update-Pakete werden ausschließlich Kern-Dateien aufgenommen

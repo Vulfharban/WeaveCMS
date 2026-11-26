@@ -267,6 +267,9 @@ class GameUserManager {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             @session_start();
         }
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            @session_regenerate_id(true);
+        }
         $_SESSION['game_player_logged_in'] = true;
         $_SESSION['game_player_id'] = $player['id'];
         $_SESSION['game_player_username'] = $player['username'];

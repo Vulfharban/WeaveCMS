@@ -110,7 +110,15 @@ switch ($action) {
             exit;
         }
 
-        $payload = !empty($jsonBody) ? $jsonBody : $_POST;
+        $rawPayload = !empty($jsonBody) ? $jsonBody : $_POST;
+        $payload = [
+            'username' => $rawPayload['username'] ?? '',
+            'email'    => $rawPayload['email'] ?? '',
+            'password' => $rawPayload['password'] ?? '',
+            'nickname' => $rawPayload['nickname'] ?? '',
+            'role'     => GameUserManager::ROLE_PLAYER,
+            'is_whitelisted' => false,
+        ];
         $error = null;
         $newPlayer = GameUserManager::createPlayer($payload, $error);
 

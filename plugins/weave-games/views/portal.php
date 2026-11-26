@@ -188,107 +188,148 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
         </section>
     <?php endif; ?>
 
-    <!-- Spiele-Sektion 1: Multiplayer Voxel World (Server / Client) -->
-    <section class="wg-section">
-        <h2 class="wg-section-title">
-            <span>🏰</span>
-            <span>Voxel Adventure (Server/Client)</span>
-        </h2>
+    <?php
+    $activeGames = array_values(array_filter($games, fn($g) => !empty($g['active'])));
+    usort($activeGames, static fn($a, $b) => ((int)($a['sort_order'] ?? 50)) <=> ((int)($b['sort_order'] ?? 50)));
+    $runtimeOptions = GameRolloutManager::getRuntimeOptions();
+    $playSlug = trim((string)($_GET['play'] ?? ''));
+    ?>
 
-        <div class="wg-game-card">
-            <div class="wg-game-body">
-                <div class="wg-game-details">
-                    <h3>Voxel Adventure World</h3>
-                    <p class="wg-game-desc">
-                        Multiplayer Voxel Sandbox RPG mit vollständiger Server/Client-Architektur, prozedural generierten Welten und optimiertem Netzwerkprotokoll.
-                    </p>
+    <?php foreach ($activeGames as $g): ?>
+        <?php
+        $slug = (string)($g['slug'] ?? '');
+        $rtKey = (string)($g['runtime_type'] ?? 'html5_js');
+        $rtInfo = $runtimeOptions[$rtKey] ?? ['badge' => strtoupper($rtKey), 'color' => '#334155'];
+        $tags = is_array($g['tech_tags'] ?? null) ? $g['tech_tags'] : [];
+        $embedUrl = trim((string)($g['embed_url'] ?? ''));
+        $runnerUrl = $embedUrl !== '' ? (!empty($g['enable_coop_coep']) ? ('?page=games&runner=' . urlencode($slug)) : $embedUrl) : '';
+        $latestRel = GameRolloutManager::getLatestRelease($slug, 'windows_x64', 'stable');
+        $gameServers = array_filter($servers, fn($s) => ($s['game_slug'] ?? '') === $slug && !empty($s['active']));
+        $autoStart = ($playSlug !== '' && $playSlug === $slug);
+        ?>
+        <section class="wg-section" id="game-<?= htmlspecialchars($slug) ?>">
+            <h2 class="wg-section-title">
+                <span><?= htmlspecialchars(strlen((string)($g['icon'] ?? '')) <= 4 ? (string)$g['icon'] : '🎮') ?></span>
+                <span><?= htmlspecialchars((string)$g['title']) ?></span>
+                <span style="margin-left: 8px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; color: #fff; background: <?= htmlspecialchars($rtInfo['color']) ?>;">
+                    <?= htmlspecialchars($rtInfo['badge']) ?>
+                </span>
+            </h2>
 
-                    <!-- Client-Download Info -->
-                    <?php 
-                    $latestRel = GameRolloutManager::getLatestRelease('voxel-adventure', 'windows_x64', 'stable');
-                    ?>
-                    <div class="wg-release-info">
-                        <strong>Neueste Client-Version:</strong>
+            <div class="wg-game-card" style="padding: 20px;">
+                <?php if (!empty($g['banner'])): ?>
+                    <div style="margin-bottom: 16px; border-radius: 10px; overflow: hidden; max-height: 280px;">
+                        <img src="<?= htmlspecialchars((string)$g['banner']) ?>" alt="<?= htmlspecialchars((string)$g['title']) ?>" style="width: 100%; height: 240px; object-fit: cover; display: block;">
+                    </div>
+                <?php endif; ?>
+
+                <div class="wg-game-body" style="<?= (empty($gameServers) && $embedUrl === '' && $slug !== 'space-orbit') ? 'display:block;' : '' ?>">
+                    <div class="wg-game-details">
+                        <?php if (!empty($g['genre'])): ?>
+                            <div style="font-size: 12px; font-weight: 700; color: var(--primary, #2e6248); margin-bottom: 4px;"><?= htmlspecialchars((string)$g['genre']) ?></div>
+                        <?php endif; ?>
+                        <p class="wg-game-desc"><?= htmlspecialchars((string)$g['description']) ?></p>
+
+                        <?php if (!empty($tags)): ?>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+                                <?php foreach ($tags as $tg): ?>
+                                    <span style="padding: 2px 9px; border-radius: 6px; font-size: 11px; font-weight: 600; background: rgba(100,116,139,0.14);"><?= htmlspecialchars((string)$tg) ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($g['system_requirements'])): ?>
+                            <div style="font-size: 12px; color: var(--wg-text-muted); margin-bottom: 12px;">
+                                <strong>Systemanforderungen:</strong> <?= htmlspecialchars((string)$g['system_requirements']) ?>
+                            </div>
+                        <?php endif; ?>
+
                         <?php if ($latestRel): ?>
-                            <span class="wg-version-pill">v<?= htmlspecialchars($latestRel['version']) ?></span>
-                            <span class="wg-file-size">(<?= htmlspecialchars($latestRel['file_size']) ?>)</span>
-                        <?php else: ?>
-                            <span>Kein Release hinterlegt</span>
+                            <div class="wg-release-info">
+                                <strong>Neueste Client-Version:</strong>
+                                <span class="wg-version-pill">v<?= htmlspecialchars((string)$latestRel['version']) ?></span>
+                                <?php if (!empty($latestRel['file_size'])): ?>
+                                    <span class="wg-file-size">(<?= htmlspecialchars((string)$latestRel['file_size']) ?>)</span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="wg-game-actions">
+                                <a href="<?= htmlspecialchars((string)$latestRel['download_url']) ?>" class="wg-btn wg-btn-primary wg-btn-large">
+                                    ⬇️ Client herunterladen (<?= htmlspecialchars((string)$latestRel['version']) ?>)
+                                </a>
+                                <?php if (!empty($latestRel['patch_notes'])): ?>
+                                    <button type="button" class="wg-btn wg-btn-outline" onclick="alert(<?= htmlspecialchars(json_encode((string)$latestRel['patch_notes']), ENT_QUOTES) ?>)">
+                                        📋 Patch-Notes
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                         <?php endif; ?>
                     </div>
 
-                    <?php if ($latestRel): ?>
-                        <div class="wg-game-actions">
-                            <a href="<?= htmlspecialchars($latestRel['download_url']) ?>" class="wg-btn wg-btn-primary wg-btn-large">
-                                ⬇️ Game-Client herunterladen (<?= htmlspecialchars($latestRel['version']) ?>)
-                            </a>
-                            <button type="button" class="wg-btn wg-btn-outline" onclick="alert(<?= json_encode($latestRel['patch_notes']) ?>)">
-                                📋 Patch-Notes
-                            </button>
+                    <?php if (!empty($gameServers) && !empty($cfg['enable_public_server_status'])): ?>
+                        <div class="wg-server-box">
+                            <h4 style="margin: 0 0 10px 0; color: var(--wg-text); font-size: 14px;">📡 Live Server-Status</h4>
+                            <?php foreach ($gameServers as $fs):
+                                $isOnline = (($fs['status'] ?? '') === 'online');
+                            ?>
+                                <div class="wg-server-item">
+                                    <div class="wg-server-info">
+                                        <span class="wg-status-dot <?= $isOnline ? 'dot-online' : 'dot-offline' ?>"></span>
+                                        <strong><?= htmlspecialchars((string)$fs['name']) ?></strong>
+                                    </div>
+                                    <div class="wg-server-meta">
+                                        <code><?= htmlspecialchars((string)$fs['host']) ?>:<?= (int)$fs['port'] ?></code>
+                                        <span class="wg-ping-badge"><?= $isOnline ? ($fs['last_ping_ms'] . ' ms') : 'Offline' ?></span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
 
-                <!-- Server-Status für Voxel Adventure -->
-                <div class="wg-server-box">
-                    <h4 style="margin: 0 0 10px 0; color: var(--wg-text); font-size: 14px;">📡 Live Server-Status</h4>
-                    <?php 
-                    $voxelServers = array_filter($servers, fn($s) => $s['game_slug'] === 'voxel-adventure' && !empty($s['active']));
-                    ?>
-                    <?php if (empty($voxelServers)): ?>
-                        <div style="color: var(--wg-text-muted); font-size: 12px;">Keine aktiven Game-Server eingetragen.</div>
-                    <?php else: ?>
-                        <?php foreach ($voxelServers as $fs): 
-                            $isOnline = (($fs['status'] ?? '') === 'online');
-                        ?>
-                            <div class="wg-server-item">
-                                <div class="wg-server-info">
-                                    <span class="wg-status-dot <?= $isOnline ? 'dot-online' : 'dot-offline' ?>"></span>
-                                    <strong><?= htmlspecialchars($fs['name']) ?></strong>
-                                </div>
-                                <div class="wg-server-meta">
-                                    <code><?= htmlspecialchars($fs['host']) ?>:<?= (int)$fs['port'] ?></code>
-                                    <span class="wg-ping-badge"><?= $isOnline ? ($fs['last_ping_ms'] . ' ms') : 'Offline' ?></span>
-                                </div>
+                <?php if ($embedUrl !== ''): ?>
+                    <?php $frameId = 'wgFrame_' . preg_replace('/[^a-zA-Z0-9_]/', '_', $slug); ?>
+                    <div style="margin-top: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap;">
+                            <span style="font-size: 12px; color: var(--wg-text-muted);">
+                                Direkt im Browser ausführbar (<?= htmlspecialchars($rtInfo['label']) ?><?= !empty($g['enable_coop_coep']) ? ' • COOP/COEP Multi-Thread' : '' ?>)
+                            </span>
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" class="wg-btn wg-btn-primary" onclick="var f=document.getElementById('<?= $frameId ?>'); f.src=<?= htmlspecialchars(json_encode($runnerUrl), ENT_QUOTES) ?>; f.style.display='block';">
+                                    ▶ Jetzt starten / Neu laden
+                                </button>
+                                <button type="button" class="wg-btn wg-btn-outline" onclick="var f=document.getElementById('<?= $frameId ?>'); if(f && f.requestFullscreen) f.requestFullscreen();">
+                                    ⛶ Vollbild
+                                </button>
+                                <a href="<?= htmlspecialchars($runnerUrl) ?>" target="_blank" rel="noopener noreferrer" class="wg-btn wg-btn-outline">↗ Tab</a>
                             </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
+                        </div>
+                        <iframe id="<?= $frameId ?>"
+                                src="<?= $autoStart ? htmlspecialchars($runnerUrl) : 'about:blank' ?>"
+                                style="width: 100%; height: 540px; border: 1px solid var(--wg-border); border-radius: 10px; background: #020617; display: <?= $autoStart ? 'block' : 'none' ?>;"
+                                allow="fullscreen; gamepad; pointer-lock; autoplay"
+                                sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms"
+                                allowfullscreen></iframe>
+                    </div>
+                <?php elseif ($slug === 'space-orbit'): ?>
+                    <div class="wg-browser-game-card" style="margin-top: 16px; border: none; padding: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="color: var(--wg-text-muted); font-size: 13px;">5 Kampagnen-Level mit zerstörbaren Rand-Geschützen, Waffen-Upgrades und 2-Phasen-Bossen.</span>
+                            <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">▶ Kampagne starten</button>
+                        </div>
+                        <div id="spaceOrbitContainer" style="width: 100%; height: 460px; background: #020617; border-radius: 8px; border: 1px solid var(--wg-border); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                            <canvas id="spaceOrbitCanvas" width="800" height="460" style="display: none; width: 100%; height: 100%; cursor: crosshair;"></canvas>
+                            <div id="spaceOrbitIntro" style="text-align: center; color: #94a3b8; padding: 16px;">
+                                <span style="font-size: 48px; display: block; margin-bottom: 8px;">🛸</span>
+                                <strong style="color: #f8fafc; font-size: 16px;">Space Orbit – 5-Level Boss-Kampagne</strong><br>
+                                <span style="font-size: 13px;">Steuerung: Maus / Touch oder WASD / Pfeiltasten &bull; Schießen: Klick oder Leertaste</span><br><br>
+                                <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">Kampagne jetzt starten</button>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
-        </div>
-    </section>
-
-    <!-- Spiele-Sektion 2: Browsergames (HTML5 / WebGL) -->
-    <section class="wg-section">
-        <h2 class="wg-section-title">
-            <span>🚀</span>
-            <span>Browsergames (Direkt im Web spielbar)</span>
-        </h2>
-
-        <div class="wg-browser-game-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <div>
-                    <h3 style="margin: 0; color: var(--wg-primary);">Space Orbit – 2D Arcade Space Shooter</h3>
-                    <p style="margin: 4px 0 0 0; color: var(--wg-text-muted); font-size: 13px;">5 Kampagnen-Level (Weltraum, Asteroiden-Canyon, Planeten-Oberfläche, Planeten-Basis &amp; Orbital-Zitadelle) mit zerstörbaren Rand-Geschützen, Waffen-Upgrades und 2-Phasen-Bossen.</p>
-                </div>
-                <div>
-                    <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">▶ Kampagne starten</button>
-                </div>
-            </div>
-
-            <!-- Canvas Container -->
-            <div id="spaceOrbitContainer" style="width: 100%; height: 460px; background: #020617; border-radius: 8px; border: 1px solid var(--wg-border); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
-                <canvas id="spaceOrbitCanvas" width="800" height="460" style="display: none; width: 100%; height: 100%; cursor: crosshair;"></canvas>
-                <div id="spaceOrbitIntro" style="text-align: center; color: #94a3b8; padding: 16px;">
-                    <span style="font-size: 48px; display: block; margin-bottom: 8px;">🛸</span>
-                    <strong style="color: #f8fafc; font-size: 16px;">Space Orbit – 5-Level Boss-Kampagne</strong><br>
-                    <span style="font-size: 13px;">Fliege frei im Raum, zerstöre Rand-Geschütze, sammle Waffen-Upgrades (W) &amp; besiege alle 5 Sektor-Bosse!</span><br>
-                    <span style="font-size: 12px; color: #64748b;">Steuerung: Maus / Touch oder WASD / Pfeiltasten (2D-Flug) &bull; Schießen: Klick oder Leertaste (Einzelschuss, kein Dauerfeuer)</span><br><br>
-                    <button type="button" class="wg-btn wg-btn-primary" onclick="initSpaceOrbitGame()">Kampagne jetzt starten</button>
-                </div>
-            </div>
-        </div>
-    </section>
+        </section>
+    <?php endforeach; ?>
 
 </main>
 

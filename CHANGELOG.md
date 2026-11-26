@@ -6,6 +6,33 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ---
 
+## [v1.3.4.6] - 26. November 2026
+
+### 🎮 Weave-Games Katalog & Galerie-Layouts, Globale Plugin-DB-Vererbung, Forum-Privatsphäre/PN & Helpdesk-Ausbau
+
+- 🎮 **Weave Games – Dynamischer Spiele-/App-Katalog & Galerie-Startseite (`plugins/weave-games/` & `api/games.php`):**
+  - **Vollständiger Katalog im Admin-Bereich (`admin/settings.php`, `GameRolloutManager.php`):** Spiele & Anwendungen frei anlegen, bearbeiten und löschen inkl. Laufzeit-Typen (`HTML5 / JS`, `WebAssembly (WASM)`, `Rust → WASM`, `C++ → Emscripten / WASM`, `Java → Web (CheerpJ / TeaVM)`, `Native Rust/C++/Java`, `Externe Web-App`).
+  - **Sicherer ZIP- & Cover-Upload:** Externe JS-/HTML5-/WASM-/Java-Web-Pakete als `.zip` hochladen (Whitelist für statische Web-Assets, Blockierung von `.php` via `.htaccess`, automatische `index.html`-Erkennung) oder per URL einbinden.
+  - **Isolierter COOP/COEP-Runner (`?page=games&runner=<slug>`):** Optionale `Cross-Origin-Opener-Policy` & `Cross-Origin-Embedder-Policy`-Header für WASM Multi-Threading (`SharedArrayBuffer`).
+  - **Startseiten-Layouts wie in der Bildergalerie (`views/home_section.php`, `GameConfigManager.php`):** Wählbar zwischen *Ambient Blur*, *Karten-Raster* (2/3/4 Spalten), *Showcase* und *Kompakter Liste*, mit Kategorie-Filtern, Live-Server-Badge und Lightbox-Spieleplayer-Modal.
+  - **Dynamisches Portal & Sicherheits-/Performance-Fixes:** Dynamische Darstellung aller Katalog-Spiele in `views/portal.php`, 30-Sekunden-Ping-Cache in `GameServerManager::refreshAllServerStatuses()`, `session_regenerate_id()` in `GameUserManager::login()` sowie geschützte Spieler-Rolle in `api/games.php` (`role=player`).
+- 🗄️ **Globale Datenbank-Vererbung für ALLE Plugins (`libs/php/storage/StorageManager.php`, alle Plugins):**
+  - Neue zentrale Plugin-Speicherschicht (`StorageManager::loadPluginData()` / `savePluginData()` mit Tabelle `{prefix}plugin_data` in MySQL und nahtlosem JSON-Fallback bzw. automatischer Erstübernahme bestehender JSON-Dateien).
+  - `weave-forum`, `weave-forum-users`, `weave-helpdesk`, `weave-shop`, `weave-inventory`, `weave-games` und `universal-integrations` erben den bei der Installation gewählten Datenbanktreiber automatisch ohne manuelle Nachkonfiguration.
+- 💬 **Forum – Mitgliederprofile, Privatsphäre, Private Nachrichten (PN), E-Mail-Kontakt & Unsichtbar-Modus (`plugins/weave-forum-users/`, `plugins/weave-forum/`):**
+  - Geschützte Mitgliederprofile (`?page=forum&view=user&id=...`, strikt nur für angemeldete Mitglieder sichtbar) mit Wohnort, Interessen, Website und aktuellen Themen.
+  - Granulare Privatsphäre-Schalter pro Feld (`show_email` als Opt-in, `show_location`, `show_interests`, `show_website`, `allow_pm`, `allow_email_contact`) sowie Admin-/Moderatoren-Unsichtbar-Modus (`hide_online_status` + `forum_online` Tracking).
+  - **Private Nachrichten (`ForumMessageManager.php`, `?page=forum&view=messages`):** Posteingang, Gesendet, Antworten, Löschen, Zähler ungelesener Nachrichten und Direktformular im Profil.
+  - **Kontaktaufnahme per E-Mail:** Kontaktformular im Mitgliederprofil über `SimpleMailer`, ohne die Empfänger-Adresse preiszugeben.
+  - Einmalige „Zuletzt bearbeitet“-Anzeige unter bearbeiteten Beiträgen mit Auflösung des Admin-/Moderatoren-Alias-Namens (`ForumUserManager::getDisplayName()`).
+- 🎧 **Weave Helpdesk – Audit, Gruppierung, Kritisch-Alarme & neue Status/Typen (`plugins/weave-helpdesk/`):**
+  - **Sofort-Alarmierung bei Priorität „Kritisch“ (`HelpdeskAlertManager.php`):** Automatischer Versand dringender E-Mails sowie konfigurierbarer SMS (`Webhook`, `Twilio`, `seven.io`) und WhatsApp-Nachrichten (`Webhook/n8n/WAHA`, `Meta Cloud API`, `Twilio WA`, `CallMeBot`) inkl. Test-Alarm-Button im Admin-Bereich.
+  - **Neue Status & Aufgabentypen (alphabetisch sortiert):** Status **`Termin gesetzt`** ergänzt (insgesamt 7 Status inkl. direkter Auswahl im Ticket); Aufgabentypen um **`Bestellung`**, **`Reklamation`** und **`Rückruf`** erweitert (`HelpdeskManager::getTicketTypes()`).
+  - **Übersicht & Workflow:** Gruppierung nach *Firma / Benutzer*, geschlossene Tickets standardmäßig ausgeblendet mit Button *„Geschlossene Tickets“*, Sortierung nach Eingangsreihenfolge, automatische E-Mail-Benachrichtigung an Einsender bzw. Dienstleister sowie auswählbare Stille-/Interne-Antwort-Option je Beitrag für interne Helpdesk-User.
+  - **Sicherheit & Fixes:** Rollen-Lock bei Selbstregistrierung (`customer`), Mandanten-Berechtigungsprüfung in `addActivity()` / `changeStatus()`, URL-Validierung für Webhooks, `session_regenerate_id()`, maskiertes `imap_pass`-Feld und Entfernen der Demo-Vertragshistorie.
+
+---
+
 ## [v1.3.4.5] - 25. November 2026
 
 ### 🎮 Forum-DSGVO-Link, Weave-Games Theme-Anpassung & Space Orbit 5-Level-Ausbau

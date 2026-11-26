@@ -27,7 +27,14 @@ class GameConfigManager {
             'enable_public_server_status' => true,
             'default_ssh_port'            => 22,
             'api_enabled'                 => true,
-            'api_key'                     => 'wgk_' . bin2hex(random_bytes(16))
+            'api_key'                     => 'wgk_' . bin2hex(random_bytes(16)),
+            'home_layout'                 => 'ambient_blur',
+            'home_columns'                => 3,
+            'home_max_items'              => 6,
+            'home_show_filters'           => true,
+            'home_sort'                   => 'manual',
+            'home_play_modal'             => true,
+            'home_show_server_status'     => true
         ];
 
         if (class_exists('StorageManager')) {

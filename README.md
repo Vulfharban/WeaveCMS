@@ -28,12 +28,23 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 - **31-phase development roadmap:** [`libs/docs/roadmap.md`](libs/docs/roadmap.md)
 - **Complete Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 
-## Releases & Downloads (v1.3.4.5)
+## Releases & Downloads (v1.3.4.6)
 
-- 📦 **[WeaveCMS v1.3.4.5 Full Package](releases/weavecms-v1.3.4.5.zip)** (`releases/weavecms-v1.3.4.5.zip`, 12.42 MB) – Complete installation archive for new websites.
-- 🔄 **[WeaveCMS v1.3.4.5 Update Package](releases/update-v1.3.4.5.zip)** (`releases/update-v1.3.4.5.zip`, 0.96 MB) – Core system files for upgrading existing installations.
+- 📦 **[WeaveCMS v1.3.4.6 Full Package](releases/weavecms-v1.3.4.6.zip)** (`releases/weavecms-v1.3.4.6.zip`, 12.47 MB) – Complete installation archive for new websites.
+- 🔄 **[WeaveCMS v1.3.4.6 Update Package](releases/update-v1.3.4.6.zip)** (`releases/update-v1.3.4.6.zip`, 1.01 MB) – Core system files for upgrading existing installations.
 
 ## Changelog & Recent Updates
+
+### v1.3.4.6 (26. November 2026)
+
+- 🎮 **Weave Games – Externer Spiele-/App-Katalog & Galerie-Startseite (`plugins/weave-games/`, `api/games.php`):**
+  - Eigene Spiele und Anwendungen (`HTML5/JS`, `WebAssembly`, `Rust → WASM`, `C++ → WASM`, `Java → Web`, `Native Rust/C++/Java`, `Web-App`) inklusive sicherem `.zip`- & Cover-Upload, isoliertem COOP/COEP-Runner für WASM-Threads und Startseiten-Layouts im Stil der Bildergalerie (*Ambient Blur*, *Raster*, *Showcase*, *Liste* + Lightbox-Player).
+- 🗄️ **Globale Datenbank-Vererbung für alle Plugins (`StorageManager`):**
+  - Zentrales Plugin-Daten-Backend (`{prefix}plugin_data` in MySQL mit automatischem JSON-Import & Fallback), sodass alle Plugins den bei der Installation gewählten Datenbanktreiber automatisch übernehmen.
+- 💬 **Forum – Mitgliederprofile, Granulare Privatsphäre, PN-Postfach & E-Mail-Kontakt (`weave-forum`, `weave-forum-users`):**
+  - Profilansicht nur für registrierte Mitglieder, individuelle Sichtbarkeit je Feld (inkl. E-Mail-Opt-in), Private Nachrichten, E-Mail-Kontaktformular, Admin-/Moderatoren-Unsichtbar-Modus sowie einmalige Bearbeitet-Anzeige mit Alias-Namen.
+- 🎧 **Weave Helpdesk – Audit, Gruppierung & Kritisch-Alarme (`weave-helpdesk`):**
+  - Sofort-Alarmierung per dringender E-Mail, SMS & WhatsApp bei Priorität *Kritisch*, Status *„Termin gesetzt“*, Aufgabentypen *Bestellung*, *Reklamation*, *Rückruf* (alphabetische Dropdowns), Gruppierung nach Firma/Benutzer, Button *„Geschlossene Tickets“*, Eingangs-Sortierung und auswählbare Stille-/Interne-Antwort-Option.
 
 ### v1.3.4.5 (25. November 2026)
 
@@ -254,7 +265,7 @@ WeaveCMS is a fast, modern and dependency-free content management system (PHP 8.
 
 ## Installation
 
-1. Download **[weavecms-v1.3.4.5.zip](releases/weavecms-v1.3.4.5.zip)** or copy the repository files to your web server (PHP 8.0+).
+1. Download **[weavecms-v1.3.4.6.zip](releases/weavecms-v1.3.4.6.zip)** or copy the repository files to your web server (PHP 8.0+).
 2. Open `install.php` in your browser and follow the guided setup wizard.
 
 ## License

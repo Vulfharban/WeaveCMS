@@ -243,23 +243,36 @@ class GameServerManager {
     }
 
     /**
-     * Aktualisiert den Status aller registrierten Server.
+     * Aktualisiert den Status aller registrierten Server (mit 30-Sekunden-Cache, außer $force = true).
      */
-    public static function refreshAllServerStatuses(): array {
+    public static function refreshAllServerStatuses(bool $force = false): array {
         $servers = self::getServers();
+        $now = time();
+        $changed = false;
+
         foreach ($servers as &$s) {
             if (empty($s['active'])) {
-                $s['status'] = 'disabled';
+                if (($s['status'] ?? '') !== 'disabled') {
+                    $s['status'] = 'disabled';
+                    $changed = true;
+                }
+                continue;
+            }
+            $lastChecked = !empty($s['last_checked']) ? (strtotime((string)$s['last_checked']) ?: 0) : 0;
+            if (!$force && $lastChecked > 0 && ($now - $lastChecked) < 30) {
                 continue;
             }
             $res = self::pingServer($s['host'], (int)$s['port']);
             $s['status'] = $res['status'];
             $s['last_ping_ms'] = $res['ping_ms'];
             $s['last_checked'] = date('Y-m-d H:i:s');
+            $changed = true;
         }
         unset($s);
 
-        self::saveServers($servers);
+        if ($changed) {
+            self::saveServers($servers);
+        }
         return $servers;
     }
 

@@ -1,8 +1,8 @@
 {
-    "latest_version": "1.3.4.5",
-    "download_url": "https://github.com/Vulfharban/WeaveCMS/releases/tag/v1.3.4.5",
-    "update_download_url": "https://github.com/Vulfharban/WeaveCMS/releases/download/v1.3.4.5/update-v1.3.4.5.zip",
+    "latest_version": "1.3.4.6",
+    "download_url": "https://github.com/Vulfharban/WeaveCMS/releases/tag/v1.3.4.6",
+    "update_download_url": "https://github.com/Vulfharban/WeaveCMS/releases/download/v1.3.4.6/update-v1.3.4.6.zip",
     "min_core_version": "1.3.4.4",
-    "changelog": "WeaveCMS v1.3.4.5 – Forum-DSGVO-Link, Editor-Überschriften (H), Inline-Beitragsbearbeitung, Bearbeitungs-Zeitstempel & Antwort-Abbrechen, Weave-Games Theme-Sync & Space Orbit 5-Level-Kampagne",
-    "update_sha256": "ac44f33f0be965f8c8f3ed04fc576c7e9ee54652dfd8060c42fdda5dbc5eee84"
+    "changelog": "WeaveCMS v1.3.4.6 – Forum-Privatsphäre/PN/E-Mail, globale Plugin-DB-Vererbung, Helpdesk-Upgrade & Kritisch-Alarme (SMS/WA/Mail), Weave-Games Katalog (JS/WASM/Rust/C++/Java) & Galerie-Layouts",
+    "update_sha256": "f0c621aeb32f553a6f382941d7eb4228b62d0240c8ad43cbdb6dccd25a78a604"
 }

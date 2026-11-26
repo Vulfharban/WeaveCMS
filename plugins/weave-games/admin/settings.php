@@ -22,6 +22,12 @@ $servers = GameServerManager::getServers();
 $games = GameRolloutManager::getGames();
 $releases = GameRolloutManager::getReleases();
 $players = GameUserManager::getPlayers();
+$runtimeOptions = GameRolloutManager::getRuntimeOptions();
+$categoryOptions = GameRolloutManager::getCategoryOptions();
+$editSlug = trim((string)($_GET['edit_game'] ?? ''));
+$editGame = $editSlug !== '' ? GameRolloutManager::getGame($editSlug) : null;
+$wgAdminMsg = $_SESSION['wg_admin_msg'] ?? null;
+unset($_SESSION['wg_admin_msg']);
 
 // KPI Berechnungen
 $onlineServers = count(array_filter($servers, fn($s) => ($s['status'] ?? '') === 'online'));
@@ -51,6 +57,12 @@ $totalReleases = count($releases);
             </a>
         </div>
     </div>
+
+    <?php if (is_array($wgAdminMsg) && !empty($wgAdminMsg['text'])): ?>
+        <div style="margin-bottom: 16px; padding: 11px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; background: <?= !empty($wgAdminMsg['ok']) ? '#f0fdf4' : '#fef2f2' ?>; border-left: 4px solid <?= !empty($wgAdminMsg['ok']) ? '#16a34a' : '#dc2626' ?>; color: <?= !empty($wgAdminMsg['ok']) ? '#166534' : '#991b1b' ?>;">
+            <?= htmlspecialchars((string)$wgAdminMsg['text']) ?>
+        </div>
+    <?php endif; ?>
 
     <!-- Schnell-Kennzahlen -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
@@ -507,59 +519,221 @@ $totalReleases = count($releases);
         </div>
 
     <!-- ===================================================================== -->
-    <!-- SUBTAB 4: SPIELE-KATALOG                                              -->
+    <!-- SUBTAB 4: SPIELE-KATALOG (JS, WASM, Rust, C++, Java & Web-Apps)       -->
     <!-- ===================================================================== -->
     <?php elseif ($activeSubtab === 'games'): ?>
-        <h4 style="margin: 0 0 14px 0; color: #1e293b; font-size: 16px; font-weight: 700;">Verwaltete Spiele & Titel</h4>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
-            <?php foreach ($games as $g): ?>
-                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                        <span style="font-size: 24px;">🎮</span>
+        <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 22px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 14px;">
+                <h4 style="margin: 0; color: #1e293b; font-size: 16px; font-weight: 700;">
+                    <?= $editGame ? '✏️ Spiel / Anwendung bearbeiten: ' . htmlspecialchars((string)$editGame['title']) : '➕ Neues Spiel / neue Anwendung anlegen (JS, WASM, Rust, C++, Java)' ?>
+                </h4>
+                <?php if ($editGame): ?>
+                    <a href="?tab=tab-plugins&plugin_settings=weave-games&game_subtab=games#tab-plugins" class="btn btn-light" style="padding: 4px 10px; font-size: 12px; text-decoration: none;">Neues anlegen</a>
+                <?php endif; ?>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" action="?tab=tab-plugins&plugin_settings=weave-games&game_subtab=games#tab-plugins">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                <input type="hidden" name="action" value="game_save">
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Titel *</label>
+                        <input type="text" name="title" required class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= htmlspecialchars((string)($editGame['title'] ?? '')) ?>" placeholder="z. B. Rust Raytracer WASM">
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Slug (Eindeutige ID)</label>
+                        <input type="text" name="slug" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px; background: <?= $editGame ? '#f8fafc' : '#ffffff' ?>;" value="<?= htmlspecialchars((string)($editGame['slug'] ?? '')) ?>" <?= $editGame ? 'readonly' : '' ?> placeholder="auto aus Titel falls leer">
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Kategorie</label>
+                        <select name="category" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <?php foreach ($categoryOptions as $cKey => $cLabel): ?>
+                                <option value="<?= htmlspecialchars($cKey) ?>" <?= (($editGame['category'] ?? 'browser') === $cKey) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($cLabel) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Technologie / Laufzeit</label>
+                        <select name="runtime_type" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <?php foreach ($runtimeOptions as $rKey => $rInfo): ?>
+                                <option value="<?= htmlspecialchars($rKey) ?>" <?= (($editGame['runtime_type'] ?? 'html5_js') === $rKey) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($rInfo['label']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Genre / Untertitel</label>
+                        <input type="text" name="genre" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= htmlspecialchars((string)($editGame['genre'] ?? '')) ?>" placeholder="z. B. 3D Engine / Puzzle / Tool">
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Tech-Tags (kommagetrennt)</label>
+                        <input type="text" name="tech_tags" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= htmlspecialchars(implode(', ', is_array($editGame['tech_tags'] ?? null) ? $editGame['tech_tags'] : [])) ?>" placeholder="Rust, WASM, WebGL2, Audio">
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Icon (Emoji)</label>
+                        <input type="text" name="icon" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= htmlspecialchars((string)($editGame['icon'] ?? '🎮')) ?>" placeholder="🎮">
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Sortier-Reihenfolge</label>
+                        <input type="number" name="sort_order" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= (int)($editGame['sort_order'] ?? 10) ?>">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Beschreibung</label>
+                    <textarea name="description" rows="2" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="Kurze Beschreibung für Startseite & Portal..."><?= htmlspecialchars((string)($editGame['description'] ?? '')) ?></textarea>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Systemanforderungen / Hinweise (z. B. Java 21, WebGPU, Controller)</label>
+                    <input type="text" name="system_requirements" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= htmlspecialchars((string)($editGame['system_requirements'] ?? '')) ?>" placeholder="Moderner Browser mit WebGL2 / WASM oder Windows/Linux 64-Bit">
+                </div>
+
+                <!-- Browser-Einbindung & ZIP / Cover Upload -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-bottom: 12px;">
+                    <div style="font-weight: 700; font-size: 13px; color: #1e3a8a; margin-bottom: 10px;">
+                        🌐 Browser-Einbindung (JS, HTML5, WebAssembly / Rust / C++ Emscripten / CheerpJ Java) &amp; Cover
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 10px;">
                         <div>
-                            <strong style="font-size: 15px; color: #1e3a8a;"><?= htmlspecialchars($g['title']) ?></strong><br>
-                            <span style="font-size: 11px; color: #64748b;"><?= htmlspecialchars($g['genre'] ?? 'Game') ?> | Typ: <?= htmlspecialchars($g['category']) ?></span>
+                            <label style="font-weight: 600; display: block; font-size: 11px; margin-bottom: 4px;">Einbindungs-URL / Pfad zu index.html</label>
+                            <input type="text" name="embed_url" class="form-control" style="width: 100%; padding: 6px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= htmlspecialchars((string)($editGame['embed_url'] ?? '')) ?>" placeholder="uploads/games/mein-spiel/index.html oder https://...">
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; display: block; font-size: 11px; margin-bottom: 4px;">ODER ZIP-Paket hochladen (entpackt automatisch)</label>
+                            <input type="file" name="game_zip" accept=".zip" class="form-control" style="width: 100%; padding: 4px; font-size: 12px;">
                         </div>
                     </div>
-                    <p style="font-size: 12px; color: #475569; margin: 8px 0 12px 0; line-height: 1.4;">
-                        <?= htmlspecialchars($g['description']) ?>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-weight: 600; display: block; font-size: 11px; margin-bottom: 4px;">Cover-Bild URL (optional)</label>
+                            <input type="text" name="banner" class="form-control" style="width: 100%; padding: 6px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= htmlspecialchars((string)($editGame['banner'] ?? '')) ?>" placeholder="uploads/games/covers/...">
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; display: block; font-size: 11px; margin-bottom: 4px;">ODER Cover-Bild hochladen (JPG/PNG/WebP)</label>
+                            <input type="file" name="game_cover" accept="image/*" class="form-control" style="width: 100%; padding: 4px; font-size: 12px;">
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; display: block; font-size: 11px; margin-bottom: 4px;">Startmodus</label>
+                            <select name="embed_mode" class="form-control" style="width: 100%; padding: 6px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                <option value="modal" <?= (($editGame['embed_mode'] ?? 'modal') === 'modal') ? 'selected' : '' ?>>Lightbox-Modal (wie Galerie)</option>
+                                <option value="inline" <?= (($editGame['embed_mode'] ?? '') === 'inline') ? 'selected' : '' ?>>Inline im Portal einbetten</option>
+                                <option value="fullscreen" <?= (($editGame['embed_mode'] ?? '') === 'fullscreen') ? 'selected' : '' ?>>Isolierter Vollbild-Runner</option>
+                                <option value="new_tab" <?= (($editGame['embed_mode'] ?? '') === 'new_tab') ? 'selected' : '' ?>>In neuem Browser-Tab öffnen</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; display: block; font-size: 11px; margin-bottom: 4px;">Seitenverhältnis</label>
+                            <select name="aspect_ratio" class="form-control" style="width: 100%; padding: 6px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                <option value="16:9" <?= (($editGame['aspect_ratio'] ?? '16:9') === '16:9') ? 'selected' : '' ?>>16:9 (Widescreen)</option>
+                                <option value="4:3" <?= (($editGame['aspect_ratio'] ?? '') === '4:3') ? 'selected' : '' ?>>4:3 (Klassik / Retro)</option>
+                                <option value="1:1" <?= (($editGame['aspect_ratio'] ?? '') === '1:1') ? 'selected' : '' ?>>1:1 (Quadrat)</option>
+                                <option value="auto" <?= (($editGame['aspect_ratio'] ?? '') === 'auto') ? 'selected' : '' ?>>Automatisch / Flexibel</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 18px; padding-top: 6px; font-size: 12px;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" name="enable_coop_coep" value="1" <?= !empty($editGame['enable_coop_coep']) ? 'checked' : '' ?>>
+                            <span><strong>COOP/COEP-Isolation aktivieren</strong> (nötig für WASM Multi-Threading / SharedArrayBuffer)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" name="show_on_home" value="1" <?= (!$editGame || !isset($editGame['show_on_home']) || !empty($editGame['show_on_home'])) ? 'checked' : '' ?>>
+                            <span>Auf Startseite anzeigen</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" name="featured" value="1" <?= !empty($editGame['featured']) ? 'checked' : '' ?>>
+                            <span>★ Als Highlight markieren</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" name="active" value="1" <?= (!$editGame || !empty($editGame['active'])) ? 'checked' : '' ?>>
+                            <span>Aktiv</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="padding: 8px 20px; font-weight: 700;">
+                    💾 <?= $editGame ? 'Änderungen speichern' : 'Spiel / Anwendung hinzufügen' ?>
+                </button>
+            </form>
+        </div>
+
+        <h4 style="margin: 0 0 14px 0; color: #1e293b; font-size: 16px; font-weight: 700;">Verwaltete Spiele &amp; Titel (<?= count($games) ?>)</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px;">
+            <?php foreach ($games as $g): ?>
+                <?php
+                $rtKey = (string)($g['runtime_type'] ?? 'html5_js');
+                $rtInfo = $runtimeOptions[$rtKey] ?? ['badge' => $rtKey, 'color' => '#334155'];
+                ?>
+                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 24px;"><?= htmlspecialchars(strlen((string)($g['icon'] ?? '')) <= 4 ? (string)$g['icon'] : '🎮') ?></span>
+                            <div>
+                                <strong style="font-size: 15px; color: #1e3a8a;"><?= htmlspecialchars((string)$g['title']) ?></strong><br>
+                                <span style="font-size: 11px; color: #64748b;"><?= htmlspecialchars($categoryOptions[$g['category'] ?? ''] ?? ($g['category'] ?? 'Game')) ?></span>
+                            </div>
+                        </div>
+                        <span style="background: <?= htmlspecialchars($rtInfo['color']) ?>; color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700;">
+                            <?= htmlspecialchars($rtInfo['badge']) ?>
+                        </span>
+                    </div>
+                    <?php if (!empty($g['banner'])): ?>
+                        <?php $admCov = (str_starts_with((string)$g['banner'], 'http://') || str_starts_with((string)$g['banner'], 'https://')) ? (string)$g['banner'] : ('../' . ltrim((string)$g['banner'], '/')); ?>
+                        <img src="<?= htmlspecialchars($admCov) ?>" alt="" style="width: 100%; height: 110px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <?php endif; ?>
+                    <p style="font-size: 12px; color: #475569; margin: 0; line-height: 1.4; flex: 1;">
+                        <?= htmlspecialchars((string)$g['description']) ?>
                     </p>
-                    <div style="font-size: 11px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 8px;">
-                        Slug: <code><?= htmlspecialchars($g['slug']) ?></code>
+                    <div style="font-size: 11px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span>Slug: <code><?= htmlspecialchars((string)$g['slug']) ?></code></span>
+                        <div style="display: flex; gap: 6px;">
+                            <a href="?tab=tab-plugins&plugin_settings=weave-games&game_subtab=games&edit_game=<?= urlencode((string)$g['slug']) ?>#tab-plugins" class="btn btn-light" style="padding: 3px 9px; font-size: 11px; text-decoration: none;">✏️ Bearbeiten</a>
+                            <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-games&game_subtab=games#tab-plugins" style="margin: 0;" onsubmit="return confirm('Spiel wirklich löschen?');">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                                <input type="hidden" name="action" value="game_delete">
+                                <input type="hidden" name="slug" value="<?= htmlspecialchars((string)$g['slug']) ?>">
+                                <button type="submit" class="btn" style="background: #fee2e2; color: #991b1b; padding: 3px 8px; font-size: 11px; border-radius: 4px;">🗑</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
 
     <!-- ===================================================================== -->
-    <!-- SUBTAB 5: GLOBALE EINSTELLUNGEN                                       -->
+    <!-- SUBTAB 5: GLOBALE EINSTELLUNGEN & STARTSEITEN-LAYOUT                  -->
     <!-- ===================================================================== -->
     <?php elseif ($activeSubtab === 'settings'): ?>
         <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
-            <h4 style="margin-top: 0; color: #1e293b; font-size: 16px; font-weight: 700; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">⚙️ Allgemeine Gaming-Einstellungen</h4>
-
             <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-games&game_subtab=settings#tab-plugins">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                 <input type="hidden" name="action" value="game_save_config">
 
-                <div style="margin-bottom: 16px;">
+                <h4 style="margin-top: 0; color: #1e293b; font-size: 16px; font-weight: 700; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">⚙️ Allgemeine Gaming-Einstellungen</h4>
+
+                <div style="margin-bottom: 14px;">
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" name="show_in_main_nav" value="1" <?= !empty($cfg['show_in_main_nav']) ? 'checked' : '' ?>>
                         <strong>Im Hauptmenü der Website anzeigen</strong>
                     </label>
-                    <p style="margin: 4px 0 0 25px; font-size: 12px; color: #64748b;">
-                        Steuert, ob der Menüpunkt „Gaming / Games“ in der Hauptnavigation angezeigt wird.
-                    </p>
                 </div>
 
-                <div style="margin-bottom: 16px;">
+                <div style="margin-bottom: 14px;">
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" name="allow_self_registration" value="1" <?= !empty($cfg['allow_self_registration']) ? 'checked' : '' ?>>
-                        <strong>Online-Registrierung für Spieler im Webportal & Client erlauben</strong>
+                        <strong>Online-Registrierung für Spieler im Webportal &amp; Client erlauben</strong>
                     </label>
-                    <p style="margin: 4px 0 0 25px; font-size: 12px; color: #64748b;">
-                        Ermöglicht neuen Spielern, sich direkt über die Website oder den Game Launcher zu registrieren.
-                    </p>
                 </div>
 
                 <div style="margin-bottom: 16px;">
@@ -567,19 +741,74 @@ $totalReleases = count($releases);
                         <input type="checkbox" name="enable_public_server_status" value="1" <?= !empty($cfg['enable_public_server_status']) ? 'checked' : '' ?>>
                         <strong>Öffentlichen Server-Status im Spieler-Portal anzeigen</strong>
                     </label>
-                    <p style="margin: 4px 0 0 25px; font-size: 12px; color: #64748b;">
-                        Zeigt Spielern live an, welche Server online sind und wie hoch die Latenz (Ping) ist.
-                    </p>
                 </div>
 
-                <div style="margin-bottom: 16px;">
-                    <label style="font-weight: 600; display: block; font-size: 13px; margin-bottom: 4px;">Sektionstitel</label>
-                    <input type="text" name="section_title" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= htmlspecialchars($cfg['section_title'] ?? '') ?>">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 13px; margin-bottom: 4px;">Sektionstitel</label>
+                        <input type="text" name="section_title" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= htmlspecialchars((string)($cfg['section_title'] ?? '')) ?>">
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 13px; margin-bottom: 4px;">Untertitel</label>
+                        <input type="text" name="section_subtitle" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= htmlspecialchars((string)($cfg['section_subtitle'] ?? '')) ?>">
+                    </div>
+                </div>
+
+                <h4 style="margin-top: 22px; color: #1e3a8a; font-size: 16px; font-weight: 700; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">🎨 Darstellung auf der Startseite (ähnlich Bildergalerie)</h4>
+                <p style="font-size: 12px; color: #64748b; margin-top: 0;">
+                    Bestimme hier, wie Spiele und Anwendungen auf der Startseite und per <code>[weave_games]</code>-Shortcode präsentiert werden.
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px;">
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Layout-Stil</label>
+                        <select name="home_layout" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <option value="ambient_blur" <?= (($cfg['home_layout'] ?? 'ambient_blur') === 'ambient_blur') ? 'selected' : '' ?>>Ambient Blur (wie Bildergalerie)</option>
+                            <option value="cards" <?= (($cfg['home_layout'] ?? '') === 'cards') ? 'selected' : '' ?>>Klassisches Karten-Raster</option>
+                            <option value="showcase" <?= (($cfg['home_layout'] ?? '') === 'showcase') ? 'selected' : '' ?>>Showcase (große Lead-Karte + Raster)</option>
+                            <option value="list" <?= (($cfg['home_layout'] ?? '') === 'list') ? 'selected' : '' ?>>Kompakte App-/Spieleliste</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Spaltenanzahl (Raster)</label>
+                        <select name="home_columns" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <option value="2" <?= ((int)($cfg['home_columns'] ?? 3) === 2) ? 'selected' : '' ?>>2 Spalten</option>
+                            <option value="3" <?= ((int)($cfg['home_columns'] ?? 3) === 3) ? 'selected' : '' ?>>3 Spalten (Empfohlen)</option>
+                            <option value="4" <?= ((int)($cfg['home_columns'] ?? 3) === 4) ? 'selected' : '' ?>>4 Spalten</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Max. Einträge auf Startseite (0 = alle)</label>
+                        <input type="number" name="home_max_items" min="0" max="50" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;" value="<?= (int)($cfg['home_max_items'] ?? 6) ?>">
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; font-size: 12px; margin-bottom: 4px;">Sortierung</label>
+                        <select name="home_sort" class="form-control" style="width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <option value="manual" <?= (($cfg['home_sort'] ?? 'manual') === 'manual') ? 'selected' : '' ?>>Highlights &amp; Sortiernummer</option>
+                            <option value="newest" <?= (($cfg['home_sort'] ?? '') === 'newest') ? 'selected' : '' ?>>Neueste zuerst</option>
+                            <option value="alpha" <?= (($cfg['home_sort'] ?? '') === 'alpha') ? 'selected' : '' ?>>Alphabetisch (A–Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 20px; font-size: 12.5px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" name="home_show_filters" value="1" <?= !empty($cfg['home_show_filters']) ? 'checked' : '' ?>>
+                        <span>Kategorie-Filterleiste anzeigen (wie Galerie)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" name="home_play_modal" value="1" <?= !empty($cfg['home_play_modal']) ? 'checked' : '' ?>>
+                        <span>Browserspiele direkt per Lightbox-Modal starten</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" name="home_show_server_status" value="1" <?= !empty($cfg['home_show_server_status']) ? 'checked' : '' ?>>
+                        <span>Live-Server-Badge auf Karten anzeigen</span>
+                    </label>
                 </div>
 
                 <div style="margin-bottom: 20px;">
                     <label style="font-weight: 600; display: block; font-size: 13px; margin-bottom: 4px;">REST API-Schlüssel für Server-Kommunikation</label>
-                    <input type="text" readonly class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: #f8fafc; font-family: monospace;" value="<?= htmlspecialchars($cfg['api_key'] ?? '') ?>">
+                    <input type="text" readonly class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: #f8fafc; font-family: monospace;" value="<?= htmlspecialchars((string)($cfg['api_key'] ?? '')) ?>">
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="padding: 8px 20px; font-weight: 700;">Einstellungen speichern</button>
