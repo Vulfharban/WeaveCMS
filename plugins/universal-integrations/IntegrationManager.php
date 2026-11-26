@@ -265,34 +265,78 @@ class IntegrationManager {
      * Prüft eine URL auf SSRF-Gefahren für Inline-Serverabrufe.
      */
     public static function checkSsrfSafety(string $url): array {
-        if (str_starts_with($url, '/')) {
-            // Lokale Serverpfade: Vollständige interne URL zusammenbauen
+        $isRelativeLocal = str_starts_with($url, '/');
+        if ($isRelativeLocal) {
+            if (str_contains($url, '..') || str_starts_with($url, '//')) {
+                return ['safe' => false, 'message' => 'Ungültiger lokaler Pfad.'];
+            }
             $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
             $host = $_SERVER['HTTP_HOST'] ?? '127.0.0.1';
             $url = $proto . '://' . $host . $url;
         }
 
         $parsed = parse_url($url);
-        $host = $parsed['host'] ?? '';
-        if (empty($host)) {
-            return ['safe' => false, 'message' => 'Ungültiger Hostname.'];
+        $scheme = strtolower((string)($parsed['scheme'] ?? ''));
+        $host = strtolower((string)($parsed['host'] ?? ''));
+        if (!in_array($scheme, ['http', 'https'], true) || empty($host)) {
+            return ['safe' => false, 'message' => 'Ungültige URL oder Protokoll.'];
         }
 
-        // DNS-Auflösung
-        $ip = gethostbyname($host);
-        if (empty($ip) || $ip === $host && !filter_var($ip, FILTER_VALIDATE_IP)) {
+        if ($isRelativeLocal) {
+            return ['safe' => true, 'url' => $url];
+        }
+
+        // Externe URLs dürfen niemals auf localhost oder private/reservierte IPv4/IPv6-Bereiche zeigen
+        if (in_array($host, ['localhost', 'localhost.localdomain', 'ip6-localhost', 'ip6-loopback'], true)) {
+            return ['safe' => false, 'message' => 'SSRF-Schutz: Externe Zugriffe auf localhost sind blockiert.'];
+        }
+
+        $ips = [];
+        $cleanHost = trim($host, '[]');
+        if (filter_var($cleanHost, FILTER_VALIDATE_IP)) {
+            $ips[] = $cleanHost;
+        } else {
+            $v4 = @gethostbynamel($cleanHost);
+            if (is_array($v4)) {
+                $ips = array_merge($ips, $v4);
+            }
+            if (function_exists('dns_get_record')) {
+                $aaaa = @dns_get_record($cleanHost, DNS_AAAA);
+                if (is_array($aaaa)) {
+                    foreach ($aaaa as $rec) {
+                        if (!empty($rec['ipv6'])) {
+                            $ips[] = $rec['ipv6'];
+                        }
+                    }
+                }
+            }
+        }
+
+        if (empty($ips)) {
             return ['safe' => false, 'message' => "Host '{$host}' konnte nicht aufgelöst werden."];
         }
 
-        // Privates Netzwerk verbieten wenn nicht explizit lokaler Server
-        $isLocalHost = in_array($host, ['localhost', '127.0.0.1', $_SERVER['HTTP_HOST'] ?? ''], true);
-        if (!$isLocalHost) {
+        foreach ($ips as $ip) {
             if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-                return ['safe' => false, 'message' => 'SSRF-Schutz: Externe Zugriffe auf private IP-Bereiche sind blockiert.'];
+                return ['safe' => false, 'message' => 'SSRF-Schutz: Externe Zugriffe auf private oder reservierte IP-Bereiche sind blockiert.'];
             }
         }
 
         return ['safe' => true, 'url' => $url];
+    }
+
+    /**
+     * Bereinigt per Inline-Embed abgerufenes HTML gegen XSS (Skripte, Event-Handler, unsichere URIs).
+     */
+    public static function sanitizeInlineHtml(string $html): string {
+        if ($html === '') {
+            return '';
+        }
+        $clean = preg_replace('/<\s*(script|style|iframe|object|embed|form|base|meta)\b[^>]*>.*?<\s*\/\s*\1\s*>/is', '', $html);
+        $clean = preg_replace('/<\s*(script|iframe|object|embed|base|meta|link)\b[^>]*\/?>/is', '', (string)$clean);
+        $clean = preg_replace('/\s+on[a-z0-9_-]+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/is', '', (string)$clean);
+        $clean = preg_replace('/\b(href|src|action|formaction|poster|data)\s*=\s*(["\'])\s*(?:javascript|vbscript|data):.*?\2/is', '$1=$2#$2', (string)$clean);
+        return (string)$clean;
     }
 
     // =========================================================================
@@ -337,6 +381,9 @@ class IntegrationManager {
 
         $mode = $params['mode'] ?? ($item['embed_mode'] ?? self::MODE_IFRAME);
         $targetUrl = self::buildTargetUrl($item, $params);
+        if ($targetUrl !== '' && !self::validateTargetUrl($targetUrl)) {
+            return '<div class="card p-6 text-center max-w-lg mx-auto my-6 border" style="color:#991b1b; background:#fef2f2; border-color:#fecaca;">Ungültige oder unsichere Ziel-URL blockiert.</div>';
+        }
 
         ob_start();
         switch ($mode) {

@@ -39,7 +39,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
         exit;
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
         $action = $_POST['action'] ?? '';
 
         // JSON-Import für Produkte

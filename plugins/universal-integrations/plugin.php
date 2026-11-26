@@ -14,7 +14,7 @@ require_once __DIR__ . '/IntegrationManager.php';
 // -----------------------------------------------------------------------------
 // 1. Admin Aktionen (POST)
 // -----------------------------------------------------------------------------
-if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST' && !(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
     $action = $_POST['action'] ?? '';
 
     if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
@@ -27,18 +27,41 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
                 $slug = 'app_' . bin2hex(random_bytes(3));
             }
 
+            $allowedModes = [
+                IntegrationManager::MODE_IFRAME,
+                IntegrationManager::MODE_SEAMLESS_IFRAME,
+                IntegrationManager::MODE_PREVIEW_CARD,
+                IntegrationManager::MODE_INLINE,
+                IntegrationManager::MODE_LINK
+            ];
+            $allowedAccess = [
+                IntegrationManager::ACCESS_PUBLIC,
+                IntegrationManager::ACCESS_FORUM_USER,
+                IntegrationManager::ACCESS_ADMIN
+            ];
+
+            $rawTargetUrl = trim($_POST['target_url'] ?? '');
+            if ($rawTargetUrl !== '' && !IntegrationManager::validateTargetUrl($rawTargetUrl)) {
+                header('Location: ?tab=tab-plugins&plugin_settings=universal-integrations&integ_err=invalid_url#tab-plugins');
+                exit;
+            }
+
+            $existing = IntegrationManager::getIntegration($slug, $data);
+            $embedMode = trim($_POST['embed_mode'] ?? 'iframe');
+            $accessLevel = trim($_POST['access_level'] ?? 'public');
+
             $item = [
                 'slug' => $slug,
                 'name' => trim($_POST['name'] ?? ucfirst($slug)),
-                'target_url' => trim($_POST['target_url'] ?? ''),
+                'target_url' => $rawTargetUrl,
                 'url_pattern' => trim($_POST['url_pattern'] ?? '{base}'),
-                'embed_mode' => trim($_POST['embed_mode'] ?? 'iframe'),
-                'iframe_height' => max(300, (int)($_POST['iframe_height'] ?? 800)),
+                'embed_mode' => in_array($embedMode, $allowedModes, true) ? $embedMode : IntegrationManager::MODE_IFRAME,
+                'iframe_height' => max(300, min(2000, (int)($_POST['iframe_height'] ?? 800))),
                 'icon' => trim($_POST['icon'] ?? 'apps'),
-                'access_level' => trim($_POST['access_level'] ?? 'public'),
+                'access_level' => in_array($accessLevel, $allowedAccess, true) ? $accessLevel : IntegrationManager::ACCESS_PUBLIC,
                 'show_as_section' => !empty($_POST['show_as_section']),
                 'active' => !empty($_POST['active']),
-                'params' => []
+                'params' => is_array($existing['params'] ?? null) ? $existing['params'] : []
             ];
 
             IntegrationManager::saveIntegration($item, $data);

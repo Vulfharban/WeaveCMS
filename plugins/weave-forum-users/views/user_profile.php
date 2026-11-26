@@ -377,7 +377,7 @@ if (class_exists('ForumManager')) {
                     <?php else: ?>
                         <div class="kunena-uprof-contact-grid">
                             <?php if ($canSendPm): ?>
-                                <form method="post" action="?forum_auth=send_pm" class="kunena-uprof-contact-box">
+                                <form method="post" action="?forum_auth=send_pm" data-waf-encode="pm_subject,pm_body" class="kunena-uprof-contact-box">
                                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                                     <input type="hidden" name="recipient_id" value="<?= htmlspecialchars((string)$profileUser['id']) ?>">
                                     <input type="hidden" name="redirect_to" value="<?= htmlspecialchars('?page=forum&view=user&id=' . urlencode((string)$profileUser['id'])) ?>">
@@ -395,7 +395,7 @@ if (class_exists('ForumManager')) {
                             <?php endif; ?>
 
                             <?php if ($canSendEmail): ?>
-                                <form method="post" action="?forum_auth=send_member_email" class="kunena-uprof-contact-box">
+                                <form method="post" action="?forum_auth=send_member_email" data-waf-encode="mail_subject,mail_body" class="kunena-uprof-contact-box">
                                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                                     <input type="hidden" name="recipient_id" value="<?= htmlspecialchars((string)$profileUser['id']) ?>">
 

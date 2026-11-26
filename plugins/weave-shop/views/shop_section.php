@@ -16,6 +16,15 @@ $subtitle = $params['subtitle'] ?? ($config['section_subtitle'] ?? 'Handgefertig
 $currency = $config['currency'] ?? 'EUR';
 $isSmallBiz = !empty($config['small_business']);
 
+$cc_enabled = !empty($config['payment_credit_card']['enabled']);
+$pp_enabled = !empty($config['payment_paypal']['enabled']);
+$weroConfig = $config['payment_wero'] ?? [];
+$wero_enabled = !empty($weroConfig['enabled']);
+$wero_sandbox = !empty($weroConfig['sandbox']);
+$wero_iban = trim((string)($weroConfig['iban'] ?? ''));
+$wero_bic = trim((string)($weroConfig['bic'] ?? ''));
+$wero_merchant = trim((string)($weroConfig['merchant_name'] ?? 'WeaveCMS Shop'));
+
 $btConfig = $config['payment_bank_transfer'] ?? [];
 $bt_enabled = !empty($btConfig['enabled']);
 $bt_bank = $btConfig['bank_name'] ?? '';
@@ -23,6 +32,13 @@ $bt_holder = $btConfig['account_holder'] ?? '';
 $bt_iban = $btConfig['iban'] ?? '';
 $bt_bic = $btConfig['bic'] ?? '';
 $bt_instruction = $btConfig['instruction'] ?? 'Bitte überweise den Gesamtbetrag unter Angabe deiner Bestellnummer als Verwendungszweck.';
+
+$enabledPayMethods = [];
+if ($cc_enabled) $enabledPayMethods[] = 'credit_card';
+if ($pp_enabled) $enabledPayMethods[] = 'paypal';
+if ($wero_enabled) $enabledPayMethods[] = 'wero';
+if ($bt_enabled) $enabledPayMethods[] = 'bank_transfer';
+$defaultPaymentMethod = $enabledPayMethods[0] ?? '';
 
 $allProducts = ShopManager::getProducts();
 $activeProducts = array_filter($allProducts, function($p) {
@@ -54,15 +70,21 @@ foreach ($activeProducts as $p) {
         <!-- Bezahlmethoden-Badges -->
         <div style="display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 1.25rem; flex-wrap: wrap;">
             <span style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 600;">Sichere Bezahlung:</span>
+            <?php if ($cc_enabled): ?>
             <span class="shop-pay-badge" style="display:inline-flex; align-items:center; gap:4px; padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,0.04); font-size: 0.8rem; font-weight: 600;">
                 💳 Kreditkarte (Visa, Mastercard)
             </span>
+            <?php endif; ?>
+            <?php if ($pp_enabled): ?>
             <span class="shop-pay-badge" style="display:inline-flex; align-items:center; gap:4px; padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,0.04); font-size: 0.8rem; font-weight: 600;">
                 🅿️ PayPal
             </span>
+            <?php endif; ?>
+            <?php if ($wero_enabled): ?>
             <span class="shop-pay-badge" style="display:inline-flex; align-items:center; gap:4px; padding: 4px 10px; border-radius: 6px; background: rgba(30,58,138,0.1); color: #1e3a8a; font-size: 0.8rem; font-weight: 700;">
                 🇪🇺 WERO (European Instant Payment)
             </span>
+            <?php endif; ?>
             <?php if (!empty($bt_enabled)): ?>
             <span class="shop-pay-badge" style="display:inline-flex; align-items:center; gap:4px; padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,0.04); font-size: 0.8rem; font-weight: 600;">
                 🏦 Vorkasse / Überweisung
@@ -304,44 +326,58 @@ foreach ($activeProducts as $p) {
                     <span>Zahlungsmethode auswählen</span>
                 </div>
 
+                <?php if (empty($enabledPayMethods)): ?>
+                    <div style="padding: 14px; border-radius: 10px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font-size: 0.88rem; margin-bottom: 1.25rem;">
+                        Aktuell ist im Shop keine Zahlungsmethode aktiviert. Bitte kontaktiere den Shop-Betreiber.
+                    </div>
+                <?php else: ?>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.25rem;">
+                    <?php if ($cc_enabled): $isDef = ($defaultPaymentMethod === 'credit_card'); ?>
                     <!-- Kreditkarte -->
-                    <label class="shop-method-card" id="label-pay-cc" style="border: 2px solid var(--primary); border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; background: rgba(46,98,72,0.05); transition: all 0.2s ease;">
-                        <input type="radio" name="pay_method" value="credit_card" checked onchange="selectPaymentMethod('credit_card')" style="display:none;">
+                    <label class="shop-method-card" id="label-pay-cc" style="border: <?= $isDef ? '2px solid var(--primary)' : '1px solid var(--border-color)' ?>; border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; background: <?= $isDef ? 'rgba(46,98,72,0.06)' : 'var(--card-bg, #fff)' ?>; transition: all 0.2s ease;">
+                        <input type="radio" name="pay_method" value="credit_card" <?= $isDef ? 'checked' : '' ?> onchange="selectPaymentMethod('credit_card')" style="display:none;">
                         <div style="font-size: 22px; margin-bottom: 4px;">💳</div>
                         <div style="font-weight: 700; font-size: 0.88rem;">Kreditkarte</div>
                         <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">Visa, Mastercard</div>
                     </label>
+                    <?php endif; ?>
 
+                    <?php if ($pp_enabled): $isDef = ($defaultPaymentMethod === 'paypal'); ?>
                     <!-- PayPal -->
-                    <label class="shop-method-card" id="label-pay-pp" style="border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; background: var(--card-bg, #fff); transition: all 0.2s ease;">
-                        <input type="radio" name="pay_method" value="paypal" onchange="selectPaymentMethod('paypal')" style="display:none;">
+                    <label class="shop-method-card" id="label-pay-pp" style="border: <?= $isDef ? '2px solid var(--primary)' : '1px solid var(--border-color)' ?>; border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; background: <?= $isDef ? 'rgba(46,98,72,0.06)' : 'var(--card-bg, #fff)' ?>; transition: all 0.2s ease;">
+                        <input type="radio" name="pay_method" value="paypal" <?= $isDef ? 'checked' : '' ?> onchange="selectPaymentMethod('paypal')" style="display:none;">
                         <div style="font-size: 22px; margin-bottom: 4px;">🅿️</div>
                         <div style="font-weight: 700; font-size: 0.88rem;">PayPal</div>
                         <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">Express & Käuferschutz</div>
                     </label>
+                    <?php endif; ?>
 
+                    <?php if ($wero_enabled): $isDef = ($defaultPaymentMethod === 'wero'); ?>
                     <!-- WERO -->
-                    <label class="shop-method-card" id="label-pay-wero" style="border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; background: var(--card-bg, #fff); transition: all 0.2s ease;">
-                        <input type="radio" name="pay_method" value="wero" onchange="selectPaymentMethod('wero')" style="display:none;">
+                    <label class="shop-method-card" id="label-pay-wero" style="border: <?= $isDef ? '2px solid var(--primary)' : '1px solid var(--border-color)' ?>; border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; background: <?= $isDef ? 'rgba(46,98,72,0.06)' : 'var(--card-bg, #fff)' ?>; transition: all 0.2s ease;">
+                        <input type="radio" name="pay_method" value="wero" <?= $isDef ? 'checked' : '' ?> onchange="selectPaymentMethod('wero')" style="display:none;">
                         <div style="font-size: 22px; margin-bottom: 4px;">🇪🇺</div>
                         <div style="font-weight: 700; font-size: 0.88rem; color: #1e3a8a;">WERO</div>
                         <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">Bank-Sofortzahlung</div>
                     </label>
+                    <?php endif; ?>
 
+                    <?php if ($bt_enabled): $isDef = ($defaultPaymentMethod === 'bank_transfer'); ?>
                     <!-- Vorkasse / Überweisung -->
-                    <label class="shop-method-card" id="label-pay-bt" style="border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; background: var(--card-bg, #fff); transition: all 0.2s ease;">
-                        <input type="radio" name="pay_method" value="bank_transfer" onchange="selectPaymentMethod('bank_transfer')" style="display:none;">
+                    <label class="shop-method-card" id="label-pay-bt" style="border: <?= $isDef ? '2px solid var(--primary)' : '1px solid var(--border-color)' ?>; border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; background: <?= $isDef ? 'rgba(46,98,72,0.06)' : 'var(--card-bg, #fff)' ?>; transition: all 0.2s ease;">
+                        <input type="radio" name="pay_method" value="bank_transfer" <?= $isDef ? 'checked' : '' ?> onchange="selectPaymentMethod('bank_transfer')" style="display:none;">
                         <div style="font-size: 22px; margin-bottom: 4px;">🏦</div>
                         <div style="font-weight: 700; font-size: 0.88rem;">Vorkasse</div>
                         <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">Banküberweisung</div>
                     </label>
+                    <?php endif; ?>
                 </div>
+                <?php endif; ?>
 
                 <!-- Zahlungsdetails-Formulare -->
                 
                 <!-- 1. Kreditkarten-Formular -->
-                <div id="pay-fields-credit_card" style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                <div id="pay-fields-credit_card" style="display:<?= $defaultPaymentMethod === 'credit_card' ? 'block' : 'none' ?>; background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
                     <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 8px;">Kartendaten eingeben:</div>
                     <div style="margin-bottom: 8px;">
                         <input type="text" id="cc_holder" class="form-control" placeholder="Karteninhaber (z. B. Max Mustermann)">
@@ -361,7 +397,7 @@ foreach ($activeProducts as $p) {
                 </div>
 
                 <!-- 2. PayPal Info -->
-                <div id="pay-fields-paypal" style="display:none; background: rgba(0,112,186,0.06); border: 1px solid rgba(0,112,186,0.2); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; text-align: center;">
+                <div id="pay-fields-paypal" style="display:<?= $defaultPaymentMethod === 'paypal' ? 'block' : 'none' ?>; background: rgba(0,112,186,0.06); border: 1px solid rgba(0,112,186,0.2); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; text-align: center;">
                     <div style="font-size: 28px; margin-bottom: 6px;">🅿️</div>
                     <div style="font-weight: 700; color: #0070ba; margin-bottom: 4px;">PayPal Express Checkout</div>
                     <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
@@ -370,7 +406,7 @@ foreach ($activeProducts as $p) {
                 </div>
 
                 <!-- 3. WERO European Instant Payment Info -->
-                <div id="pay-fields-wero" style="display:none; background: rgba(30,58,138,0.06); border: 1px solid rgba(30,58,138,0.25); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; text-align: center;">
+                <div id="pay-fields-wero" style="display:<?= $defaultPaymentMethod === 'wero' ? 'block' : 'none' ?>; background: rgba(30,58,138,0.06); border: 1px solid rgba(30,58,138,0.25); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; text-align: center;">
                     <div style="font-size: 28px; margin-bottom: 6px;">🇪🇺</div>
                     <div style="font-weight: 800; color: #1e3a8a; margin-bottom: 4px;">WERO – Das neue europäische Zahlverfahren</div>
                     <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 10px;">
@@ -382,7 +418,7 @@ foreach ($activeProducts as $p) {
                 </div>
 
                 <!-- 4. Vorkasse Banküberweisung Info -->
-                <div id="pay-fields-bank_transfer" style="display:none; background: rgba(46,98,72,0.05); border: 1px solid rgba(46,98,72,0.25); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                <div id="pay-fields-bank_transfer" style="display:<?= $defaultPaymentMethod === 'bank_transfer' ? 'block' : 'none' ?>; background: rgba(46,98,72,0.05); border: 1px solid rgba(46,98,72,0.25); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
                         <span style="font-size:24px;">🏦</span>
                         <div>
@@ -433,15 +469,20 @@ foreach ($activeProducts as $p) {
                 </p>
 
                 <!-- WERO QR-Code Box falls mit WERO bezahlt -->
-                <div id="wero-qr-container" style="display:none; background: rgba(30,58,138,0.04); border: 2px dashed #1e3a8a; border-radius: 14px; padding: 1.5rem; max-width: 380px; margin: 0 auto 1.5rem;">
-                    <div style="font-weight: 800; color: #1e3a8a; margin-bottom: 6px;">WERO Instant-Payment QR-Code</div>
+                <div id="wero-qr-container" style="display:none; background: rgba(30,58,138,0.04); border: 2px dashed #1e3a8a; border-radius: 14px; padding: 1.5rem; max-width: 440px; margin: 0 auto 1.5rem;">
+                    <div style="font-weight: 800; color: #1e3a8a; margin-bottom: 6px;">WERO / SEPA Instant-Zahlung</div>
                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">
-                        Scanne den Code mit deiner Bank-App oder WERO App zur finalen Freigabe:
+                        Nutze den QR-Code oder die folgenden EPC/SEPA-Überweisungsdaten direkt in deiner Banking- bzw. WERO-App<?php if ($wero_sandbox): ?> <strong>(Sandbox-/Vorschaumodus)</strong><?php endif; ?>:
                     </p>
                     <div id="wero-qr-canvas-wrapper" style="background:#fff; padding:12px; border-radius:10px; display:inline-block; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
                         <canvas id="wero-qr-canvas" width="180" height="180" style="display:block;"></canvas>
                     </div>
-                    <div id="wero-ref-code" style="font-size:0.75rem; font-family:monospace; margin-top:8px; color:var(--text-secondary);"></div>
+                    <div style="font-size:0.82rem; line-height:1.55; background:#fff; padding:10px 14px; border-radius:8px; border:1px solid #bfdbfe; margin-top:12px; text-align:left;">
+                        <div>Empfänger: <strong><?php echo htmlspecialchars($wero_merchant); ?></strong></div>
+                        <?php if (!empty($wero_iban)): ?><div>IBAN: <strong style="color:#1e3a8a;"><?php echo htmlspecialchars($wero_iban); ?></strong></div><?php endif; ?>
+                        <?php if (!empty($wero_bic)): ?><div>BIC: <strong><?php echo htmlspecialchars($wero_bic); ?></strong></div><?php endif; ?>
+                        <div>Verwendungszweck: <strong id="wero-ref-code" style="color:#1e3a8a; font-family:monospace;"></strong></div>
+                    </div>
                 </div>
 
                 <!-- Vorkasse Banküberweisung Box -->
@@ -495,7 +536,16 @@ try {
     shopCart = [];
 }
 
-let activePaymentMethod = 'credit_card';
+let activePaymentMethod = <?php echo json_encode($defaultPaymentMethod); ?>;
+
+function escapeShopHtml(str) {
+    return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
 
 function saveShopCart() {
     localStorage.setItem('weave_shop_cart', JSON.stringify(shopCart));
@@ -609,7 +659,7 @@ async function fetchCartCalculation() {
                 listEl.innerHTML = c.items.map(item => `
                     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding: 10px 0; border-bottom: 1px solid var(--border-color);">
                         <div style="flex-grow:1;">
-                            <div style="font-weight:700; font-size:0.92rem; color:var(--text-primary);">${item.title}</div>
+                            <div style="font-weight:700; font-size:0.92rem; color:var(--text-primary);">${escapeShopHtml(item.title)}</div>
                             <div style="font-size:0.8rem; color:var(--text-secondary);">${item.price.toFixed(2).replace('.', ',')} € / Stk.</div>
                         </div>
                         <div style="display:flex; align-items:center; gap:6px;">
@@ -659,6 +709,10 @@ function selectPaymentMethod(method) {
 }
 
 async function submitShopOrder() {
+    if (!activePaymentMethod) {
+        alert('Aktuell ist keine Zahlungsmethode aktiviert.');
+        return;
+    }
     const btn = document.getElementById('submit-order-btn');
     const name = document.getElementById('cust_name').value.trim();
     const email = document.getElementById('cust_email').value.trim();
@@ -736,7 +790,7 @@ async function submitShopOrder() {
                 const weroContainer = document.getElementById('wero-qr-container');
                 if (weroContainer) {
                     weroContainer.style.display = 'block';
-                    document.getElementById('wero-ref-code').innerText = 'Ref: ' + (data.order.payment_ref || '');
+                    document.getElementById('wero-ref-code').innerText = data.order.payment_ref || '';
                     drawWeroQrCode(data.order.payment_ref || 'WERO');
                 }
             } else {

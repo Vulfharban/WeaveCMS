@@ -15,7 +15,8 @@ if ($ssrfCheck['safe']) {
     $ctx = stream_context_create([
         'http' => [
             'timeout' => 3,
-            'max_redirects' => 2,
+            'follow_location' => 0,
+            'max_redirects' => 0,
             'header' => "User-Agent: WeaveCMS-Integration/1.0\r\nAccept: text/html,application/xhtml+xml\r\n"
         ]
     ]);
@@ -25,9 +26,9 @@ if ($ssrfCheck['safe']) {
     if ($raw !== false && !empty($raw)) {
         // Falls vollständiges HTML-Dokument: Body extrahieren
         if (preg_match('/<body[^>]*>(.*?)<\/body>/is', $raw, $matches)) {
-            $inlineContent = $matches[1];
+            $inlineContent = IntegrationManager::sanitizeInlineHtml($matches[1]);
         } else {
-            $inlineContent = $raw;
+            $inlineContent = IntegrationManager::sanitizeInlineHtml($raw);
         }
     }
 }

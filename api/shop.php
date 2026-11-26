@@ -175,9 +175,14 @@ switch ($action) {
             );
         }
 
-        $successMsg = ($paymentMethod === 'bank_transfer')
-            ? 'Vielen Dank! Deine Bestellung ist eingegangen. Bitte überweise den Betrag unter Angabe deiner Bestellnummer.'
-            : 'Vielen Dank! Deine Bestellung wurde erfolgreich aufgegeben und bezahlt.';
+        $orderStatus = $order['status'] ?? 'paid';
+        if ($paymentMethod === 'bank_transfer') {
+            $successMsg = 'Vielen Dank! Deine Bestellung ist eingegangen. Bitte überweise den Betrag unter Angabe deiner Bestellnummer.';
+        } elseif ($paymentMethod === 'wero' && $orderStatus === 'pending') {
+            $successMsg = 'Vielen Dank! Deine Bestellung ist reserviert. Bitte schließe die WERO-Zahlung per QR-Code oder Banking-App ab.';
+        } else {
+            $successMsg = 'Vielen Dank! Deine Bestellung wurde erfolgreich aufgegeben und bezahlt.';
+        }
 
         echo json_encode([
             'success'      => true,
@@ -188,7 +193,7 @@ switch ($action) {
         exit;
 
     // -------------------------------------------------------------------------
-    // 4. Bestellstatus abfragen
+    // 4. Bestellstatus abfragen (ohne PII-Leak für nicht-authentifizierte Clients)
     // -------------------------------------------------------------------------
     case 'order_status':
         $orderId = trim($_GET['order_id'] ?? $jsonInput['order_id'] ?? '');
@@ -197,7 +202,17 @@ switch ($action) {
             echo json_encode(['success' => false, 'message' => 'Bestellung nicht gefunden.']);
             exit;
         }
-        echo json_encode(['success' => true, 'order' => $order], JSON_UNESCAPED_UNICODE);
+        $isAdmin = !empty($_SESSION['admin_logged_in']);
+        $safeOrder = $isAdmin ? $order : [
+            'order_id'       => $order['order_id'] ?? '',
+            'status'         => $order['status'] ?? 'pending',
+            'payment_method' => $order['payment_method'] ?? '',
+            'total'          => (float)($order['total'] ?? 0),
+            'currency'       => $order['currency'] ?? 'EUR',
+            'created_at'     => $order['created_at'] ?? '',
+            'updated_at'     => $order['updated_at'] ?? ''
+        ];
+        echo json_encode(['success' => true, 'order' => $safeOrder], JSON_UNESCAPED_UNICODE);
         exit;
 
     // -------------------------------------------------------------------------

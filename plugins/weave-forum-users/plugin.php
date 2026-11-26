@@ -169,6 +169,31 @@ if (!empty($_SESSION['admin_logged_in']) && !(class_exists('SandboxManager') && 
 // -----------------------------------------------------------------------------
 // 2. Frontend Authentifizierungs-Handler
 // -----------------------------------------------------------------------------
+if (!function_exists('weave_forum_read_post_field')) {
+    /**
+     * Liest ein per URL-safe Base64 (WAF-Schutz) oder regulär übermitteltes POST-Feld.
+     */
+    function weave_forum_read_post_field(string $field, string $default = ''): string {
+        $b64Key = $field . '_b64';
+        if (isset($_POST[$b64Key]) && is_string($_POST[$b64Key])) {
+            $b64 = trim($_POST[$b64Key]);
+            if ($b64 === '') {
+                return '';
+            }
+            $std = strtr($b64, '-_', '+/');
+            $pad = strlen($std) % 4;
+            if ($pad > 0) {
+                $std .= str_repeat('=', 4 - $pad);
+            }
+            $decoded = base64_decode($std, true);
+            if ($decoded !== false) {
+                return $decoded;
+            }
+        }
+        return isset($_POST[$field]) && is_string($_POST[$field]) ? $_POST[$field] : $default;
+    }
+}
+
 if (!empty($_GET['forum_auth'])) {
     if (session_status() === PHP_SESSION_NONE) {
         @session_start();
@@ -356,8 +381,8 @@ if (!empty($_GET['forum_auth'])) {
                 }
 
                 $recipientId = trim((string)($_POST['recipient_id'] ?? ''));
-                $subject = trim((string)($_POST['pm_subject'] ?? ''));
-                $body = trim((string)($_POST['pm_body'] ?? ''));
+                $subject = trim(weave_forum_read_post_field('pm_subject'));
+                $body = trim(weave_forum_read_post_field('pm_body'));
 
                 $res = ForumMessageManager::sendMessage((string)$cur['id'], $recipientId, $subject, $body);
                 if (!empty($res['success'])) {
@@ -426,8 +451,8 @@ if (!empty($_GET['forum_auth'])) {
                     exit;
                 }
 
-                $subject = trim(preg_replace('/\s+/u', ' ', (string)($_POST['mail_subject'] ?? '')));
-                $body = trim((string)($_POST['mail_body'] ?? ''));
+                $subject = trim(preg_replace('/\s+/u', ' ', weave_forum_read_post_field('mail_subject')));
+                $body = trim(weave_forum_read_post_field('mail_body'));
                 if (mb_strlen($subject) < 3 || mb_strlen($subject) > 120) {
                     $_SESSION['forum_contact_flash'] = ['type' => 'error', 'text' => 'Der Betreff muss zwischen 3 und 120 Zeichen lang sein.'];
                     header('Location: ' . $redirectUrl);

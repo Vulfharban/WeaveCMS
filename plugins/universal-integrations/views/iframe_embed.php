@@ -46,7 +46,7 @@ $isSection = !empty($params['is_section']);
                         <strong style="color: var(--text-primary);"><?= htmlspecialchars($title) ?></strong>
                     </div>
                     <div style="display:flex; align-items:center; gap: 8px;">
-                        <button type="button" onclick="document.getElementById('iframe_<?= htmlspecialchars($item['slug']) ?>').contentWindow.location.reload();" 
+                        <button type="button" onclick="var f=document.getElementById('iframe_<?= htmlspecialchars($item['slug']) ?>'); if(f){f.src=f.src;}" 
                                 class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:4px;">
                             <span class="material-icons" style="font-size:14px;">refresh</span> Neu laden
                         </button>

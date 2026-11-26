@@ -224,7 +224,7 @@ $prefillSubject = trim((string)($_GET['subject'] ?? ''));
                 </div>
 
             <?php elseif ($box === 'compose'): ?>
-                <form method="post" action="?forum_auth=send_pm" style="max-width:640px;">
+                <form method="post" action="?forum_auth=send_pm" data-waf-encode="pm_subject,pm_body" style="max-width:640px;">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                     <input type="hidden" name="redirect_to" value="?page=forum&view=messages&box=sent">
 

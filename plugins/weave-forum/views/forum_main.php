@@ -882,6 +882,8 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
         border-top: 1px dashed #f1f5f9;
         padding-top: 10px;
     }
+}
+
 /* Blockquotes & Zitate */
 .forum-quote,
 .forum-post-content blockquote {
@@ -908,6 +910,41 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
 .forum-quote .quote-body {
     font-style: italic;
     line-height: 1.6;
+}
+
+/* GitHub-inspirierte Aufzählungen & nummerierte Listen */
+.forum-post-content ul.forum-list {
+    margin: 10px 0 14px 0;
+    padding: 0;
+    list-style: none;
+}
+.forum-post-content ul.forum-list li {
+    position: relative;
+    margin: 8px 0;
+    padding: 3px 0 3px 14px;
+    border-left: 3px solid #cbd5e1;
+    color: #334155;
+    line-height: 1.6;
+    transition: border-color 0.15s ease;
+}
+.forum-post-content ul.forum-list li:hover {
+    border-left-color: var(--primary, #2e6248);
+}
+.forum-post-content ol.forum-list-ordered {
+    margin: 10px 0 14px 0;
+    padding: 0 0 0 24px;
+    list-style: decimal;
+    border-left: 3px solid #cbd5e1;
+}
+.forum-post-content ol.forum-list-ordered li {
+    margin: 6px 0;
+    padding: 2px 0 2px 6px;
+    color: #334155;
+    line-height: 1.6;
+}
+.forum-post-content ol.forum-list-ordered li::marker {
+    color: var(--primary, #2e6248);
+    font-weight: 700;
 }
 
 /* Inline Code */
@@ -979,7 +1016,6 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
     color: inherit;
     font-family: inherit;
 }
-}
 </style>
 
 <script>
@@ -994,4 +1030,76 @@ function copyForumCode(btn) {
         setTimeout(() => { btn.innerHTML = orig; }, 2000);
     });
 }
+
+function encodeBase64UrlUtf8(str) {
+    const bytes = new TextEncoder().encode(str == null ? '' : String(str));
+    let bin = '';
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+    }
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+document.addEventListener('submit', function(e) {
+    const form = e.target;
+    if (!form || form.nodeName !== 'FORM') return;
+    const spec = form.getAttribute('data-waf-encode');
+    if (!spec) return;
+
+    const fields = spec.split(',').map(s => s.trim()).filter(Boolean);
+    if (!fields.length) return;
+
+    try {
+        fields.forEach(function(field) {
+            const el = form.querySelector('[name="' + field + '"]');
+            if (!el) return;
+            const hiddenName = field + '_b64';
+            let hidden = form.querySelector('input[type="hidden"][name="' + hiddenName + '"]');
+            if (!hidden) {
+                hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = hiddenName;
+                hidden.setAttribute('data-waf-generated', '1');
+                form.appendChild(hidden);
+            }
+            hidden.value = encodeBase64UrlUtf8(el.value);
+            el.dataset.wafOrigName = field;
+            el.removeAttribute('name');
+        });
+
+        let flag = form.querySelector('input[type="hidden"][name="waf_encoded"]');
+        if (!flag) {
+            flag = document.createElement('input');
+            flag.type = 'hidden';
+            flag.name = 'waf_encoded';
+            flag.value = '1';
+            flag.setAttribute('data-waf-generated', '1');
+            form.appendChild(flag);
+        }
+    } catch (err) {
+        // Fallback: Felder im Klartext belassen, falls TextEncoder/btoa unerwartet fehlschlägt
+        form.querySelectorAll('[data-waf-orig-name]').forEach(function(el) {
+            el.setAttribute('name', el.dataset.wafOrigName);
+            delete el.dataset.wafOrigName;
+        });
+        form.querySelectorAll('input[data-waf-generated="1"]').forEach(function(el) {
+            el.remove();
+        });
+    }
+});
+
+window.addEventListener('pageshow', function() {
+    document.querySelectorAll('form[data-waf-encode]').forEach(function(form) {
+        form.querySelectorAll('[data-waf-orig-name]').forEach(function(el) {
+            if (!el.getAttribute('name')) {
+                el.setAttribute('name', el.dataset.wafOrigName);
+            }
+            delete el.dataset.wafOrigName;
+        });
+        form.querySelectorAll('input[data-waf-generated="1"]').forEach(function(el) {
+            el.remove();
+        });
+    });
+});
 </script>

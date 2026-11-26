@@ -545,7 +545,7 @@ dialog.kunena-dialog::backdrop {
                 </button>
             </div>
         </div>
-        <form method="post" action="?forum_action=add_post" style="margin:0;">
+        <form method="post" action="?forum_action=add_post" data-waf-encode="content" style="margin:0;">
             <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
@@ -560,6 +560,12 @@ dialog.kunena-dialog::backdrop {
                         </button>
                         <button type="button" class="kunena-md-btn" title="Kursiv (*Text*)" onclick="insertForumMarkdown('reply_textarea', '*', '*', 'Kursiver Text')">
                             <span class="material-icons" style="font-size: 16px;">format_italic</span>
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Aufzählung (- Punkt)" onclick="insertForumList('reply_textarea', 'ul')">
+                            <span class="material-icons" style="font-size: 16px;">format_list_bulleted</span>
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Nummerierte Liste (1. Punkt)" onclick="insertForumList('reply_textarea', 'ol')">
+                            <span class="material-icons" style="font-size: 16px;">format_list_numbered</span>
                         </button>
                         <button type="button" class="kunena-md-btn" title="Zitat einfügen" onclick="insertForumMarkdown('reply_textarea', '> ', '', 'Zitattext')">
                             <span class="material-icons" style="font-size: 16px;">format_quote</span> Zitat
@@ -617,7 +623,7 @@ dialog.kunena-dialog::backdrop {
 <!-- Inline Edit Container (wird beim Klick auf "Bearbeiten" direkt in den jeweiligen Beitrag verschoben) -->
 <div id="inline_edit_host" style="display:none;">
     <div id="inline_edit_card" style="background:#ffffff; border:2px solid var(--primary, #2e6248); border-radius:12px; padding:16px; box-shadow:0 6px 20px rgba(15,23,42,0.08);">
-        <form method="post" action="?forum_action=edit_post" style="margin:0;">
+        <form method="post" action="?forum_action=edit_post" data-waf-encode="content" style="margin:0;">
             <input type="hidden" name="post_id" id="edit_post_id" value="">
             <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
@@ -649,6 +655,12 @@ dialog.kunena-dialog::backdrop {
                         </button>
                         <button type="button" class="kunena-md-btn" title="Kursiv (*Text*)" onclick="insertForumMarkdown('edit_post_content', '*', '*', 'Kursiver Text')">
                             <span class="material-icons" style="font-size: 16px;">format_italic</span>
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Aufzählung (- Punkt)" onclick="insertForumList('edit_post_content', 'ul')">
+                            <span class="material-icons" style="font-size: 16px;">format_list_bulleted</span>
+                        </button>
+                        <button type="button" class="kunena-md-btn" title="Nummerierte Liste (1. Punkt)" onclick="insertForumList('edit_post_content', 'ol')">
+                            <span class="material-icons" style="font-size: 16px;">format_list_numbered</span>
                         </button>
                         <button type="button" class="kunena-md-btn" title="Zitat einfügen" onclick="insertForumMarkdown('edit_post_content', '> ', '', 'Zitattext')">
                             <span class="material-icons" style="font-size: 16px;">format_quote</span> Zitat
@@ -684,7 +696,7 @@ dialog.kunena-dialog::backdrop {
 
 <!-- Modal: Report Post -->
 <dialog id="modal_report_post" class="kunena-dialog">
-    <form method="post" action="?forum_action=report_post" style="padding:24px; margin:0;">
+    <form method="post" action="?forum_action=report_post" data-waf-encode="reason" style="padding:24px; margin:0;">
         <input type="hidden" name="post_id" id="report_post_id" value="">
         <input type="hidden" name="topic_id" value="<?= htmlspecialchars($topic['id']) ?>">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
@@ -749,6 +761,54 @@ function insertForumMarkdown(textareaId, prefix, suffix, placeholder) {
     area.value = area.value.substring(0, start) + replacement + area.value.substring(end);
     area.focus();
     area.setSelectionRange(start + effectivePrefix.length, start + effectivePrefix.length + insertText.length);
+}
+
+function insertForumList(textareaId, listType) {
+    const area = document.getElementById(textareaId);
+    if (!area) return;
+    if (textareaId === 'reply_textarea' && area.style.display === 'none') {
+        switchEditorTab('write', 'reply_textarea', 'reply_preview_box', 'tab_reply_write', 'tab_reply_preview');
+    } else if (textareaId === 'edit_post_content' && area.style.display === 'none') {
+        switchEditorTab('write', 'edit_post_content', 'edit_post_preview_box', 'tab_edit_write', 'tab_edit_preview');
+    }
+    const start = area.selectionStart || 0;
+    const end = area.selectionEnd || 0;
+    const val = area.value;
+
+    if (start !== end) {
+        const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+        let lineEnd = val.indexOf('\n', end);
+        if (lineEnd === -1) lineEnd = val.length;
+        const selectedBlock = val.substring(lineStart, lineEnd);
+        const lines = selectedBlock.split('\n');
+        const ulRe = /^[ \t]*[-*][ \t]+/;
+        const olRe = /^[ \t]*\d+\.[ \t]+/;
+        const allMatch = lines.filter(l => l.trim() !== '').every(l => listType === 'ol' ? olRe.test(l) : ulRe.test(l));
+
+        let idx = 1;
+        const transformed = lines.map(function(line) {
+            if (line.trim() === '') return line;
+            if (allMatch) {
+                return line.replace(listType === 'ol' ? olRe : ulRe, '');
+            }
+            const clean = line.replace(ulRe, '').replace(olRe, '');
+            return listType === 'ol' ? `${idx++}. ${clean}` : `- ${clean}`;
+        }).join('\n');
+
+        area.value = val.substring(0, lineStart) + transformed + val.substring(lineEnd);
+        area.focus();
+        area.setSelectionRange(lineStart, lineStart + transformed.length);
+        return;
+    }
+
+    const prefix = (start > 0 && val[start - 1] !== '\n') ? '\n' : '';
+    const marker = listType === 'ol' ? '1. ' : '- ';
+    const placeholder = 'Listenpunkt';
+    const insertion = prefix + marker + placeholder;
+    area.value = val.substring(0, start) + insertion + val.substring(end);
+    area.focus();
+    const selStart = start + prefix.length + marker.length;
+    area.setSelectionRange(selStart, selStart + placeholder.length);
 }
 
 function cancelReply() {
@@ -840,19 +900,42 @@ function renderMarkdownPreview(raw, targetEl) {
     // 6. Inline Code: `code`
     s = s.replace(/`([^`]+)`/g, '<code style="background:#f1f5f9; color:#0f172a; padding:2px 6px; border-radius:4px; font-size:0.9em; font-family:monospace; border:1px solid #e2e8f0;">$1</code>');
 
-    // 7. Bold & Italic
-    s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    s = s.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+    // 7. Bold & Italic (strikte Einzeilen-Grenze)
+    s = s.replace(/\*\*([^\r\n]+?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(?<!\*)\*(?!\s)([^\r\n\*]+?)(?<!\s)\*(?!\*)/g, '<em>$1</em>');
 
     // 7b. Headings: #, ##, ###
     s = s.replace(/^###[ \t]+([^\r\n]+)(?:\r?\n)?/gm, '<h4 class="forum-heading forum-heading-3" style="margin:0.85em 0 0.35em 0; font-size:1.05em; font-weight:700; line-height:1.35;">$1</h4>');
     s = s.replace(/^##[ \t]+([^\r\n]+)(?:\r?\n)?/gm, '<h3 class="forum-heading forum-heading-2" style="margin:1em 0 0.4em 0; font-size:1.2em; font-weight:800; line-height:1.3;">$1</h3>');
     s = s.replace(/^#[ \t]+([^\r\n]+)(?:\r?\n)?/gm, '<h2 class="forum-heading forum-heading-1" style="margin:1.1em 0 0.45em 0; font-size:1.38em; font-weight:800; line-height:1.25; border-bottom:1px solid rgba(148,163,184,0.3); padding-bottom:0.25em;">$1</h2>');
 
+    // 7c. Aufzählungen ("- Punkt", "* Punkt") und nummerierte Listen ("1. Punkt")
+    const listTokens = [];
+    s = s.replace(/(?:^[ \t]*[-*][ \t]+[^\r\n]+(?:\r?\n|$))+/gm, function(block) {
+        const items = block.replace(/\r?\n$/, '').split(/\r?\n/).map(function(line) {
+            return '<li>' + line.replace(/^[ \t]*[-*][ \t]+/, '') + '</li>';
+        }).join('');
+        const ph = `%%%FORUM_PREVIEW_LIST_${listTokens.length}%%%`;
+        listTokens.push(`<ul class="forum-list">${items}</ul>`);
+        return ph + '\n';
+    });
+    s = s.replace(/(?:^[ \t]*\d+\.[ \t]+[^\r\n]+(?:\r?\n|$))+/gm, function(block) {
+        const items = block.replace(/\r?\n$/, '').split(/\r?\n/).map(function(line) {
+            return '<li>' + line.replace(/^[ \t]*\d+\.[ \t]+/, '') + '</li>';
+        }).join('');
+        const ph = `%%%FORUM_PREVIEW_LIST_${listTokens.length}%%%`;
+        listTokens.push(`<ol class="forum-list forum-list-ordered">${items}</ol>`);
+        return ph + '\n';
+    });
+    s = s.replace(/(%%%FORUM_PREVIEW_LIST_\d+%%%)\r?\n/g, '$1');
+
     // 8. Line breaks
     s = s.replace(/\n/g, '<br>');
 
-    // 9. Restore code tokens
+    // 9. Restore list & code tokens
+    listTokens.forEach((lt, idx) => {
+        s = s.replace(`%%%FORUM_PREVIEW_LIST_${idx}%%%`, lt);
+    });
     codeTokens.forEach((ct, idx) => {
         s = s.replace(`%%%FORUM_PREVIEW_CODE_${idx}%%%`, ct);
     });

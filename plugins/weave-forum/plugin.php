@@ -211,6 +211,31 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
 // -----------------------------------------------------------------------------
 // 2. Frontend Forum Aktionen (Thema erstellen, Antworten, Moderieren)
 // -----------------------------------------------------------------------------
+if (!function_exists('weave_forum_read_post_field')) {
+    /**
+     * Liest ein per URL-safe Base64 (WAF-Schutz) oder regulär übermitteltes POST-Feld.
+     */
+    function weave_forum_read_post_field(string $field, string $default = ''): string {
+        $b64Key = $field . '_b64';
+        if (isset($_POST[$b64Key]) && is_string($_POST[$b64Key])) {
+            $b64 = trim($_POST[$b64Key]);
+            if ($b64 === '') {
+                return '';
+            }
+            $std = strtr($b64, '-_', '+/');
+            $pad = strlen($std) % 4;
+            if ($pad > 0) {
+                $std .= str_repeat('=', 4 - $pad);
+            }
+            $decoded = base64_decode($std, true);
+            if ($decoded !== false) {
+                return $decoded;
+            }
+        }
+        return isset($_POST[$field]) && is_string($_POST[$field]) ? $_POST[$field] : $default;
+    }
+}
+
 if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if (session_status() === PHP_SESSION_NONE) {
         @session_start();
@@ -223,8 +248,8 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
         // Thema erstellen
         if ($action === 'create_topic' && $currentUser) {
             $boardId = trim($_POST['board_id'] ?? '');
-            $title = trim($_POST['title'] ?? '');
-            $content = trim($_POST['content'] ?? '');
+            $title = trim(weave_forum_read_post_field('title'));
+            $content = trim(weave_forum_read_post_field('content'));
 
             // Rate Limit
             global $data;
@@ -252,7 +277,7 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
         // Antwort verfassen
         if ($action === 'add_post' && $currentUser) {
             $topicId = trim($_POST['topic_id'] ?? '');
-            $content = trim($_POST['content'] ?? '');
+            $content = trim(weave_forum_read_post_field('content'));
 
             // Rate Limit
             global $data;
@@ -281,7 +306,7 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'edit_post' && $currentUser) {
             $postId = trim($_POST['post_id'] ?? '');
             $topicId = trim($_POST['topic_id'] ?? '');
-            $content = trim($_POST['content'] ?? '');
+            $content = trim(weave_forum_read_post_field('content'));
 
             $p = ForumManager::getPost($postId);
             $isMod = ForumUserManager::userCan('moderate', $currentUser);
@@ -296,7 +321,7 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'report_post' && $currentUser) {
             $postId = trim($_POST['post_id'] ?? '');
             $topicId = trim($_POST['topic_id'] ?? '');
-            $reason = trim($_POST['reason'] ?? '');
+            $reason = trim(weave_forum_read_post_field('reason'));
             ForumManager::reportPost($postId, $currentUser, $reason);
             header('Location: ?page=forum&view=topic&id=' . urlencode($topicId));
             exit;

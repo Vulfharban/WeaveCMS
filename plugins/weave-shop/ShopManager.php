@@ -363,9 +363,13 @@ class ShopManager {
                 continue;
             }
 
-            // Prüfe Lagerbestand
-            if (empty($p['unlimited']) && ($p['stock'] ?? 0) < 1) {
-                continue;
+            // Prüfe Lagerbestand & auf verfügbaren Bestand begrenzen
+            if (empty($p['unlimited'])) {
+                $availStock = (int)($p['stock'] ?? 0);
+                if ($availStock < 1) {
+                    continue;
+                }
+                $qty = min($qty, $availStock);
             }
 
             $price = (float)$p['price'];
@@ -523,6 +527,12 @@ class ShopManager {
         if (empty($ccConfig['enabled'])) {
             return ['success' => false, 'message' => 'Kreditkartenzahlung ist derzeit nicht aktiviert.'];
         }
+        if (empty($ccConfig['sandbox'])) {
+            return [
+                'success' => false,
+                'message' => 'Für Live-Kreditkartenzahlungen ist ein externer PCI-DSS-Zahlungsanbieter (z. B. Stripe/Mollie über Hook shop_process_payment) erforderlich. Bitte Sandbox-Modus nutzen oder Zahlungsanbieter anbinden.'
+            ];
+        }
 
         $holder = trim($details['card_holder'] ?? '');
         $number = preg_replace('/[^\d]/', '', $details['card_number'] ?? '');
@@ -545,6 +555,9 @@ class ShopManager {
         // Ablaufdatum prüfen
         $curYear = (int)date('Y');
         $curMonth = (int)date('n');
+        if ($expMonth < 1 || $expMonth > 12) {
+            return ['success' => false, 'message' => 'Ungültiger Ablaufmonat der Kreditkarte.'];
+        }
         if ($expYear < 100) {
             $expYear += 2000;
         }
@@ -552,7 +565,7 @@ class ShopManager {
             return ['success' => false, 'message' => 'Die Kreditkarte ist abgelaufen.'];
         }
 
-        if (strlen($cvc) < 3 || strlen($cvc) > 4) {
+        if (!ctype_digit($cvc) || strlen($cvc) < 3 || strlen($cvc) > 4) {
             return ['success' => false, 'message' => 'Ungültige Prüfziffer (CVC/CVV).'];
         }
 
@@ -567,7 +580,7 @@ class ShopManager {
         }
 
         $masked = '**** **** **** ' . substr($number, -4);
-        $ref = 'CC-' . strtoupper(substr(md5($number . microtime()), 0, 10));
+        $ref = 'CC-' . strtoupper(bin2hex(random_bytes(5)));
 
         return [
             'success'        => true,
@@ -588,8 +601,14 @@ class ShopManager {
         if (empty($ppConfig['enabled'])) {
             return ['success' => false, 'message' => 'PayPal ist derzeit nicht aktiviert.'];
         }
+        if (empty($ppConfig['sandbox'])) {
+            return [
+                'success' => false,
+                'message' => 'Für Live-PayPal-Zahlungen ist eine verifizierte PayPal-API-Anbindung erforderlich. Bitte Sandbox-Modus aktivieren oder PayPal-Gateway konfigurieren.'
+            ];
+        }
 
-        // PayPal Sandbox / Live Simulation oder API
+        // PayPal Sandbox Simulation oder API
         $paypalTxn = trim($details['paypal_order_id'] ?? '');
         if (empty($paypalTxn)) {
             $paypalTxn = 'PAYID-' . strtoupper(bin2hex(random_bytes(8)));
@@ -627,6 +646,7 @@ class ShopManager {
             'payment_method' => 'wero',
             'payment_ref'    => $weroTxn,
             'amount'         => $total,
+            'status'         => 'pending',
             'wero_details'   => [
                 'merchant_name' => $merchantName,
                 'iban'          => $merchantIban,
@@ -644,6 +664,8 @@ class ShopManager {
     public static function generateEpcQrPayload(string $name, string $iban, string $bic, float $amount, string $reference): string {
         $ibanClean = preg_replace('/\s+/', '', strtoupper($iban));
         $bicClean  = preg_replace('/\s+/', '', strtoupper($bic));
+        $nameClean = mb_substr(trim(preg_replace('/[\r\n]+/', ' ', $name)), 0, 70);
+        $refClean  = mb_substr(trim(preg_replace('/[\r\n]+/', ' ', $reference)), 0, 140);
         $amtFormatted = number_format($amount, 2, '.', '');
 
         // EPC069-12 Standard Payload (GiroCode / Wero Standard)
@@ -653,11 +675,11 @@ class ShopManager {
             '1',            // Character Set (UTF-8)
             'SCT',          // SEPA Credit Transfer
             $bicClean,      // BIC
-            $name,          // Name des Empfängers
+            $nameClean,     // Name des Empfängers (max. 70 Zeichen)
             $ibanClean,     // IBAN
             'EUR' . $amtFormatted, // Betrag
             '',             // Purpose Code
-            $reference,     // Verwendungszweck / Remittance
+            $refClean,      // Verwendungszweck / Remittance (max. 140 Zeichen)
             '',             // Structured reference
             'WeaveCMS Shop WERO' // Information
         ];
@@ -771,7 +793,7 @@ class ShopManager {
         $bankDetailsBlockHtml = '';
         $bankDetailsBlockText = '';
         if (($order['payment_method'] ?? '') === 'bank_transfer') {
-            $shopPluginConf = PluginManager::getPluginConfig('shop', $data);
+            $shopPluginConf = PluginManager::getPluginConfig('weave-shop', $data) ?: PluginManager::getPluginConfig('shop', $data);
             $bt = $shopPluginConf['payment_bank_transfer'] ?? [];
             $holder = htmlspecialchars($bt['account_holder'] ?? ($shopPluginConf['payment_wero']['merchant_name'] ?? $shopOwnerName));
             $bank = htmlspecialchars($bt['bank_name'] ?? '');
@@ -913,7 +935,7 @@ class ShopManager {
                     </table>
                 </div>
                 <div style="margin-top:16px;">
-                    <a href="' . htmlspecialchars(SecurityManager::getBaseUrl() . '/admin/?tab=tab-plugins&plugin_settings=shop&shop_subtab=orders#tab-plugins') . '" style="display:inline-block; padding:8px 16px; background:#2e6248; color:#fff; text-decoration:none; border-radius:6px; font-weight:600;">
+                    <a href="' . htmlspecialchars(SecurityManager::getBaseUrl() . '/admin/?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=orders#tab-plugins') . '" style="display:inline-block; padding:8px 16px; background:#2e6248; color:#fff; text-decoration:none; border-radius:6px; font-weight:600;">
                         Bestellung im Adminbereich aufrufen &rarr;
                     </a>
                 </div>
@@ -1170,7 +1192,7 @@ class ShopManager {
         $dataFile = dirname(__DIR__, 2) . '/data.json';
         if (file_exists($dataFile) && class_exists('PluginManager')) {
             $data = load_data($dataFile);
-            $curConfig = PluginManager::getPluginConfig('shop', $data);
+            $curConfig = PluginManager::getPluginConfig('weave-shop', $data) ?: PluginManager::getPluginConfig('shop', $data);
             if (!empty($curConfig['api_key'])) {
                 return (string)$curConfig['api_key'];
             }

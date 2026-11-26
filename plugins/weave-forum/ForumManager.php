@@ -1948,14 +1948,54 @@ class ForumManager {
         // 6. Inline Code: `inline code`
         $safe = preg_replace('/`([^`]+)`/', '<code style="background:#f1f5f9; color:#0f172a; padding:2px 6px; border-radius:4px; font-size:0.9em; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; border:1px solid #e2e8f0;">$1</code>', $safe);
 
-        // 7. Formatierungen: Fett & Kursiv
-        $safe = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $safe);
-        $safe = preg_replace('/\*([^\*]+)\*/s', '<em>$1</em>', $safe);
+        // 7. Formatierungen: Fett & Kursiv (strikte Einzeilen-Grenze, damit fehlendes * keine Folgetexte bricht)
+        $safe = preg_replace('/\*\*([^\r\n]+?)\*\*/', '<strong>$1</strong>', $safe);
+        $safe = preg_replace('/(?<!\*)\*(?!\s)([^\r\n\*]+?)(?<!\s)\*(?!\*)/', '<em>$1</em>', $safe);
 
         // 7b. Überschriften: #, ##, ### am Zeilenanfang
         $safe = preg_replace('/^###[ \t]+([^\r\n]+)(?:\r?\n)?/m', '<h4 class="forum-heading forum-heading-3" style="margin:0.85em 0 0.35em 0; font-size:1.05em; font-weight:700; line-height:1.35;">$1</h4>', $safe);
         $safe = preg_replace('/^##[ \t]+([^\r\n]+)(?:\r?\n)?/m', '<h3 class="forum-heading forum-heading-2" style="margin:1em 0 0.4em 0; font-size:1.2em; font-weight:800; line-height:1.3;">$1</h3>', $safe);
         $safe = preg_replace('/^#[ \t]+([^\r\n]+)(?:\r?\n)?/m', '<h2 class="forum-heading forum-heading-1" style="margin:1.1em 0 0.45em 0; font-size:1.38em; font-weight:800; line-height:1.25; border-bottom:1px solid rgba(148,163,184,0.3); padding-bottom:0.25em;">$1</h2>', $safe);
+
+        // 7c. Aufzählungen (Markdown: "- Punkt", "* Punkt") und nummerierte Listen ("1. Punkt")
+        $safe = preg_replace_callback('/(?:^[ \t]*[-*][ \t]+[^\r\n]+(?:\r?\n|$))+/m', function($m) use (&$tokens, &$tokenIdx) {
+            $lines = preg_split('/\r?\n/', trim($m[0], "\r\n"));
+            $items = '';
+            foreach ($lines as $line) {
+                $content = preg_replace('/^[ \t]*[-*][ \t]+/', '', $line);
+                if (trim($content) !== '') {
+                    $items .= '<li>' . $content . '</li>';
+                }
+            }
+            if ($items === '') {
+                return $m[0];
+            }
+            $ph = "%%%FORUM_LIST_BLOCK_{$tokenIdx}%%%";
+            $tokens[$ph] = '<ul class="forum-list">' . $items . '</ul>';
+            $tokenIdx++;
+            return $ph . "\n";
+        }, $safe);
+
+        $safe = preg_replace_callback('/(?:^[ \t]*\d+\.[ \t]+[^\r\n]+(?:\r?\n|$))+/m', function($m) use (&$tokens, &$tokenIdx) {
+            $lines = preg_split('/\r?\n/', trim($m[0], "\r\n"));
+            $items = '';
+            foreach ($lines as $line) {
+                $content = preg_replace('/^[ \t]*\d+\.[ \t]+/', '', $line);
+                if (trim($content) !== '') {
+                    $items .= '<li>' . $content . '</li>';
+                }
+            }
+            if ($items === '') {
+                return $m[0];
+            }
+            $ph = "%%%FORUM_LIST_BLOCK_{$tokenIdx}%%%";
+            $tokens[$ph] = '<ol class="forum-list forum-list-ordered">' . $items . '</ol>';
+            $tokenIdx++;
+            return $ph . "\n";
+        }, $safe);
+
+        // Umbruch direkt nach einem Listen-Platzhalter entfernen, damit nach </ul>/<ol> kein überflüssiges <br> entsteht
+        $safe = preg_replace('/(%%%FORUM_LIST_BLOCK_\d+%%%)\r?\n/', '$1', $safe);
 
         // 8. Zeilenumbrüche
         $safe = nl2br($safe);
