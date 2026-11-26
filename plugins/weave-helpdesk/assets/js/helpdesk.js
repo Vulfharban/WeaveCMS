@@ -16,48 +16,46 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 2. Filter: Geschlossene Aufgaben verbergen
-    const hideClosedCheck = document.getElementById('hdHideClosedCheckbox');
-    if (hideClosedCheck) {
-        hideClosedCheck.addEventListener('change', function () {
-            const hide = this.checked;
-            const rows = document.querySelectorAll('.hd-table tbody tr');
-            rows.forEach(function (row) {
-                if (row.classList.contains('row-closed') || row.classList.contains('row-billed')) {
-                    row.style.display = hide ? 'none' : '';
-                }
-            });
-            // Status in LocalStorage merken
-            localStorage.setItem('hd_hide_closed', hide ? '1' : '0');
-        });
-
-        // Gespeicherten Zustand wiederherstellen
-        if (localStorage.getItem('hd_hide_closed') === '1') {
-            hideClosedCheck.checked = true;
-            hideClosedCheck.dispatchEvent(new Event('change'));
-        }
-    }
-
-    // 3. Live-Suche in der Aufgabenliste
+    // 2. Live-Suche in der Aufgabenliste (inkl. Gruppen-Überschriften ausblenden, falls Gruppe leer)
     const searchInput = document.getElementById('hdSearchInput');
     if (searchInput) {
         searchInput.addEventListener('input', function () {
             const term = this.value.toLowerCase().trim();
-            const rows = document.querySelectorAll('.hd-table tbody tr');
-            rows.forEach(function (row) {
+            const ticketRows = document.querySelectorAll('.hd-table tbody tr[data-href]');
+            const visibleByGroup = {};
+
+            ticketRows.forEach(function (row) {
                 const text = row.innerText.toLowerCase();
                 const matches = text.includes(term);
-                // Wenn geschlossen ausgeblendet sein soll, Zustand berücksichtigen
-                const isClosed = row.classList.contains('row-closed') || row.classList.contains('row-billed');
-                const hideClosed = hideClosedCheck ? hideClosedCheck.checked : false;
-
-                if (!matches || (isClosed && hideClosed)) {
-                    row.style.display = 'none';
-                } else {
-                    row.style.display = '';
+                row.style.display = matches ? '' : 'none';
+                const gid = row.getAttribute('data-group-id');
+                if (gid && matches) {
+                    visibleByGroup[gid] = (visibleByGroup[gid] || 0) + 1;
                 }
             });
+
+            const groupRows = document.querySelectorAll('.hd-table tbody tr.hd-group-row');
+            groupRows.forEach(function (gRow) {
+                const gid = gRow.getAttribute('data-group-id');
+                gRow.style.display = (gid && visibleByGroup[gid] > 0) ? '' : 'none';
+            });
         });
+    }
+
+    // 3. Interne Notiz deaktiviert automatisch die E-Mail-Benachrichtigung an den Einsender
+    const internalCheckbox = document.getElementById('hdIsInternalCheckbox');
+    const notifyCheckbox = document.getElementById('hdNotifyCustomerCheckbox');
+    if (internalCheckbox && notifyCheckbox) {
+        const syncInternalNotify = function () {
+            if (internalCheckbox.checked) {
+                notifyCheckbox.checked = false;
+                notifyCheckbox.disabled = true;
+            } else {
+                notifyCheckbox.disabled = false;
+            }
+        };
+        internalCheckbox.addEventListener('change', syncInternalNotify);
+        syncInternalNotify();
     }
 
     // 4. Modal: Vertragsauswertung

@@ -23,6 +23,8 @@ $displayName = ForumUserManager::getDisplayName($currentUser);
 $roleLabel = ForumUserManager::getRoleLabel($currentUser['role'] ?? 'forum_user');
 $roleColor = ForumUserManager::getRoleColor($currentUser['role'] ?? 'forum_user');
 $privacy = ForumUserManager::getPrivacySettings($currentUser);
+$profileFields = ForumUserManager::getProfileFields($currentUser);
+$isOnlineHidden = ForumUserManager::isOnlineStatusHidden($currentUser);
 ?>
 
 <style>
@@ -204,9 +206,14 @@ $privacy = ForumUserManager::getPrivacySettings($currentUser);
                     </div>
                 </div>
             </div>
-            <a href="?forum_auth=logout" class="kunena-btn-secondary" style="padding:8px 14px;">
-                <span class="material-icons" style="font-size:16px;">logout</span> Abmelden
-            </a>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <a href="?page=forum&view=user&id=<?= urlencode($currentUser['id']) ?>" class="kunena-btn-secondary" style="padding:8px 14px;">
+                    <span class="material-icons" style="font-size:16px;">account_circle</span> Mein öffentliches Profil
+                </a>
+                <a href="?forum_auth=logout" class="kunena-btn-secondary" style="padding:8px 14px;">
+                    <span class="material-icons" style="font-size:16px;">logout</span> Abmelden
+                </a>
+            </div>
         </div>
 
         <div class="kunena-profile-body">
@@ -286,6 +293,11 @@ $privacy = ForumUserManager::getPrivacySettings($currentUser);
                             <input type="checkbox" name="use_alias_only" value="1" <?= !empty($currentUser['use_alias_only']) ? 'checked' : '' ?> style="width:17px; height:17px; accent-color:var(--primary, #2e6248);">
                             <span>Nur diesen Alias im Forum anzeigen (meinen echten Benutzernamen „<?= htmlspecialchars($currentUser['username']) ?>“ vor anderen verbergen)</span>
                         </label>
+
+                        <label style="display:flex; align-items:center; gap:10px; font-size:13px; font-weight:700; color:#0f172a; cursor:pointer; padding-top:10px; margin-top:10px; border-top:1px dashed rgba(46, 98, 72, 0.25);">
+                            <input type="checkbox" name="hide_online_status" value="1" <?= $isOnlineHidden ? 'checked' : '' ?> style="width:17px; height:17px; accent-color:var(--primary, #2e6248);">
+                            <span>Unsichtbar-Modus: Meinen Online-Status im Forum verbergen (nicht in „Wer ist online“ &amp; im Mitgliederprofil sichtbar)</span>
+                        </label>
                     </div>
                 <?php endif; ?>
 
@@ -296,12 +308,27 @@ $privacy = ForumUserManager::getPrivacySettings($currentUser);
                         <span>Persönliche Angaben &amp; Signatur</span>
                     </h3>
                     <p class="kunena-form-section-desc">
-                        Deine E-Mail-Adresse wird niemals öffentlich im Forum angezeigt.
+                        Welche deiner Angaben für andere angemeldete Mitglieder sichtbar sind (inklusive E-Mail-Adresse), bestimmst du im Abschnitt „Privatsphäre &amp; Sichtbarkeit“ direkt darunter.
                     </p>
 
                     <div class="kunena-field">
-                        <label>E-Mail-Adresse (nur für Benachrichtigungen &amp; Login):</label>
+                        <label>E-Mail-Adresse (für Benachrichtigungen, Login &amp; optionale Freigabe/Kontakt):</label>
                         <input type="email" name="email" value="<?= htmlspecialchars($currentUser['email']) ?>" required class="kunena-input">
+                    </div>
+
+                    <div class="kunena-field">
+                        <label>Wohnort / Region (optional, nur für angemeldete Mitglieder):</label>
+                        <input type="text" name="profile_location" value="<?= htmlspecialchars($profileFields['location']) ?>" class="kunena-input" placeholder="z. B. Berlin, Bayern, Deutschland..." maxlength="80">
+                    </div>
+
+                    <div class="kunena-field">
+                        <label>Interessen / Hobbys (optional):</label>
+                        <input type="text" name="profile_interests" value="<?= htmlspecialchars($profileFields['interests']) ?>" class="kunena-input" placeholder="z. B. Flechten, Naturhandwerk, Holzbau..." maxlength="200">
+                    </div>
+
+                    <div class="kunena-field">
+                        <label>Website / Homepage (optional, mit https://):</label>
+                        <input type="url" name="profile_website" value="<?= htmlspecialchars($profileFields['website']) ?>" class="kunena-input" placeholder="https://example.org" maxlength="160">
                     </div>
 
                     <div class="kunena-field">
@@ -330,7 +357,7 @@ $privacy = ForumUserManager::getPrivacySettings($currentUser);
                     </h3>
                     <p class="kunena-form-section-desc">
                         Wähle selbst aus, welche deiner Profil-Inhalte anderen <strong>angemeldeten Benutzern</strong> im Forum angezeigt werden dürfen.
-                        <br><span style="color: var(--primary, #2e6248); font-weight: 700;">🔒 Hinweis zum Gänseschutz:</span> Nicht angemeldeten Besuchern (Gästen) werden grundsätzlich keinerlei Benutzerdaten angezeigt.
+                        <br><span style="color: var(--primary, #2e6248); font-weight: 700;">🔒 Hinweis zum Gästeschutz:</span> Nicht angemeldeten Besuchern (Gästen) werden grundsätzlich keinerlei Benutzerdaten oder Profile angezeigt.
                     </p>
 
                     <div class="kunena-privacy-grid">
@@ -374,11 +401,61 @@ $privacy = ForumUserManager::getPrivacySettings($currentUser);
                             </div>
                         </label>
 
+                        <?php if (!$canUseAlias): ?>
                         <label class="kunena-privacy-item">
                             <input type="checkbox" name="priv_show_online_status" value="1" <?= !empty($privacy['show_online_status']) ? 'checked' : '' ?>>
                             <div>
                                 <div style="font-weight:700; font-size:13px; color:#0f172a;">Online-Status anzeigen</div>
-                                <div style="font-size:11.5px; color:#64748b;">Zeigt deinen Namen unten in der Liste „Wer ist online“.</div>
+                                <div style="font-size:11.5px; color:#64748b;">Zeigt deinen Namen unten in der Liste „Wer ist online“ und im Profil.</div>
+                            </div>
+                        </label>
+                        <?php endif; ?>
+
+                        <label class="kunena-privacy-item">
+                            <input type="checkbox" name="priv_show_email" value="1" <?= !empty($privacy['show_email']) ? 'checked' : '' ?>>
+                            <div>
+                                <div style="font-weight:700; font-size:13px; color:#0f172a;">E-Mail-Adresse im Profil anzeigen</div>
+                                <div style="font-size:11.5px; color:#64748b;">Zeigt deine E-Mail-Adresse anderen angemeldeten Mitgliedern in deinem Profil an (standardmäßig verborgen).</div>
+                            </div>
+                        </label>
+
+                        <label class="kunena-privacy-item">
+                            <input type="checkbox" name="priv_show_location" value="1" <?= !empty($privacy['show_location']) ? 'checked' : '' ?>>
+                            <div>
+                                <div style="font-weight:700; font-size:13px; color:#0f172a;">Wohnort / Region anzeigen</div>
+                                <div style="font-size:11.5px; color:#64748b;">Zeigt deinen angegebenen Wohnort im Mitgliederprofil.</div>
+                            </div>
+                        </label>
+
+                        <label class="kunena-privacy-item">
+                            <input type="checkbox" name="priv_show_interests" value="1" <?= !empty($privacy['show_interests']) ? 'checked' : '' ?>>
+                            <div>
+                                <div style="font-weight:700; font-size:13px; color:#0f172a;">Interessen / Hobbys anzeigen</div>
+                                <div style="font-size:11.5px; color:#64748b;">Zeigt deine angegebenen Interessen im Mitgliederprofil.</div>
+                            </div>
+                        </label>
+
+                        <label class="kunena-privacy-item">
+                            <input type="checkbox" name="priv_show_website" value="1" <?= !empty($privacy['show_website']) ? 'checked' : '' ?>>
+                            <div>
+                                <div style="font-weight:700; font-size:13px; color:#0f172a;">Website / Homepage anzeigen</div>
+                                <div style="font-size:11.5px; color:#64748b;">Zeigt deinen Website-Link im Mitgliederprofil an.</div>
+                            </div>
+                        </label>
+
+                        <label class="kunena-privacy-item">
+                            <input type="checkbox" name="priv_allow_pm" value="1" <?= !empty($privacy['allow_pm']) ? 'checked' : '' ?>>
+                            <div>
+                                <div style="font-weight:700; font-size:13px; color:#0f172a;">Private Nachrichten (PN) erlauben</div>
+                                <div style="font-size:11.5px; color:#64748b;">Andere registrierte Mitglieder dürfen dir interne Nachrichten senden.</div>
+                            </div>
+                        </label>
+
+                        <label class="kunena-privacy-item">
+                            <input type="checkbox" name="priv_allow_email_contact" value="1" <?= !empty($privacy['allow_email_contact']) ? 'checked' : '' ?>>
+                            <div>
+                                <div style="font-weight:700; font-size:13px; color:#0f172a;">Kontaktaufnahme per E-Mail erlauben</div>
+                                <div style="font-size:11.5px; color:#64748b;">Mitglieder können dir über ein Formular im Profil eine E-Mail senden (deine Adresse bleibt verborgen, sofern nicht freigegeben).</div>
                             </div>
                         </label>
                     </div>

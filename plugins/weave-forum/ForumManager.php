@@ -29,20 +29,34 @@ class ForumManager {
 
     /**
      * Ermittelt den konfigurierten Speichertreiber ('mysql', 'sqlite' oder 'json').
+     * Wenn im Plugin nichts anderes festgelegt wurde, wird automatisch der globale
+     * Speichertreiber (z. B. aus dem Installer / config.local.php) geerbt.
      */
     public static function getStorageDriver(): string {
+        $driver = '';
         if (class_exists('PluginManager')) {
             $data = $GLOBALS['data'] ?? [];
             if (!empty($data)) {
                 $cfg = PluginManager::getPluginConfig('weave-forum', $data);
-                $driver = $cfg['storage_driver'] ?? 'json';
-                if ($driver === 'mysql' && self::isMysqlSupported()) {
-                    return 'mysql';
-                }
-                if ($driver === 'sqlite' && self::isSqliteSupported()) {
-                    return 'sqlite';
-                }
+                $driver = trim((string)($cfg['storage_driver'] ?? ''));
             }
+        }
+
+        if ($driver === '') {
+            if (class_exists('StorageManager')) {
+                $driver = StorageManager::getCurrentDriverType();
+            } elseif (defined('WEAVE_STORAGE_DRIVER')) {
+                $driver = (string)WEAVE_STORAGE_DRIVER;
+            } else {
+                $driver = 'json';
+            }
+        }
+
+        if ($driver === 'mysql' && self::isMysqlSupported()) {
+            return 'mysql';
+        }
+        if ($driver === 'sqlite' && self::isSqliteSupported()) {
+            return 'sqlite';
         }
         return 'json';
     }
@@ -101,7 +115,7 @@ class ForumManager {
 
         $host = !empty($cfg['mysql_host']) ? $cfg['mysql_host'] : (defined('WEAVE_DB_HOST') ? WEAVE_DB_HOST : '127.0.0.1');
         $port = !empty($cfg['mysql_port']) ? (int)$cfg['mysql_port'] : (defined('WEAVE_DB_PORT') ? (int)WEAVE_DB_PORT : 3306);
-        $dbname = !empty($cfg['mysql_database']) ? $cfg['mysql_database'] : (defined('WEAVE_DB_NAME') ? WEAVE_DB_NAME : 'WeaveCMS');
+        $dbname = !empty($cfg['mysql_database']) ? $cfg['mysql_database'] : (defined('WEAVE_DB_NAME') ? WEAVE_DB_NAME : 'weavecms');
         $user = !empty($cfg['mysql_user']) ? $cfg['mysql_user'] : (defined('WEAVE_DB_USER') ? WEAVE_DB_USER : 'root');
         $pass = isset($cfg['mysql_password']) ? (string)$cfg['mysql_password'] : (defined('WEAVE_DB_PASS') ? (string)WEAVE_DB_PASS : '');
         $charset = !empty($cfg['mysql_charset']) ? $cfg['mysql_charset'] : 'utf8mb4';
@@ -1207,6 +1221,9 @@ class ForumManager {
     public static function updatePost(string $postId, string $content, array $editorUser): bool {
         $content = self::filterBadWords(trim($content));
         $now = date('Y-m-d H:i:s');
+        $editorDisplayName = class_exists('ForumUserManager')
+            ? ForumUserManager::getDisplayName($editorUser, (string)($editorUser['username'] ?? ''))
+            : (string)($editorUser['username'] ?? '');
 
         if (self::isDatabase()) {
             try {
@@ -1218,7 +1235,7 @@ class ForumManager {
                 return $stmt->execute([
                     ':content' => $content,
                     ':now' => $now,
-                    ':editor' => $editorUser['username'],
+                    ':editor' => $editorDisplayName,
                     ':id' => $postId
                 ]);
             } catch (Exception $e) {
@@ -1231,7 +1248,7 @@ class ForumManager {
             if ($p['id'] === $postId) {
                 $p['content'] = $content;
                 $p['updated_at'] = $now;
-                $p['edited_by'] = $editorUser['username'];
+                $p['edited_by'] = $editorDisplayName;
                 return self::saveJsonData($data);
             }
         }

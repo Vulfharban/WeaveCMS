@@ -180,7 +180,7 @@ $provider = HelpdeskManager::getServiceProviderDetails();
                 <?php endif; ?>
             <?php endif; ?>
             <div style="margin-top: 8px;">
-                <a href="<?= htmlspecialchars(dirname($_SERVER['SCRIPT_NAME'] ?? '/')) ?>" style="color: #718096; font-size: 11px;">← Zurück zur Startseite</a>
+                <a href="./" style="color: #718096; font-size: 11px;">← Zurück zur Startseite</a>
             </div>
         </div>
     </div>

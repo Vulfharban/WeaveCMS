@@ -299,13 +299,29 @@ dialog.kunena-dialog::backdrop {
                     $authorRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($effectiveRole) : '#2563eb';
                     $authorRoleLabel = class_exists('ForumUserManager') ? ForumUserManager::getRoleLabel($effectiveRole) : 'Mitglied';
                     ?>
-                    <div class="kunena-avatar-mini" style="width: 48px; height: 48px; font-size: 18px;">
-                        <?= strtoupper(mb_substr($authorDisplayName, 0, 1)) ?>
-                    </div>
+                    <?php if ($author): ?>
+                        <a href="?page=forum&view=user&id=<?= urlencode($author['id']) ?>" style="text-decoration:none; display:inline-block;" title="Mitgliederprofil ansehen">
+                            <div class="kunena-avatar-mini" style="width: 48px; height: 48px; font-size: 18px; margin: 0 auto 8px auto;">
+                                <?= strtoupper(mb_substr($authorDisplayName, 0, 1)) ?>
+                            </div>
+                        </a>
+                    <?php else: ?>
+                        <div class="kunena-avatar-mini" style="width: 48px; height: 48px; font-size: 18px;">
+                            <?= strtoupper(mb_substr($authorDisplayName, 0, 1)) ?>
+                        </div>
+                    <?php endif; ?>
                     <div>
-                        <strong style="display:block; font-size: 14px; font-weight:700; color: <?= htmlspecialchars($authorRoleColor) ?>">
-                            <?= htmlspecialchars($authorDisplayName) ?>
-                        </strong>
+                        <?php if ($author): ?>
+                            <a href="?page=forum&view=user&id=<?= urlencode($author['id']) ?>" style="text-decoration:none;" title="Mitgliederprofil ansehen">
+                                <strong style="display:block; font-size: 14px; font-weight:700; color: <?= htmlspecialchars($authorRoleColor) ?>">
+                                    <?= htmlspecialchars($authorDisplayName) ?>
+                                </strong>
+                            </a>
+                        <?php else: ?>
+                            <strong style="display:block; font-size: 14px; font-weight:700; color: <?= htmlspecialchars($authorRoleColor) ?>">
+                                <?= htmlspecialchars($authorDisplayName) ?>
+                            </strong>
+                        <?php endif; ?>
 
                         <?php if (!empty($authorPriv['show_role'])): ?>
                             <span style="display:inline-block; padding: 2px 8px; margin-top: 4px; border-radius: 6px; font-size: 10px; font-weight: 700; background-color: <?= htmlspecialchars($authorRoleColor) ?>18; color: <?= htmlspecialchars($authorRoleColor) ?>; border: 1px solid <?= htmlspecialchars($authorRoleColor) ?>40;">
@@ -358,16 +374,6 @@ dialog.kunena-dialog::backdrop {
                             <?= ForumManager::formatRelativeTime($post['created_at']) ?> <span style="opacity:0.6;">(<?= htmlspecialchars($post['created_at']) ?>)</span>
                         </span>
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <?php if (!empty($post['updated_at'])): ?>
-                                <?php
-                                $editedTsTop = strtotime($post['updated_at']);
-                                $editedFmtTop = $editedTsTop ? date('d.m.Y, H:i', $editedTsTop) . ' Uhr' : substr($post['updated_at'], 0, 16);
-                                ?>
-                                <span style="display:inline-flex; align-items:center; gap:3px; font-style:italic; font-size: 11px; color:#64748b;" title="Zuletzt bearbeitet am <?= htmlspecialchars($post['updated_at']) ?>">
-                                    <span class="material-icons" style="font-size:13px;">edit</span>
-                                    Bearbeitet am <?= htmlspecialchars($editedFmtTop) ?>
-                                </span>
-                            <?php endif; ?>
                             <a href="#post-<?= htmlspecialchars($post['id']) ?>" style="color:#64748b; text-decoration:none; font-weight:600;">#<?= $idx + 1 ?></a>
                         </div>
                     </div>
@@ -385,11 +391,24 @@ dialog.kunena-dialog::backdrop {
                         <?php
                         $editedTs = strtotime($post['updated_at']);
                         $editedFormatted = $editedTs ? date('d.m.Y \u\m H:i', $editedTs) . ' Uhr' : substr($post['updated_at'], 0, 16);
-                        $editedBy = trim((string)($post['edited_by'] ?? ''));
+                        $editedByRaw = trim((string)($post['edited_by'] ?? ''));
+                        $editedByDisplay = $editedByRaw;
+                        if ($editedByRaw !== '' && class_exists('ForumUserManager')) {
+                            if ($author && $editedByRaw === ($author['username'] ?? '')) {
+                                $editedByDisplay = $authorDisplayName;
+                            } elseif ($currentUser && $editedByRaw === ($currentUser['username'] ?? '')) {
+                                $editedByDisplay = ForumUserManager::getDisplayName($currentUser, $editedByRaw);
+                            } else {
+                                $editorUserObj = ForumUserManager::getUserById($editedByRaw) ?? ForumUserManager::findUser($editedByRaw);
+                                if ($editorUserObj) {
+                                    $editedByDisplay = ForumUserManager::getDisplayName($editorUserObj, $editedByRaw);
+                                }
+                            }
+                        }
                         ?>
                         <div class="kunena-post-edited" style="display:inline-flex; align-items:center; gap:5px; margin-top:2px; margin-bottom:14px; padding:4px 10px; border-radius:6px; background:#f8fafc; border:1px solid #e2e8f0; font-size:11.5px; color:#64748b;">
                             <span class="material-icons" style="font-size:14px; color:var(--primary, #2e6248);">edit_note</span>
-                            <span>Zuletzt bearbeitet am <strong><?= htmlspecialchars($editedFormatted) ?></strong><?php if ($editedBy !== '' && $currentUser): ?> von <strong><?= htmlspecialchars($editedBy) ?></strong><?php endif; ?></span>
+                            <span>Zuletzt bearbeitet am <strong><?= htmlspecialchars($editedFormatted) ?></strong><?php if ($editedByDisplay !== '' && $currentUser): ?> von <strong><?= htmlspecialchars($editedByDisplay) ?></strong><?php endif; ?></span>
                         </div>
                     <?php endif; ?>
 

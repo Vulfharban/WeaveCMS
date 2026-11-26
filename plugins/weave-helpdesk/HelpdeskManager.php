@@ -14,15 +14,77 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 
 require_once __DIR__ . '/HelpdeskUserManager.php';
 require_once __DIR__ . '/HelpdeskMailer.php';
+require_once __DIR__ . '/HelpdeskAlertManager.php';
 
 class HelpdeskManager {
 
     public const STATUS_NEW               = 'Neu';
     public const STATUS_IN_PROGRESS       = 'In Bearbeitung';
+    public const STATUS_SCHEDULED         = 'Termin gesetzt';
     public const STATUS_WAITING_CUSTOMER  = 'Warten auf Rückmeldung';
     public const STATUS_WAITING_EXTERNAL  = 'Warten auf ext. Dienstleister';
     public const STATUS_CLOSED            = 'Geschlossen';
     public const STATUS_BILLED            = 'Abgerechnet';
+
+    /**
+     * Vergleicht deutsche Texte alphabetisch (inkl. Umlauten).
+     */
+    protected static function compareGerman(string $a, string $b): int {
+        $norm = static function (string $s): string {
+            return strtr(mb_strtolower(trim($s)), ['ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'ß' => 'ss']);
+        };
+        return strcmp($norm($a), $norm($b));
+    }
+
+    /**
+     * Liefert alle zulässigen Ticket-Status mit Beschreibung und UI-Klasse.
+     * @param bool $alphabetical Wenn true, werden die Status alphabetisch sortiert
+     * @return array
+     */
+    public static function getStatuses(bool $alphabetical = false): array {
+        $statuses = [
+            self::STATUS_NEW => [
+                'label' => self::STATUS_NEW,
+                'class' => 'status-new',
+                'desc'  => 'Neu eingegangenes Ticket, noch nicht in Bearbeitung'
+            ],
+            self::STATUS_IN_PROGRESS => [
+                'label' => self::STATUS_IN_PROGRESS,
+                'class' => 'status-progress',
+                'desc'  => 'Ticket wird aktuell bearbeitet'
+            ],
+            self::STATUS_SCHEDULED => [
+                'label' => self::STATUS_SCHEDULED,
+                'class' => 'status-scheduled',
+                'desc'  => 'Ein Termin zur Bearbeitung oder ein Vor-Ort-Einsatz wurde vereinbart'
+            ],
+            self::STATUS_WAITING_CUSTOMER => [
+                'label' => self::STATUS_WAITING_CUSTOMER,
+                'class' => 'status-waiting',
+                'desc'  => 'Rückfrage an den Einsender gestellt'
+            ],
+            self::STATUS_WAITING_EXTERNAL => [
+                'label' => self::STATUS_WAITING_EXTERNAL,
+                'class' => 'status-external',
+                'desc'  => 'Abhängig von externem Dienstleister / Hersteller'
+            ],
+            self::STATUS_CLOSED => [
+                'label' => self::STATUS_CLOSED,
+                'class' => 'status-closed',
+                'desc'  => 'Erledigt / abgeschlossen (kann bei Bedarf wieder geöffnet werden)'
+            ],
+            self::STATUS_BILLED => [
+                'label' => self::STATUS_BILLED,
+                'class' => 'status-billed',
+                'desc'  => 'Final abgerechnet und dauerhaft gesperrt (nur Mitarbeiter/Admins)'
+            ],
+        ];
+
+        if ($alphabetical) {
+            uasort($statuses, static fn($a, $b) => self::compareGerman((string)$a['label'], (string)$b['label']));
+        }
+        return $statuses;
+    }
 
     /**
      * Pfad zur Ticket-JSON-Datei.
@@ -98,9 +160,35 @@ class HelpdeskManager {
             'imap_ssl'                   => true,
             'imap_user'                  => '',
             'imap_pass'                  => '',
-            'ticket_types'               => ['Störung', 'Serviceanfrage', 'Wartung', 'Projekt', 'Installation', 'Sonstiges'],
-            'priorities'                 => ['Niedrig', 'Normal', 'Hoch', 'Kritisch']
+            'ticket_types'               => ['Bestellung', 'Installation', 'Projekt', 'Reklamation', 'Rückruf', 'Serviceanfrage', 'Sonstiges', 'Störung', 'Wartung'],
+            'priorities'                 => ['Niedrig', 'Normal', 'Hoch', 'Kritisch'],
+            'critical_alerts_enabled'    => false,
+            'critical_email_enabled'     => true,
+            'critical_emails'            => '',
+            'critical_sms_enabled'       => false,
+            'critical_sms_provider'      => 'webhook',
+            'critical_sms_numbers'       => '',
+            'critical_sms_api_url'       => '',
+            'critical_sms_account_sid'   => '',
+            'critical_sms_api_key'       => '',
+            'critical_sms_from'          => 'Helpdesk',
+            'critical_wa_enabled'        => false,
+            'critical_wa_provider'       => 'webhook',
+            'critical_wa_numbers'        => '',
+            'critical_wa_api_url'        => '',
+            'critical_wa_phone_id'       => '',
+            'critical_wa_from'           => '',
+            'critical_wa_token'          => ''
         ];
+
+        if (class_exists('StorageManager')) {
+            $data = StorageManager::loadPluginData('helpdesk_config', null, $file);
+            if (!is_array($data)) {
+                self::saveConfig($defaultConfig);
+                return $defaultConfig;
+            }
+            return array_merge($defaultConfig, $data);
+        }
 
         if (!file_exists($file)) {
             self::saveConfig($defaultConfig);
@@ -119,12 +207,28 @@ class HelpdeskManager {
      */
     public static function saveConfig(array $config): bool {
         $file = self::getConfigFilePath();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('helpdesk_config', $config, $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);
         }
         $json = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         return file_put_contents($file, $json, LOCK_EX) !== false;
+    }
+
+    /**
+     * Liefert alle verfügbaren Aufgabentypen (inkl. Bestellung, Rückruf, Reklamation) alphabetisch sortiert.
+     * @return array
+     */
+    public static function getTicketTypes(): array {
+        $defaults = ['Bestellung', 'Installation', 'Projekt', 'Reklamation', 'Rückruf', 'Serviceanfrage', 'Sonstiges', 'Störung', 'Wartung'];
+        $cfg = self::getConfig();
+        $configured = is_array($cfg['ticket_types'] ?? null) ? $cfg['ticket_types'] : [];
+        $merged = array_values(array_unique(array_merge($defaults, $configured)));
+        usort($merged, [self::class, 'compareGerman']);
+        return $merged;
     }
 
     /**
@@ -162,11 +266,19 @@ class HelpdeskManager {
     }
 
     /**
-     * Lädt alle Tickets aus der JSON-Datei.
+     * Lädt alle Tickets aus der aktiven Speicher-Engine (Datenbank oder JSON-Datei).
      * @return array
      */
     public static function loadTickets(): array {
         $file = self::getTicketsFilePath();
+        if (class_exists('StorageManager')) {
+            $data = StorageManager::loadPluginData('helpdesk_tickets', null, $file);
+            if (!is_array($data)) {
+                self::saveTickets([]);
+                return [];
+            }
+            return $data;
+        }
         if (!file_exists($file)) {
             self::saveTickets([]);
             return [];
@@ -177,12 +289,15 @@ class HelpdeskManager {
     }
 
     /**
-     * Speichert Tickets sicher in die JSON-Datei.
+     * Speichert Tickets sicher in der aktiven Speicher-Engine (Datenbank oder JSON-Datei).
      * @param array $tickets
      * @return bool
      */
     public static function saveTickets(array $tickets): bool {
         $file = self::getTicketsFilePath();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('helpdesk_tickets', array_values($tickets), $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);
@@ -277,6 +392,32 @@ class HelpdeskManager {
         // E-Mail-Benachrichtigung versenden
         HelpdeskMailer::sendTicketCreatedNotification($newTicket, $user);
 
+        // Sofort-Alarmierung bei Priorität "Kritisch" (dringende E-Mail, SMS, WhatsApp)
+        if (mb_strtolower($priority) === 'kritisch' && class_exists('HelpdeskAlertManager')) {
+            $alertRes = HelpdeskAlertManager::sendCriticalAlert($newTicket, $user, false);
+            if (!empty($alertRes['triggered']) && !empty($alertRes['summary'])) {
+                $tickets = self::loadTickets();
+                foreach ($tickets as &$tk) {
+                    if (($tk['id'] ?? '') === $ticketId) {
+                        $tk['activities'][] = [
+                            'id'              => 'act_' . bin2hex(random_bytes(5)),
+                            'type'            => 'Kritisch-Alarm',
+                            'description'     => $alertRes['summary'],
+                            'minutes'         => 0,
+                            'is_internal'     => true,
+                            'notify_customer' => false,
+                            'author_id'       => 'system',
+                            'author_name'     => 'System (Sofort-Alarm)',
+                            'created_at'      => date('Y-m-d H:i:s')
+                        ];
+                        break;
+                    }
+                }
+                unset($tk);
+                self::saveTickets($tickets);
+            }
+        }
+
         return ['success' => true, 'ticket_id' => $ticketId];
     }
 
@@ -296,13 +437,18 @@ class HelpdeskManager {
     }
 
     /**
-     * Liefert gefilterte Tickets für den aktuellen Benutzer.
+     * Liefert gefilterte und sortierte Tickets für den aktuellen Benutzer.
+     * Standardmäßig werden geschlossene/abgerechnete Tickets ausgeblendet ($hideClosed = true)
+     * und Tickets chronologisch nach Eingangsreihenfolge ($sortOrder = 'asc') sortiert.
+     *
      * @param array $user
-     * @param bool $hideClosed Wenn true, werden 'Geschlossen' und 'Abgerechnet' ausgeblendet
-     * @param string $search Suchbegriff für Betreff, Aufgabennr. oder Firma
+     * @param bool $hideClosed Wenn true (und $onlyClosed false), werden 'Geschlossen' und 'Abgerechnet' ausgeblendet
+     * @param string $search Suchbegriff für Betreff, Aufgabennr., Firma oder Kontaktperson
+     * @param bool $onlyClosed Wenn true, werden ausschließlich 'Geschlossen' und 'Abgerechnet' zurückgegeben
+     * @param string $sortOrder 'asc' = Reihenfolge des Eingangs (älteste zuerst), 'desc' = neueste zuerst
      * @return array
      */
-    public static function getTicketsForUser(array $user, bool $hideClosed = false, string $search = ''): array {
+    public static function getTicketsForUser(array $user, bool $hideClosed = true, string $search = '', bool $onlyClosed = false, string $sortOrder = 'asc'): array {
         $tickets = self::loadTickets();
         $result = [];
         $search = mb_strtolower(trim($search));
@@ -313,19 +459,25 @@ class HelpdeskManager {
                 continue;
             }
 
-            // Geschlossene Aufgaben verbergen
             $status = $t['status'] ?? self::STATUS_NEW;
-            if ($hideClosed && in_array($status, [self::STATUS_CLOSED, self::STATUS_BILLED], true)) {
+            $isDone = in_array($status, [self::STATUS_CLOSED, self::STATUS_BILLED], true);
+
+            if ($onlyClosed) {
+                if (!$isDone) {
+                    continue;
+                }
+            } elseif ($hideClosed && $isDone) {
                 continue;
             }
 
             // Suche
             if (!empty($search)) {
                 $haystack = mb_strtolower(
-                    ($t['id'] ?? '') . ' ' . 
-                    ($t['subject'] ?? '') . ' ' . 
-                    ($t['company_name'] ?? '') . ' ' . 
+                    ($t['id'] ?? '') . ' ' .
+                    ($t['subject'] ?? '') . ' ' .
+                    ($t['company_name'] ?? '') . ' ' .
                     ($t['contact_person'] ?? '') . ' ' .
+                    ($t['created_by_name'] ?? '') . ' ' .
                     ($t['type'] ?? '')
                 );
                 if (mb_strpos($haystack, $search) === false) {
@@ -336,12 +488,80 @@ class HelpdeskManager {
             $result[] = $t;
         }
 
+        // Nach Eingangszeitpunkt (created_at) sortieren
+        $desc = ($sortOrder === 'desc');
+        usort($result, static function ($a, $b) use ($desc) {
+            $ta = strtotime((string)($a['created_at'] ?? '')) ?: 0;
+            $tb = strtotime((string)($b['created_at'] ?? '')) ?: 0;
+            if ($ta === $tb) {
+                $cmp = strcmp((string)($a['id'] ?? ''), (string)($b['id'] ?? ''));
+                return $desc ? -$cmp : $cmp;
+            }
+            return $desc ? ($tb <=> $ta) : ($ta <=> $tb);
+        });
+
         return $result;
     }
 
     /**
-     * Fügt einem Ticket eine Tätigkeit hinzu.
+     * Gruppiert eine Ticketliste nach Firma + Einsender ('company_user'), nach Einsender ('user')
+     * oder belässt sie ungruppiert ('none'), unter Beibehaltung der inneren Eingangs-Sortierung.
+     *
+     * @param array $tickets
+     * @param string $mode 'company_user' | 'user' | 'none'
+     * @return array Liste von Gruppen: [['id' => ..., 'label' => ..., 'company' => ..., 'user' => ..., 'tickets' => [...]]]
+     */
+    public static function groupTickets(array $tickets, string $mode = 'company_user'): array {
+        if ($mode === 'none') {
+            return [[
+                'id'      => 'all',
+                'label'   => 'Alle Aufgaben',
+                'company' => '',
+                'user'    => '',
+                'tickets' => array_values($tickets)
+            ]];
+        }
+
+        $groups = [];
+        foreach ($tickets as $t) {
+            $company = trim((string)($t['company_name'] ?? ''));
+            $submitter = trim((string)($t['created_by_name'] ?? ''));
+            if ($submitter === '') {
+                $submitter = trim((string)($t['contact_person'] ?? 'Unbekannt'));
+            }
+
+            if ($mode === 'user') {
+                $key = mb_strtolower($submitter);
+                $label = $submitter;
+            } else {
+                $companyLabel = $company !== '' ? $company : 'Privatkunde / Ohne Firma';
+                $key = mb_strtolower($companyLabel) . '||' . mb_strtolower($submitter);
+                $label = $companyLabel . ' — ' . $submitter;
+            }
+
+            if (!isset($groups[$key])) {
+                $groups[$key] = [
+                    'id'      => 'grp_' . substr(md5($key), 0, 10),
+                    'label'   => $label,
+                    'company' => $company !== '' ? $company : 'Privatkunde / Ohne Firma',
+                    'user'    => $submitter,
+                    'tickets' => []
+                ];
+            }
+            $groups[$key]['tickets'][] = $t;
+        }
+
+        uasort($groups, static function ($a, $b) {
+            return strnatcasecmp((string)$a['label'], (string)$b['label']);
+        });
+
+        return array_values($groups);
+    }
+
+    /**
+     * Fügt einem Ticket eine Tätigkeit oder Antwort hinzu.
      * Ist das Ticket bereits im Status "Abgerechnet", wird das Hinzufügen strikt verweigert!
+     * Firmeninterne Helpdesk-User können je Antwort wählen, ob der Einsender per E-Mail informiert wird.
      * @param string $ticketId
      * @param array $activityData
      * @param array $user
@@ -349,35 +569,53 @@ class HelpdeskManager {
      */
     public static function addActivity(string $ticketId, array $activityData, array $user): array {
         $tickets = self::loadTickets();
-        $found = false;
+        $isStaff = HelpdeskUserManager::canManage($user);
 
         foreach ($tickets as &$t) {
             if (($t['id'] ?? '') === $ticketId) {
+                if (!HelpdeskUserManager::canViewTicket($t, $user)) {
+                    return [
+                        'success' => false,
+                        'error'   => 'Keine Zugriffsberechtigung für dieses Ticket.'
+                    ];
+                }
+
                 if (($t['status'] ?? '') === self::STATUS_BILLED) {
                     return [
-                        'success' => false, 
+                        'success' => false,
                         'error'   => 'Dieses Ticket wurde bereits in der Buchhaltung abgerechnet und ist dauerhaft gesperrt.'
                     ];
                 }
 
-                $type = trim($activityData['type'] ?? 'Fernservice');
-                $description = trim($activityData['description'] ?? '');
-                $minutes = max(0, (int)($activityData['minutes'] ?? 0));
-                $isInternal = !empty($activityData['is_internal']) && HelpdeskUserManager::canManage($user);
+                $type = trim((string)($activityData['type'] ?? ($isStaff ? 'Fernservice' : 'Kundenrückmeldung')));
+                $description = trim((string)($activityData['description'] ?? ''));
+                $minutes = $isStaff ? max(0, (int)($activityData['minutes'] ?? 0)) : 0;
+                $isInternal = !empty($activityData['is_internal']) && $isStaff;
 
                 if (empty($description)) {
                     return ['success' => false, 'error' => 'Bitte eine Beschreibung für die Tätigkeit angeben.'];
                 }
 
+                // Auswahloption für firmeninterne Helpdesk-User: Einsender per E-Mail informieren (Standard: Ja, bei internen Notizen: Nein)
+                if ($isInternal) {
+                    $notifyCustomer = false;
+                } elseif ($isStaff) {
+                    $notifyCustomer = !array_key_exists('notify_customer_present', $activityData) || !empty($activityData['notify_customer']);
+                } else {
+                    $notifyCustomer = false;
+                }
+
                 $activity = [
-                    'id'          => 'act_' . bin2hex(random_bytes(5)),
-                    'type'        => $type,
-                    'description' => $description,
-                    'minutes'     => $minutes,
-                    'is_internal' => $isInternal,
-                    'author_id'   => $user['id'],
-                    'author_name' => $user['name'],
-                    'created_at'  => date('Y-m-d H:i:s')
+                    'id'              => 'act_' . bin2hex(random_bytes(5)),
+                    'type'            => $type,
+                    'description'     => $description,
+                    'minutes'         => $minutes,
+                    'is_internal'     => $isInternal,
+                    'notify_customer' => $notifyCustomer,
+                    'author_id'       => $user['id'],
+                    'author_name'     => $user['name'],
+                    'author_role'     => $user['role'] ?? HelpdeskUserManager::ROLE_CUSTOMER,
+                    'created_at'      => date('Y-m-d H:i:s')
                 ];
 
                 if (!isset($t['activities']) || !is_array($t['activities'])) {
@@ -386,22 +624,35 @@ class HelpdeskManager {
                 $t['activities'][] = $activity;
                 $t['updated_at'] = date('Y-m-d H:i:s');
 
-                // Automatische Statusanpassung bei Support-Antwort
-                if (HelpdeskUserManager::canManage($user) && ($t['status'] === self::STATUS_NEW || $t['status'] === self::STATUS_WAITING_CUSTOMER)) {
+                // Automatische Statusanpassung bei Support-Antwort bzw. Kundenantwort
+                if ($isStaff && !$isInternal && in_array($t['status'] ?? '', [self::STATUS_NEW, self::STATUS_WAITING_CUSTOMER], true)) {
+                    $t['status'] = self::STATUS_IN_PROGRESS;
+                } elseif (!$isStaff && ($t['status'] ?? '') === self::STATUS_WAITING_CUSTOMER) {
                     $t['status'] = self::STATUS_IN_PROGRESS;
                 }
 
-                $found = true;
                 self::saveTickets($tickets);
 
-                // E-Mail-Benachrichtigung an den Kunden versenden (außer bei internen Notizen)
-                if (!$isInternal) {
-                    HelpdeskMailer::sendActivityNotification($t, $activity, $user);
+                $mailResult = null;
+                if ($isStaff) {
+                    if (!$isInternal && $notifyCustomer) {
+                        $mailResult = HelpdeskMailer::sendActivityNotification($t, $activity, $user, 'customer');
+                    }
+                } else {
+                    // Kunde hat geantwortet -> Dienstleister / Support informieren
+                    $mailResult = HelpdeskMailer::sendActivityNotification($t, $activity, $user, 'provider');
                 }
 
-                return ['success' => true, 'activity' => $activity];
+                return [
+                    'success'         => true,
+                    'activity'        => $activity,
+                    'notify_customer' => $notifyCustomer,
+                    'is_internal'     => $isInternal,
+                    'mail_result'     => $mailResult
+                ];
             }
         }
+        unset($t);
 
         return ['success' => false, 'error' => 'Ticket nicht gefunden.'];
     }
@@ -412,12 +663,14 @@ class HelpdeskManager {
      * @param string $ticketId
      * @param string $newStatus
      * @param array $user
+     * @param bool $notifyCustomer
      * @return array
      */
-    public static function changeStatus(string $ticketId, string $newStatus, array $user): array {
+    public static function changeStatus(string $ticketId, string $newStatus, array $user, bool $notifyCustomer = true): array {
         $allowedStatuses = [
             self::STATUS_NEW,
             self::STATUS_IN_PROGRESS,
+            self::STATUS_SCHEDULED,
             self::STATUS_WAITING_CUSTOMER,
             self::STATUS_WAITING_EXTERNAL,
             self::STATUS_CLOSED,
@@ -428,9 +681,14 @@ class HelpdeskManager {
             return ['success' => false, 'error' => 'Ungültiger Status.'];
         }
 
+        $isStaff = HelpdeskUserManager::canManage($user);
         $tickets = self::loadTickets();
         foreach ($tickets as &$t) {
             if (($t['id'] ?? '') === $ticketId) {
+                if (!HelpdeskUserManager::canViewTicket($t, $user)) {
+                    return ['success' => false, 'error' => 'Keine Zugriffsberechtigung für dieses Ticket.'];
+                }
+
                 // Prüfen, ob Ticket bereits abgerechnet ist
                 if (($t['status'] ?? '') === self::STATUS_BILLED) {
                     return [
@@ -439,45 +697,58 @@ class HelpdeskManager {
                     ];
                 }
 
+                // Kunden dürfen Tickets nur schließen oder selbst wieder in Bearbeitung setzen
+                if (!$isStaff && !in_array($newStatus, [self::STATUS_CLOSED, self::STATUS_IN_PROGRESS], true)) {
+                    return ['success' => false, 'error' => 'Nur Mitarbeiter und Administratoren können diesen Status setzen.'];
+                }
+
                 // Prüfen: Status 'Abgerechnet' darf NUR von Admins / Mitarbeitern gesetzt werden
                 if ($newStatus === self::STATUS_BILLED) {
-                    if (!HelpdeskUserManager::canManage($user)) {
+                    if (!$isStaff) {
                         return ['success' => false, 'error' => 'Nur Mitarbeiter und Administratoren können Tickets abrechnen.'];
                     }
                     $t['billed_at'] = date('Y-m-d H:i:s');
                     $t['billed_by'] = $user['name'];
                 }
 
-                $oldStatus = $t['status'];
+                $oldStatus = $t['status'] ?? self::STATUS_NEW;
+                if ($oldStatus === $newStatus) {
+                    return ['success' => true, 'unchanged' => true];
+                }
+
                 $t['status'] = $newStatus;
                 $t['updated_at'] = date('Y-m-d H:i:s');
 
                 if ($newStatus === self::STATUS_CLOSED && empty($t['closed_at'])) {
                     $t['closed_at'] = date('Y-m-d H:i:s');
+                } elseif ($newStatus !== self::STATUS_CLOSED && $newStatus !== self::STATUS_BILLED) {
+                    $t['closed_at'] = null;
                 }
 
                 // Tätigkeits-Eintrag für Statuswechsel
                 $t['activities'][] = [
-                    'id'          => 'act_' . bin2hex(random_bytes(5)),
-                    'type'        => 'Statusänderung',
-                    'description' => "Status geändert von '{$oldStatus}' auf '{$newStatus}' durch {$user['name']}",
-                    'minutes'     => 0,
-                    'is_internal' => false,
-                    'author_id'   => $user['id'],
-                    'author_name' => $user['name'],
-                    'created_at'  => date('Y-m-d H:i:s')
+                    'id'              => 'act_' . bin2hex(random_bytes(5)),
+                    'type'            => 'Statusänderung',
+                    'description'     => "Status geändert von '{$oldStatus}' auf '{$newStatus}' durch {$user['name']}",
+                    'minutes'         => 0,
+                    'is_internal'     => false,
+                    'notify_customer' => $notifyCustomer,
+                    'author_id'       => $user['id'],
+                    'author_name'     => $user['name'],
+                    'created_at'      => date('Y-m-d H:i:s')
                 ];
 
                 self::saveTickets($tickets);
 
-                // E-Mail bei Schließung oder Abrechnung
-                if ($newStatus === self::STATUS_CLOSED || $newStatus === self::STATUS_BILLED) {
+                // E-Mail an Einsender senden, sofern gewünscht (oder bei Schließen/Abrechnen)
+                if ($notifyCustomer) {
                     HelpdeskMailer::sendStatusChangeNotification($t, $oldStatus, $newStatus);
                 }
 
                 return ['success' => true];
             }
         }
+        unset($t);
 
         return ['success' => false, 'error' => 'Ticket nicht gefunden.'];
     }
@@ -567,14 +838,6 @@ class HelpdeskManager {
                     'available'  => $included,
                     'used'       => $usedMinutes,
                     'difference' => $diff
-                ],
-                [
-                    'status'     => 'Abgerechnet',
-                    'from'       => date('d.m.Y', strtotime($from . ' -6 months')),
-                    'to'         => date('d.m.Y', strtotime($to . ' -6 months')),
-                    'available'  => $included,
-                    'used'       => max(0, $included + 1796),
-                    'difference' => -1796
                 ]
             ]
         ];

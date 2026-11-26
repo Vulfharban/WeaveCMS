@@ -21,6 +21,10 @@ class GameRolloutManager {
 
     public static function getData(): array {
         $file = self::getRolloutFilePath();
+        if (class_exists('StorageManager')) {
+            $data = StorageManager::loadPluginData('games_rollout', null, $file);
+            return is_array($data) ? $data : self::getDefaultData();
+        }
         if (!file_exists($file)) {
             return self::getDefaultData();
         }
@@ -30,6 +34,9 @@ class GameRolloutManager {
 
     public static function saveData(array $data): bool {
         $file = self::getRolloutFilePath();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('games_rollout', $data, $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);

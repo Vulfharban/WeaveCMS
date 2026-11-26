@@ -30,6 +30,10 @@ class GameServerManager {
 
     public static function getServers(): array {
         $file = self::getServersFilePath();
+        if (class_exists('StorageManager')) {
+            $data = StorageManager::loadPluginData('games_servers', null, $file);
+            return is_array($data) ? $data : self::getDefaultServers();
+        }
         if (!file_exists($file)) {
             return self::getDefaultServers();
         }
@@ -39,6 +43,9 @@ class GameServerManager {
 
     public static function saveServers(array $servers): bool {
         $file = self::getServersFilePath();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('games_servers', $servers, $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);

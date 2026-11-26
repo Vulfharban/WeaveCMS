@@ -40,24 +40,38 @@ class ForumUserManager {
 
     /**
      * Ermittelt den konfigurierten Speichertreiber ('mysql', 'sqlite' oder 'json').
+     * Wenn weder weave-forum-users noch weave-forum einen Treiber festlegen,
+     * wird automatisch der globale Speichertreiber aus dem Installer (config.local.php) geerbt.
      */
     public static function getStorageDriver(): string {
+        $driver = '';
         if (class_exists('PluginManager')) {
             $data = $GLOBALS['data'] ?? [];
             if (!empty($data)) {
                 $cfg = PluginManager::getPluginConfig('weave-forum-users', $data);
-                $driver = $cfg['storage_driver'] ?? '';
-                if (empty($driver)) {
+                $driver = trim((string)($cfg['storage_driver'] ?? ''));
+                if ($driver === '') {
                     $forumCfg = PluginManager::getPluginConfig('weave-forum', $data);
-                    $driver = $forumCfg['storage_driver'] ?? 'json';
-                }
-                if ($driver === 'mysql' && self::isMysqlSupported()) {
-                    return 'mysql';
-                }
-                if ($driver === 'sqlite' && self::isSqliteSupported()) {
-                    return 'sqlite';
+                    $driver = trim((string)($forumCfg['storage_driver'] ?? ''));
                 }
             }
+        }
+
+        if ($driver === '') {
+            if (class_exists('StorageManager')) {
+                $driver = StorageManager::getCurrentDriverType();
+            } elseif (defined('WEAVE_STORAGE_DRIVER')) {
+                $driver = (string)WEAVE_STORAGE_DRIVER;
+            } else {
+                $driver = 'json';
+            }
+        }
+
+        if ($driver === 'mysql' && self::isMysqlSupported()) {
+            return 'mysql';
+        }
+        if ($driver === 'sqlite' && self::isSqliteSupported()) {
+            return 'sqlite';
         }
         return 'json';
     }
@@ -169,7 +183,7 @@ class ForumUserManager {
             $c = [
                 'host' => !empty($cfg['mysql_host']) ? $cfg['mysql_host'] : (defined('WEAVE_DB_HOST') ? WEAVE_DB_HOST : '127.0.0.1'),
                 'port' => !empty($cfg['mysql_port']) ? (int)$cfg['mysql_port'] : (defined('WEAVE_DB_PORT') ? (int)WEAVE_DB_PORT : 3306),
-                'database' => !empty($cfg['mysql_database']) ? $cfg['mysql_database'] : (defined('WEAVE_DB_NAME') ? WEAVE_DB_NAME : 'WeaveCMS'),
+                'database' => !empty($cfg['mysql_database']) ? $cfg['mysql_database'] : (defined('WEAVE_DB_NAME') ? WEAVE_DB_NAME : 'weavecms'),
                 'user' => !empty($cfg['mysql_user']) ? $cfg['mysql_user'] : (defined('WEAVE_DB_USER') ? WEAVE_DB_USER : 'root'),
                 'password' => isset($cfg['mysql_password']) ? (string)$cfg['mysql_password'] : (defined('WEAVE_DB_PASS') ? (string)WEAVE_DB_PASS : ''),
                 'charset' => !empty($cfg['mysql_charset']) ? $cfg['mysql_charset'] : 'utf8mb4'
@@ -217,9 +231,6 @@ class ForumUserManager {
      * Stellt eine SQLite-Verbindung her und initialisiert die Tabelle.
      */
     public static function getSqlitePdo(): PDO {
-        if (self::getStorageDriver() === 'mysql') {
-            return self::getPdo();
-        }
         if (self::$sqlitePdo !== null) {
             return self::$sqlitePdo;
         }
@@ -302,6 +313,11 @@ class ForumUserManager {
                 $mergedPriv[$k] = !empty($rawPriv[$k]);
             }
         }
+        foreach (['profile_location', 'profile_interests', 'profile_website'] as $strKey) {
+            if (array_key_exists($strKey, $rawPriv) && is_string($rawPriv[$strKey])) {
+                $mergedPriv[$strKey] = trim($rawPriv[$strKey]);
+            }
+        }
         $u['privacy_settings'] = $mergedPriv;
         return $u;
     }
@@ -311,12 +327,19 @@ class ForumUserManager {
      */
     public static function getDefaultPrivacySettings(): array {
         return [
-            'show_role'          => true,
-            'show_post_count'    => true,
-            'show_joined_date'   => true,
-            'show_bio'           => true,
-            'show_signature'     => true,
-            'show_online_status' => true,
+            'show_role'           => true,
+            'show_post_count'     => true,
+            'show_joined_date'    => true,
+            'show_bio'            => true,
+            'show_signature'      => true,
+            'show_online_status'  => true,
+            'hide_online_status'  => false,
+            'show_email'          => false,
+            'show_location'       => true,
+            'show_interests'      => true,
+            'show_website'        => true,
+            'allow_pm'            => true,
+            'allow_email_contact' => true,
         ];
     }
 
@@ -342,7 +365,141 @@ class ForumUserManager {
                 $res[$k] = !empty($raw[$k]);
             }
         }
+        foreach (['profile_location', 'profile_interests', 'profile_website'] as $strKey) {
+            if (array_key_exists($strKey, $raw) && is_string($raw[$strKey])) {
+                $res[$strKey] = trim($raw[$strKey]);
+            }
+        }
         return $res;
+    }
+
+    /**
+     * Liefert die optionalen einfachen Profilfelder eines Benutzers (Wohnort, Interessen, Website).
+     */
+    public static function getProfileFields(?array $user): array {
+        $priv = self::getPrivacySettings($user);
+        return [
+            'location'  => trim((string)($priv['profile_location'] ?? '')),
+            'interests' => trim((string)($priv['profile_interests'] ?? '')),
+            'website'   => trim((string)($priv['profile_website'] ?? '')),
+        ];
+    }
+
+    /**
+     * Prüft, ob der Online-Status eines Benutzers verborgen bleiben soll
+     * (über allgemeine Sichtbarkeit oder den Admin-/Moderatoren-Unsichtbar-Modus).
+     */
+    public static function isOnlineStatusHidden(?array $user): bool {
+        if (!$user) {
+            return true;
+        }
+        $priv = self::getPrivacySettings($user);
+        if (empty($priv['show_online_status'])) {
+            return true;
+        }
+        if (self::canUseAlias($user) && !empty($priv['hide_online_status'])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Pfad zur Online-Aktivitätsdatei.
+     */
+    public static function getOnlineFilePath(): string {
+        return dirname(__DIR__, 2) . '/data/forum_online.json';
+    }
+
+    protected static function loadOnlineMap(): array {
+        $file = self::getOnlineFilePath();
+        if (class_exists('StorageManager')) {
+            $decoded = StorageManager::loadPluginData('forum_online', [], $file);
+        } else {
+            if (!file_exists($file)) {
+                return [];
+            }
+            $raw = @file_get_contents($file);
+            $decoded = json_decode((string)$raw, true);
+        }
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $cutoff = time() - 900; // 15 Minuten Aktivitätsfenster
+        $cleaned = [];
+        foreach ($decoded as $uid => $ts) {
+            if (is_string($uid) && is_numeric($ts) && (int)$ts >= $cutoff) {
+                $cleaned[$uid] = (int)$ts;
+            }
+        }
+        return $cleaned;
+    }
+
+    protected static function saveOnlineMap(array $map): void {
+        $file = self::getOnlineFilePath();
+        if (class_exists('StorageManager')) {
+            StorageManager::savePluginData('forum_online', $map, $file);
+            return;
+        }
+        $dir = dirname($file);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        $tmp = $file . '.tmp.' . bin2hex(random_bytes(4));
+        if (@file_put_contents($tmp, json_encode($map, JSON_PRETTY_PRINT)) !== false) {
+            @rename($tmp, $file);
+        }
+    }
+
+    /**
+     * Aktualisiert den Online-Zeitstempel eines Benutzers bzw. entfernt ihn sofort im Unsichtbar-Modus.
+     */
+    public static function touchOnlineActivity(?array $user): void {
+        if (!$user || empty($user['id'])) {
+            return;
+        }
+        $uid = (string)$user['id'];
+        $map = self::loadOnlineMap();
+        if (self::isOnlineStatusHidden($user)) {
+            if (isset($map[$uid])) {
+                unset($map[$uid]);
+                self::saveOnlineMap($map);
+            }
+            return;
+        }
+        $now = time();
+        if (!isset($map[$uid]) || ($now - (int)$map[$uid]) >= 30) {
+            $map[$uid] = $now;
+            self::saveOnlineMap($map);
+        }
+    }
+
+    /**
+     * Entfernt einen Benutzer sofort aus der Online-Liste (z. B. beim Logout).
+     */
+    public static function removeOnlineUser(string $userId): void {
+        if ($userId === '') {
+            return;
+        }
+        $map = self::loadOnlineMap();
+        if (isset($map[$userId])) {
+            unset($map[$userId]);
+            self::saveOnlineMap($map);
+        }
+    }
+
+    /**
+     * Prüft, ob ein bestimmter Benutzer im Forum sichtbar online ist.
+     */
+    public static function isUserOnline(string $userId): bool {
+        if ($userId === '') {
+            return false;
+        }
+        $map = self::loadOnlineMap();
+        if (!isset($map[$userId])) {
+            return false;
+        }
+        $u = self::getUserById($userId);
+        return $u && !self::isOnlineStatusHidden($u);
     }
 
     /**
@@ -378,7 +535,7 @@ class ForumUserManager {
     public static function getAllUsers(): array {
         if (self::isDatabase()) {
             try {
-                $stmt = self::getSqlitePdo()->query("SELECT * FROM weave_forum_users ORDER BY created_at DESC");
+                $stmt = self::getPdo()->query("SELECT * FROM weave_forum_users ORDER BY created_at DESC");
                 $users = $stmt->fetchAll();
                 foreach ($users as &$u) {
                     $u = self::normalizeUser($u);
@@ -436,7 +593,7 @@ class ForumUserManager {
 
         if (self::isDatabase()) {
             try {
-                $stmt = self::getSqlitePdo()->prepare("SELECT * FROM weave_forum_users WHERE id = ? LIMIT 1");
+                $stmt = self::getPdo()->prepare("SELECT * FROM weave_forum_users WHERE id = ? LIMIT 1");
                 $stmt->execute([$id]);
                 $u = $stmt->fetch();
                 if ($u) {
@@ -466,7 +623,7 @@ class ForumUserManager {
 
         if (self::isDatabase()) {
             try {
-                $stmt = self::getSqlitePdo()->prepare("
+                $stmt = self::getPdo()->prepare("
                     SELECT * FROM weave_forum_users 
                     WHERE LOWER(username) = ? OR LOWER(email) = ? OR (alias != '' AND LOWER(alias) = ?)
                     LIMIT 1
@@ -503,7 +660,7 @@ class ForumUserManager {
 
         if (self::isDatabase()) {
             try {
-                $pdo = self::getSqlitePdo();
+                $pdo = self::getPdo();
                 $stmt = $pdo->prepare("
                     REPLACE INTO weave_forum_users (
                         id, username, email, password_hash, role, status, avatar, signature,
@@ -564,7 +721,7 @@ class ForumUserManager {
     public static function deleteUser(string $id): bool {
         if (self::isDatabase()) {
             try {
-                $stmt = self::getSqlitePdo()->prepare("DELETE FROM weave_forum_users WHERE id = ?");
+                $stmt = self::getPdo()->prepare("DELETE FROM weave_forum_users WHERE id = ?");
                 return $stmt->execute([$id]);
             } catch (Exception $e) {
                 return false;
@@ -748,6 +905,9 @@ class ForumUserManager {
     public static function logout(): void {
         if (session_status() === PHP_SESSION_NONE) {
             @session_start();
+        }
+        if (!empty($_SESSION['weave_forum_user_id'])) {
+            self::removeOnlineUser((string)$_SESSION['weave_forum_user_id']);
         }
         unset($_SESSION['weave_forum_user_id']);
     }
@@ -1411,25 +1571,34 @@ HTML;
 
     public static function getOnlineUsersStats(): array {
         $curUser = self::getCurrentUser();
+        self::touchOnlineActivity($curUser);
+
+        $map = self::loadOnlineMap();
         $onlineMembers = [];
-        if ($curUser) {
-            $priv = self::getPrivacySettings($curUser);
-            if (!empty($priv['show_online_status'])) {
-                $role = $curUser['role'] ?? self::ROLE_USER;
-                $showRole = !empty($priv['show_role']);
-                $onlineMembers[] = [
-                    'username' => self::getDisplayName($curUser),
-                    'role' => $showRole ? $role : self::ROLE_USER,
-                    'color' => $showRole ? self::getRoleColor($role) : '#475569'
-                ];
+        foreach (array_keys($map) as $uid) {
+            $u = self::getUserById((string)$uid);
+            if (!$u || ($u['status'] ?? self::STATUS_ACTIVE) !== self::STATUS_ACTIVE) {
+                continue;
             }
+            if (self::isOnlineStatusHidden($u)) {
+                continue;
+            }
+            $priv = self::getPrivacySettings($u);
+            $role = $u['role'] ?? self::ROLE_USER;
+            $showRole = !empty($priv['show_role']);
+            $onlineMembers[] = [
+                'id'       => $u['id'],
+                'username' => self::getDisplayName($u),
+                'role'     => $showRole ? $role : self::ROLE_USER,
+                'color'    => $showRole ? self::getRoleColor($role) : '#475569'
+            ];
         }
 
         if (empty($_SESSION['forum_guests_simulated'])) {
             $_SESSION['forum_guests_simulated'] = rand(8, 24);
         }
         $guestCount = (int)$_SESSION['forum_guests_simulated'];
-        $memberCount = $curUser ? max(1, count($onlineMembers)) : 0;
+        $memberCount = count($onlineMembers);
 
         return [
             'members' => $onlineMembers,

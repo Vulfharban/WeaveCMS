@@ -15,6 +15,7 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 require_once __DIR__ . '/HelpdeskUserManager.php';
 require_once __DIR__ . '/HelpdeskManager.php';
 require_once __DIR__ . '/HelpdeskMailer.php';
+require_once __DIR__ . '/HelpdeskAlertManager.php';
 
 // Sitzung initialisieren
 if (session_status() === PHP_SESSION_NONE) {
@@ -55,8 +56,62 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
                 $cfg['imap_pass']              = $_POST['imap_pass'];
             }
 
+            // Sofort-Alarmierung bei Priorität "Kritisch" (E-Mail, SMS, WhatsApp)
+            $cfg['critical_alerts_enabled']  = !empty($_POST['critical_alerts_enabled']);
+            $cfg['critical_email_enabled']   = !empty($_POST['critical_email_enabled']);
+            $cfg['critical_emails']          = trim((string)($_POST['critical_emails'] ?? ''));
+
+            $cfg['critical_sms_enabled']     = !empty($_POST['critical_sms_enabled']);
+            $cfg['critical_sms_provider']    = trim((string)($_POST['critical_sms_provider'] ?? 'webhook'));
+            $cfg['critical_sms_numbers']     = trim((string)($_POST['critical_sms_numbers'] ?? ''));
+            $cfg['critical_sms_from']        = trim((string)($_POST['critical_sms_from'] ?? 'Helpdesk'));
+            $cfg['critical_sms_api_url']     = trim((string)($_POST['critical_sms_api_url'] ?? ''));
+            $cfg['critical_sms_account_sid'] = trim((string)($_POST['critical_sms_account_sid'] ?? ''));
+            if (isset($_POST['critical_sms_api_key']) && $_POST['critical_sms_api_key'] !== '') {
+                $cfg['critical_sms_api_key'] = trim((string)$_POST['critical_sms_api_key']);
+            }
+
+            $cfg['critical_wa_enabled']      = !empty($_POST['critical_wa_enabled']);
+            $cfg['critical_wa_provider']     = trim((string)($_POST['critical_wa_provider'] ?? 'webhook'));
+            $cfg['critical_wa_numbers']      = trim((string)($_POST['critical_wa_numbers'] ?? ''));
+            $cfg['critical_wa_api_url']      = trim((string)($_POST['critical_wa_api_url'] ?? ''));
+            $cfg['critical_wa_phone_id']     = trim((string)($_POST['critical_wa_phone_id'] ?? ''));
+            $cfg['critical_wa_from']         = trim((string)($_POST['critical_wa_from'] ?? ''));
+            if (isset($_POST['critical_wa_token']) && $_POST['critical_wa_token'] !== '') {
+                $cfg['critical_wa_token']    = trim((string)$_POST['critical_wa_token']);
+            }
+
             HelpdeskManager::saveConfig($cfg);
             header('Location: ?tab=tab-plugins&plugin_settings=weave-helpdesk&subtab=settings&msg=settings_saved#plugin-settings-drawer-weave-helpdesk');
+            exit;
+        }
+
+        // Test-Alarm für kritische Priorität auslösen
+        if ($action === 'helpdesk_test_critical_alert') {
+            $dummyTicket = [
+                'id'               => date('y') . '999999',
+                'subject'          => 'Test-Alarmierung (Priorität Kritisch)',
+                'type'             => 'Störung',
+                'priority'         => 'Kritisch',
+                'company_name'     => 'WeaveCMS Testsystem',
+                'contact_person'   => 'Systemadministrator',
+                'alt_phone'        => '+49 000 000000',
+                'created_by_email' => HelpdeskManager::getServiceProviderDetails()['email'] ?? '',
+                'content'          => 'Dies ist ein Test der automatischen Sofort-Alarmierung (E-Mail / SMS / WhatsApp) bei kritischen Tickets.'
+            ];
+            $alertRes = HelpdeskAlertManager::sendCriticalAlert($dummyTicket, [], true);
+            $detailErrors = [];
+            foreach (($alertRes['channels'] ?? []) as $chName => $chInfo) {
+                foreach (($chInfo['errors'] ?? []) as $err) {
+                    $detailErrors[] = strtoupper($chName) . ': ' . $err;
+                }
+            }
+            $_SESSION['hd_admin_alert_msg'] = [
+                'ok'   => !empty($alertRes['triggered']) && empty($detailErrors),
+                'text' => ($alertRes['summary'] ?? 'Keine Kanäle ausgelöst.')
+                        . (!empty($detailErrors) ? ' | Fehler: ' . implode(' ; ', $detailErrors) : '')
+            ];
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-helpdesk&subtab=settings#plugin-settings-drawer-weave-helpdesk');
             exit;
         }
 
@@ -142,7 +197,7 @@ if (!empty($_GET['page']) && $_GET['page'] === 'helpdesk' && !empty($_GET['actio
                 exit;
             }
 
-            // Registrierung
+            // Registrierung (Rolle und Vertragsdaten strikt auf Kunde beschränken)
             if ($action === 'register') {
                 if (!HelpdeskUserManager::isSelfRegistrationAllowed()) {
                     $_SESSION['hd_login_error'] = 'Die Selbstregistrierung ist derzeit deaktiviert.';
@@ -150,7 +205,18 @@ if (!empty($_GET['page']) && $_GET['page'] === 'helpdesk' && !empty($_GET['actio
                     exit;
                 }
                 $error = null;
-                $newUser = HelpdeskUserManager::createUser($_POST, $error);
+                $regData = [
+                    'name'          => $_POST['name'] ?? '',
+                    'email'         => $_POST['email'] ?? '',
+                    'password'      => $_POST['password'] ?? '',
+                    'role'          => HelpdeskUserManager::ROLE_CUSTOMER,
+                    'customer_type' => $_POST['customer_type'] ?? HelpdeskUserManager::TYPE_COMPANY,
+                    'company_name'  => $_POST['company_name'] ?? '',
+                    'address'       => $_POST['address'] ?? '',
+                    'phone'         => $_POST['phone'] ?? '',
+                    'has_contract'  => false,
+                ];
+                $newUser = HelpdeskUserManager::createUser($regData, $error);
                 if ($newUser) {
                     HelpdeskUserManager::login($newUser);
                     header('Location: ?page=helpdesk');
@@ -172,6 +238,7 @@ if (!empty($_GET['page']) && $_GET['page'] === 'helpdesk' && !empty($_GET['actio
             if ($action === 'create_ticket') {
                 $res = HelpdeskManager::createTicket($_POST, $currentUser);
                 if ($res['success']) {
+                    $_SESSION['hd_app_success'] = 'Aufgabe #' . $res['ticket_id'] . ' wurde erfolgreich erstellt.';
                     header('Location: ?page=helpdesk&view=detail&id=' . urlencode($res['ticket_id']));
                     exit;
                 }
@@ -184,15 +251,36 @@ if (!empty($_GET['page']) && $_GET['page'] === 'helpdesk' && !empty($_GET['actio
             if ($action === 'add_activity') {
                 $ticketId = trim($_POST['ticket_id'] ?? '');
                 $res = HelpdeskManager::addActivity($ticketId, $_POST, $currentUser);
+                if (!empty($res['success'])) {
+                    if (!empty($res['is_internal'])) {
+                        $_SESSION['hd_app_success'] = 'Interne Notiz gespeichert (für Einsender nicht sichtbar, keine E-Mail versendet).';
+                    } elseif (HelpdeskUserManager::canManage($currentUser)) {
+                        $_SESSION['hd_app_success'] = !empty($res['notify_customer'])
+                            ? 'Antwort gespeichert und Einsender per E-Mail informiert.'
+                            : 'Antwort gespeichert (ohne E-Mail-Benachrichtigung an den Einsender).';
+                    } else {
+                        $_SESSION['hd_app_success'] = 'Deine Rückmeldung wurde hinzugefügt.';
+                    }
+                } else {
+                    $_SESSION['hd_app_error'] = $res['error'] ?? 'Tätigkeit konnte nicht gespeichert werden.';
+                }
                 header('Location: ?page=helpdesk&view=detail&id=' . urlencode($ticketId));
                 exit;
             }
 
-            // Status ändern (z. B. Schließen oder Abrechnen)
+            // Status ändern (z. B. In Bearbeitung, Warten, Geschlossen oder Abgerechnet)
             if ($action === 'change_status') {
                 $ticketId = trim($_POST['ticket_id'] ?? '');
                 $newStatus = trim($_POST['status'] ?? '');
-                $res = HelpdeskManager::changeStatus($ticketId, $newStatus, $currentUser);
+                $notifyCustomer = !isset($_POST['notify_customer_present']) || !empty($_POST['notify_customer']);
+                $res = HelpdeskManager::changeStatus($ticketId, $newStatus, $currentUser, $notifyCustomer);
+                if (!empty($res['success'])) {
+                    if (empty($res['unchanged'])) {
+                        $_SESSION['hd_app_success'] = 'Status wurde auf „' . $newStatus . '“ geändert' . ($notifyCustomer ? ' (E-Mail-Info aktiv).' : ' (ohne E-Mail-Benachrichtigung).');
+                    }
+                } else {
+                    $_SESSION['hd_app_error'] = $res['error'] ?? 'Status konnte nicht geändert werden.';
+                }
                 header('Location: ?page=helpdesk&view=detail&id=' . urlencode($ticketId));
                 exit;
             }

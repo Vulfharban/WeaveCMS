@@ -23,6 +23,15 @@ class ShopManager {
      */
     public static function getProducts(): array {
         $file = self::getProductsFile();
+        if (class_exists('StorageManager')) {
+            $data = StorageManager::loadPluginData('shop_products', null, $file);
+            if (!is_array($data)) {
+                $initial = self::getDefaultProducts();
+                self::saveProducts($initial);
+                return $initial;
+            }
+            return $data;
+        }
         if (!file_exists($file)) {
             $initial = self::getDefaultProducts();
             self::saveProducts($initial);
@@ -52,6 +61,9 @@ class ShopManager {
      */
     public static function saveProducts(array $products): bool {
         $file = self::getProductsFile();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('shop_products', $products, $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);
@@ -173,6 +185,10 @@ class ShopManager {
      */
     public static function getOrders(): array {
         $file = self::getOrdersFile();
+        if (class_exists('StorageManager')) {
+            $data = StorageManager::loadPluginData('shop_orders', [], $file);
+            return is_array($data) ? $data : [];
+        }
         if (!file_exists($file)) {
             return [];
         }
@@ -200,6 +216,9 @@ class ShopManager {
      */
     public static function saveOrders(array $orders): bool {
         $file = self::getOrdersFile();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('shop_orders', $orders, $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);

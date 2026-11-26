@@ -10,6 +10,7 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 }
 
 require_once __DIR__ . '/ForumUserManager.php';
+require_once __DIR__ . '/ForumMessageManager.php';
 
 // Sitzung und CSRF-Schutz initialisieren falls noch nicht erfolgt
 if (session_status() === PHP_SESSION_NONE) {
@@ -286,14 +287,39 @@ if (!empty($_GET['forum_auth'])) {
                         $cur['use_alias_only'] = !empty($_POST['use_alias_only']) ? 1 : 0;
                     }
 
-                    // Privatsphäre-Einstellungen (welche Inhalte anderen Benutzern angezeigt werden)
+                    // Privatsphäre-Einstellungen & optionale einfache Profilfelder
+                    $isStaff = ForumUserManager::canUseAlias($cur);
+                    $hideOnline = $isStaff && !empty($_POST['hide_online_status']);
+                    $showOnline = $isStaff ? !$hideOnline : !empty($_POST['priv_show_online_status']);
+
+                    $profileLocation = mb_substr(trim((string)($_POST['profile_location'] ?? '')), 0, 80);
+                    $profileInterests = mb_substr(trim((string)($_POST['profile_interests'] ?? '')), 0, 200);
+                    $rawWebsite = trim((string)($_POST['profile_website'] ?? ''));
+                    $profileWebsite = '';
+                    if ($rawWebsite !== '' && filter_var($rawWebsite, FILTER_VALIDATE_URL)) {
+                        $scheme = strtolower((string)parse_url($rawWebsite, PHP_URL_SCHEME));
+                        if (in_array($scheme, ['http', 'https'], true)) {
+                            $profileWebsite = mb_substr($rawWebsite, 0, 160);
+                        }
+                    }
+
                     $cur['privacy_settings'] = [
-                        'show_role'          => !empty($_POST['priv_show_role']),
-                        'show_post_count'    => !empty($_POST['priv_show_post_count']),
-                        'show_joined_date'   => !empty($_POST['priv_show_joined_date']),
-                        'show_bio'           => !empty($_POST['priv_show_bio']),
-                        'show_signature'     => !empty($_POST['priv_show_signature']),
-                        'show_online_status' => !empty($_POST['priv_show_online_status']),
+                        'show_role'           => !empty($_POST['priv_show_role']),
+                        'show_post_count'     => !empty($_POST['priv_show_post_count']),
+                        'show_joined_date'    => !empty($_POST['priv_show_joined_date']),
+                        'show_bio'            => !empty($_POST['priv_show_bio']),
+                        'show_signature'      => !empty($_POST['priv_show_signature']),
+                        'show_online_status'  => $showOnline,
+                        'hide_online_status'  => $hideOnline,
+                        'show_email'          => !empty($_POST['priv_show_email']),
+                        'show_location'       => !empty($_POST['priv_show_location']),
+                        'show_interests'      => !empty($_POST['priv_show_interests']),
+                        'show_website'        => !empty($_POST['priv_show_website']),
+                        'allow_pm'            => !empty($_POST['priv_allow_pm']),
+                        'allow_email_contact' => !empty($_POST['priv_allow_email_contact']),
+                        'profile_location'    => $profileLocation,
+                        'profile_interests'   => $profileInterests,
+                        'profile_website'     => $profileWebsite,
                     ];
 
                     $cur['email'] = $newEmail;
@@ -301,14 +327,194 @@ if (!empty($_GET['forum_auth'])) {
                     $cur['signature'] = trim($_POST['signature'] ?? '');
                     $cur['notification_email'] = !empty($_POST['notification_email']) ? 1 : 0;
                     ForumUserManager::saveUser($cur);
+                    ForumUserManager::touchOnlineActivity($cur);
                     $_SESSION['forum_profile_msg'] = 'saved';
                 }
                 header('Location: ?page=forum&view=profile');
                 exit;
             }
+
+            // PRIVATE MESSAGE SENDEN (PN)
+            if ($authAction === 'send_pm') {
+                $cur = ForumUserManager::getCurrentUser();
+                $rawRedirect = trim((string)($_POST['redirect_to'] ?? ''));
+                $redirectUrl = str_starts_with($rawRedirect, '?page=forum') ? $rawRedirect : '?page=forum&view=messages&box=sent';
+                if (!$cur) {
+                    header('Location: ?page=forum&view=login');
+                    exit;
+                }
+
+                $now = time();
+                $lastPm = (int)($_SESSION['forum_last_pm_ts'] ?? 0);
+                if (($now - $lastPm) < 15) {
+                    $_SESSION['forum_pm_flash'] = [
+                        'type' => 'error',
+                        'text' => 'Bitte warte einen kurzen Moment, bevor du die nächste private Nachricht sendest.'
+                    ];
+                    header('Location: ' . $redirectUrl);
+                    exit;
+                }
+
+                $recipientId = trim((string)($_POST['recipient_id'] ?? ''));
+                $subject = trim((string)($_POST['pm_subject'] ?? ''));
+                $body = trim((string)($_POST['pm_body'] ?? ''));
+
+                $res = ForumMessageManager::sendMessage((string)$cur['id'], $recipientId, $subject, $body);
+                if (!empty($res['success'])) {
+                    $_SESSION['forum_last_pm_ts'] = $now;
+                    $_SESSION['forum_pm_flash'] = ['type' => 'success', 'text' => $res['message']];
+                } else {
+                    $_SESSION['forum_pm_flash'] = ['type' => 'error', 'text' => $res['message']];
+                    if (str_contains($redirectUrl, 'view=messages')) {
+                        $redirectUrl = '?page=forum&view=messages&box=compose&to=' . urlencode($recipientId);
+                    }
+                }
+                header('Location: ' . $redirectUrl);
+                exit;
+            }
+
+            // PRIVATE MESSAGE LÖSCHEN
+            if ($authAction === 'delete_pm') {
+                $cur = ForumUserManager::getCurrentUser();
+                $box = in_array($_POST['box'] ?? 'inbox', ['inbox', 'sent'], true) ? $_POST['box'] : 'inbox';
+                if (!$cur) {
+                    header('Location: ?page=forum&view=login');
+                    exit;
+                }
+                $msgId = trim((string)($_POST['msg_id'] ?? ''));
+                if ($msgId !== '' && ForumMessageManager::deleteMessage($msgId, (string)$cur['id'])) {
+                    $_SESSION['forum_pm_flash'] = ['type' => 'success', 'text' => 'Die private Nachricht wurde aus deinem Postfach entfernt.'];
+                } else {
+                    $_SESSION['forum_pm_flash'] = ['type' => 'error', 'text' => 'Die Nachricht konnte nicht gelöscht werden.'];
+                }
+                header('Location: ?page=forum&view=messages&box=' . urlencode($box));
+                exit;
+            }
+
+            // KONTAKTAUFNAHME PER E-MAIL AN MITGLIED
+            if ($authAction === 'send_member_email') {
+                $cur = ForumUserManager::getCurrentUser();
+                $recipientId = trim((string)($_POST['recipient_id'] ?? ''));
+                $redirectUrl = '?page=forum&view=user&id=' . urlencode($recipientId);
+                if (!$cur) {
+                    header('Location: ?page=forum&view=login');
+                    exit;
+                }
+
+                $now = time();
+                $lastMail = (int)($_SESSION['forum_last_mail_ts'] ?? 0);
+                if (($now - $lastMail) < 60) {
+                    $_SESSION['forum_contact_flash'] = [
+                        'type' => 'error',
+                        'text' => 'Bitte warte mindestens 60 Sekunden zwischen zwei Kontakt-E-Mails.'
+                    ];
+                    header('Location: ' . $redirectUrl);
+                    exit;
+                }
+
+                $recipient = $recipientId !== '' ? ForumUserManager::getUserById($recipientId) : null;
+                if (!$recipient || ($recipient['status'] ?? ForumUserManager::STATUS_ACTIVE) !== ForumUserManager::STATUS_ACTIVE || $recipient['id'] === $cur['id']) {
+                    $_SESSION['forum_contact_flash'] = ['type' => 'error', 'text' => 'Empfänger nicht gefunden oder nicht erreichbar.'];
+                    header('Location: ' . $redirectUrl);
+                    exit;
+                }
+
+                $recPriv = ForumUserManager::getPrivacySettings($recipient);
+                if (empty($recPriv['allow_email_contact']) || !filter_var($recipient['email'] ?? '', FILTER_VALIDATE_EMAIL)) {
+                    $_SESSION['forum_contact_flash'] = ['type' => 'error', 'text' => 'Dieses Mitglied hat den E-Mail-Kontakt deaktiviert.'];
+                    header('Location: ' . $redirectUrl);
+                    exit;
+                }
+
+                $subject = trim(preg_replace('/\s+/u', ' ', (string)($_POST['mail_subject'] ?? '')));
+                $body = trim((string)($_POST['mail_body'] ?? ''));
+                if (mb_strlen($subject) < 3 || mb_strlen($subject) > 120) {
+                    $_SESSION['forum_contact_flash'] = ['type' => 'error', 'text' => 'Der Betreff muss zwischen 3 und 120 Zeichen lang sein.'];
+                    header('Location: ' . $redirectUrl);
+                    exit;
+                }
+                if (mb_strlen($body) < 5 || mb_strlen($body) > 3000) {
+                    $_SESSION['forum_contact_flash'] = ['type' => 'error', 'text' => 'Die Nachricht muss zwischen 5 und 3000 Zeichen lang sein.'];
+                    header('Location: ' . $redirectUrl);
+                    exit;
+                }
+
+                $mailerFile = dirname(__DIR__, 2) . '/libs/php/Mailer.php';
+                if (file_exists($mailerFile)) {
+                    require_once $mailerFile;
+                }
+                if (!class_exists('SimpleMailer')) {
+                    $_SESSION['forum_contact_flash'] = ['type' => 'error', 'text' => 'Der E-Mail-Versand ist derzeit serverseitig nicht verfügbar.'];
+                    header('Location: ' . $redirectUrl);
+                    exit;
+                }
+
+                global $data;
+                $siteData = $data ?? ($GLOBALS['data'] ?? []);
+                if (empty($siteData) && function_exists('load_data')) {
+                    $siteData = load_data(dirname(__DIR__, 2) . '/data.json');
+                }
+                $smtpConfig = $siteData['settings']['smtp'] ?? null;
+                $siteBrand = !empty($siteData['texts']['hero_title']) ? trim((string)$siteData['texts']['hero_title']) : 'WeaveCMS Forum';
+
+                $senderName = ForumUserManager::getDisplayName($cur);
+                $recipientName = ForumUserManager::getDisplayName($recipient);
+                $safeSender = htmlspecialchars($senderName, ENT_QUOTES, 'UTF-8');
+                $safeRecipient = htmlspecialchars($recipientName, ENT_QUOTES, 'UTF-8');
+                $safeBrand = htmlspecialchars($siteBrand, ENT_QUOTES, 'UTF-8');
+                $safeSubject = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
+                $safeBody = nl2br(htmlspecialchars($body, ENT_QUOTES, 'UTF-8'));
+
+                $htmlBody = "<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#ffffff;border:1px solid #e2e8f0;border-top:4px solid #2e6248;border-radius:10px;\">"
+                          . "<h2 style=\"margin:0 0 10px 0;color:#0f172a;font-size:18px;\">Neue Foren-Kontaktanfrage</h2>"
+                          . "<p style=\"font-size:14px;color:#334155;\">Hallo <strong>{$safeRecipient}</strong>,<br>das Mitglied <strong>{$safeSender}</strong> hat dir über {$safeBrand} folgende Nachricht gesendet:</p>"
+                          . "<div style=\"background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin:16px 0;\">"
+                          . "<div style=\"font-weight:700;color:#0f172a;margin-bottom:8px;\">{$safeSubject}</div>"
+                          . "<div style=\"font-size:14px;line-height:1.6;color:#1e293b;\">{$safeBody}</div>"
+                          . "</div>"
+                          . "<p style=\"font-size:12px;color:#64748b;margin:0;\">Du kannst direkt auf diese E-Mail antworten (Reply-To: {$safeSender}) oder eine private Nachricht im Forum senden.</p>"
+                          . "</div>";
+
+                $textBody = "Hallo {$recipientName},\n\ndas Mitglied {$senderName} hat dir über {$siteBrand} eine Nachricht gesendet:\n\n"
+                          . "Betreff: {$subject}\n\n{$body}\n\n"
+                          . "Du kannst direkt auf diese E-Mail antworten.";
+
+                $replyEmail = filter_var($cur['email'] ?? '', FILTER_VALIDATE_EMAIL) ? (string)$cur['email'] : '';
+                $mailRes = SimpleMailer::send(
+                    (string)$recipient['email'],
+                    "[{$siteBrand}] {$subject}",
+                    $htmlBody,
+                    $textBody,
+                    $replyEmail,
+                    $senderName,
+                    $smtpConfig
+                );
+
+                if (!empty($mailRes['success'])) {
+                    $_SESSION['forum_last_mail_ts'] = $now;
+                    $_SESSION['forum_contact_flash'] = [
+                        'type' => 'success',
+                        'text' => 'Deine E-Mail wurde erfolgreich an ' . $recipientName . ' versendet.'
+                    ];
+                } else {
+                    $err = !empty($mailRes['error']) ? ' (' . $mailRes['error'] . ')' : '';
+                    $_SESSION['forum_contact_flash'] = [
+                        'type' => 'error',
+                        'text' => 'Die E-Mail konnte nicht versendet werden' . $err . '. Alternativ kannst du eine Private Nachricht (PN) nutzen.'
+                    ];
+                }
+                header('Location: ' . $redirectUrl);
+                exit;
+            }
         } else {
             $_SESSION['forum_auth_error'] = 'Deine Sitzung ist abgelaufen oder das Sicherheitstoken war ungültig. Bitte versuche es erneut.';
-            $targetView = in_array($authAction, ['login', 'register', 'profile'], true) ? $authAction : 'login';
+            $targetView = in_array($authAction, ['login', 'register', 'profile', 'messages'], true) ? $authAction : 'login';
+            if (in_array($authAction, ['send_pm', 'delete_pm'], true)) {
+                $targetView = 'messages';
+            } elseif ($authAction === 'send_member_email' && !empty($_POST['recipient_id'])) {
+                header('Location: ?page=forum&view=user&id=' . urlencode((string)$_POST['recipient_id']));
+                exit;
+            }
             header('Location: ?page=forum&view=' . $targetView);
             exit;
         }

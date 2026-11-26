@@ -7,7 +7,7 @@ $user = HelpdeskUserManager::getCurrentUser();
 $cfg = HelpdeskManager::getConfig();
 $provider = HelpdeskManager::getServiceProviderDetails();
 
-$types = $cfg['ticket_types'] ?? ['Störung', 'Serviceanfrage', 'Wartung', 'Projekt', 'Installation', 'Sonstiges'];
+$types = HelpdeskManager::getTicketTypes();
 $priorities = $cfg['priorities'] ?? ['Niedrig', 'Normal', 'Hoch', 'Kritisch'];
 ?>
 
@@ -69,10 +69,11 @@ $priorities = $cfg['priorities'] ?? ['Niedrig', 'Normal', 'Hoch', 'Kritisch'];
                     </div>
 
                     <!-- Zeile 2: Von Unternehmen, Adresse, Kontaktperson -->
+                    <?php $isPrivateCustomer = (($user['customer_type'] ?? 'company') === 'private'); ?>
                     <div class="hd-form-row">
                         <div class="hd-form-col">
-                            <label class="hd-form-label">Von Unternehmen *</label>
-                            <input type="text" name="company_name" class="hd-input" required value="<?= htmlspecialchars($user['company_name'] ?? '') ?>" placeholder="Firmenname">
+                            <label class="hd-form-label">Von Unternehmen<?= $isPrivateCustomer ? ' (optional)' : ' *' ?></label>
+                            <input type="text" name="company_name" class="hd-input" <?= $isPrivateCustomer ? '' : 'required' ?> value="<?= htmlspecialchars($user['company_name'] ?? '') ?>" placeholder="<?= $isPrivateCustomer ? 'Optional bei Privatkunden' : 'Firmenname' ?>">
                         </div>
                         <div class="hd-form-col">
                             <label class="hd-form-label">Adresse *</label>

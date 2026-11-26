@@ -66,6 +66,19 @@ class IntegrationManager {
 
     public static function getIntegrations(array $data = []): array {
         $file = self::getStorageFile();
+        if (class_exists('StorageManager')) {
+            $items = StorageManager::loadPluginData('universal_integrations', null, $file);
+            if (!is_array($items)) {
+                $migrated = self::migrateFromLegacyWebtrees($data);
+                if (!empty($migrated)) {
+                    self::saveIntegrations($migrated);
+                    return $migrated;
+                }
+                return [];
+            }
+            return $items;
+        }
+
         if (!file_exists($file)) {
             // Automatische Erst-Migration des Webtrees-Plugins falls vorhanden
             $migrated = self::migrateFromLegacyWebtrees($data);
@@ -93,6 +106,9 @@ class IntegrationManager {
 
     public static function saveIntegrations(array $items): bool {
         $file = self::getStorageFile();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('universal_integrations', array_values($items), $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);

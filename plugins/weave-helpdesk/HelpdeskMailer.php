@@ -124,11 +124,12 @@ class HelpdeskMailer {
      * @param array $ticket
      * @param array $activity
      * @param array $author
-     * @return void
+     * @param string $target 'customer' (an Einsender) oder 'provider' (an Dienstleister bei Kundenantwort)
+     * @return array ['success' => bool, ...]
      */
-    public static function sendActivityNotification(array $ticket, array $activity, array $author): void {
+    public static function sendActivityNotification(array $ticket, array $activity, array $author, string $target = 'customer'): array {
         if (!self::isEnabled()) {
-            return;
+            return ['success' => false, 'skipped' => true, 'error' => 'E-Mail-Benachrichtigungen sind deaktiviert.'];
         }
 
         require_once dirname(__DIR__, 2) . '/libs/php/Mailer.php';
@@ -136,22 +137,60 @@ class HelpdeskMailer {
         $smtp = self::getSmtpConfig();
 
         $ticketId = $ticket['id'];
-        $subject = "[Aktualisierung: #{$ticketId}] {$ticket['subject']}";
 
-        // Falls die Tätigkeit von einem Support-Mitarbeiter stammt -> Benachrichtigung an Kunde
+        if ($target === 'provider') {
+            $recipient = $provider['email'] ?? '';
+            if (empty($recipient) || !filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+                return ['success' => false, 'error' => 'Keine gültige Support-E-Mail-Adresse konfiguriert.'];
+            }
+            $customerEmail = $ticket['created_by_email'] ?? '';
+            $replyToEmail = filter_var($customerEmail, FILTER_VALIDATE_EMAIL) ? $customerEmail : '';
+            $replyToName = $ticket['contact_person'] ?? ($author['name'] ?? 'Kunde');
+            $subject = "[Kundenantwort: #{$ticketId}] {$ticket['subject']}";
+            $html = "
+                <div style='font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;'>
+                    <div style='background: #257985; color: #fff; padding: 16px 20px;'>
+                        <h3 style='margin: 0;'>Neue Rückmeldung des Einsenders zu Aufgabe #{$ticketId}</h3>
+                    </div>
+                    <div style='padding: 20px;'>
+                        <p><strong>Unternehmen:</strong> " . htmlspecialchars($ticket['company_name'] ?? '-') . "<br>
+                        <strong>Einsender / Kontakt:</strong> " . htmlspecialchars($replyToName) . "</p>
+                        <div style='background: #f4f8f8; border-left: 4px solid #257985; padding: 12px 16px; margin: 15px 0;'>
+                            <strong>" . htmlspecialchars($activity['type']) . "</strong> von <em>" . htmlspecialchars($activity['author_name']) . "</em> (" . htmlspecialchars($activity['created_at']) . "):<br><br>
+                            " . nl2br(htmlspecialchars($activity['description'])) . "
+                        </div>
+                        <p>Aktueller Status: <strong>" . htmlspecialchars($ticket['status']) . "</strong></p>
+                    </div>
+                </div>
+            ";
+            $text = "Neue Kundenantwort zu Aufgabe #{$ticketId} ({$activity['author_name']}):\n" . $activity['description'];
+
+            return SimpleMailer::send(
+                $recipient,
+                $subject,
+                $html,
+                $text,
+                $replyToEmail,
+                $replyToName,
+                $smtp
+            );
+        }
+
+        // Standard: Einsender des Tickets automatisch per E-Mail informieren
+        $subject = "[Antwort: #{$ticketId}] {$ticket['subject']}";
         $recipient = $ticket['created_by_email'] ?? '';
         if (empty($recipient) || !filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
-            return;
+            return ['success' => false, 'error' => 'Keine gültige E-Mail-Adresse beim Einsender hinterlegt.'];
         }
 
         $html = "
             <div style='font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;'>
                 <div style='background: #257985; color: #fff; padding: 16px 20px;'>
-                    <h3 style='margin: 0;'>Neue Aktivität zu Aufgabe #{$ticketId}</h3>
+                    <h3 style='margin: 0;'>Neue Antwort zu Ihrer Aufgabe #{$ticketId}</h3>
                 </div>
                 <div style='padding: 20px;'>
                     <p>Hallo <strong>" . htmlspecialchars($ticket['contact_person']) . "</strong>,</p>
-                    <p>zu Ihrer Aufgabe liegt ein neuer Eintrag vor:</p>
+                    <p>zu Ihrer Service-Aufgabe gibt es eine neue Rückmeldung:</p>
                     <div style='background: #f4f8f8; border-left: 4px solid #257985; padding: 12px 16px; margin: 15px 0;'>
                         <strong>" . htmlspecialchars($activity['type']) . "</strong> durch <em>" . htmlspecialchars($activity['author_name']) . "</em> (" . htmlspecialchars($activity['created_at']) . "):<br><br>
                         " . nl2br(htmlspecialchars($activity['description'])) . "
@@ -161,9 +200,9 @@ class HelpdeskMailer {
                 </div>
             </div>
         ";
-        $text = "Neue Aktivität zu Aufgabe #{$ticketId} ({$activity['type']}):\n" . $activity['description'];
+        $text = "Neue Antwort zu Ihrer Aufgabe #{$ticketId} ({$activity['type']}):\n" . $activity['description'];
 
-        SimpleMailer::send(
+        return SimpleMailer::send(
             $recipient,
             $subject,
             $html,
@@ -175,7 +214,7 @@ class HelpdeskMailer {
     }
 
     /**
-     * Sendet eine Benachrichtigung bei Statuswechsel (z. B. Geschlossen oder Abgerechnet).
+     * Sendet eine Benachrichtigung bei Statuswechsel.
      * @param array $ticket
      * @param string $oldStatus
      * @param string $newStatus
@@ -198,9 +237,20 @@ class HelpdeskMailer {
             return;
         }
 
+        $headerBg = '#257985';
+        if ($newStatus === HelpdeskManager::STATUS_BILLED) {
+            $headerBg = '#2b6cb0';
+        } elseif ($newStatus === HelpdeskManager::STATUS_CLOSED) {
+            $headerBg = '#28a745';
+        } elseif ($newStatus === HelpdeskManager::STATUS_SCHEDULED) {
+            $headerBg = '#4f46e5';
+        } elseif ($newStatus === HelpdeskManager::STATUS_WAITING_CUSTOMER || $newStatus === HelpdeskManager::STATUS_WAITING_EXTERNAL) {
+            $headerBg = '#d97706';
+        }
+
         $html = "
             <div style='font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;'>
-                <div style='background: " . ($newStatus === HelpdeskManager::STATUS_BILLED ? "#2b6cb0" : "#28a745") . "; color: #fff; padding: 16px 20px;'>
+                <div style='background: {$headerBg}; color: #fff; padding: 16px 20px;'>
                     <h3 style='margin: 0;'>Aufgabe #{$ticketId} ist jetzt: {$newStatus}</h3>
                 </div>
                 <div style='padding: 20px;'>

@@ -193,10 +193,17 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px;">
                         <span style="font-weight:600; color:#64748b;">Anwesende Mitglieder:</span>
                         <?php foreach ($onlineStats['members'] as $m): ?>
-                            <span style="display:inline-flex; align-items:center; gap:5px; font-weight:700; padding:2px 8px; border-radius:6px; background:<?= $m['color'] ?>15; color:<?= $m['color'] ?>; border:1px solid <?= $m['color'] ?>35;">
-                                <span class="kunena-legend-dot" style="background-color: <?= $m['color'] ?>;"></span>
-                                <?= htmlspecialchars($m['username']) ?>
-                            </span>
+                            <?php if (!empty($m['id'])): ?>
+                                <a href="?page=forum&view=user&id=<?= urlencode($m['id']) ?>" style="display:inline-flex; align-items:center; gap:5px; font-weight:700; padding:2px 8px; border-radius:6px; background:<?= $m['color'] ?>15; color:<?= $m['color'] ?>; border:1px solid <?= $m['color'] ?>35; text-decoration:none;" title="Mitgliederprofil ansehen">
+                                    <span class="kunena-legend-dot" style="background-color: <?= $m['color'] ?>;"></span>
+                                    <?= htmlspecialchars($m['username']) ?>
+                                </a>
+                            <?php else: ?>
+                                <span style="display:inline-flex; align-items:center; gap:5px; font-weight:700; padding:2px 8px; border-radius:6px; background:<?= $m['color'] ?>15; color:<?= $m['color'] ?>; border:1px solid <?= $m['color'] ?>35;">
+                                    <span class="kunena-legend-dot" style="background-color: <?= $m['color'] ?>;"></span>
+                                    <?= htmlspecialchars($m['username']) ?>
+                                </span>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 <?php elseif (!$currentUser): ?>

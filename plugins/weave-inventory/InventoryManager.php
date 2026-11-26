@@ -25,17 +25,28 @@ class InventoryManager {
      */
     public static function getArticles(): array {
         $file = self::getProductsFile();
-        if (!file_exists($file)) {
-            // Falls ShopManager vorhanden ist, Standardprodukte anlegen
-            if (class_exists('ShopManager')) {
-                ShopManager::getProducts();
+        if (class_exists('StorageManager')) {
+            $products = StorageManager::loadPluginData('shop_products', null, $file);
+            if (!is_array($products)) {
+                if (class_exists('ShopManager')) {
+                    $products = ShopManager::getProducts();
+                } else {
+                    $products = [];
+                }
             }
-        }
+        } else {
+            if (!file_exists($file)) {
+                // Falls ShopManager vorhanden ist, Standardprodukte anlegen
+                if (class_exists('ShopManager')) {
+                    ShopManager::getProducts();
+                }
+            }
 
-        $raw = @file_get_contents($file);
-        $products = json_decode((string)$raw, true);
-        if (!is_array($products)) {
-            $products = [];
+            $raw = @file_get_contents($file);
+            $products = json_decode((string)$raw, true);
+            if (!is_array($products)) {
+                $products = [];
+            }
         }
 
         // Lager-Metadaten sicherstellen
@@ -299,6 +310,9 @@ class InventoryManager {
      */
     protected static function saveAllArticles(array $articles): bool {
         $file = self::getProductsFile();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('shop_products', $articles, $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);
@@ -321,14 +335,21 @@ class InventoryManager {
      */
     public static function getLog(int $limit = 150, ?string $articleId = null, ?string $type = null): array {
         $file = self::getLogFile();
-        if (!file_exists($file)) {
-            return [];
-        }
+        if (class_exists('StorageManager')) {
+            $log = StorageManager::loadPluginData('inventory_log', [], $file);
+            if (!is_array($log)) {
+                return [];
+            }
+        } else {
+            if (!file_exists($file)) {
+                return [];
+            }
 
-        $raw = @file_get_contents($file);
-        $log = json_decode((string)$raw, true);
-        if (!is_array($log)) {
-            return [];
+            $raw = @file_get_contents($file);
+            $log = json_decode((string)$raw, true);
+            if (!is_array($log)) {
+                return [];
+            }
         }
 
         if ($articleId !== null && $articleId !== '') {
@@ -367,7 +388,10 @@ class InventoryManager {
         }
 
         $log = [];
-        if (file_exists($file)) {
+        if (class_exists('StorageManager')) {
+            $loaded = StorageManager::loadPluginData('inventory_log', [], $file);
+            $log = is_array($loaded) ? $loaded : [];
+        } elseif (file_exists($file)) {
             $raw = @file_get_contents($file);
             $log = json_decode((string)$raw, true) ?: [];
         }
@@ -403,10 +427,14 @@ class InventoryManager {
             $log = array_slice($log, 0, 5000);
         }
 
-        $json = json_encode($log, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        $tmp = $file . '.tmp.' . bin2hex(random_bytes(6));
-        file_put_contents($tmp, $json);
-        @rename($tmp, $file);
+        if (class_exists('StorageManager')) {
+            StorageManager::savePluginData('inventory_log', $log, $file);
+        } else {
+            $json = json_encode($log, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $tmp = $file . '.tmp.' . bin2hex(random_bytes(6));
+            file_put_contents($tmp, $json);
+            @rename($tmp, $file);
+        }
 
         return $entry;
     }

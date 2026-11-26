@@ -13,6 +13,9 @@ $view = $_GET['view'] ?? 'list';
 $activeTicketId = $_GET['id'] ?? '';
 $provider = HelpdeskManager::getServiceProviderDetails();
 $pluginUrl = PluginManager::getPluginUrl('weave-helpdesk');
+$appError = $_SESSION['hd_app_error'] ?? null;
+$appSuccess = $_SESSION['hd_app_success'] ?? null;
+unset($_SESSION['hd_app_error'], $_SESSION['hd_app_success']);
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -106,6 +109,16 @@ $pluginUrl = PluginManager::getPluginUrl('weave-helpdesk');
 
 <!-- Hauptinhalt je nach View -->
 <main>
+    <?php if (!empty($appError)): ?>
+        <div class="hd-main-container" style="padding-bottom: 0;">
+            <div class="hd-alert-error" style="width: 100%;"><?= htmlspecialchars($appError) ?></div>
+        </div>
+    <?php endif; ?>
+    <?php if (!empty($appSuccess)): ?>
+        <div class="hd-main-container" style="padding-bottom: 0;">
+            <div class="hd-alert-success" style="width: 100%;"><?= htmlspecialchars($appSuccess) ?></div>
+        </div>
+    <?php endif; ?>
     <?php
     if ($view === 'create') {
         require __DIR__ . '/task_create.php';

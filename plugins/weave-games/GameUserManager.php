@@ -25,6 +25,10 @@ class GameUserManager {
 
     public static function getPlayers(): array {
         $file = self::getPlayersFilePath();
+        if (class_exists('StorageManager')) {
+            $data = StorageManager::loadPluginData('games_players', [], $file);
+            return is_array($data) ? $data : [];
+        }
         if (!file_exists($file)) {
             return [];
         }
@@ -34,6 +38,9 @@ class GameUserManager {
 
     public static function savePlayers(array $players): bool {
         $file = self::getPlayersFilePath();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('games_players', $players, $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);

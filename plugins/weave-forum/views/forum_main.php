@@ -10,8 +10,14 @@ require_once dirname(__DIR__) . '/ForumManager.php';
 if (file_exists(dirname(__DIR__, 2) . '/weave-forum-users/ForumUserManager.php')) {
     require_once dirname(__DIR__, 2) . '/weave-forum-users/ForumUserManager.php';
 }
+if (file_exists(dirname(__DIR__, 2) . '/weave-forum-users/ForumMessageManager.php')) {
+    require_once dirname(__DIR__, 2) . '/weave-forum-users/ForumMessageManager.php';
+}
 
 $currentUser = class_exists('ForumUserManager') ? ForumUserManager::getCurrentUser() : null;
+if ($currentUser && class_exists('ForumUserManager')) {
+    ForumUserManager::touchOnlineActivity($currentUser);
+}
 $view = trim($_GET['view'] ?? 'index');
 $cfg = class_exists('PluginManager') ? PluginManager::getPluginConfig('weave-forum', $data ?? []) : [];
 $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
@@ -70,6 +76,17 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
                     <a href="?page=forum&view=help" class="kunena-nav-link <?= $view === 'help' ? 'active' : '' ?>">
                         <span class="material-icons">help_outline</span> Hilfe & FAQ
                     </a>
+                    <?php if ($currentUser && class_exists('ForumMessageManager')): ?>
+                        <?php $unreadPmCount = ForumMessageManager::getUnreadCount((string)$currentUser['id']); ?>
+                        <a href="?page=forum&view=messages" class="kunena-nav-link <?= $view === 'messages' ? 'active' : '' ?>">
+                            <span class="material-icons">mail</span> Nachrichten
+                            <?php if ($unreadPmCount > 0): ?>
+                                <span class="kunena-cat-badge" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; font-size:10px; padding:1px 6px; margin-left:2px;">
+                                    <?= (int)$unreadPmCount ?>
+                                </span>
+                            <?php endif; ?>
+                        </a>
+                    <?php endif; ?>
                     <?php if ($currentUser && class_exists('ForumUserManager') && ForumUserManager::userCan('moderate', $currentUser)): ?>
                         <?php $openReports = ForumManager::getReports('open'); ?>
                         <a href="?page=forum&view=moderation" class="kunena-nav-link <?= $view === 'moderation' ? 'active' : '' ?>" style="color: #d97706;">
@@ -149,6 +166,12 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
             <?php elseif ($view === 'profile'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
                 <span class="kunena-breadcrumb-current">Mein Profil</span>
+            <?php elseif ($view === 'user'): ?>
+                <span class="kunena-breadcrumb-sep">›</span>
+                <span class="kunena-breadcrumb-current">Mitgliederprofil</span>
+            <?php elseif ($view === 'messages'): ?>
+                <span class="kunena-breadcrumb-sep">›</span>
+                <span class="kunena-breadcrumb-current">Private Nachrichten</span>
             <?php elseif ($view === 'moderation'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
                 <span class="kunena-breadcrumb-current">Moderationszentrale</span>
@@ -179,6 +202,12 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
             if (file_exists($userView)) require $userView;
         } elseif ($view === 'profile') {
             $userView = dirname(__DIR__, 2) . '/weave-forum-users/views/profile.php';
+            if (file_exists($userView)) require $userView;
+        } elseif ($view === 'user') {
+            $userView = dirname(__DIR__, 2) . '/weave-forum-users/views/user_profile.php';
+            if (file_exists($userView)) require $userView;
+        } elseif ($view === 'messages') {
+            $userView = dirname(__DIR__, 2) . '/weave-forum-users/views/messages.php';
             if (file_exists($userView)) require $userView;
         } elseif ($view === 'moderation') {
             require __DIR__ . '/forum_moderation.php';

@@ -30,6 +30,11 @@ class GameConfigManager {
             'api_key'                     => 'wgk_' . bin2hex(random_bytes(16))
         ];
 
+        if (class_exists('StorageManager')) {
+            $data = StorageManager::loadPluginData('games_config', null, $file);
+            return is_array($data) ? array_merge($default, $data) : $default;
+        }
+
         if (!file_exists($file)) {
             return $default;
         }
@@ -40,6 +45,9 @@ class GameConfigManager {
 
     public static function saveConfig(array $config): bool {
         $file = self::getConfigFilePath();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('games_config', $config, $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);

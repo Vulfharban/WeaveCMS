@@ -54,6 +54,14 @@ class HelpdeskUserManager {
      */
     public static function loadUsers(): array {
         $file = self::getUsersFilePath();
+        if (class_exists('StorageManager')) {
+            $data = StorageManager::loadPluginData('helpdesk_users', null, $file);
+            if (!is_array($data)) {
+                self::saveUsers([]);
+                return [];
+            }
+            return $data;
+        }
         if (!file_exists($file)) {
             // Initialdatei anlegen, falls noch nicht existent
             self::saveUsers([]);
@@ -65,12 +73,15 @@ class HelpdeskUserManager {
     }
 
     /**
-     * Speichert die Benutzerliste sicher in die JSON-Datei.
+     * Speichert die Benutzerliste sicher in der aktiven Speicher-Engine (Datenbank oder JSON-Datei).
      * @param array $users
      * @return bool
      */
     public static function saveUsers(array $users): bool {
         $file = self::getUsersFilePath();
+        if (class_exists('StorageManager')) {
+            return StorageManager::savePluginData('helpdesk_users', array_values($users), $file);
+        }
         $dir = dirname($file);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);
@@ -147,14 +158,17 @@ class HelpdeskUserManager {
         }
 
         $users = self::loadUsers();
-        foreach ($users as $user) {
+        foreach ($users as &$user) {
             if (strtolower($user['email'] ?? '') === $email) {
                 if (!empty($user['active']) && password_verify($password, $user['password_hash'] ?? '')) {
+                    $user['last_login'] = date('Y-m-d H:i:s');
+                    self::saveUsers($users);
                     return $user;
                 }
                 return null;
             }
         }
+        unset($user);
 
         return null;
     }
@@ -167,6 +181,9 @@ class HelpdeskUserManager {
     public static function login(array $user): void {
         if (session_status() === PHP_SESSION_NONE) {
             @session_start();
+        }
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            @session_regenerate_id(true);
         }
         $_SESSION['helpdesk_user_id'] = $user['id'];
         $_SESSION['helpdesk_user_role'] = $user['role'];

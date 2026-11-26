@@ -13,6 +13,7 @@ require_once __DIR__ . '/PdoSqlStorageDriver.php';
 
 class StorageManager {
     protected static ?StorageDriverInterface $instance = null;
+    protected static bool $pluginTableReady = false;
 
     /**
      * Ermittelt den konfigurierten Speicher-Treiber.
@@ -342,6 +343,140 @@ class StorageManager {
             'success' => true,
             'message' => "Erfolgreich zu MySQL ('{$dbName}') migriert! Die Datenbank ist nun als primäre Speicher-Engine aktiv."
         ];
+    }
+
+    /**
+     * Prüft, ob Plugins aktuell den globalen relationalen Datenbankspeicher (MySQL) nutzen sollen.
+     * In einer aktiven Demo-Sandbox wird bewusst dateibasiert in isolierten Sandbox-Dateien gespeichert.
+     */
+    public static function isPluginDatabaseActive(): bool {
+        if (class_exists('SandboxManager') && SandboxManager::isDemoActive()) {
+            return false;
+        }
+        return self::getCurrentDriverType() === 'mysql';
+    }
+
+    /**
+     * Stellt die zentrale Tabelle {prefix}plugin_data für alle Plugin-Daten bereit.
+     */
+    protected static function ensurePluginDataTable(PDO $pdo, string $table): void {
+        if (self::$pluginTableReady) {
+            return;
+        }
+        $pdo->exec("CREATE TABLE IF NOT EXISTS {$table} (
+            `plugin_key` VARCHAR(128) NOT NULL PRIMARY KEY,
+            `payload` LONGTEXT NOT NULL,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        self::$pluginTableReady = true;
+    }
+
+    /**
+     * Lädt einen beliebigen Plugin-Datensatz automatisch aus der gewählten Datenbank (MySQL)
+     * oder aus der JSON-Fallback-Datei. Falls in MySQL noch kein Eintrag existiert, wird eine
+     * vorhandene JSON-Datei beim ersten Zugriff automatisch in die Datenbank übernommen.
+     *
+     * @param string $key Eindeutiger Schlüssel in {prefix}plugin_data
+     * @param mixed $default Rückgabewert, wenn noch keine Daten vorhanden sind
+     * @param string|null $jsonFallbackPath Pfad zur JSON-Datei für JSON-Modus / Erstübernahme
+     * @return mixed
+     */
+    public static function loadPluginData(string $key, $default = [], ?string $jsonFallbackPath = null) {
+        if (self::isPluginDatabaseActive()) {
+            try {
+                $driver = self::getDriver();
+                if ($driver instanceof PdoSqlStorageDriver) {
+                    $pdo = $driver->getPdo();
+                    $prefix = defined('WEAVE_DB_PREFIX') ? WEAVE_DB_PREFIX : 'weave_';
+                    $table = '`' . str_replace('`', '``', $prefix . 'plugin_data') . '`';
+                    self::ensurePluginDataTable($pdo, $table);
+
+                    $stmt = $pdo->prepare("SELECT `payload` FROM {$table} WHERE `plugin_key` = :k LIMIT 1");
+                    $stmt->execute([':k' => $key]);
+                    $payload = $stmt->fetchColumn();
+
+                    if ($payload !== false && $payload !== null) {
+                        $decoded = json_decode((string)$payload, true);
+                        return (json_last_error() === JSON_ERROR_NONE) ? $decoded : $default;
+                    }
+
+                    // Erstübernahme: bestehende JSON-Datei automatisch in die Datenbank importieren
+                    if ($jsonFallbackPath !== null && file_exists($jsonFallbackPath)) {
+                        $raw = @file_get_contents($jsonFallbackPath);
+                        $decoded = json_decode((string)$raw, true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            self::savePluginData($key, $decoded, null);
+                            return $decoded;
+                        }
+                    }
+
+                    return $default;
+                }
+            } catch (Exception $e) {
+                error_log('StorageManager loadPluginData (' . $key . ') error: ' . $e->getMessage());
+            }
+        }
+
+        if ($jsonFallbackPath !== null && file_exists($jsonFallbackPath)) {
+            $raw = @file_get_contents($jsonFallbackPath);
+            $decoded = json_decode((string)$raw, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $decoded;
+            }
+        }
+
+        return $default;
+    }
+
+    /**
+     * Speichert einen Plugin-Datensatz automatisch in der aktiven Datenbank (MySQL)
+     * oder atomar in die angegebene JSON-Datei.
+     *
+     * @param string $key Eindeutiger Schlüssel in {prefix}plugin_data
+     * @param mixed $value Beliebige JSON-serialisierbare Datenstruktur
+     * @param string|null $jsonFallbackPath Zielpfad im JSON-/Sandbox-Modus
+     * @return bool
+     */
+    public static function savePluginData(string $key, $value, ?string $jsonFallbackPath = null): bool {
+        $json = json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($json === false) {
+            return false;
+        }
+
+        if (self::isPluginDatabaseActive()) {
+            try {
+                $driver = self::getDriver();
+                if ($driver instanceof PdoSqlStorageDriver) {
+                    $pdo = $driver->getPdo();
+                    $prefix = defined('WEAVE_DB_PREFIX') ? WEAVE_DB_PREFIX : 'weave_';
+                    $table = '`' . str_replace('`', '``', $prefix . 'plugin_data') . '`';
+                    self::ensurePluginDataTable($pdo, $table);
+
+                    $stmt = $pdo->prepare("
+                        INSERT INTO {$table} (`plugin_key`, `payload`) VALUES (:k, :p)
+                        ON DUPLICATE KEY UPDATE `payload` = VALUES(`payload`)
+                    ");
+                    return $stmt->execute([':k' => $key, ':p' => $json]);
+                }
+            } catch (Exception $e) {
+                error_log('StorageManager savePluginData (' . $key . ') error: ' . $e->getMessage());
+            }
+        }
+
+        if ($jsonFallbackPath === null) {
+            return false;
+        }
+
+        $dir = dirname($jsonFallbackPath);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+
+        $tmp = $jsonFallbackPath . '.tmp.' . bin2hex(random_bytes(6));
+        if (@file_put_contents($tmp, $json) === false) {
+            return false;
+        }
+        return @rename($tmp, $jsonFallbackPath);
     }
 
     /**
