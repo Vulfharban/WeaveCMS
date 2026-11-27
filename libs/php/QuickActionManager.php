@@ -408,6 +408,18 @@ class QuickActionManager {
                 'min_role'    => UserManager::ROLE_ADMIN,
                 'condition'   => 'plugin_inventory'
             ],
+            'fleamarket_admin' => [
+                'id'          => 'fleamarket_admin',
+                'title'       => (function_exists('__a') ? __a('admin.qa.act_fleamarket_admin_title', 'Flohmarkt verwalten') : 'Flohmarkt verwalten'),
+                'description' => (function_exists('__a') ? __a('admin.qa.act_fleamarket_admin_desc', 'Kleinanzeigen, Freigaben & Vor-Ort-Stände öffnen') : 'Kleinanzeigen, Freigaben & Vor-Ort-Stände öffnen'),
+                'category'    => 'plugins',
+                'icon'        => 'local_offer',
+                'color'       => '#b45309',
+                'action_type' => 'url',
+                'target'      => '?tab=tab-plugins&plugin_settings=weave-fleamarket#tab-plugins',
+                'min_role'    => UserManager::ROLE_EDITOR,
+                'condition'   => 'plugin_fleamarket'
+            ],
 
             // ──────────────── ALLGEMEIN ────────────────
             'live_website' => [
@@ -499,6 +511,8 @@ class QuickActionManager {
                 return file_exists($root . '/plugins/shop/plugin.php');
             case 'plugin_inventory':
                 return file_exists($root . '/plugins/inventory/plugin.php');
+            case 'plugin_fleamarket':
+                return file_exists($root . '/plugins/weave-fleamarket/plugin.php');
             default:
                 return true;
         }

@@ -1577,5 +1577,16 @@
     "admin.settings.active_langs_label": "Aktivierte Sprachen für Besucher",
     "admin.custom_fields.err_key_required": "Bitte gib einen gültigen technischen Schlüssel (Key) ein.",
     "admin.custom_fields.err_label_required": "Bitte gib eine Bezeichnung (Label) ein.",
-    "admin.custom_fields.err_key_exists": "Ein Feld mit dem Schlüssel „{key}“ existiert in diesem Modul bereits."
+    "admin.custom_fields.err_key_exists": "Ein Feld mit dem Schlüssel „{key}“ existiert in diesem Modul bereits.",
+    "admin.qa.act_fleamarket_admin_title": "Flohmarkt verwalten",
+    "admin.qa.act_fleamarket_admin_desc": "Kleinanzeigen, Freigaben & Vor-Ort-Stände öffnen",
+    "admin.fleamarket.header_title": "Weave Flohmarkt – Kleinanzeigen, Moderation & Vor-Ort-Events",
+    "admin.fleamarket.header_desc": "Verwalte Anzeigen (FM-YYYY-NNNN), Freigaben, Meldungen, Vor-Ort-Stände & DSGVO-Bereinigung.",
+    "admin.fleamarket.new_item": "Neue Anzeige",
+    "admin.fleamarket.tab_dashboard": "Dashboard & KPIs",
+    "admin.fleamarket.tab_items": "Anzeigen & Freigaben",
+    "admin.fleamarket.tab_categories": "Kategorien",
+    "admin.fleamarket.tab_inquiries": "Anfragen & Meldungen",
+    "admin.fleamarket.tab_stands": "Vor-Ort-Stände",
+    "admin.fleamarket.tab_settings": "Einstellungen & Menü"
 }

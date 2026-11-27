@@ -7,6 +7,9 @@
  * @var string $csrf_token CSRF-Token
  */
 require_once dirname(__DIR__) . '/ShopManager.php';
+require_once dirname(__DIR__) . '/InvoiceXmlBuilder.php';
+require_once dirname(__DIR__) . '/InvoicePdfBuilder.php';
+require_once dirname(__DIR__) . '/InvoiceManager.php';
 
 $config = $config ?? [];
 $activeSubTab = $_GET['shop_subtab'] ?? $_POST['active_subtab'] ?? $_POST['shop_subtab'] ?? 'products';
@@ -88,6 +91,7 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
     $shopSubTabs = [
         'products'   => ['title' => 'Produkte (' . count($products) . ')', 'icon' => 'inventory_2'],
         'orders'     => ['title' => 'Bestellungen (' . count($orders) . ')', 'icon' => 'receipt_long'],
+        'invoices'   => ['title' => 'Rechnungen & Archiv (' . count(InvoiceManager::getInvoices()) . ')', 'icon' => 'description'],
         'payments'   => ['title' => 'Zahlungsarten (Vorkasse, CC, PayPal, WERO)', 'icon' => 'payments'],
         'settings'   => ['title' => 'Shop-Einstellungen', 'icon' => 'tune'],
         'interfaces' => ['title' => 'Schnittstellen & Im/Export', 'icon' => 'sync_alt'],
@@ -261,10 +265,20 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                                     </form>
                                 </td>
                                 <td style="padding: 12px 16px; text-align: right;">
-                                    <button type="button" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.82rem;" 
-                                            onclick='viewShopOrder(<?php echo json_encode($o); ?>)'>
-                                        <span class="material-icons" style="font-size: 16px;">visibility</span>
-                                    </button>
+                                    <div style="display:inline-flex; gap:6px; align-items:center;">
+                                        <form method="POST" action="?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=invoices#tab-plugins" style="display:inline;">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                            <input type="hidden" name="action" value="shop_create_invoice">
+                                            <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($o['order_id']); ?>">
+                                            <button type="submit" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;" title="Rechnung / E-Rechnung erzeugen">
+                                                <span class="material-icons" style="font-size: 16px;">receipt</span>
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.82rem;" 
+                                                onclick='viewShopOrder(<?php echo json_encode($o); ?>)'>
+                                            <span class="material-icons" style="font-size: 16px;">visibility</span>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -694,6 +708,163 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                 </div>
             </div>
 
+        </div>
+
+    <!-- ===================================================================== -->
+    <!-- SUBTAB: RECHNUNGEN, E-RECHNUNG (ZUGFeRD / XRECHNUNG) & ARCHIV        -->
+    <!-- ===================================================================== -->
+    <?php elseif ($activeSubTab === 'invoices'): ?>
+        <?php
+            $invCfg = InvoiceManager::getConfig();
+            $invoices = InvoiceManager::getInvoices();
+            $invNotice = $_SESSION['weave_shop_inv_msg'] ?? null;
+            unset($_SESSION['weave_shop_inv_msg']);
+        ?>
+        <?php if (is_array($invNotice) && !empty($invNotice['text'])): ?>
+            <div style="margin-bottom: 1rem; padding: 11px 16px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; background: <?php echo !empty($invNotice['ok']) ? '#f0fdf4' : '#fef2f2'; ?>; border-left: 4px solid <?php echo !empty($invNotice['ok']) ? '#16a34a' : '#dc2626'; ?>; color: <?php echo !empty($invNotice['ok']) ? '#166534' : '#991b1b'; ?>;">
+                <?php echo htmlspecialchars((string)$invNotice['text']); ?>
+            </div>
+        <?php endif; ?>
+
+        <!-- Lokale & Externe Archivierung / Buchhaltungs-Export -->
+        <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h4 style="margin: 0 0 4px 0; font-size: 1.05rem; font-weight: 700;">Doppelte Archivierung (Online SHA-256 &amp; Lokaler ZIP-/CSV-Export)</h4>
+                <div style="font-size: 0.83rem; color: var(--text-secondary);">Unveränderliches Server-Archiv unter <code>data/invoices/YYYY/MM/</code> · Download aller PDFs, ZUGFeRD/XRechnung-XMLs &amp; CSV/DATEV-Journal.</div>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <a href="?action=shop_export_accounting_csv&csrf_token=<?php echo urlencode($csrf_token); ?>" class="btn btn-outline" style="padding: 7px 14px; font-size: 0.85rem; text-decoration: none;">⬇ Buchungsjournal (CSV)</a>
+                <a href="?action=shop_export_archive_zip&csrf_token=<?php echo urlencode($csrf_token); ?>" class="btn btn-primary" style="padding: 7px 14px; font-size: 0.85rem; text-decoration: none;">📦 Monats-/Jahres-Archiv (.zip)</a>
+            </div>
+        </div>
+
+        <!-- Belegliste -->
+        <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem;">
+            <table class="table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+                <thead style="background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); color: var(--text-secondary);">
+                    <tr>
+                        <th style="padding: 10px 14px;">Beleg-Nr. / Datum</th>
+                        <th style="padding: 10px 14px;">Bestellung / Kunde</th>
+                        <th style="padding: 10px 14px;">Format</th>
+                        <th style="padding: 10px 14px;">Brutto (Netto / MwSt)</th>
+                        <th style="padding: 10px 14px;">Integrität</th>
+                        <th style="padding: 10px 14px; text-align: right;">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($invoices)): ?>
+                        <tr><td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-secondary);">Noch keine Rechnungen archiviert. Erstelle eine Rechnung direkt in den Bestellungen.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($invoices as $inv): ?>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 10px 14px;">
+                                    <strong><?php echo htmlspecialchars((string)$inv['invoice_number']); ?></strong>
+                                    <?php if (($inv['doc_type'] ?? 'invoice') === 'credit_note'): ?><span style="color:#dc2626; font-size:0.75rem; font-weight:700;"> (Storno)</span><?php endif; ?>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);"><?php echo htmlspecialchars((string)$inv['issued_at']); ?></div>
+                                </td>
+                                <td style="padding: 10px 14px;">
+                                    <div><?php echo htmlspecialchars((string)$inv['buyer_name']); ?></div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);"><?php echo htmlspecialchars((string)$inv['order_id']); ?></div>
+                                </td>
+                                <td style="padding: 10px 14px;"><code><?php echo htmlspecialchars(strtoupper((string)$inv['format'])); ?></code></td>
+                                <td style="padding: 10px 14px;">
+                                    <strong><?php echo number_format((float)$inv['gross_total'], 2, ',', '.'); ?> <?php echo htmlspecialchars((string)$inv['currency']); ?></strong>
+                                    <div style="font-size: 0.74rem; color: var(--text-secondary);">Netto: <?php echo number_format((float)$inv['net_total'], 2, ',', '.'); ?> · MwSt: <?php echo number_format((float)$inv['tax_total'], 2, ',', '.'); ?></div>
+                                </td>
+                                <td style="padding: 10px 14px; font-family: monospace; font-size: 0.72rem;" title="<?php echo htmlspecialchars((string)$inv['pdf_sha256']); ?>">
+                                    SHA256: <?php echo htmlspecialchars(substr((string)$inv['pdf_sha256'], 0, 12)); ?>…
+                                </td>
+                                <td style="padding: 10px 14px; text-align: right;">
+                                    <div style="display:inline-flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">
+                                        <a href="?action=shop_download_invoice_pdf&invoice_id=<?php echo urlencode((string)$inv['id']); ?>&csrf_token=<?php echo urlencode($csrf_token); ?>" class="btn btn-outline" style="padding: 3px 8px; font-size: 0.76rem; text-decoration: none;">⬇ PDF</a>
+                                        <?php if (!empty($inv['xml_rel_path'])): ?>
+                                            <a href="?action=shop_download_invoice_xml&invoice_id=<?php echo urlencode((string)$inv['id']); ?>&csrf_token=<?php echo urlencode($csrf_token); ?>" class="btn btn-outline" style="padding: 3px 8px; font-size: 0.76rem; text-decoration: none;">⬇ XML</a>
+                                        <?php endif; ?>
+                                        <form method="POST" action="" style="display:inline;">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                            <input type="hidden" name="action" value="shop_send_invoice_email">
+                                            <input type="hidden" name="invoice_id" value="<?php echo htmlspecialchars((string)$inv['id']); ?>">
+                                            <button type="submit" class="btn btn-outline" style="padding: 3px 8px; font-size: 0.76rem;" title="Per E-Mail senden">✉️</button>
+                                        </form>
+                                        <?php if (!empty($invCfg['webdav_enabled'])): ?>
+                                            <form method="POST" action="" style="display:inline;">
+                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                                <input type="hidden" name="action" value="shop_sync_invoice_webdav">
+                                                <input type="hidden" name="invoice_id" value="<?php echo htmlspecialchars((string)$inv['id']); ?>">
+                                                <button type="submit" class="btn btn-outline" style="padding: 3px 8px; font-size: 0.76rem;" title="An WebDAV/Nextcloud senden">☁️</button>
+                                            </form>
+                                        <?php endif; ?>
+                                        <?php if (($inv['doc_type'] ?? 'invoice') === 'invoice'): ?>
+                                            <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Stornorechnung / Gutschrift zu diesem Beleg erstellen?');">
+                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                                                <input type="hidden" name="action" value="shop_create_credit_note">
+                                                <input type="hidden" name="invoice_id" value="<?php echo htmlspecialchars((string)$inv['id']); ?>">
+                                                <button type="submit" class="btn btn-outline" style="padding: 3px 8px; font-size: 0.76rem; color:#dc2626;" title="Storno erstellen">Storno</button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Einstellungen Rechnungen, E-Rechnung & WebDAV -->
+        <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem;">
+            <h4 style="margin-top: 0;">Rechnungseinstellungen (GoBD / § 14 UStG / ZUGFeRD &amp; XRechnung)</h4>
+            <form method="POST" action="">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="action" value="shop_save_invoice_config">
+
+                <div style="display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 14px;">
+                    <label><input type="checkbox" name="enabled" value="1" <?php echo !empty($invCfg['enabled']) ? 'checked' : ''; ?>> Rechnungsmodul aktivieren</label>
+                    <label><input type="checkbox" name="checkout_billing_fields" value="1" <?php echo !empty($invCfg['checkout_billing_fields']) ? 'checked' : ''; ?>> B2B-Rechnungsdaten (Firma, USt-IdNr., Leitweg-ID, abw. Adresse) im Checkout anzeigen</label>
+                    <label><input type="checkbox" name="allow_customer_format_choice" value="1" <?php echo !empty($invCfg['allow_customer_format_choice']) ? 'checked' : ''; ?>> Formatwahl im Checkout erlauben</label>
+                    <label><input type="checkbox" name="auto_generate_on_order" value="1" <?php echo !empty($invCfg['auto_generate_on_order']) ? 'checked' : ''; ?>> Automatisch bei Bestellung erzeugen</label>
+                    <label><input type="checkbox" name="auto_email_customer" value="1" <?php echo !empty($invCfg['auto_email_customer']) ? 'checked' : ''; ?>> Automatisch per E-Mail an Kunden senden</label>
+                </div>
+
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                    <div><label>Standardformat</label>
+                        <select name="default_format" class="form-control">
+                            <option value="zugferd" <?php echo ($invCfg['default_format'] ?? '') === 'zugferd' ? 'selected' : ''; ?>>PDF + ZUGFeRD (EN 16931 / PDF/A-3)</option>
+                            <option value="xrechnung" <?php echo ($invCfg['default_format'] ?? '') === 'xrechnung' ? 'selected' : ''; ?>>PDF + XRechnung (EN 16931 CII XML)</option>
+                            <option value="pdf" <?php echo ($invCfg['default_format'] ?? '') === 'pdf' ? 'selected' : ''; ?>>Klassisches PDF</option>
+                        </select>
+                    </div>
+                    <div><label>Nummernkreis Rechnung</label><input type="text" name="number_pattern" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['number_pattern']); ?>"></div>
+                    <div><label>Nummernkreis Storno</label><input type="text" name="credit_pattern" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['credit_pattern']); ?>"></div>
+                    <div><label>Buchhaltung BCC E-Mail</label><input type="email" name="accounting_bcc_email" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['accounting_bcc_email']); ?>" placeholder="archiv@steuerberater.de"></div>
+                </div>
+
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                    <div><label>Verkäufer / Firma *</label><input type="text" name="seller_name" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['seller_name']); ?>"></div>
+                    <div><label>Straße &amp; Hausnummer *</label><input type="text" name="seller_street" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['seller_street']); ?>"></div>
+                    <div><label>PLZ *</label><input type="text" name="seller_zip" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['seller_zip']); ?>"></div>
+                    <div><label>Ort *</label><input type="text" name="seller_city" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['seller_city']); ?>"></div>
+                    <div><label>Steuernummer *</label><input type="text" name="seller_tax_number" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['seller_tax_number']); ?>"></div>
+                    <div><label>USt-IdNr.</label><input type="text" name="seller_vat_id" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['seller_vat_id']); ?>"></div>
+                    <div><label>E-Mail (Pflicht für XRechnung) *</label><input type="email" name="seller_email" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['seller_email']); ?>"></div>
+                    <div><label>IBAN</label><input type="text" name="seller_iban" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['seller_iban']); ?>"></div>
+                    <div><label>BIC</label><input type="text" name="seller_bic" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['seller_bic']); ?>"></div>
+                    <div><label>Handelsregister / Hinweis</label><input type="text" name="seller_register" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['seller_register']); ?>"></div>
+                </div>
+
+                <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px; margin-bottom: 14px;">
+                    <label style="display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:8px;">
+                        <input type="checkbox" name="webdav_enabled" value="1" <?php echo !empty($invCfg['webdav_enabled']) ? 'checked' : ''; ?>> Externes Archiv-Ziel (WebDAV / Nextcloud) aktivieren
+                    </label>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+                        <input type="url" name="webdav_url" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['webdav_url']); ?>" placeholder="https://cloud.example.de/remote.php/dav/files/user/Rechnungen">
+                        <input type="text" name="webdav_user" class="form-control" value="<?php echo htmlspecialchars((string)$invCfg['webdav_user']); ?>" placeholder="WebDAV Benutzer">
+                        <input type="password" name="webdav_password" class="form-control" placeholder="Passwort / App-Token (AES-256)">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="padding: 9px 22px; font-weight: 700;">💾 Rechnungseinstellungen speichern</button>
+            </form>
         </div>
 
     <?php else: ?>

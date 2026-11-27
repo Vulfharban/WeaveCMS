@@ -15,6 +15,12 @@ require_once dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/libs/php/PluginManager.php';
 if (file_exists(dirname(__DIR__) . '/plugins/weave-shop/ShopManager.php')) {
     require_once dirname(__DIR__) . '/plugins/weave-shop/ShopManager.php';
+    foreach (['InvoiceXmlBuilder.php', 'InvoicePdfBuilder.php', 'InvoiceManager.php'] as $invMod) {
+        $invPath = dirname(__DIR__) . '/plugins/weave-shop/' . $invMod;
+        if (file_exists($invPath)) {
+            require_once $invPath;
+        }
+    }
 } else {
     require_once dirname(__DIR__) . '/plugins/shop/ShopManager.php';
 }
@@ -117,10 +123,36 @@ switch ($action) {
             exit;
         }
 
-        $paymentMethod = trim($input['payment_method'] ?? 'credit_card');
-        $paymentDetails = $input['payment_details'] ?? [];
+        $shippingAddress = [
+            'name'    => $customer['name'],
+            'street'  => $customer['street'],
+            'zip'     => $customer['zip'],
+            'city'    => $customer['city'],
+            'country' => $customer['country'],
+        ];
 
-        // Bezahlung über ShopManager abwickeln
+        $differentBilling = !empty($input['different_billing']);
+        $billingAddress = [
+            'company'    => trim((string)($input['company'] ?? '')),
+            'vat_id'     => preg_replace('/\s+/', '', strtoupper(trim((string)($input['vat_id'] ?? '')))),
+            'leitweg_id' => trim((string)($input['leitweg_id'] ?? '')),
+            'name'       => $differentBilling && trim((string)($input['billing_name'] ?? '')) !== '' ? trim((string)$input['billing_name']) : $customer['name'],
+            'email'      => $customer['email'],
+            'street'     => $differentBilling && trim((string)($input['billing_street'] ?? '')) !== '' ? trim((string)$input['billing_street']) : $customer['street'],
+            'zip'        => $differentBilling && trim((string)($input['billing_zip'] ?? '')) !== '' ? trim((string)$input['billing_zip']) : $customer['zip'],
+            'city'       => $differentBilling && trim((string)($input['billing_city'] ?? '')) !== '' ? trim((string)$input['billing_city']) : $customer['city'],
+            'country'    => $differentBilling && trim((string)($input['billing_country'] ?? '')) !== '' ? trim((string)$input['billing_country']) : $customer['country'],
+        ];
+
+        $requestedFormat = trim((string)($input['invoice_format'] ?? ''));
+
+        $paymentMethod = trim($input['payment_method'] ?? 'credit_card');
+        $paymentDetails = is_array($input['payment_details'] ?? null) ? $input['payment_details'] : [];
+        $paymentDetails['customer'] = $customer;
+        $paymentDetails['shipping_address'] = $shippingAddress;
+        $paymentDetails['billing_address'] = $billingAddress;
+
+        // Bezahlung über ShopManager abwickeln (inkl. Übergabe von Rechnungs-/Lieferadresse an PSP-Hooks)
         $payResult = ShopManager::processPayment($paymentMethod, $cartCalc['total'], $paymentDetails, $shopConfig);
 
         if (empty($payResult['success'])) {
@@ -133,19 +165,41 @@ switch ($action) {
 
         // Bestellung anlegen
         $orderRecord = [
-            'status'         => $payResult['status'] ?? ($paymentMethod === 'bank_transfer' ? 'pending' : 'paid'),
-            'payment_method' => $paymentMethod,
-            'payment_ref'    => $payResult['payment_ref'] ?? ('REF-' . time()),
-            'customer'       => $customer,
-            'items'          => $cartCalc['items'],
-            'subtotal'       => $cartCalc['subtotal'],
-            'shipping'       => $cartCalc['shipping'],
-            'tax'            => $cartCalc['tax'],
-            'total'          => $cartCalc['total'],
-            'currency'       => $cartCalc['currency']
+            'status'           => $payResult['status'] ?? ($paymentMethod === 'bank_transfer' ? 'pending' : 'paid'),
+            'payment_method'   => $paymentMethod,
+            'payment_ref'      => $payResult['payment_ref'] ?? ('REF-' . time()),
+            'invoice_format'   => $requestedFormat,
+            'customer'         => $customer,
+            'shipping_address' => $shippingAddress,
+            'billing_address'  => $billingAddress,
+            'items'            => $cartCalc['items'],
+            'subtotal'         => $cartCalc['subtotal'],
+            'shipping'         => $cartCalc['shipping'],
+            'tax'              => $cartCalc['tax'],
+            'total'            => $cartCalc['total'],
+            'currency'         => $cartCalc['currency']
         ];
 
         $order = ShopManager::createOrder($orderRecord);
+
+        // Phase 37: Optionale automatische Rechnungsgenerierung (PDF / ZUGFeRD / XRechnung) & Versand
+        $generatedInvoice = null;
+        if (class_exists('InvoiceManager')) {
+            $invCfg = InvoiceManager::getConfig();
+            if (!empty($invCfg['enabled']) && !empty($invCfg['auto_generate_on_order'])) {
+                $fmt = (!empty($invCfg['allow_customer_format_choice']) && in_array($requestedFormat, ['pdf', 'zugferd', 'xrechnung'], true))
+                    ? $requestedFormat
+                    : null;
+                $invRes = InvoiceManager::createInvoiceForOrder($order, $shopConfig, $fmt);
+                if (!empty($invRes['success'])) {
+                    $generatedInvoice = $invRes['invoice'];
+                    if (!empty($invCfg['auto_email_customer'])) {
+                        $smtpCfg = $data['settings']['smtp'] ?? null;
+                        InvoiceManager::sendInvoiceEmail($generatedInvoice['id'], is_array($smtpCfg) ? $smtpCfg : null);
+                    }
+                }
+            }
+        }
 
         // Phase 31: Event-Webhook order.created auslösen
         $webhookFile = dirname(__DIR__) . '/libs/php/WebhookManager.php';

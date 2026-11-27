@@ -1577,5 +1577,16 @@
     "admin.settings.active_langs_label": "Enabled Languages for Visitors",
     "admin.custom_fields.err_key_required": "Please enter a valid technical key.",
     "admin.custom_fields.err_label_required": "Please enter a label.",
-    "admin.custom_fields.err_key_exists": "A field with the key \"{key}\" already exists in this module."
+    "admin.custom_fields.err_key_exists": "A field with the key \"{key}\" already exists in this module.",
+    "admin.qa.act_fleamarket_admin_title": "Manage Fleamarket",
+    "admin.qa.act_fleamarket_admin_desc": "Open classifieds, approvals & on-site stalls",
+    "admin.fleamarket.header_title": "Weave Fleamarket – Classifieds, Moderation & On-Site Events",
+    "admin.fleamarket.header_desc": "Manage listings (FM-YYYY-NNNN), approvals, reports, on-site stalls & GDPR cleanup.",
+    "admin.fleamarket.new_item": "New Listing",
+    "admin.fleamarket.tab_dashboard": "Dashboard & KPIs",
+    "admin.fleamarket.tab_items": "Listings & Approvals",
+    "admin.fleamarket.tab_categories": "Categories",
+    "admin.fleamarket.tab_inquiries": "Inquiries & Reports",
+    "admin.fleamarket.tab_stands": "On-Site Stalls",
+    "admin.fleamarket.tab_settings": "Settings & Menu"
 }

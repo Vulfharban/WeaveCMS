@@ -12,11 +12,53 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 }
 
 require_once __DIR__ . '/ShopManager.php';
+require_once __DIR__ . '/InvoiceXmlBuilder.php';
+require_once __DIR__ . '/InvoicePdfBuilder.php';
+require_once __DIR__ . '/InvoiceManager.php';
 
 // -----------------------------------------------------------------------------
-// 1. Admin Aktionen für Produkte, Bestellungen, Im-/Export & REST-API
+// 1. Admin Aktionen für Produkte, Bestellungen, Rechnungen, Im-/Export & REST-API
 // -----------------------------------------------------------------------------
 if (!empty($_SESSION['admin_logged_in'])) {
+
+    // Rechnungs-Downloads & Archiv-Exporte (CSRF-geschützt)
+    if (isset($_GET['action']) && in_array($_GET['action'], ['shop_download_invoice_pdf', 'shop_download_invoice_xml', 'shop_export_accounting_csv', 'shop_export_archive_zip'], true)) {
+        $csrf = (string)($_GET['csrf_token'] ?? '');
+        if (!empty($csrf) && hash_equals($_SESSION['csrf_token'] ?? '', $csrf)) {
+            $act = (string)$_GET['action'];
+            if ($act === 'shop_download_invoice_pdf' || $act === 'shop_download_invoice_xml') {
+                $inv = InvoiceManager::getInvoice(trim((string)($_GET['invoice_id'] ?? '')));
+                if ($inv) {
+                    $rel = $act === 'shop_download_invoice_pdf' ? ($inv['pdf_rel_path'] ?? '') : ($inv['xml_rel_path'] ?? '');
+                    $abs = $rel !== '' ? InvoiceManager::getArchiveFilePath($rel) : '';
+                    if ($abs !== '' && file_exists($abs)) {
+                        header('Content-Type: ' . ($act === 'shop_download_invoice_pdf' ? 'application/pdf' : 'application/xml; charset=utf-8'));
+                        header('Content-Disposition: attachment; filename="' . basename($abs) . '"');
+                        readfile($abs);
+                        exit;
+                    }
+                }
+            } elseif ($act === 'shop_export_accounting_csv') {
+                $year = trim((string)($_GET['year'] ?? ''));
+                $month = trim((string)($_GET['month'] ?? ''));
+                header('Content-Type: text/csv; charset=utf-8');
+                header('Content-Disposition: attachment; filename="buchungsjournal_' . ($year ?: 'alle') . '.csv"');
+                echo "\xEF\xBB\xBF" . InvoiceManager::exportAccountingCsv($year ?: null, $month ?: null);
+                exit;
+            } elseif ($act === 'shop_export_archive_zip' && !(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
+                $year = trim((string)($_GET['year'] ?? ''));
+                $month = trim((string)($_GET['month'] ?? ''));
+                $z = InvoiceManager::createArchiveZip($year ?: null, $month ?: null);
+                if (!empty($z['success']) && file_exists($z['zip_path'])) {
+                    header('Content-Type: application/zip');
+                    header('Content-Disposition: attachment; filename="rechnungsarchiv_' . ($year ?: 'alle') . '.zip"');
+                    readfile($z['zip_path']);
+                    @unlink($z['zip_path']);
+                    exit;
+                }
+            }
+        }
+    }
 
     // JSON-Exporte für Produkte und Bestellungen
     if (isset($_GET['action']) && $_GET['action'] === 'shop_export_products_json') {
@@ -39,7 +81,7 @@ if (!empty($_SESSION['admin_logged_in'])) {
         exit;
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
+    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && !(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
         $action = $_POST['action'] ?? '';
 
         // JSON-Import für Produkte
@@ -116,6 +158,35 @@ if (!empty($_SESSION['admin_logged_in'])) {
                 ShopManager::updateOrderStatus($orderId, $newStatus);
             }
             header('Location: ?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=orders&msg=status_updated#tab-plugins');
+            exit;
+        }
+    }
+
+    // Rechnungs-Aktionen (Phase 37)
+    if (in_array($action, ['shop_save_invoice_config', 'shop_create_invoice', 'shop_create_credit_note', 'shop_send_invoice_email', 'shop_sync_invoice_webdav'], true)) {
+        if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+            global $data;
+            $shopCfg = PluginManager::getPluginConfig('weave-shop', $data ?? []) ?: [];
+            if ($action === 'shop_save_invoice_config') {
+                InvoiceManager::saveConfig($_POST);
+                $_SESSION['weave_shop_inv_msg'] = ['ok' => true, 'text' => 'Rechnungs- & Archivierungs-Einstellungen gespeichert.'];
+            } elseif ($action === 'shop_create_invoice') {
+                $ord = ShopManager::getOrder(trim((string)($_POST['order_id'] ?? '')));
+                $fmt = trim((string)($_POST['format'] ?? ''));
+                $res = $ord ? InvoiceManager::createInvoiceForOrder($ord, $shopCfg, $fmt !== '' ? $fmt : null) : ['success' => false, 'message' => 'Bestellung nicht gefunden.'];
+                $_SESSION['weave_shop_inv_msg'] = ['ok' => $res['success'], 'text' => $res['message']];
+            } elseif ($action === 'shop_create_credit_note') {
+                $res = InvoiceManager::createCreditNote(trim((string)($_POST['invoice_id'] ?? '')));
+                $_SESSION['weave_shop_inv_msg'] = ['ok' => $res['success'], 'text' => $res['message']];
+            } elseif ($action === 'shop_send_invoice_email') {
+                $smtpCfg = $data['settings']['smtp'] ?? null;
+                $res = InvoiceManager::sendInvoiceEmail(trim((string)($_POST['invoice_id'] ?? '')), is_array($smtpCfg) ? $smtpCfg : null);
+                $_SESSION['weave_shop_inv_msg'] = ['ok' => $res['success'], 'text' => $res['message']];
+            } elseif ($action === 'shop_sync_invoice_webdav') {
+                $res = InvoiceManager::syncInvoiceToWebDav(trim((string)($_POST['invoice_id'] ?? '')));
+                $_SESSION['weave_shop_inv_msg'] = ['ok' => $res['success'], 'text' => $res['message']];
+            }
+            header('Location: ?tab=tab-plugins&plugin_settings=weave-shop&shop_subtab=invoices#tab-plugins');
             exit;
         }
     }

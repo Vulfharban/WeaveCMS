@@ -16,19 +16,23 @@ class WebhookManager {
     private static ?string $storageFile = null;
     private static ?string $logsFile = null;
 
-    public const EVENT_CONTACT_RECEIVED = 'contact.received';
-    public const EVENT_ORDER_CREATED    = 'order.created';
-    public const EVENT_POST_PUBLISHED   = 'post.published';
-    public const EVENT_BACKUP_CREATED   = 'backup.created';
-    public const EVENT_TEST_PING        = 'test.ping';
+    public const EVENT_CONTACT_RECEIVED          = 'contact.received';
+    public const EVENT_ORDER_CREATED             = 'order.created';
+    public const EVENT_POST_PUBLISHED            = 'post.published';
+    public const EVENT_BACKUP_CREATED            = 'backup.created';
+    public const EVENT_TEST_PING                 = 'test.ping';
+    public const EVENT_FLEAMARKET_ITEM_PUBLISHED = 'fleamarket.item_published';
+    public const EVENT_FLEAMARKET_INQUIRY_RECEIVED = 'fleamarket.inquiry_received';
 
     public static function getSupportedEvents(): array {
         return [
-            self::EVENT_CONTACT_RECEIVED => 'Kontaktanfrage empfangen (contact.received)',
-            self::EVENT_ORDER_CREATED    => 'Shop-Bestellung eingegangen (order.created)',
-            self::EVENT_POST_PUBLISHED   => 'Blogartikel veröffentlicht (post.published)',
-            self::EVENT_BACKUP_CREATED   => 'System-Backup erstellt (backup.created)',
-            '*'                          => 'Alle Ereignisse (*)'
+            self::EVENT_CONTACT_RECEIVED            => 'Kontaktanfrage empfangen (contact.received)',
+            self::EVENT_ORDER_CREATED               => 'Shop-Bestellung eingegangen (order.created)',
+            self::EVENT_POST_PUBLISHED              => 'Blogartikel veröffentlicht (post.published)',
+            self::EVENT_BACKUP_CREATED              => 'System-Backup erstellt (backup.created)',
+            self::EVENT_FLEAMARKET_ITEM_PUBLISHED   => 'Flohmarkt-Anzeige veröffentlicht (fleamarket.item_published)',
+            self::EVENT_FLEAMARKET_INQUIRY_RECEIVED => 'Flohmarkt-Anfrage eingegangen (fleamarket.inquiry_received)',
+            '*'                                     => 'Alle Ereignisse (*)'
         ];
     }
 

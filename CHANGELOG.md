@@ -6,6 +6,28 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ---
 
+## [v1.3.4.8] - 27. November 2026
+
+### 🧾 Shop PDF/ZUGFeRD/XRechnung-Rechnungen & 🏷️ Weave Flohmarkt (`weave-fleamarket`)
+
+- 🧾 **Phase 37 – Weave Shop Rechnungen, PDF-Engine & E-Rechnung (`plugins/weave-shop/`):**
+  - Eigenständiger Nummernkreis `RE-{YYYY}-{NNNN}` (`InvoiceManager.php`), PDF/1.4- & A4-Generator (`InvoicePdfBuilder.php`) mit Artikelpositionen, USt-Aufschlüsselung, Kleinunternehmer-Hinweis (§ 19 UStG) und Bankdaten.
+  - EN-16931 / XRechnung- & ZUGFeRD-XML (`InvoiceXmlBuilder.php`), automatischer Rechnungsanhang in Bestellbestätigungs-E-Mails über `SimpleMailer`, Kunden-Download per signiertem Link in `api/shop.php` und Admin-Rechnungstab in `admin/settings.php`.
+- 🏷️ **Phase 38 – Weave Flohmarkt Kernarchitektur, Katalog & Detailansicht (`plugins/weave-fleamarket/`):**
+  - Eigenständiger Nummernkreis `FM-{YYYY}-{NNNN}`, URL-Slugs, 7 Standardkategorien, Anzeigentypen (`offer`, `wanted`, `swap`, `gift`), Preismodelle (`fixed`, `negotiable`, `free`, `on_request`), Such-/Filter-Engine mit Sortierung/Paginierung, `grid`/`list`/`compact`-Layouts, Mehrfachbild-Lightbox, Schema.org JSON-LD & vollständigen `https://`-Share-Links (`SecurityManager::getBaseUrl()`), sowie strikte Menü-Governance (`show_in_main_nav = false` als Default).
+- 🔐 **Phase 39 – Anbieter-Modi, Datenschutz-Foto-Pipeline, Kontaktaufnahme & Merkliste:**
+  - Drei Einreichungs-Modi (`admin_only`, `members`, `guest_moderated`) inkl. E-Mail-Double-Opt-In, signierter Self-Service-Verwaltungs-Tokens, Kontingentierung (`max_items_per_seller`, `max_images_per_item`), `FleamarketImagePipeline` (Magic-Byte-MIME-Prüfung, 1600px/480px-Thumbnails, GD-Rekodierung zum Entfernen von EXIF/GPS-Daten, WebP mit weißem JPEG-Fallback, `.htaccess`).
+  - Spamsichere Interessenten-Anfrage (Honeypot, Rate-Limit, VB-Preisvorschlag `offer_price`, Sperre beendeter Anzeigen, privates `seller_email`-Feld nie im HTML) und lokale `localStorage`-Merkliste (`weave_fm_watchlist`).
+- 🎪 **Phase 40 – Vor-Ort-Standplätze, Moderation, Ablauf-Automatik, DSGVO-Wartung & CMS-Integration:**
+  - **Vor-Ort-Event-Modus:** Konfigurierbare Termine/Zeiten/Gebühren, Online-Standplatzanmeldung (`registerStand()`) mit Warteliste & `.ics`-Kalenderanhang, `stand_number`-Anzeige und druckbarem Offline-SVG-QR-Preisschild (`renderQrPriceTagHtml()`).
+  - **Moderation, KPIs & Integration:** „Anzeige melden“-Workflow (`reportItem()`), 6 Sub-Tabs im Admin-Backend (`admin/settings.php`), Anbietersperren + Audit-Log, Dashboard-Quick-Action (`fleamarket_admin` in `QuickActionManager`), Webhooks (`fleamarket.item_published`, `fleamarket.inquiry_received` in `WebhookManager`), DE/EN-Admin-Übersetzungen (`libs/lang/admin/de.json`, `en.json`).
+  - **Ablauf-Automatik & Wartung:** `cron.php` + gedrosselter Lazy-Check (`runLifecycleMaintenance()`), Ablauf-Erinnerung mit 1-Klick-Verlängerung (`extendItemByToken()`), DSGVO-Löschung abgelaufener Gast-Anzeigen/Anfragen und verwaister Uploads (`cleanupOrphanedImages()`), JSON-/CSV-Export (mit Formula-Injection-Schutz) & Import sowie vollständige Sandbox-/Demo-Isolation.
+- 🔧 **Audit-Fixes & Optimierungen (Phase 39 & 40):**
+  - Checkbox-Persistenz über versteckte `0`-Felder korrigiert, Self-Service-Reaktivierung auf unbestätigten/`pending`-Anzeigen blockiert, PHP-8.5-Deprecation-Warnungen (`finfo_close`, `imagedestroy`) und ungeschützte Array-Zugriffe behoben, alle Inline-Event-Handler aus Frontend & Admin-Backend entfernt (`data-action` / `data-confirm` mit CSP-Nonce).
+- 🧪 **Automatisierte Tests (`tests/`):** `test_shop_invoices.php` (7/7) und `test_fleamarket_plugin.php` (15/15).
+
+---
+
 ## [v1.3.4.7] - 27. November 2026
 
 ### 📊 CMS-Umfragen (`weave-polls`), Forum-Umfragen (`weave-forum`), Kalender & Cloud-Sync (`weave-calendar`) & vollständige Share-URLs

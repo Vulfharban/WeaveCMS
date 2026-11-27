@@ -243,12 +243,27 @@ class ShopManager {
         $orders = self::getOrders();
         $orderId = 'ORD-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
 
+        $shippingAddress = is_array($orderData['shipping_address'] ?? null) ? $orderData['shipping_address'] : [
+            'name'    => trim((string)($orderData['customer']['name'] ?? '')),
+            'street'  => trim((string)($orderData['customer']['street'] ?? '')),
+            'zip'     => trim((string)($orderData['customer']['zip'] ?? '')),
+            'city'    => trim((string)($orderData['customer']['city'] ?? '')),
+            'country' => trim((string)($orderData['customer']['country'] ?? 'Deutschland')),
+        ];
+        $billingAddress = is_array($orderData['billing_address'] ?? null) ? $orderData['billing_address'] : array_merge($shippingAddress, [
+            'company'    => trim((string)($orderData['customer']['company'] ?? '')),
+            'vat_id'     => trim((string)($orderData['customer']['vat_id'] ?? '')),
+            'leitweg_id' => trim((string)($orderData['customer']['leitweg_id'] ?? '')),
+            'email'      => trim((string)($orderData['customer']['email'] ?? '')),
+        ]);
+
         $newOrder = [
-            'order_id'       => $orderId,
-            'status'         => $orderData['status'] ?? 'paid', // paid, pending, shipped, cancelled
-            'payment_method' => $orderData['payment_method'] ?? 'credit_card', // credit_card, paypal, wero, bank_transfer
-            'payment_ref'    => $orderData['payment_ref'] ?? ('TXN-' . bin2hex(random_bytes(6))),
-            'customer'       => [
+            'order_id'         => $orderId,
+            'status'           => $orderData['status'] ?? 'paid', // paid, pending, shipped, cancelled
+            'payment_method'   => $orderData['payment_method'] ?? 'credit_card', // credit_card, paypal, wero, bank_transfer
+            'payment_ref'      => $orderData['payment_ref'] ?? ('TXN-' . bin2hex(random_bytes(6))),
+            'invoice_format'   => trim((string)($orderData['invoice_format'] ?? '')),
+            'customer'         => [
                 'name'    => trim($orderData['customer']['name'] ?? ''),
                 'email'   => trim($orderData['customer']['email'] ?? ''),
                 'street'  => trim($orderData['customer']['street'] ?? ''),
@@ -257,13 +272,15 @@ class ShopManager {
                 'country' => trim($orderData['customer']['country'] ?? 'Deutschland'),
                 'notes'   => trim($orderData['customer']['notes'] ?? '')
             ],
-            'items'          => $orderData['items'] ?? [],
-            'subtotal'       => (float)($orderData['subtotal'] ?? 0),
-            'shipping'       => (float)($orderData['shipping'] ?? 0),
-            'tax'            => (float)($orderData['tax'] ?? 0),
-            'total'          => (float)($orderData['total'] ?? 0),
-            'currency'       => $orderData['currency'] ?? 'EUR',
-            'created_at'     => date('Y-m-d H:i:s')
+            'shipping_address' => $shippingAddress,
+            'billing_address'  => $billingAddress,
+            'items'            => $orderData['items'] ?? [],
+            'subtotal'         => (float)($orderData['subtotal'] ?? 0),
+            'shipping'         => (float)($orderData['shipping'] ?? 0),
+            'tax'              => (float)($orderData['tax'] ?? 0),
+            'total'            => (float)($orderData['total'] ?? 0),
+            'currency'         => $orderData['currency'] ?? 'EUR',
+            'created_at'       => date('Y-m-d H:i:s')
         ];
 
         array_unshift($orders, $newOrder);
@@ -390,6 +407,7 @@ class ShopManager {
                 'title'    => $p['title'],
                 'sku'      => $p['sku'],
                 'price'    => $price,
+                'tax_rate' => (float)($p['tax_rate'] ?? 19),
                 'qty'      => $qty,
                 'total'    => $lineTotal,
                 'image'    => $p['image'] ?? '',

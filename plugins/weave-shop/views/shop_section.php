@@ -7,9 +7,19 @@
  * @var array $params Zusätzliche Parameter
  */
 require_once dirname(__DIR__) . '/ShopManager.php';
+foreach (['InvoiceXmlBuilder.php', 'InvoicePdfBuilder.php', 'InvoiceManager.php'] as $invMod) {
+    $invPath = dirname(__DIR__) . '/' . $invMod;
+    if (file_exists($invPath)) {
+        require_once $invPath;
+    }
+}
 
 $config = $config ?? [];
 $params = $params ?? [];
+$invCfg = class_exists('InvoiceManager') ? InvoiceManager::getConfig() : [];
+$showBillingFields = !empty($invCfg['enabled']) && !empty($invCfg['checkout_billing_fields']);
+$allowFormatChoice = $showBillingFields && !empty($invCfg['allow_customer_format_choice']);
+$defInvFormat = (string)($invCfg['default_format'] ?? 'zugferd');
 
 $title = $params['title'] ?? ($config['section_title'] ?? 'Unser Webshop & Produkte');
 $subtitle = $params['subtitle'] ?? ($config['section_subtitle'] ?? 'Handgefertigte Unikate, kreative DIY-Sets und Zubehör direkt online bestellen.');
@@ -319,6 +329,38 @@ foreach ($activeProducts as $p) {
                         <input type="text" id="cust_city" class="form-control" placeholder="Musterstadt" required>
                     </div>
                 </div>
+
+                <?php if ($showBillingFields): ?>
+                <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; margin-bottom: 1.25rem;">
+                    <div style="font-size: 0.84rem; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">Optionale Rechnungsdaten (B2B / Behörden)</div>
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <input type="text" id="cust_company" class="form-control" placeholder="Firma / Organisation (optional)">
+                        <input type="text" id="cust_vat_id" class="form-control" placeholder="USt-IdNr. (z. B. DE123456789)">
+                    </div>
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <input type="text" id="cust_leitweg_id" class="form-control" placeholder="Leitweg-ID (für XRechnung / B2G)">
+                        <?php if ($allowFormatChoice): ?>
+                            <select id="cust_invoice_format" class="form-control">
+                                <option value="zugferd" <?php echo $defInvFormat === 'zugferd' ? 'selected' : ''; ?>>Rechnung: PDF + ZUGFeRD (EN 16931)</option>
+                                <option value="xrechnung" <?php echo $defInvFormat === 'xrechnung' ? 'selected' : ''; ?>>Rechnung: PDF + XRechnung (XML)</option>
+                                <option value="pdf" <?php echo $defInvFormat === 'pdf' ? 'selected' : ''; ?>>Rechnung: Klassisches PDF</option>
+                            </select>
+                        <?php else: ?>
+                            <input type="hidden" id="cust_invoice_format" value="<?php echo htmlspecialchars($defInvFormat); ?>">
+                        <?php endif; ?>
+                    </div>
+                    <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:600; cursor:pointer;">
+                        <input type="checkbox" id="cust_diff_billing" onchange="document.getElementById('shop-billing-extra').style.display = this.checked ? 'grid' : 'none';">
+                        <span>Abweichende Rechnungsadresse angeben</span>
+                    </label>
+                    <div id="shop-billing-extra" class="grid" style="display:none; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                        <input type="text" id="cust_billing_name" class="form-control" placeholder="Rechnungsempfänger Name">
+                        <input type="text" id="cust_billing_street" class="form-control" placeholder="Rechnung Straße &amp; Nr.">
+                        <input type="text" id="cust_billing_zip" class="form-control" placeholder="Rechnung PLZ">
+                        <input type="text" id="cust_billing_city" class="form-control" placeholder="Rechnung Stadt">
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <!-- Schritt 2: Zahlungsart wählen -->
                 <div style="font-weight: 700; font-size: 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
@@ -760,6 +802,15 @@ async function submitShopOrder() {
                 street: street,
                 zip: zip,
                 city: city,
+                company: document.getElementById('cust_company')?.value.trim() || '',
+                vat_id: document.getElementById('cust_vat_id')?.value.trim() || '',
+                leitweg_id: document.getElementById('cust_leitweg_id')?.value.trim() || '',
+                invoice_format: document.getElementById('cust_invoice_format')?.value || '',
+                different_billing: !!document.getElementById('cust_diff_billing')?.checked,
+                billing_name: document.getElementById('cust_billing_name')?.value.trim() || '',
+                billing_street: document.getElementById('cust_billing_street')?.value.trim() || '',
+                billing_zip: document.getElementById('cust_billing_zip')?.value.trim() || '',
+                billing_city: document.getElementById('cust_billing_city')?.value.trim() || '',
                 payment_method: activePaymentMethod,
                 payment_details: paymentDetails,
                 items: shopCart
