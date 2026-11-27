@@ -6,6 +6,21 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ---
 
+## [v1.3.4.9] - 27. November 2026
+
+### 🌐 Plugin-Mehrsprachigkeit (Phase 41) & Plugin-DB-Schema-Lebenszyklus (Phase 42)
+
+- 🌐 **Phase 41 – Vollständige Mehrsprachigkeit für alle Plugins (`libs/php/LanguageManager.php`, `plugins/*/lang/`):**
+  - **Automatisches Plugin-i18n-Laden:** `LanguageManager::loadPluginTranslations()` lädt automatisch Frontend- (`plugins/<slug>/lang/<lang>.json`) und Admin-Übersetzungen (`plugins/<slug>/lang/admin/<lang>.json`) für aktive Plugins inkl. Fallback-Kette (`lang → de → default`), Parameter-Interpolation (`{key}`) und Unterstützung für 3rd-Party-Plugins.
+  - **12 Frontend-Sprachen + Admin DE/EN für alle 14 Plugins (196 Kataloge):** `da, de, el, en, es, fi, fr, it, nl, no, pt, sv` im Frontend sowie `de, en` im Admin-Backend mit 100 % Schlüssel-Parität.
+  - **Vollständige UI-Verdrahtung in `weave-games` & `weave-forum`:** Alle verbliebenen hartcodierten deutschen Texte in `weave-games` (`portal.php`, `home_section.php`, `admin/settings.php`) und `weave-forum` (`forum_main.php`, `forum_index.php`, `forum_board.php`, `forum_topic.php`, `forum_new_topic.php`, `forum_search.php`, `forum_recent.php`, `forum_moderation.php`, `forum_help.php`, `admin/settings.php`) über `__()` und `__a()` ausgelagert.
+- 🗄️ **Phase 42 – Plugin-Datenbank-Schema-Lebenszyklus (`libs/php/PluginSchemaManager.php`, `PluginManager.php`, `StorageManager.php`, `Installer.php`):**
+  - **Zentrale Schema-Verwaltung:** Automatische Tabellenerstellung und Migration bei Installation, Aktivierung und Upgrade über `schema.sql` / `schema.json`, Tracking über `{prefix}plugin_migrations` inkl. sicherer Deaktivierung ohne Datenverlust und optionalem Cleanup bei Deinstallation.
+  - **Admin-Integration (`admin/views/tab_plugins.php`):** Status-Anzeige der Plugin-Tabellen und 1-Klick-Schema-Sync im Plugin-Manager.
+- 🧪 **Automatisierte Tests (`tests/`):** Neue Test-Suites `test_plugin_i18n.php` und `test_plugin_db_lifecycle.php`; `test_all_i18n.php` und `test_forum_polls.php` (7/7) erfolgreich.
+
+---
+
 ## [v1.3.4.8] - 27. November 2026
 
 ### 🧾 Shop PDF/ZUGFeRD/XRechnung-Rechnungen & 🏷️ Weave Flohmarkt (`weave-fleamarket`)
