@@ -58,6 +58,39 @@ class SecurityManager {
     }
 
     /**
+     * Request-lokaler kryptografischer CSP-Nonce (Phase 33).
+     */
+    protected static ?string $cspNonce = null;
+
+    /**
+     * Erzeugt oder liefert das kryptografisch sichere CSP-Nonce-Token für diesen Request.
+     */
+    public static function getCspNonce(): string {
+        if (self::$cspNonce === null) {
+            self::$cspNonce = base64_encode(random_bytes(16));
+        }
+        return self::$cspNonce;
+    }
+
+    /**
+     * Liefert das fertige HTML-Attribut ` nonce="..."` für Frontend-<script>-Tags.
+     */
+    public static function cspNonceAttr(): string {
+        return ' nonce="' . htmlspecialchars(self::getCspNonce(), ENT_QUOTES, 'UTF-8') . '"';
+    }
+
+    /**
+     * Prüft, ob die aktuelle Anfrage im Admin-Backend läuft.
+     */
+    public static function isAdminContext(): bool {
+        if (defined('WEAVE_IN_ADMIN') && WEAVE_IN_ADMIN) {
+            return true;
+        }
+        $scriptName = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
+        return strpos($scriptName, '/admin/') !== false;
+    }
+
+    /**
      * Ermittelt die Basis-URL der WeaveCMS-Installation.
      * @return string
      */
@@ -306,10 +339,13 @@ class SecurityManager {
             }
         }
 
-        // 7. Production Content Security Policy (CSP - Phase 17.2)
+        // 7. Production Content Security Policy (CSP - Phase 17.2 & Phase 33 A+ Nonce)
         if (!empty($prod['production_csp'])) {
+            $scriptSrc = self::isAdminContext()
+                ? "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+                : "script-src 'self' 'nonce-" . self::getCspNonce() . "' https://cdnjs.cloudflare.com; ";
             $csp = "default-src 'self'; "
-                 . "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+                 . $scriptSrc
                  . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
                  . "font-src 'self' https://fonts.gstatic.com data:; "
                  . "img-src 'self' data: https: blob:; "

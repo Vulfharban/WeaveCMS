@@ -919,76 +919,76 @@ WeaveCMS verbindet die unkomplizierte Leichtigkeit eines Flat-File-Systems mit d
 ### Phase 33: Nonce-basierte Content Security Policy (CSP) & Event-Delegation (A+ Security Hardening)
 *Ziel: Upgrade der CSP von Note A auf A+ ohne Warnungen auf SecurityHeaders.com durch dynamische Nonces und Ablösung von Inline-`onclick`-Event-Handlern.*
 
-- [ ] **33.1 Kryptografisches CSP-Nonce-System (`SecurityManager::getCspNonce()`):**
+- [x] **33.1 Kryptografisches CSP-Nonce-System (`SecurityManager::getCspNonce()`):**
   - Generierung eines kryptografisch sicheren Zufallstokens (`bin2hex(random_bytes(16))` bzw. base64) pro Request.
   - Bereitstellung des Nonce in der CSP-Header-Direktive: `script-src 'self' 'nonce-{NONCE}' https://cdnjs.cloudflare.com;`.
   - Injizieren des `nonce`-Attributs in alle Core-Skriptblöcke (`views/partials/head.php`, `views/partials/scripts.php`).
-- [ ] **33.2 Frontend-Event-Delegation in `libs/js/main.js`:**
+- [x] **33.2 Frontend-Event-Delegation in `libs/js/main.js`:**
   - Ablösung aller Inline-`onclick`-Attribute im Frontend (`views/sections/gallery.php`, `views/sections/courses.php`, `views/partials/scripts.php`) durch semantische Daten-Attribute (`data-action="filter"`, `data-action="request-course"`, `data-action="lightbox"` etc.).
   - Zentraler `document.addEventListener('click', ...)` Handler in `main.js`.
   - Erhalt der vollständigen Funktionalität (Galerie-Filterung, Lightbox, Kursanfragen, Share, A11y-Schriftzoom/Darkmode) ohne inline Event-Handler.
-- [ ] **33.3 Getrennte CSP-Profile für Frontend und Admin:**
+- [x] **33.3 Getrennte CSP-Profile für Frontend und Admin:**
   - Öffentliches Frontend: Strenge, warnungsfreie CSP mit Nonces (Score A+ auf SecurityHeaders.com).
   - Administrationsbereich: Pragmatische CSP mit `'unsafe-inline'` zur Gewährleistung aller dynamischen Admin-Drawers, Modals und interaktiven Tools.
 
 ### Phase 34: CMS-Umfrage-Plugin (`weave-polls`) – Mehrere parallele Umfragen in bestehenden Seiten
 *Ziel: Eigenständiges CMS-Umfrage-Plugin zur nahtlosen Integration einer oder mehrerer paralleler Umfragen in bestehende Seiten und Sektionen – mit flexiblen Antwortoptionen im Backend und automatischer Ergebnisauswertung nach Ablauf.*
 
-- [ ] **34.1 Backend-Umfrageverwaltung (`weave-polls` Admin):**
+- [x] **34.1 Backend-Umfrageverwaltung (`weave-polls` Admin):**
   - Anlage, Bearbeitung, Duplizierung, Sortierung und Löschung mehrerer gleichzeitig aktiver Umfragen (eigener Admin-Reiter im Plugin-Dashboard).
   - Definition von Titel, Beschreibungstext, beliebig vielen Antwortoptionen (Hinzufügen/Umbenennen/Sortieren/Deaktivieren) sowie Auswahlmodus (**Single-Choice** / Radio oder **Multiple-Choice** / Checkbox mit optionaler Maximalauswahl).
   - Zeitsteuerung pro Umfrage: optionales Startdatum/-uhrzeit und Enddatum/-uhrzeit oder unbefristete Laufzeit sowie manueller Statuswechsel (`draft`, `active`, `closed`, `archived`).
   - Konfigurierbare Ergebnis-Sichtbarkeit (`sofort nach Abstimmung`, `live für alle`, `erst nach Umfrageende`), optionale Pflicht zur Anmeldung vs. öffentliche Abstimmung und Mehrfachstimmenschutz (Session-, Cookie- und anonymisierter IP-Hash-Abgleich bzw. User-ID bei eingeloggten Nutzern).
-- [ ] **34.2 Nahtlose Seiten- & Sektions-Integration (Multi-Poll-fähig):**
+- [x] **34.2 Nahtlose Seiten- & Sektions-Integration (Multi-Poll-fähig):**
   - Shortcode-Einbettung in bestehende Seiten, Artikel und Custom-Sektionen: `[poll id="..."]` für gezielte Einzelumfragen sowie `[polls]` bzw. `[polls ids="1,2,3"]` für ganze Umfrage-Gruppen.
   - Optionales Sektions-/Widget-Mapping über den WeaveCMS-Sektionsmanager, sodass Umfragen auf der Startseite oder in Unterseiten ohne Code-Änderungen platziert werden können.
   - Vollständige DOM- und JS-Isolierung mehrerer Umfragen auf derselben Seite (eindeutige Container-IDs, Form-Nonces und AJAX-Submit ohne Seitenneuladen bzw. mit progressivem POST-Fallback).
-- [ ] **34.3 Abstimmungslogik & Ergebnisdarstellung nach Umfrageende:**
+- [x] **34.3 Abstimmungslogik & Ergebnisdarstellung nach Umfrageende:**
   - Automatische Auswertung bei Erreichen des eingestellten Enddatums (oder manueller Beendigung): Deaktivierung weiterer Stimmabgaben serverseitig und Umschaltung auf eine übersichtliche Ergebniskarte mit Prozentbalken, absoluter Stimmenzahl und Gesamtteilnehmern.
   - Export der Ergebnisse pro Umfrage im Backend als CSV und JSON sowie Zurücksetzen einzelner Test-Umfragen.
-- [ ] **34.4 Datenhaltung, Vererbung & Sicherheit:**
+- [x] **34.4 Datenhaltung, Vererbung & Sicherheit:**
   - Speicherung über `StorageManager::loadPluginData()` / `StorageManager::savePluginData()`, sodass die bei der CMS-Installation gewählte Datenbank (MySQL mit Prefix oder JSON-Fallback) automatisch ohne Sonderkonfiguration vererbt wird.
   - Konsequentes CSRF-Token-Handling pro Abstimmung, striktes HTML-Escaping (XSS-Schutz) und saubere Sandbox-Kapselung innerhalb des `weave-polls`-Plugins (keine Vermischung mit Forum-Umfragen).
 
 ### Phase 35: Forum-Umfragen direkt in Themen & Beiträgen (`weave-forum` – eigenständig)
 *Ziel: Direkte Einbettung von Umfragen in Forum-Themen und -Beiträge innerhalb von `weave-forum` – bewusst architektonisch vollständig getrennt vom CMS-Umfrage-Plugin (`weave-polls`).*
 
-- [ ] **35.1 Eigenständige Forum-Datenstruktur (strikt getrennt von `weave-polls`):**
+- [x] **35.1 Eigenständige Forum-Datenstruktur (strikt getrennt von `weave-polls`):**
   - Eigene Datenhaltung innerhalb von `weave-forum` ohne Abhängigkeit oder gemeinsame Nutzung von `weave-polls`: neue Tabellen `weave_forum_polls` und `weave_forum_poll_votes` in MySQL und SQLite sowie korrespondierende Struktur im JSON-Fallback analog `ForumManager`.
   - Verknüpfung wahlweise auf Themen- (`topic_id`) oder Beitrags-Ebene (`post_id`), sodass Umfragen flexibel beim Erstellen eines Threads oder direkt innerhalb eines Antwort-Posts eingebettet werden können.
-- [ ] **35.2 Integrierter Umfrage-Builder im Themen- & Beitrags-Editor:**
+- [x] **35.2 Integrierter Umfrage-Builder im Themen- & Beitrags-Editor:**
   - Einklappbarer/zuschaltbarer Bereich „Umfrage hinzufügen“ direkt im Forum-Editor: Umfragefrage, dynamische Liste mit mindestens zwei bis *N* Antwortoptionen, Single-Choice oder Multiple-Choice (mit optionalem Stimmenlimit).
   - Optionale Einstellungen durch den Ersteller/Moderator: Stimmenänderung erlauben (solange Umfrage offen ist), öffentliche vs. anonyme Abstimmung und Zugriffsrechte nach Forum-Rolle.
   - Saubere AJAX-/POST-Abstimmung direkt in der Thread-/Post-Ansicht unter Einhaltung der Forum-Berechtigungen und CSRF-Prüfung.
-- [ ] **35.3 Zeitgesteuertes Ende oder dauerhaft offene Umfrage:**
+- [x] **35.3 Zeitgesteuertes Ende oder dauerhaft offene Umfrage:**
   - Konfigurierbares Ablaufdatum/-uhrzeit (`ends_at`) pro Forum-Umfrage **oder** Option „Dauerhaft offen lassen (kein Enddatum)“.
   - Zusätzliche Möglichkeit für Thread-Ersteller und Moderatoren, eine offene Umfrage jederzeit manuell zu schließen.
-- [ ] **35.4 Verbindliche Endanzeige nach Beendigung:**
+- [x] **35.4 Verbindliche Endanzeige nach Beendigung:**
   - Sobald das eingestellte Enddatum überschritten ist (oder die Umfrage manuell geschlossen wurde), wird die Stimmabgabe serverseitig hart gesperrt (`403`/Validierungsfehler bei manipulierten Requests).
   - Für **alle** Besucher, Gäste (mit Leserecht) und Forenmitglieder wird nach Beendigung automatisch nur noch das vollständige Endergebnis angezeigt (Balkendiagramm mit Prozentwerten, Stimmen je Option, Gesamtstimmen, Kennzeichnung „Umfrage beendet“ inkl. Endzeitpunkt).
 
 ### Phase 36: Kalender- & Terminverwaltungs-Plugin (`weave-calendar`) – Hybrid-Einsatz, Team-Übersicht & Cloud-Sync
 *Ziel: Leistungsfähiges Kalender- und Terminverwaltungs-Plugin, das sowohl nahtlos in bestehende Frontend-Seiten eingebettet als auch als eigenständiges Backend-Arbeitswerkzeug (inkl. Mitarbeiter-Terminübersicht) genutzt werden kann – inklusive E-Mail-Erinnerungen und Synchronisation mit Apple, Google und Microsoft.*
 
-- [ ] **36.1 Hybrid-Architektur (Frontend-Integration & eigenständiges Backend-Tool):**
+- [x] **36.1 Hybrid-Architektur (Frontend-Integration & eigenständiges Backend-Tool):**
   - **Frontend-Modus:** Einbettung öffentlicher oder rollengeschützter Kalender in bestehende CMS-Seiten via Shortcode (`[calendar]`, `[calendar view="week" category="..."]`), Startseiten-Sektion oder eigene Route (`?page=calendar`). Optionaler Buchungs-/Terminanfrage-Dialog für Seitenbesucher.
   - **Eigenständiges Backend-Tool:** Separater Vollbild-Arbeitsbereich im Admin-Backend („Terminplaner & Team-Kalender“) als eigenständiges internes Tool mit **Mitarbeiter-Übersicht** (Ressourcen-/Mitarbeiter-Spalten, Auslastung, Anwesenheit/Abwesenheit, Urlaub/Kundentermine aller zugewiesenen Mitarbeiter).
   - Granulare Berechtigungen (RBAC): Eigene Termine verwalten, Team-Kalender einsehen/koordinieren oder reine Leseansicht für ausgewählte Benutzergruppen.
-- [ ] **36.2 Kalenderansichten & Termin-Engine (Tag / Woche / Monat):**
+- [x] **36.2 Kalenderansichten & Termin-Engine (Tag / Woche / Monat):**
   - Umschaltbare Hauptansichten im Frontend und Backend: **Tagesansicht** (Stundenraster mit parallelen Mitarbeiter-/Ressourcenspalten), **Wochenansicht** (7-Tage-Zeitraster) und **Monatsansicht** (kompakte Kacheln mit Tages-Detail-Drawer) plus responsive Agenda-Listenansicht auf Mobilgeräten.
   - Umfassendes Terminmodell: Titel, Start/Ende (inkl. Zeitzone), Ganztagestermine, Ort/Online-Meeting-Link, Beschreibung, Farbkategorie, Status (`confirmed`, `tentative`, `cancelled`), zugewiesene Mitarbeiter und externe Teilnehmer (Name & E-Mail).
   - Unterstützung von Serienterminen nach RFC 5545 (`RRULE`: täglich, wöchentlich, monatlich, jährlich inkl. Enddatum/Ausnahmen) sowie automatische Konfliktwarnung bei Doppelbelegungen von Mitarbeitern.
-- [ ] **36.3 Schnittstellen & Synchronisation zu großen Kalender-Anbietern:**
+- [x] **36.3 Schnittstellen & Synchronisation zu großen Kalender-Anbietern:**
   - **Google Calendar:** OAuth-2.0-Anbindung über Google Calendar REST API v3 (Bidirektionaler Sync oder konfigurierbare Richtung CMS ↔ Google, Webhook-/Incremental-Sync per `syncToken`).
   - **Microsoft Outlook / Microsoft 365 / Exchange:** OAuth-2.0-Anbindung über Microsoft Graph Calendar API (`/me/events` bzw. freigegebene Mitarbeiter-Kalender inkl. Delta-Query-Sync).
   - **Apple iCloud Calendar & weitere CalDAV-Server:** Standardkonformer CalDAV-Client (`PROPFIND`, `REPORT`, `PUT`, `DELETE` über HTTPS mit App-spezifischem Passwort für iCloud bzw. Nextcloud/Synology/Fastmail).
   - **Universeller Standard:** Ein-Klick-`.ics`-Export (iCalendar RFC 5545), `.ics`-Import und abonnierbare persönliche/öffentliche `webcal://`-Feed-URLs mit geheimem Token.
   - Konfliktauflösung (`last-modified` / Quelle priorisieren), Sync-Log und manueller „Jetzt synchronisieren“-Trigger sowie geplanter Intervall-Abgleich.
-- [ ] **36.4 Automatische E-Mail-Erinnerungen & Terminbenachrichtigungen:**
+- [x] **36.4 Automatische E-Mail-Erinnerungen & Terminbenachrichtigungen:**
   - Versand über den integrierten WeaveCMS `SimpleMailer` (`libs/php/Mailer.php`) – optional inkl. `.ics`-Kalenderanhang bei Termineinladungen, -änderungen und -absagen.
   - Pro Termin und global konfigurierbare Erinnerungsregeln mit mehreren Vorlaufzeiten (z. B. `24 Stunden vorher`, `1 Stunde vorher`, `15 Minuten vorher`) an Teilnehmer, Ersteller und zugewiesene Mitarbeiter.
   - Pseudo-Cron-/Cron-Runner (`cron.php`-Endpunkt mit Token-Schutz + Fallback bei Admin-/Seitenaufruf) sowie Versandprotokoll (`sent_reminders`), um mehrfachen oder verspäteten Doppelversand zuverlässig auszuschließen.
-- [ ] **36.5 Datenhaltung, Vererbung & Sicherheit:**
+- [x] **36.5 Datenhaltung, Vererbung & Sicherheit:**
   - Datenbank-Vererbung gemäß Installationswahl über `StorageManager` (MySQL mit Tabellen-Prefix oder atomare JSON-Speicherung) inkl. sicherer Trennung sensibler Sync-Zugangsdaten.
   - Verschlüsselte Speicherung von OAuth-Refresh-Tokens und CalDAV-Passwörtern (über Application Key / OpenSSL), strikte CSRF-/XSS-Absicherung und DSGVO-konforme Freigabesteuerung (Verbergen privater Mitarbeiter-Details in öffentlichen Frontend-Kalendern).
 

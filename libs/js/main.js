@@ -1109,3 +1109,164 @@ document.addEventListener('click', function(e) {
 
 // Event-Listener beim Laden des DOMs ausführen
 window.addEventListener('DOMContentLoaded', initFrontendListeners);
+
+/**
+ * ============================================================================
+ * Zentrale CSP-konforme Event-Delegation (Phase 33)
+ * ============================================================================
+ */
+document.addEventListener('click', function(e) {
+    const actionEl = e.target.closest('[data-action]');
+    if (!actionEl) return;
+
+    const action = actionEl.getAttribute('data-action');
+    switch (action) {
+        case 'close-lightbox-backdrop':
+            if (e.target === actionEl && typeof closeLightbox === 'function') {
+                closeLightbox();
+            }
+            break;
+        case 'close-lightbox':
+            if (typeof closeLightbox === 'function') closeLightbox();
+            break;
+        case 'change-lightbox': {
+            const dir = parseInt(actionEl.getAttribute('data-dir') || '1', 10);
+            if (typeof changeLightbox === 'function') changeLightbox(dir);
+            break;
+        }
+        case 'open-lightbox': {
+            const idx = parseInt(actionEl.getAttribute('data-index') || '0', 10);
+            if (typeof openLightbox === 'function') openLightbox(idx);
+            break;
+        }
+        case 'open-lightbox-url': {
+            const url = actionEl.getAttribute('data-url') || '';
+            if (url && typeof openLightbox === 'function') openLightbox(url);
+            break;
+        }
+        case 'filter-gallery':
+            if (typeof filterGallery === 'function') {
+                filterGallery(actionEl.getAttribute('data-category') || 'all', actionEl);
+            }
+            break;
+        case 'request-course':
+            if (typeof requestCourse === 'function') {
+                requestCourse(
+                    actionEl.getAttribute('data-title') || '',
+                    actionEl.getAttribute('data-date') || '',
+                    actionEl.getAttribute('data-time') || '',
+                    actionEl.getAttribute('data-location') || ''
+                );
+            }
+            break;
+        case 'share-course':
+            if (typeof shareCourse === 'function') {
+                shareCourse(
+                    actionEl.getAttribute('data-title') || '',
+                    actionEl.getAttribute('data-date') || '',
+                    actionEl.getAttribute('data-link') || ''
+                );
+            }
+            break;
+        case 'toggle-theme':
+            if (typeof toggleWeaveTheme === 'function') toggleWeaveTheme();
+            break;
+        case 'adjust-font': {
+            const delta = parseInt(actionEl.getAttribute('data-delta') || '0', 10);
+            if (typeof adjustWeaveFontSize === 'function') adjustWeaveFontSize(delta);
+            break;
+        }
+        case 'reset-font':
+            if (typeof resetWeaveFontSize === 'function') resetWeaveFontSize();
+            break;
+        case 'close-mobile-menu':
+            if (typeof closeMobileMenu === 'function') closeMobileMenu();
+            break;
+        case 'close-mobile-open-contact':
+            if (typeof closeMobileMenuAndOpenContact === 'function') closeMobileMenuAndOpenContact();
+            break;
+        case 'close-mobile-open-impressum':
+            if (typeof closeMobileMenuAndOpenImpressum === 'function') closeMobileMenuAndOpenImpressum();
+            break;
+        case 'switch-legal-tab':
+            if (typeof switchLegalTab === 'function') {
+                switchLegalTab(actionEl.getAttribute('data-tab') || 'impressum');
+            }
+            break;
+        case 'open-impressum-captcha':
+            if (typeof openImpressumEmailCaptcha === 'function') openImpressumEmailCaptcha();
+            break;
+        case 'fetch-impressum-captcha':
+            if (typeof fetchImpressumCaptcha === 'function') fetchImpressumCaptcha();
+            break;
+        case 'verify-impressum-captcha':
+            if (typeof verifyImpressumCaptcha === 'function') verifyImpressumCaptcha();
+            break;
+        case 'open-contact-captcha':
+            if (typeof openContactEmailCaptcha === 'function') openContactEmailCaptcha();
+            break;
+        case 'fetch-contact-captcha':
+            if (typeof fetchContactCaptcha === 'function') fetchContactCaptcha();
+            break;
+        case 'verify-contact-captcha':
+            if (typeof verifyContactCaptcha === 'function') verifyContactCaptcha();
+            break;
+        case 'select-spam-icon':
+            if (typeof selectSpamIcon === 'function') {
+                selectSpamIcon(actionEl.getAttribute('data-icon-id') || '', actionEl);
+            }
+            break;
+        case 'refresh-canvas-captcha':
+            if (typeof renderContactCanvasCaptcha === 'function') renderContactCanvasCaptcha(true);
+            break;
+        case 'toggle-safety-details': {
+            e.preventDefault();
+            e.stopPropagation();
+            const details = document.getElementById('course-safety-ack-details');
+            if (details) {
+                details.style.display = (details.style.display === 'none') ? 'block' : 'none';
+            }
+            break;
+        }
+        case 'copy-blog-link': {
+            const url = actionEl.getAttribute('data-url') || window.location.href;
+            if (typeof copyBlogLink === 'function') {
+                copyBlogLink(url);
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(function() {
+                    if (typeof showToast === 'function') showToast('Artikellink in Zwischenablage kopiert!');
+                });
+            }
+            break;
+        }
+        case 'filter-downloads':
+            if (typeof filterDownloads === 'function') {
+                filterDownloads(actionEl.getAttribute('data-category') || 'all', actionEl);
+            }
+            break;
+        case 'open-changelog':
+            if (typeof openChangelogModal === 'function') {
+                openChangelogModal(
+                    actionEl.getAttribute('data-id') || '',
+                    actionEl.getAttribute('data-title') || ''
+                );
+            }
+            break;
+        case 'close-changelog-backdrop':
+            if (e.target === actionEl && typeof closeChangelogModal === 'function') {
+                closeChangelogModal();
+            }
+            break;
+        case 'close-changelog':
+            if (typeof closeChangelogModal === 'function') closeChangelogModal();
+            break;
+    }
+});
+
+document.addEventListener('submit', function(e) {
+    const form = e.target.closest('form[data-contact-form="1"]');
+    if (!form) return;
+    if (typeof sendRequestEmail === 'function') {
+        sendRequestEmail(e, form.getAttribute('data-recipient') || '');
+    }
+});

@@ -401,6 +401,16 @@ function hideMediaHoverPreview() {
     if (box) box.style.display = 'none';
 }
 let MEDIA_ITEMS = <?php echo json_encode($allMedia, JSON_UNESCAPED_UNICODE); ?>;
+const MEDIA_SITE_URL = <?php echo json_encode(isset($site_url) ? (rtrim((string)$site_url, '/') . '/') : ''); ?>;
+function getAbsoluteMediaUrl(relOrWebUrl) {
+    const raw = String(relOrWebUrl || '').trim();
+    if (!raw) return '';
+    if (/^https?:\/\//i.test(raw)) return raw;
+    const base = /^https?:\/\//i.test(MEDIA_SITE_URL)
+        ? MEDIA_SITE_URL
+        : (window.location.origin + '/');
+    return base.replace(/\/+$/, '') + '/' + raw.replace(/^\/+/, '');
+}
 let CURRENT_MEDIA_FILTER = 'all';
 let CURRENT_MEDIA_SEARCH = '';
 let CURRENT_MEDIA_SORT = 'date_desc';
@@ -697,6 +707,8 @@ function renderMediaItems() {
     items.forEach(m => {
         const thumbRel = (m.variants && (m.variants.thumb_webp || m.variants.thumb)) ? (m.variants.thumb_webp || m.variants.thumb) : m.rel_url;
         const hoverRel = (m.variants && (m.variants.medium_webp || m.variants.medium)) ? (m.variants.medium_webp || m.variants.medium) : thumbRel;
+        const fullUrl = getAbsoluteMediaUrl(m.rel_url || m.web_url);
+        const fullUrlJs = escapeJsStr(fullUrl);
         // --- 1. Grid Card ---
         const card = document.createElement('div');
         card.style.cssText = 'background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; transition:transform 0.15s ease, box-shadow 0.15s ease; position:relative;';
@@ -733,10 +745,10 @@ function renderMediaItems() {
                 </div>
 
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.05);">
-                    <button type="button" class="btn btn-secondary" onclick="copyTextDirect('${m.web_url}', 'URL kopiert!')" style="padding:4px 8px; font-size:0.75rem; display:inline-flex; align-items:center; gap:3px;" title="Web-URL in Zwischenablage kopieren">
+                    <button type="button" class="btn btn-secondary" onclick="copyTextDirect('${fullUrlJs}', 'URL kopiert!')" style="padding:4px 8px; font-size:0.75rem; display:inline-flex; align-items:center; gap:3px;" title="Web-URL in Zwischenablage kopieren">
                         <span class="material-icons" style="font-size:13px;">link</span> URL
                     </button>
-                    <button type="button" class="btn btn-secondary" onclick="copyTextDirect('![${escapeJsStr(m.alt || m.filename)}](${m.web_url})', 'Markdown kopiert!')" style="padding:4px 8px; font-size:0.75rem; display:inline-flex; align-items:center; gap:3px;" title="Markdown-Tag kopieren">
+                    <button type="button" class="btn btn-secondary" onclick="copyTextDirect('![${escapeJsStr(m.alt || m.filename)}](${fullUrlJs})', 'Markdown kopiert!')" style="padding:4px 8px; font-size:0.75rem; display:inline-flex; align-items:center; gap:3px;" title="Markdown-Tag kopieren">
                         <span class="material-icons" style="font-size:13px;">code</span> MD
                     </button>
                     <button type="button" class="btn btn-secondary" onclick="openMediaDetailModal('${escapeJsStr(m.filename)}')" style="padding:4px 8px; font-size:0.75rem;" title="Details &amp; Alt-Text bearbeiten">
@@ -766,8 +778,8 @@ function renderMediaItems() {
             <td style="padding:8px 12px; font-size:0.8rem; color:var(--text-secondary);">${m.size_formatted}</td>
             <td style="padding:8px 12px; font-size:0.8rem; color:var(--text-secondary);">${m.date_formatted}</td>
             <td style="padding:8px 12px; text-align:right;">
-                <button type="button" class="btn btn-secondary" onclick="copyTextDirect('${m.web_url}', 'URL kopiert!')" style="padding:4px 8px; font-size:0.75rem;">URL</button>
-                <button type="button" class="btn btn-secondary" onclick="copyTextDirect('![${escapeJsStr(m.alt || m.filename)}](${m.web_url})', 'Markdown kopiert!')" style="padding:4px 8px; font-size:0.75rem;">MD</button>
+                <button type="button" class="btn btn-secondary" onclick="copyTextDirect('${fullUrlJs}', 'URL kopiert!')" style="padding:4px 8px; font-size:0.75rem;">URL</button>
+                <button type="button" class="btn btn-secondary" onclick="copyTextDirect('![${escapeJsStr(m.alt || m.filename)}](${fullUrlJs})', 'Markdown kopiert!')" style="padding:4px 8px; font-size:0.75rem;">MD</button>
                 <button type="button" class="btn btn-secondary" onclick="openMediaDetailModal('${escapeJsStr(m.filename)}')" style="padding:4px 8px; font-size:0.75rem;">Details</button>
             </td>
         `;
@@ -823,11 +835,12 @@ function openMediaDetailModal(filename) {
         if (pin) pin.style.display = 'none';
     }
 
+    const fullUrl = getAbsoluteMediaUrl(item.rel_url || item.web_url);
     document.getElementById('detail-modal-direct-link').href = '../' + item.rel_url;
 
     // Snippets
-    document.getElementById('detail-snippet-url').value = item.web_url;
-    document.getElementById('detail-snippet-md').value = `![${item.alt || item.filename}](${item.web_url})`;
+    document.getElementById('detail-snippet-url').value = fullUrl;
+    document.getElementById('detail-snippet-md').value = `![${item.alt || item.filename}](${fullUrl})`;
 
     updatePictureSnippet(fx, fy);
 
@@ -895,13 +908,14 @@ function updatePictureSnippet(x, y) {
     const picBox = document.getElementById('detail-picture-snippet-box');
     if (ACTIVE_DETAIL_ITEM.type === 'image') {
         picBox.style.display = 'block';
-        const webpUrl = ACTIVE_DETAIL_ITEM.variants.webp ? '/' + ACTIVE_DETAIL_ITEM.variants.webp : '';
-        const avifUrl = ACTIVE_DETAIL_ITEM.variants.avif ? '/' + ACTIVE_DETAIL_ITEM.variants.avif : '';
+        const webpUrl = ACTIVE_DETAIL_ITEM.variants.webp ? getAbsoluteMediaUrl(ACTIVE_DETAIL_ITEM.variants.webp) : '';
+        const avifUrl = ACTIVE_DETAIL_ITEM.variants.avif ? getAbsoluteMediaUrl(ACTIVE_DETAIL_ITEM.variants.avif) : '';
+        const fullImgUrl = getAbsoluteMediaUrl(ACTIVE_DETAIL_ITEM.rel_url || ACTIVE_DETAIL_ITEM.web_url);
         const focusStyle = `style="object-position: ${x}% ${y}%;"`;
         let picCode = '<picture>';
         if (avifUrl) picCode += `<source type="image/avif" srcset="${avifUrl}">`;
         if (webpUrl) picCode += `<source type="image/webp" srcset="${webpUrl}">`;
-        picCode += `<img src="${ACTIVE_DETAIL_ITEM.web_url}" alt="${ACTIVE_DETAIL_ITEM.alt || ACTIVE_DETAIL_ITEM.filename}" loading="lazy" ${focusStyle}></picture>`;
+        picCode += `<img src="${fullImgUrl}" alt="${ACTIVE_DETAIL_ITEM.alt || ACTIVE_DETAIL_ITEM.filename}" loading="lazy" ${focusStyle}></picture>`;
         document.getElementById('detail-snippet-picture').value = picCode;
     } else {
         picBox.style.display = 'none';
@@ -959,7 +973,8 @@ function saveCurrentMediaMeta() {
             ACTIVE_DETAIL_ITEM.focus_x = fx;
             ACTIVE_DETAIL_ITEM.focus_y = fy;
             showToast('<?php echo __a('admin.media.focal_saved', 'Fokuspunkt und Metadaten erfolgreich gespeichert!'); ?>');
-            document.getElementById('detail-snippet-md').value = `![${newAlt || ACTIVE_DETAIL_ITEM.filename}](${ACTIVE_DETAIL_ITEM.web_url})`;
+            const fullUrl = getAbsoluteMediaUrl(ACTIVE_DETAIL_ITEM.rel_url || ACTIVE_DETAIL_ITEM.web_url);
+            document.getElementById('detail-snippet-md').value = `![${newAlt || ACTIVE_DETAIL_ITEM.filename}](${fullUrl})`;
             updatePictureSnippet(fx, fy);
             renderMediaItems();
         } else {

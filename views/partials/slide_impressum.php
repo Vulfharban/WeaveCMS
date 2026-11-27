@@ -15,10 +15,10 @@
         
         <!-- Tab-Umschalter für Rechtliches: Impressum & Datenschutz -->
         <div class="legal-tab-nav" style="display:flex; gap:8px; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:1rem; flex-wrap:wrap;">
-            <button type="button" id="legal-tab-btn-impressum" class="btn btn-primary" style="padding:6px 14px; font-size:0.85rem;" onclick="switchLegalTab('impressum')">
+            <button type="button" id="legal-tab-btn-impressum" class="btn btn-primary" style="padding:6px 14px; font-size:0.85rem;" data-action="switch-legal-tab" data-tab="impressum">
                 <?php echo htmlspecialchars(__('legal.impressum_tab', 'Impressum (§ 5 TMG)')); ?>
             </button>
-            <button type="button" id="legal-tab-btn-datenschutz" class="btn btn-outline" style="padding:6px 14px; font-size:0.85rem;" onclick="switchLegalTab('datenschutz')">
+            <button type="button" id="legal-tab-btn-datenschutz" class="btn btn-outline" style="padding:6px 14px; font-size:0.85rem;" data-action="switch-legal-tab" data-tab="datenschutz">
                 <?php echo htmlspecialchars(__('legal.privacy_tab', 'Datenschutz (DSGVO)')); ?>
             </button>
         </div>
@@ -55,7 +55,7 @@
                     <?php echo htmlspecialchars(__('contact.email', 'E-Mail')); ?>: 
                     <?php if (CaptchaManager::isImpressumEmailProtected($data)): ?>
                         <span id="impressum-email-wrapper">
-                            <button type="button" class="btn btn-outline" onclick="openImpressumEmailCaptcha()" style="padding: 2px 8px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;">
+                            <button type="button" class="btn btn-outline" data-action="open-impressum-captcha" style="padding: 2px 8px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;">
                                 <span class="material-icons" style="font-size: 14px;">lock</span> <?php echo htmlspecialchars(__('contact.show_email', 'E-Mail anzeigen (Spamschutz)')); ?>
                             </button>
                         </span>
@@ -63,13 +63,13 @@
                             <div style="font-size:0.78rem; margin-bottom:4px; color:var(--text-secondary);"><?php echo htmlspecialchars(__('contact.enter_code', 'Bitte den 5-stelligen Code eingeben:')); ?></div>
                             <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
                                 <canvas id="impressum-captcha-canvas" width="140" height="38" style="background:#fff; border-radius:6px; border:1px solid var(--border-color);"></canvas>
-                                <button type="button" class="btn btn-secondary" onclick="fetchImpressumCaptcha()" style="padding:4px 6px;" title="Neu laden">
+                                <button type="button" class="btn btn-secondary" data-action="fetch-impressum-captcha" style="padding:4px 6px;" title="Neu laden">
                                     <span class="material-icons" style="font-size:15px;">refresh</span>
                                 </button>
                             </div>
                             <div style="display:flex; gap:6px;">
                                 <input type="text" id="impressum-captcha-input" maxlength="5" placeholder="<?php echo htmlspecialchars(__('contact.code_placeholder', 'Code...')); ?>" style="width:85px; padding:4px 8px; font-size:0.85rem; border-radius:6px; border:1px solid var(--border-color);">
-                                <button type="button" class="btn btn-primary" onclick="verifyImpressumCaptcha()" style="padding:4px 10px; font-size:0.8rem;"><?php echo htmlspecialchars(__('contact.unlock', 'Freischalten')); ?></button>
+                                <button type="button" class="btn btn-primary" data-action="verify-impressum-captcha" style="padding:4px 10px; font-size:0.8rem;"><?php echo htmlspecialchars(__('contact.unlock', 'Freischalten')); ?></button>
                             </div>
                             <div id="impressum-captcha-feedback" style="display:none; color:#ef4444; font-size:0.75rem; margin-top:4px;"></div>
                         </div>

@@ -63,7 +63,7 @@
                 <p style="margin: 2px 0;">
                     <?php if (CaptchaManager::isContactEmailProtected($data)): ?>
                         <span id="contact-email-wrapper">
-                            <button type="button" class="btn btn-outline" onclick="openContactEmailCaptcha()" style="padding: 2px 8px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;">
+                            <button type="button" class="btn btn-outline" data-action="open-contact-captcha" style="padding: 2px 8px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;">
                                 <span class="material-icons" style="font-size: 14px;">lock</span> <?php echo htmlspecialchars(__('contact.show_email', 'E-Mail anzeigen (Spamschutz)')); ?>
                             </button>
                         </span>
@@ -71,13 +71,13 @@
                             <div style="font-size:0.78rem; margin-bottom:4px; color:var(--text-secondary);"><?php echo htmlspecialchars(__('contact.enter_code', 'Bitte den 5-stelligen Code eingeben:')); ?></div>
                             <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
                                 <canvas id="contact-direct-captcha-canvas" width="140" height="38" style="background:#fff; border-radius:6px; border:1px solid var(--border-color);"></canvas>
-                                <button type="button" class="btn btn-secondary" onclick="fetchContactCaptcha()" style="padding:4px 6px;" title="Neu laden">
+                                <button type="button" class="btn btn-secondary" data-action="fetch-contact-captcha" style="padding:4px 6px;" title="Neu laden">
                                     <span class="material-icons" style="font-size:15px;">refresh</span>
                                 </button>
                             </div>
                             <div style="display:flex; gap:6px;">
                                 <input type="text" id="contact-direct-captcha-input" maxlength="5" placeholder="<?php echo htmlspecialchars(__('contact.code_placeholder', 'Code...')); ?>" style="width:85px; padding:4px 8px; font-size:0.85rem; border-radius:6px; border:1px solid var(--border-color);">
-                                <button type="button" class="btn btn-primary" onclick="verifyContactCaptcha()" style="padding:4px 10px; font-size:0.8rem;"><?php echo htmlspecialchars(__('contact.unlock', 'Freischalten')); ?></button>
+                                <button type="button" class="btn btn-primary" data-action="verify-contact-captcha" style="padding:4px 10px; font-size:0.8rem;"><?php echo htmlspecialchars(__('contact.unlock', 'Freischalten')); ?></button>
                             </div>
                             <div id="contact-direct-captcha-feedback" style="display:none; color:#ef4444; font-size:0.75rem; margin-top:4px;"></div>
                         </div>
@@ -105,7 +105,7 @@
             <!-- Interactive Request form inside sidebar -->
             <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
                 <h4 style="color: var(--text-primary); margin-bottom: 1rem;"><?php echo htmlspecialchars(__('contact.write_message', 'Nachricht schreiben')); ?></h4>
-                <form onsubmit="sendRequestEmail(event, '<?php echo CaptchaManager::isContactEmailProtected($data) ? '' : htmlspecialchars($data['texts']['contact_email'] ?? ('info@' . ($_SERVER['SERVER_NAME'] ?? 'example.org')), ENT_QUOTES, 'UTF-8'); ?>')">
+                <form data-contact-form="1" data-recipient="<?php echo CaptchaManager::isContactEmailProtected($data) ? '' : htmlspecialchars($data['texts']['contact_email'] ?? ('info@' . ($_SERVER['SERVER_NAME'] ?? 'example.org')), ENT_QUOTES, 'UTF-8'); ?>">
                     
                     <!-- Honeypot-Falle für Spam-Roboter (für menschliche Besucher unsichtbar) -->
                     <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
@@ -152,7 +152,7 @@
                                 <?php foreach ($server_active_icons as $srv_key => $srv_icon): 
                                     $srv_id = $srv_icon['id'] ?? $srv_key;
                                 ?>
-                                    <button type="button" class="spam-icon-btn" title="<?php echo htmlspecialchars($srv_icon['name']); ?>" data-icon-id="<?php echo htmlspecialchars($srv_id); ?>" onclick="selectSpamIcon('<?php echo htmlspecialchars($srv_id); ?>', this);">
+                                    <button type="button" class="spam-icon-btn" title="<?php echo htmlspecialchars($srv_icon['name']); ?>" data-icon-id="<?php echo htmlspecialchars($srv_id); ?>" data-action="select-spam-icon">
                                         <span class="spam-icon-symbol"><?php echo $srv_icon['symbol']; ?></span>
                                         <span class="spam-icon-label"><?php echo htmlspecialchars($srv_icon['name']); ?></span>
                                     </button>
@@ -181,7 +181,7 @@
                             </label>
                             <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
                                 <canvas id="contact-captcha-canvas" width="160" height="42" data-code="<?php echo htmlspecialchars($canvasChallenge['code']); ?>" style="background:#fff; border-radius:8px; border:1px solid var(--border-color);"></canvas>
-                                <button type="button" class="btn btn-secondary" onclick="renderContactCanvasCaptcha(true)" style="padding:6px 10px;" title="Neuen Code generieren">
+                                <button type="button" class="btn btn-secondary" data-action="refresh-canvas-captcha" style="padding:6px 10px;" title="Neuen Code generieren">
                                     <span class="material-icons" style="font-size:16px;">refresh</span>
                                 </button>
                             </div>
@@ -206,7 +206,7 @@
                     <div id="course-safety-ack-box" style="display:none; margin-bottom: 1rem; padding: 10px 12px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; font-size: 0.84rem; line-height: 1.45;">
                         <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer; margin:0; font-weight:normal;">
                             <input type="checkbox" id="req-course-safety-ack" style="margin-top:3px; flex-shrink:0; width:16px; height:16px;">
-                            <span>Ich habe den <a href="#course-safety-notice" onclick="event.preventDefault(); event.stopPropagation(); var d=document.getElementById('course-safety-ack-details'); if(d) d.style.display=(d.style.display==='none'?'block':'none');" style="color:var(--primary); text-decoration:underline;">Sicherheits- &amp; Haftungshinweis</a> für Workshops gelesen und akzeptiere diesen für meine Anfrage. *</span>
+                            <span>Ich habe den <a href="#course-safety-notice" data-action="toggle-safety-details" style="color:var(--primary); text-decoration:underline;">Sicherheits- &amp; Haftungshinweis</a> für Workshops gelesen und akzeptiere diesen für meine Anfrage. *</span>
                         </label>
                         <div id="course-safety-ack-details" style="display:none; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(245, 158, 11, 0.25); font-size: 0.8rem; color: var(--text-muted, #4b5563); line-height: 1.45; max-height: 220px; overflow-y: auto;">
                             <?php echo nl2br(htmlspecialchars($safety_notice)); ?>

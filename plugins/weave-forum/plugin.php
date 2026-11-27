@@ -10,9 +10,11 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 }
 
 require_once __DIR__ . '/ForumManager.php';
+require_once __DIR__ . '/ForumPollManager.php';
+require_once __DIR__ . '/views/forum_poll_widget.php';
 
 // Sitzung und CSRF-Schutz initialisieren
-if (session_status() === PHP_SESSION_NONE) {
+if (session_status() === PHP_SESSION_NONE && php_sapi_name() !== 'cli') {
     @session_start();
 }
 if (empty($_SESSION['csrf_token'])) {
@@ -22,7 +24,7 @@ if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 }
-if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST' && !(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
+if (!empty($_SESSION['admin_logged_in']) && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && !(class_exists('SandboxManager') && SandboxManager::isDemoActive())) {
     $action = $_POST['action'] ?? '';
 
     if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
@@ -236,16 +238,25 @@ if (!function_exists('weave_forum_read_post_field')) {
     }
 }
 
-if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (session_status() === PHP_SESSION_NONE) {
+if (!empty($_GET['forum_action']) && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    if (session_status() === PHP_SESSION_NONE && php_sapi_name() !== 'cli') {
         @session_start();
     }
-    
-    if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+
+    $isPollAjax = !empty($_POST['fpoll_ajax']) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+
+    if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+        if ($isPollAjax) {
+            http_response_code(403);
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode(['success' => false, 'message' => 'Sicherheits-Token ungültig oder abgelaufen.']);
+            exit;
+        }
+    } else {
         $action = $_GET['forum_action'];
         $currentUser = class_exists('ForumUserManager') ? ForumUserManager::getCurrentUser() : null;
 
-        // Thema erstellen
+        // Thema erstellen (inkl. optionaler Forum-Umfrage)
         if ($action === 'create_topic' && $currentUser) {
             $boardId = trim($_POST['board_id'] ?? '');
             $title = trim(weave_forum_read_post_field('title'));
@@ -265,6 +276,12 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $res = ForumManager::createTopic($boardId, $title, $content, $currentUser);
             if ($res['success']) {
+                if (!empty($_POST['enable_poll']) && class_exists('ForumPollManager')) {
+                    $pollRes = ForumPollManager::createPoll($res['topic_id'], '', $_POST, $currentUser);
+                    if (!$pollRes['success']) {
+                        $_SESSION['forum_poll_flash']['global'] = ['ok' => false, 'text' => $pollRes['message']];
+                    }
+                }
                 $_SESSION['forum_last_post_time'] = time();
                 header('Location: ?page=forum&view=topic&id=' . urlencode($res['topic_id']));
                 exit;
@@ -274,7 +291,7 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Antwort verfassen
+        // Antwort verfassen (inkl. optionaler Beitrags-Umfrage)
         if ($action === 'add_post' && $currentUser) {
             $topicId = trim($_POST['topic_id'] ?? '');
             $content = trim(weave_forum_read_post_field('content'));
@@ -293,12 +310,83 @@ if (!empty($_GET['forum_action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $res = ForumManager::addPost($topicId, $content, $currentUser);
             if ($res['success']) {
+                if (!empty($_POST['enable_poll']) && class_exists('ForumPollManager')) {
+                    $pollRes = ForumPollManager::createPoll($topicId, $res['post_id'], $_POST, $currentUser);
+                    if (!$pollRes['success']) {
+                        $_SESSION['forum_poll_flash']['global'] = ['ok' => false, 'text' => $pollRes['message']];
+                    }
+                }
                 $_SESSION['forum_last_post_time'] = time();
                 header('Location: ?page=forum&view=topic&id=' . urlencode($topicId) . '#post-' . urlencode($res['post_id']));
                 exit;
             }
             $_SESSION['forum_reply_error'] = $res['message'] ?? 'Fehler beim Antworten.';
             header('Location: ?page=forum&view=topic&id=' . urlencode($topicId));
+            exit;
+        }
+
+        // Forum-Umfrage abstimmen (AJAX + POST-Fallback, harte 403-Prüfung)
+        if ($action === 'vote_forum_poll' && class_exists('ForumPollManager')) {
+            $pollId = trim((string)($_POST['poll_id'] ?? ''));
+            $topicId = trim((string)($_POST['topic_id'] ?? ''));
+            $poll = ForumPollManager::getPoll($pollId);
+            if ($poll && $topicId === '') {
+                $topicId = (string)($poll['topic_id'] ?? '');
+            }
+            $topic = $topicId !== '' ? ForumManager::getTopic($topicId) : null;
+            $board = ($topic && !empty($topic['board_id'])) ? ForumManager::getBoard($topic['board_id']) : null;
+            $selected = (array)($_POST['option_ids'] ?? []);
+
+            $voteRes = ForumPollManager::castVote($pollId, $selected, $currentUser, $board);
+            $_SESSION['forum_poll_flash'][$pollId] = ['ok' => $voteRes['success'], 'text' => $voteRes['message']];
+
+            if ($isPollAjax) {
+                http_response_code((int)($voteRes['http_status'] ?? ($voteRes['success'] ? 200 : 400)));
+                $updatedPoll = ForumPollManager::getPoll($pollId);
+                $html = ($updatedPoll && function_exists('weave_forum_render_poll_card'))
+                    ? weave_forum_render_poll_card($updatedPoll, $currentUser, $topic, $board)
+                    : '';
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode([
+                    'success' => $voteRes['success'],
+                    'message' => $voteRes['message'],
+                    'results' => $voteRes['results'] ?? [],
+                    'html'    => $html,
+                ]);
+                exit;
+            }
+            $redirectUrl = $topicId !== ''
+                ? ('?page=forum&view=topic&id=' . urlencode($topicId) . '#fpoll-card-' . urlencode($pollId))
+                : '?page=forum';
+            header('Location: ' . $redirectUrl);
+            exit;
+        }
+
+        // Forum-Umfrage manuell schließen (Ersteller oder Moderator/Admin)
+        if ($action === 'close_forum_poll' && class_exists('ForumPollManager')) {
+            $pollId = trim((string)($_POST['poll_id'] ?? ''));
+            $topicId = trim((string)($_POST['topic_id'] ?? ''));
+            $poll = ForumPollManager::getPoll($pollId);
+            if ($poll && $topicId === '') {
+                $topicId = (string)($poll['topic_id'] ?? '');
+            }
+            $topic = $topicId !== '' ? ForumManager::getTopic($topicId) : null;
+            if (!$currentUser) {
+                $closeRes = ['success' => false, 'http_status' => 403, 'message' => 'Anmeldung erforderlich, um eine Umfrage zu schließen.'];
+            } else {
+                $closeRes = ForumPollManager::closePoll($pollId, $currentUser, $topic);
+            }
+            $_SESSION['forum_poll_flash'][$pollId] = ['ok' => $closeRes['success'], 'text' => $closeRes['message']];
+            if ($isPollAjax) {
+                http_response_code((int)($closeRes['http_status'] ?? 200));
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode($closeRes);
+                exit;
+            }
+            $redirectUrl = $topicId !== ''
+                ? ('?page=forum&view=topic&id=' . urlencode($topicId) . '#fpoll-card-' . urlencode($pollId))
+                : '?page=forum';
+            header('Location: ' . $redirectUrl);
             exit;
         }
 

@@ -88,7 +88,7 @@
     </style>
 
     <!-- Sofortige Wiederherstellung von Besucher-Theme & Schriftzoom (Flash-Prävention) -->
-    <script>
+    <script<?php echo SecurityManager::cspNonceAttr(); ?>>
         (function() {
             try {
                 var t = localStorage.getItem('weave_user_theme');

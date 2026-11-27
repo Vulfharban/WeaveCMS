@@ -107,7 +107,7 @@ $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?l
                 <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode($current_article_url); ?>" target="_blank" class="btn btn-secondary" style="padding:6px 12px; font-size:0.85rem; text-decoration:none;" title="Auf Facebook teilen">
                     📘 Facebook
                 </a>
-                <button type="button" class="btn btn-secondary" style="padding:6px 12px; font-size:0.85rem;" onclick="copyBlogLink(<?php echo json_encode($current_article_url); ?>)">
+                <button type="button" class="btn btn-secondary" style="padding:6px 12px; font-size:0.85rem;" data-action="copy-blog-link" data-url="<?php echo htmlspecialchars($current_article_url, ENT_QUOTES, 'UTF-8'); ?>">
                     <span class="material-icons" style="font-size:16px;">link</span> <?php echo LanguageManager::t('toast.link_copied', 'Link kopieren', $cur_lang ?? null); ?>
                 </button>
             </div>
@@ -122,7 +122,7 @@ $home_url = (!empty($cur_lang) && $cur_lang !== ($primary_lang ?? 'de')) ? './?l
     </div>
 </div>
 
-<script>
+<script<?php echo SecurityManager::cspNonceAttr(); ?>>
 function copyBlogLink(url) {
     if (navigator.clipboard) {
         navigator.clipboard.writeText(url).then(function() {

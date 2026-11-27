@@ -1,0 +1,12 @@
+{
+    "name": "Weave Polls (Umfragen)",
+    "slug": "weave-polls",
+    "version": "1.0.0",
+    "author": "WeaveCMS Core Team",
+    "description": "CMS-Umfrage-Plugin für mehrere parallele Umfragen in bestehenden Seiten & Sektionen – Single-/Multiple-Choice, Zeitsteuerung, Mehrfachstimmenschutz und automatische Ergebnisauswertung.",
+    "category": "engagement",
+    "icon": "poll",
+    "entry_file": "plugin.php",
+    "requires_core": ">=1.3.0",
+    "settings_tab": "weave-polls"
+}

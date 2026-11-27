@@ -261,6 +261,9 @@ unset($_SESSION['forum_error']);
                     <span>Tipp: Nutze die Formatierungsleiste oben für <strong>## Überschrift</strong>, <strong>**Fett**</strong>, <em>*Kursiv*</em>, Zitate oder <code>```Code-Blöcke```</code> und prüfe deinen Beitrag vorab über <strong>Vorschau</strong>.</span>
                 </div>
 
+                <!-- Optionaler Forum-Umfrage-Builder (Phase 35) -->
+                <?php if (function_exists('weave_forum_render_poll_builder')) { echo weave_forum_render_poll_builder('topic'); } ?>
+
                 <!-- Footer Buttons -->
                 <div class="kunena-nt-footer">
                     <a href="?page=forum&view=board&id=<?= urlencode($board['id']) ?>" class="kunena-btn-secondary" style="padding: 10px 18px; font-size: 13.5px;">

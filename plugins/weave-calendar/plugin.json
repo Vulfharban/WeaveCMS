@@ -1,0 +1,12 @@
+{
+    "name": "Weave Calendar – Terminplaner & Team-Kalender",
+    "slug": "weave-calendar",
+    "version": "1.0.0",
+    "author": "WeaveCMS Team",
+    "description": "Hybrides Kalender- & Terminverwaltungs-Plugin: Öffentlicher/geschützter Frontend-Kalender, Mitarbeiter-Übersicht im Backend, Serientermine (RRULE), Konfliktprüfung, E-Mail-Erinnerungen mit .ics-Anhang sowie Sync mit Google, Microsoft 365 & Apple/CalDAV.",
+    "category": "productivity",
+    "icon": "calendar_month",
+    "entry_file": "plugin.php",
+    "requires_core": ">=1.3.4",
+    "settings_tab": "weave-calendar"
+}

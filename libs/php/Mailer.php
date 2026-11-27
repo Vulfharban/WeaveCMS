@@ -19,9 +19,10 @@ class SimpleMailer {
      * @param string $replyToEmail    E-Mail-Adresse des Besuchers für Direktantwort
      * @param string $replyToName     Name des Besuchers
      * @param array|null $smtpConfig  Optionale SMTP-Konfiguration
+     * @param array $attachments      Optionale Dateianhänge [['filename' => ..., 'content' => ..., 'mime' => ...]]
      * @return array                  ['success' => bool, 'error' => string|null]
      */
-    public static function send($to, $subject, $htmlBody, $textBody, $replyToEmail = '', $replyToName = '', $smtpConfig = null) {
+    public static function send($to, $subject, $htmlBody, $textBody, $replyToEmail = '', $replyToName = '', $smtpConfig = null, array $attachments = []) {
         $to = trim($to);
         if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
             return ['success' => false, 'error' => 'Ungültige Empfänger-E-Mail-Adresse.'];
@@ -29,11 +30,68 @@ class SimpleMailer {
 
         // Falls SMTP aktiviert und Host angegeben ist -> SMTP nutzen
         if (!empty($smtpConfig) && !empty($smtpConfig['enabled']) && !empty($smtpConfig['host'])) {
-            return self::sendViaSmtp($to, $subject, $htmlBody, $textBody, $replyToEmail, $replyToName, $smtpConfig);
+            return self::sendViaSmtp($to, $subject, $htmlBody, $textBody, $replyToEmail, $replyToName, $smtpConfig, $attachments);
         }
 
         // Andernfalls: PHP mail() als Standard-Fallback
-        return self::sendViaPhpMail($to, $subject, $htmlBody, $textBody, $replyToEmail, $replyToName, $smtpConfig);
+        return self::sendViaPhpMail($to, $subject, $htmlBody, $textBody, $replyToEmail, $replyToName, $smtpConfig, $attachments);
+    }
+
+    /**
+     * Erzeugt einen RFC-konformen MIME-Nachrichtenrumpf (multipart/alternative oder multipart/mixed bei Anhängen).
+     *
+     * @return array{content_type: string, body: string}
+     */
+    public static function buildMimeMessage(string $htmlBody, string $textBody, array $attachments = []): array {
+        $altBoundary = 'b1_' . md5(uniqid((string)microtime(true), true));
+        $normTextBody = preg_replace('/(?<!\r)\n/', "\r\n", $textBody);
+        $normHtmlBody = preg_replace('/(?<!\r)\n/', "\r\n", $htmlBody);
+        $qpTextBody = quoted_printable_encode($normTextBody);
+        $qpHtmlBody = quoted_printable_encode($normHtmlBody);
+
+        $altPart = "--{$altBoundary}\r\n";
+        $altPart .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $altPart .= "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
+        $altPart .= $qpTextBody . "\r\n\r\n";
+        $altPart .= "--{$altBoundary}\r\n";
+        $altPart .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $altPart .= "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
+        $altPart .= $qpHtmlBody . "\r\n\r\n";
+        $altPart .= "--{$altBoundary}--";
+
+        if (empty($attachments)) {
+            return [
+                'content_type' => "multipart/alternative; boundary=\"{$altBoundary}\"",
+                'body'         => $altPart,
+            ];
+        }
+
+        $mixedBoundary = 'm1_' . md5(uniqid((string)microtime(true) . '_mix', true));
+        $mixedBody = "--{$mixedBoundary}\r\n";
+        $mixedBody .= "Content-Type: multipart/alternative; boundary=\"{$altBoundary}\"\r\n\r\n";
+        $mixedBody .= $altPart . "\r\n\r\n";
+
+        foreach ($attachments as $att) {
+            if (!is_array($att) || !isset($att['content'])) {
+                continue;
+            }
+            $rawName = str_replace(["\r", "\n", '"'], '', (string)($att['filename'] ?? 'attachment.dat'));
+            $filename = $rawName !== '' ? $rawName : 'attachment.dat';
+            $mime = preg_replace('/[^a-zA-Z0-9\/.+;= -]/', '', (string)($att['mime'] ?? 'application/octet-stream')) ?: 'application/octet-stream';
+            $encoded = rtrim(chunk_split(base64_encode((string)$att['content']), 76, "\r\n"), "\r\n");
+
+            $mixedBody .= "--{$mixedBoundary}\r\n";
+            $mixedBody .= "Content-Type: {$mime}; name=\"{$filename}\"\r\n";
+            $mixedBody .= "Content-Disposition: attachment; filename=\"{$filename}\"\r\n";
+            $mixedBody .= "Content-Transfer-Encoding: base64\r\n\r\n";
+            $mixedBody .= $encoded . "\r\n";
+        }
+        $mixedBody .= "--{$mixedBoundary}--";
+
+        return [
+            'content_type' => "multipart/mixed; boundary=\"{$mixedBoundary}\"",
+            'body'         => $mixedBody,
+        ];
     }
 
     /**
@@ -50,7 +108,7 @@ class SimpleMailer {
     /**
      * Versendet die E-Mail über einen direkten SMTP-Socket (SSL / STARTTLS / Klartext).
      */
-    public static function sendViaSmtp($to, $subject, $htmlBody, $textBody, $replyToEmail, $replyToName, $smtp) {
+    public static function sendViaSmtp($to, $subject, $htmlBody, $textBody, $replyToEmail, $replyToName, $smtp, array $attachments = []) {
         $host = trim($smtp['host'] ?? 'localhost');
         $port = (int)($smtp['port'] ?? 587);
         $secure = strtolower(trim($smtp['secure'] ?? 'tls')); // 'tls', 'ssl', 'none'
@@ -207,7 +265,6 @@ class SimpleMailer {
         if (!$ok) { fclose($socket); return ['success' => false, 'error' => "DATA abgelehnt: $err"]; }
 
         // 8. E-Mail-Header & Multipart-Body aufbauen
-        $boundary = 'b1_' . md5(uniqid((string)microtime(true), true));
         $cleanHost = preg_replace('/[^a-zA-Z0-9.-]/', '', $clientHost);
         $messageId = '<' . md5(uniqid((string)microtime(true), true)) . '@' . (!empty($cleanHost) ? $cleanHost : 'localhost') . '>';
 
@@ -217,12 +274,7 @@ class SimpleMailer {
         $cleanReplyName = str_replace(["\r", "\n"], ' ', $replyToName);
         $encodedReplyName = !empty($cleanReplyName) ? self::encodeHeader($cleanReplyName) : '';
 
-        // Zeilenumbrüche normalisieren & Quoted-Printable Kodierung
-        // Garantiert RFC-Konformität (keine Zeile über 76 Zeichen) und fehlerfreie Umlaute
-        $normTextBody = preg_replace('/(?<!\r)\n/', "\r\n", $textBody);
-        $normHtmlBody = preg_replace('/(?<!\r)\n/', "\r\n", $htmlBody);
-        $qpTextBody = quoted_printable_encode($normTextBody);
-        $qpHtmlBody = quoted_printable_encode($normHtmlBody);
+        $mimeMsg = self::buildMimeMessage((string)$htmlBody, (string)$textBody, $attachments);
 
         $headers = [];
         $headers[] = "Date: " . date('r');
@@ -234,24 +286,10 @@ class SimpleMailer {
         }
         $headers[] = "Subject: $encodedSubject";
         $headers[] = "MIME-Version: 1.0";
-        $headers[] = "Content-Type: multipart/alternative; boundary=\"$boundary\"";
+        $headers[] = "Content-Type: " . $mimeMsg['content_type'];
         $headers[] = "X-Mailer: WeaveCMS/1.0";
 
-        $body = implode("\r\n", $headers) . "\r\n\r\n";
-        
-        // Plaintext Teil
-        $body .= "--$boundary\r\n";
-        $body .= "Content-Type: text/plain; charset=UTF-8\r\n";
-        $body .= "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
-        $body .= $qpTextBody . "\r\n\r\n";
-
-        // HTML Teil
-        $body .= "--$boundary\r\n";
-        $body .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $body .= "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
-        $body .= $qpHtmlBody . "\r\n\r\n";
-
-        $body .= "--$boundary--\r\n";
+        $body = implode("\r\n", $headers) . "\r\n\r\n" . $mimeMsg['body'] . "\r\n";
 
         // Dot-Stuffing für SMTP (Zeilen, die mit . beginnen, müssen .. haben)
         $body = preg_replace('/^\./m', '..', $body);
@@ -274,8 +312,7 @@ class SimpleMailer {
     /**
      * Versendet die E-Mail über die native PHP mail()-Funktion.
      */
-    public static function sendViaPhpMail($to, $subject, $htmlBody, $textBody, $replyToEmail, $replyToName, $smtp = null) {
-        $boundary = 'b1_' . md5(uniqid((string)microtime(true), true));
+    public static function sendViaPhpMail($to, $subject, $htmlBody, $textBody, $replyToEmail, $replyToName, $smtp = null, array $attachments = []) {
         $rawFrom = !empty($smtp['from_email']) ? trim($smtp['from_email']) : 'noreply@' . (!empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
         if (preg_match('/<([^>]+)>/', $rawFrom, $matches)) {
             $rawFrom = trim($matches[1]);
@@ -293,11 +330,7 @@ class SimpleMailer {
         $cleanReplyName = str_replace(["\r", "\n"], ' ', $replyToName);
         $encodedReplyName = !empty($cleanReplyName) ? self::encodeHeader($cleanReplyName) : '';
 
-        // Zeilenumbrüche normalisieren & Quoted-Printable Kodierung
-        $normTextBody = preg_replace('/(?<!\r)\n/', "\r\n", $textBody);
-        $normHtmlBody = preg_replace('/(?<!\r)\n/', "\r\n", $htmlBody);
-        $qpTextBody = quoted_printable_encode($normTextBody);
-        $qpHtmlBody = quoted_printable_encode($normHtmlBody);
+        $mimeMsg = self::buildMimeMessage((string)$htmlBody, (string)$textBody, $attachments);
 
         $headers = [];
         $headers[] = "Date: " . date('r');
@@ -307,19 +340,10 @@ class SimpleMailer {
             $headers[] = "Reply-To: " . ($encodedReplyName ? "$encodedReplyName <$cleanReplyEmail>" : "<$cleanReplyEmail>");
         }
         $headers[] = "MIME-Version: 1.0";
-        $headers[] = "Content-Type: multipart/alternative; boundary=\"$boundary\"";
+        $headers[] = "Content-Type: " . $mimeMsg['content_type'];
         $headers[] = "X-Mailer: PHP/" . phpversion();
 
-        $body = "--$boundary\r\n";
-        $body .= "Content-Type: text/plain; charset=UTF-8\r\n";
-        $body .= "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
-        $body .= $qpTextBody . "\r\n\r\n";
-
-        $body .= "--$boundary\r\n";
-        $body .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $body .= "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
-        $body .= $qpHtmlBody . "\r\n\r\n";
-        $body .= "--$boundary--";
+        $body = $mimeMsg['body'];
 
         $headersStr = implode("\r\n", $headers);
         

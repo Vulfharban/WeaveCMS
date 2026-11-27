@@ -89,7 +89,7 @@
                         
                         <div style="display:flex; gap:8px; width:100%; justify-content:flex-end; flex-wrap:wrap;">
                             <?php if ($is_bookable): ?>
-                                <button onclick="requestCourse('<?php echo htmlspecialchars(addslashes($c_title_raw)); ?>', '<?php echo htmlspecialchars(addslashes($c_date_raw)); ?>', '<?php echo htmlspecialchars(addslashes($time_text)); ?>', '<?php echo htmlspecialchars(addslashes($location_text)); ?>')" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; flex:1; justify-content:center;">
+                                <button type="button" data-action="request-course" data-title="<?php echo htmlspecialchars($c_title_raw, ENT_QUOTES, 'UTF-8'); ?>" data-date="<?php echo htmlspecialchars($c_date_raw, ENT_QUOTES, 'UTF-8'); ?>" data-time="<?php echo htmlspecialchars($time_text, ENT_QUOTES, 'UTF-8'); ?>" data-location="<?php echo htmlspecialchars($location_text, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; flex:1; justify-content:center;">
                                     <?php echo htmlspecialchars(__('btn.inquire_now', 'Jetzt anfragen')); ?>
                                 </button>
                             <?php else: ?>
@@ -99,7 +99,7 @@
                             <?php endif; ?>
                             
                             <!-- Share Button -->
-                            <button type="button" class="btn btn-outline" style="padding: 8px 10px; font-size: 0.85rem;" title="<?php echo htmlspecialchars(__('btn.share', 'Diesen Kurs teilen')); ?>" onclick="shareCourse('<?php echo htmlspecialchars(addslashes($c_title_raw)); ?>', '<?php echo htmlspecialchars(addslashes($c_date_raw)); ?>', '<?php echo htmlspecialchars($course_link); ?>')">
+                            <button type="button" class="btn btn-outline" style="padding: 8px 10px; font-size: 0.85rem;" title="<?php echo htmlspecialchars(__('btn.share', 'Diesen Kurs teilen')); ?>" data-action="share-course" data-title="<?php echo htmlspecialchars($c_title_raw, ENT_QUOTES, 'UTF-8'); ?>" data-date="<?php echo htmlspecialchars($c_date_raw, ENT_QUOTES, 'UTF-8'); ?>" data-link="<?php echo htmlspecialchars($course_link, ENT_QUOTES, 'UTF-8'); ?>">
                                 <span class="material-icons" style="font-size:16px;">share</span>
                             </button>
                         </div>

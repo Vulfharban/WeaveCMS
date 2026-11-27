@@ -6,6 +6,27 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) 
 
 ---
 
+## [v1.3.4.7] - 27. November 2026
+
+### 📊 CMS-Umfragen (`weave-polls`), Forum-Umfragen (`weave-forum`), Kalender & Cloud-Sync (`weave-calendar`) & vollständige Share-URLs
+
+- 🔗 **Vollständige `https://`-URLs für alle Teilen-Funktionen (`SecurityManager::getBaseUrl()`, Mediathek, Blog, Kurse, Downloads, Galerie & Slide-Ins):**
+  - Teilen-Buttons und „Link kopieren“-Aktionen in der Mediathek (`admin/views/tab_media.php`), in `libs/js/main.js`, im Blog (`views/partials/blog_single.php`), bei Kursen (`views/sections/courses.php`), Downloads (`views/sections/downloads.php`), Galerie (`views/sections/gallery.php`), Kontakt/Impressum (`views/partials/slide_contact.php`, `slide_impressum.php`) und in der mobilen Navigation erzeugen nun durchgängig vollständige absolute URLs inkl. `http(s)://Host/Pfad`.
+- 📊 **Phase 34 – Eigenständiges CMS-Umfrage-Plugin (`plugins/weave-polls/`):**
+  - Multi-Poll-fähig in Seiten & Sektionen via Shortcodes (`[poll id="..."]`, `[polls]`, `[polls ids="..."]` mit `<code>`/`<pre>`/`<textarea>`/`<script>`-Schutz) sowie optionalem Sektions-Hook (`show_in_main_nav` Opt-In).
+  - Admin-CRUD, Duplizieren, Sortieren, Single-/Multiple-Choice (`max_choices`), Zeitsteuerung (`starts_at`, `ends_at`, Status `draft`/`active`/`closed`/`archived`), Sichtbarkeitsmodi (`after_vote`, `live`, `after_end`), Mehrfachstimmenschutz, CSP-Nonce AJAX/POST-Abstimmung, CSV- (inkl. Formula-Injection-Schutz) und JSON-Exporte über `StorageManager`.
+- 💬 **Phase 35 – Forum-Umfragen direkt in Themen & Beiträgen (`plugins/weave-forum/ForumPollManager.php`, `views/forum_poll_widget.php`):**
+  - Strikt getrennt von `weave-polls` mit eigenen Tabellen `weave_forum_polls` und `weave_forum_poll_votes` (MySQL/SQLite) sowie JSON-Fallback & Kaskadenlöschung in `ForumManager`.
+  - Einklappbarer Umfrage-Builder („Umfrage hinzufügen“) beim Erstellen von Themen und Antworten: Single-/Multiple-Choice, Stimmenänderung, öffentliche vs. anonyme Abstimmung, Rollenberechtigung, Ablaufdatum oder „Dauerhaft offen lassen“ sowie manuelles Schließen durch Ersteller/Moderatoren.
+  - Serverseitige `403`-Sperre nach Ablauf/Schließung mit verbindlicher Ergebnis-Endanzeige für Besucher und Mitglieder.
+- 📅 **Phase 36 – Hybrides Kalender- & Terminverwaltungs-Plugin (`plugins/weave-calendar/`, `libs/php/Mailer.php`):**
+  - **Hybrid-Architektur:** Frontend-Einbettung (`[calendar]`, `?page=calendar`, Tag-/Woche-/Monat-/Agenda-Ansicht, öffentliche Buchungsanfragen, `.ics`/`webcal://`-Abo, DSGVO-Filter) und eigenständiger Admin-Arbeitsbereich mit Mitarbeiter-Ressourcen-Spalten, Konfliktwarnung, Kategorie-/Mitarbeiter-CRUD und RBAC.
+  - **Termin- & Sync-Engine:** RFC-5545 Serientermine (`RRULE` + `EXDATE`), `.ics`-Parser/Generator (`CalendarIcs`), verschlüsselte Speicherung von OAuth-/CalDAV-Zugangsdaten via OpenSSL AES-256 (`CalendarCrypto`), Anbindung an Google Calendar API v3, Microsoft Graph (Outlook/365) & Apple iCloud/CalDAV mit SSRF-Schutz (`CalendarSync`).
+  - **E-Mail-Erinnerungen mit `.ics`-Anhang:** Erweiterung von `SimpleMailer` um MIME-Dateianhänge (`buildMimeMessage()`), token-geschützter `cron.php` + gedrosselter Pseudo-Cron sowie Deduplizierung in `sent_reminders` (`CalendarReminderService`).
+- 🧪 **Automatisierte Tests (`tests/`):** Neue Test-Suites `test_polls_plugin.php`, `test_forum_polls.php` (JSON & SQLite) und `test_calendar_plugin.php`.
+
+---
+
 ## [v1.3.4.6] - 26. November 2026
 
 ### 🎮 Weave-Games Katalog & Galerie-Layouts, Globale Plugin-DB-Vererbung, Forum-Privatsphäre/PN & Helpdesk-Ausbau

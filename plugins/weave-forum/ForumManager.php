@@ -286,6 +286,37 @@ class ForumManager {
                 reason TEXT,
                 timestamp VARCHAR(32) NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS weave_forum_polls (
+                id VARCHAR(64) PRIMARY KEY,
+                topic_id VARCHAR(64) NOT NULL,
+                post_id VARCHAR(64) DEFAULT '',
+                question VARCHAR(255) NOT NULL,
+                options_json LONGTEXT NOT NULL,
+                choice_mode VARCHAR(16) DEFAULT 'single',
+                max_choices INT DEFAULT 1,
+                allow_vote_change TINYINT(1) DEFAULT 0,
+                is_public TINYINT(1) DEFAULT 0,
+                min_role_vote VARCHAR(32) DEFAULT 'forum_user',
+                ends_at VARCHAR(32) DEFAULT '',
+                is_closed TINYINT(1) DEFAULT 0,
+                closed_at VARCHAR(32) DEFAULT '',
+                closed_by VARCHAR(64) DEFAULT '',
+                created_by VARCHAR(64) NOT NULL,
+                created_at VARCHAR(32) NOT NULL,
+                INDEX idx_fpolls_topic (topic_id),
+                INDEX idx_fpolls_post (post_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS weave_forum_poll_votes (
+                poll_id VARCHAR(64) NOT NULL,
+                user_id VARCHAR(64) NOT NULL,
+                user_name VARCHAR(128) DEFAULT '',
+                option_id VARCHAR(64) NOT NULL,
+                voted_at VARCHAR(32) NOT NULL,
+                PRIMARY KEY (poll_id, user_id, option_id),
+                INDEX idx_fpvotes_poll (poll_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         ");
     }
 
@@ -415,10 +446,41 @@ class ForumManager {
                 timestamp TEXT NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS weave_forum_polls (
+                id TEXT PRIMARY KEY,
+                topic_id TEXT NOT NULL,
+                post_id TEXT DEFAULT '',
+                question TEXT NOT NULL,
+                options_json TEXT NOT NULL,
+                choice_mode TEXT DEFAULT 'single',
+                max_choices INTEGER DEFAULT 1,
+                allow_vote_change INTEGER DEFAULT 0,
+                is_public INTEGER DEFAULT 0,
+                min_role_vote TEXT DEFAULT 'forum_user',
+                ends_at TEXT DEFAULT '',
+                is_closed INTEGER DEFAULT 0,
+                closed_at TEXT DEFAULT '',
+                closed_by TEXT DEFAULT '',
+                created_by TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS weave_forum_poll_votes (
+                poll_id TEXT NOT NULL,
+                user_id TEXT NOT NULL,
+                user_name TEXT DEFAULT '',
+                option_id TEXT NOT NULL,
+                voted_at TEXT NOT NULL,
+                PRIMARY KEY (poll_id, user_id, option_id)
+            );
+
             CREATE INDEX IF NOT EXISTS idx_fboards_cat ON weave_forum_boards(category_id);
             CREATE INDEX IF NOT EXISTS idx_ftopics_board ON weave_forum_topics(board_id);
             CREATE INDEX IF NOT EXISTS idx_fposts_topic ON weave_forum_posts(topic_id);
             CREATE INDEX IF NOT EXISTS idx_flikes_post ON weave_forum_likes(post_id);
+            CREATE INDEX IF NOT EXISTS idx_fpolls_topic ON weave_forum_polls(topic_id);
+            CREATE INDEX IF NOT EXISTS idx_fpolls_post ON weave_forum_polls(post_id);
+            CREATE INDEX IF NOT EXISTS idx_fpvotes_poll ON weave_forum_poll_votes(poll_id);
         ");
 
         try {
@@ -556,7 +618,9 @@ class ForumManager {
             ],
             'reports' => [],
             'subscriptions' => [],
-            'audit_log' => []
+            'audit_log' => [],
+            'polls' => [],
+            'poll_votes' => []
         ];
     }
 
@@ -1258,7 +1322,16 @@ class ForumManager {
     public static function deletePost(string $postId, array $moderator): bool {
         if (self::isDatabase()) {
             try {
-                $stmt = self::getSqlitePdo()->prepare("DELETE FROM weave_forum_posts WHERE id = ?");
+                $pdo = self::getSqlitePdo();
+                $stmtPolls = $pdo->prepare("SELECT id FROM weave_forum_polls WHERE post_id = ?");
+                $stmtPolls->execute([$postId]);
+                $pollIds = $stmtPolls->fetchAll(PDO::FETCH_COLUMN) ?: [];
+                foreach ($pollIds as $pollId) {
+                    $pdo->prepare("DELETE FROM weave_forum_poll_votes WHERE poll_id = ?")->execute([$pollId]);
+                }
+                $pdo->prepare("DELETE FROM weave_forum_polls WHERE post_id = ?")->execute([$postId]);
+
+                $stmt = $pdo->prepare("DELETE FROM weave_forum_posts WHERE id = ?");
                 $res = $stmt->execute([$postId]);
                 self::logModeration('delete_post', $moderator, 'post', $postId, 'Beitrag gelöscht');
                 return $res;
@@ -1268,7 +1341,21 @@ class ForumManager {
         }
 
         $data = self::loadJsonData();
-        $data['posts'] = array_values(array_filter($data['posts'], fn($p) => $p['id'] !== $postId));
+        $data['posts'] = array_values(array_filter($data['posts'] ?? [], fn($p) => $p['id'] !== $postId));
+        $removedPollIds = [];
+        $data['polls'] = array_values(array_filter($data['polls'] ?? [], static function ($pl) use ($postId, &$removedPollIds): bool {
+            if (($pl['post_id'] ?? '') === $postId) {
+                $removedPollIds[$pl['id'] ?? ''] = true;
+                return false;
+            }
+            return true;
+        }));
+        if (!empty($removedPollIds) && isset($data['poll_votes']) && is_array($data['poll_votes'])) {
+            $data['poll_votes'] = array_values(array_filter(
+                $data['poll_votes'],
+                static fn($pv): bool => !isset($removedPollIds[$pv['poll_id'] ?? ''])
+            ));
+        }
         self::logModeration('delete_post', $moderator, 'post', $postId, 'Beitrag gelöscht');
         return self::saveJsonData($data);
     }
@@ -1346,14 +1433,35 @@ class ForumManager {
         if (self::isDatabase()) {
             try {
                 $pdo = self::getSqlitePdo();
+                $stmtPolls = $pdo->prepare("SELECT id FROM weave_forum_polls WHERE topic_id = ?");
+                $stmtPolls->execute([$topicId]);
+                $pollIds = $stmtPolls->fetchAll(PDO::FETCH_COLUMN) ?: [];
+                foreach ($pollIds as $pollId) {
+                    $pdo->prepare("DELETE FROM weave_forum_poll_votes WHERE poll_id = ?")->execute([$pollId]);
+                }
+                $pdo->prepare("DELETE FROM weave_forum_polls WHERE topic_id = ?")->execute([$topicId]);
                 $pdo->prepare("DELETE FROM weave_forum_topics WHERE id = ?")->execute([$topicId]);
                 $pdo->prepare("DELETE FROM weave_forum_posts WHERE topic_id = ?")->execute([$topicId]);
                 $pdo->prepare("DELETE FROM weave_forum_subscriptions WHERE topic_id = ?")->execute([$topicId]);
             } catch (Exception $e) { return false; }
         } else {
             $data = self::loadJsonData();
-            $data['topics'] = array_values(array_filter($data['topics'], fn($t) => $t['id'] !== $topicId));
-            $data['posts'] = array_values(array_filter($data['posts'], fn($p) => $p['topic_id'] !== $topicId));
+            $data['topics'] = array_values(array_filter($data['topics'] ?? [], fn($t) => $t['id'] !== $topicId));
+            $data['posts'] = array_values(array_filter($data['posts'] ?? [], fn($p) => $p['topic_id'] !== $topicId));
+            $removedPollIds = [];
+            $data['polls'] = array_values(array_filter($data['polls'] ?? [], static function ($pl) use ($topicId, &$removedPollIds): bool {
+                if (($pl['topic_id'] ?? '') === $topicId) {
+                    $removedPollIds[$pl['id'] ?? ''] = true;
+                    return false;
+                }
+                return true;
+            }));
+            if (!empty($removedPollIds) && isset($data['poll_votes']) && is_array($data['poll_votes'])) {
+                $data['poll_votes'] = array_values(array_filter(
+                    $data['poll_votes'],
+                    static fn($pv): bool => !isset($removedPollIds[$pv['poll_id'] ?? ''])
+                ));
+            }
             self::saveJsonData($data);
         }
 
@@ -2105,8 +2213,45 @@ class ForumManager {
                 }
             }
 
+            // 5. Forum-Umfragen & Stimmen (Phase 35)
+            $stmtFp = $pdo->prepare("REPLACE INTO weave_forum_polls (id, topic_id, post_id, question, options_json, choice_mode, max_choices, allow_vote_change, is_public, min_role_vote, ends_at, is_closed, closed_at, closed_by, created_by, created_at) VALUES (:id, :topic_id, :post_id, :question, :options_json, :choice_mode, :max_choices, :allow_vote_change, :is_public, :min_role_vote, :ends_at, :is_closed, :closed_at, :closed_by, :created_by, :created_at)");
+            foreach ($data['polls'] ?? [] as $fp) {
+                $optsJson = is_string($fp['options_json'] ?? null)
+                    ? $fp['options_json']
+                    : (string)json_encode($fp['options'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                $stmtFp->execute([
+                    ':id' => $fp['id'],
+                    ':topic_id' => $fp['topic_id'],
+                    ':post_id' => $fp['post_id'] ?? '',
+                    ':question' => $fp['question'],
+                    ':options_json' => $optsJson,
+                    ':choice_mode' => $fp['choice_mode'] ?? 'single',
+                    ':max_choices' => (int)($fp['max_choices'] ?? 1),
+                    ':allow_vote_change' => !empty($fp['allow_vote_change']) ? 1 : 0,
+                    ':is_public' => !empty($fp['is_public']) ? 1 : 0,
+                    ':min_role_vote' => $fp['min_role_vote'] ?? 'forum_user',
+                    ':ends_at' => $fp['ends_at'] ?? '',
+                    ':is_closed' => !empty($fp['is_closed']) ? 1 : 0,
+                    ':closed_at' => $fp['closed_at'] ?? '',
+                    ':closed_by' => $fp['closed_by'] ?? '',
+                    ':created_by' => $fp['created_by'] ?? '',
+                    ':created_at' => $fp['created_at'] ?? date('Y-m-d H:i:s'),
+                ]);
+            }
+
+            $stmtFpv = $pdo->prepare("INSERT OR IGNORE INTO weave_forum_poll_votes (poll_id, user_id, user_name, option_id, voted_at) VALUES (:poll_id, :user_id, :user_name, :option_id, :voted_at)");
+            foreach ($data['poll_votes'] ?? [] as $pv) {
+                $stmtFpv->execute([
+                    ':poll_id' => $pv['poll_id'],
+                    ':user_id' => $pv['user_id'],
+                    ':user_name' => $pv['user_name'] ?? '',
+                    ':option_id' => $pv['option_id'],
+                    ':voted_at' => $pv['voted_at'] ?? date('Y-m-d H:i:s'),
+                ]);
+            }
+
             $pdo->commit();
-            return ['success' => true, 'message' => 'Foreninhalte (Kategorien, Boards, Themen, Beiträge, Likes) erfolgreich nach SQLite migriert!'];
+            return ['success' => true, 'message' => 'Foreninhalte (Kategorien, Boards, Themen, Beiträge, Likes, Umfragen) erfolgreich nach SQLite migriert!'];
         } catch (Exception $e) {
             if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
             return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
@@ -2209,8 +2354,45 @@ class ForumManager {
                 }
             }
 
+            // 5. Forum-Umfragen & Stimmen (Phase 35)
+            $stmtFp = $pdo->prepare("REPLACE INTO weave_forum_polls (id, topic_id, post_id, question, options_json, choice_mode, max_choices, allow_vote_change, is_public, min_role_vote, ends_at, is_closed, closed_at, closed_by, created_by, created_at) VALUES (:id, :topic_id, :post_id, :question, :options_json, :choice_mode, :max_choices, :allow_vote_change, :is_public, :min_role_vote, :ends_at, :is_closed, :closed_at, :closed_by, :created_by, :created_at)");
+            foreach ($data['polls'] ?? [] as $fp) {
+                $optsJson = is_string($fp['options_json'] ?? null)
+                    ? $fp['options_json']
+                    : (string)json_encode($fp['options'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                $stmtFp->execute([
+                    ':id' => $fp['id'],
+                    ':topic_id' => $fp['topic_id'],
+                    ':post_id' => $fp['post_id'] ?? '',
+                    ':question' => $fp['question'],
+                    ':options_json' => $optsJson,
+                    ':choice_mode' => $fp['choice_mode'] ?? 'single',
+                    ':max_choices' => (int)($fp['max_choices'] ?? 1),
+                    ':allow_vote_change' => !empty($fp['allow_vote_change']) ? 1 : 0,
+                    ':is_public' => !empty($fp['is_public']) ? 1 : 0,
+                    ':min_role_vote' => $fp['min_role_vote'] ?? 'forum_user',
+                    ':ends_at' => $fp['ends_at'] ?? '',
+                    ':is_closed' => !empty($fp['is_closed']) ? 1 : 0,
+                    ':closed_at' => $fp['closed_at'] ?? '',
+                    ':closed_by' => $fp['closed_by'] ?? '',
+                    ':created_by' => $fp['created_by'] ?? '',
+                    ':created_at' => $fp['created_at'] ?? date('Y-m-d H:i:s'),
+                ]);
+            }
+
+            $stmtFpv = $pdo->prepare("INSERT IGNORE INTO weave_forum_poll_votes (poll_id, user_id, user_name, option_id, voted_at) VALUES (:poll_id, :user_id, :user_name, :option_id, :voted_at)");
+            foreach ($data['poll_votes'] ?? [] as $pv) {
+                $stmtFpv->execute([
+                    ':poll_id' => $pv['poll_id'],
+                    ':user_id' => $pv['user_id'],
+                    ':user_name' => $pv['user_name'] ?? '',
+                    ':option_id' => $pv['option_id'],
+                    ':voted_at' => $pv['voted_at'] ?? date('Y-m-d H:i:s'),
+                ]);
+            }
+
             $pdo->commit();
-            return ['success' => true, 'message' => 'Foreninhalte (Kategorien, Boards, Themen, Beiträge, Likes) erfolgreich nach MySQL migriert!'];
+            return ['success' => true, 'message' => 'Foreninhalte (Kategorien, Boards, Themen, Beiträge, Likes, Umfragen) erfolgreich nach MySQL migriert!'];
         } catch (Exception $e) {
             if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
             return ['success' => false, 'message' => 'Migrationsfehler: ' . $e->getMessage()];
@@ -2233,6 +2415,20 @@ class ForumManager {
                 $p['likes'] = $likesMap[$p['id']] ?? [];
             }
 
+            $pollsExport = [];
+            try {
+                $pollsExport = $pdo->query("SELECT * FROM weave_forum_polls ORDER BY created_at ASC")->fetchAll();
+                foreach ($pollsExport as &$pe) {
+                    $pe['options'] = json_decode((string)($pe['options_json'] ?? '[]'), true) ?: [];
+                }
+                unset($pe);
+            } catch (Exception $e) {}
+
+            $pollVotesExport = [];
+            try {
+                $pollVotesExport = $pdo->query("SELECT * FROM weave_forum_poll_votes ORDER BY voted_at ASC")->fetchAll();
+            } catch (Exception $e) {}
+
             $data = [
                 'categories' => $pdo->query("SELECT * FROM weave_forum_categories ORDER BY sort_order ASC")->fetchAll(),
                 'boards' => $pdo->query("SELECT * FROM weave_forum_boards ORDER BY sort_order ASC")->fetchAll(),
@@ -2240,7 +2436,9 @@ class ForumManager {
                 'posts' => $posts,
                 'reports' => $pdo->query("SELECT * FROM weave_forum_reports ORDER BY created_at DESC")->fetchAll(),
                 'subscriptions' => $pdo->query("SELECT * FROM weave_forum_subscriptions")->fetchAll(),
-                'audit_log' => $pdo->query("SELECT * FROM weave_forum_audit_log ORDER BY timestamp DESC LIMIT 200")->fetchAll()
+                'audit_log' => $pdo->query("SELECT * FROM weave_forum_audit_log ORDER BY timestamp DESC LIMIT 200")->fetchAll(),
+                'polls' => $pollsExport,
+                'poll_votes' => $pollVotesExport
             ];
 
             if (!self::saveJsonData($data)) {

@@ -9,14 +9,14 @@
  */
 ?>
     <!-- Lightbox Modal -->
-    <div id="gallery-lightbox" class="lightbox-modal" onclick="if(event.target === this) closeLightbox();" aria-hidden="true">
-        <button class="lightbox-close" onclick="closeLightbox()" aria-label="Schließen" title="Schließen (Esc)">
+    <div id="gallery-lightbox" class="lightbox-modal" data-action="close-lightbox-backdrop" aria-hidden="true">
+        <button class="lightbox-close" data-action="close-lightbox" aria-label="Schließen" title="Schließen (Esc)">
             <span class="material-icons">close</span>
         </button>
-        <button class="lightbox-nav lightbox-prev" onclick="changeLightbox(-1)" aria-label="Vorheriges Bild" title="Vorheriges Bild (Pfeil links)">
+        <button class="lightbox-nav lightbox-prev" data-action="change-lightbox" data-dir="-1" aria-label="Vorheriges Bild" title="Vorheriges Bild (Pfeil links)">
             <span class="material-icons">chevron_left</span>
         </button>
-        <button class="lightbox-nav lightbox-next" onclick="changeLightbox(1)" aria-label="Nächstes Bild" title="Nächstes Bild (Pfeil rechts)">
+        <button class="lightbox-nav lightbox-next" data-action="change-lightbox" data-dir="1" aria-label="Nächstes Bild" title="Nächstes Bild (Pfeil rechts)">
             <span class="material-icons">chevron_right</span>
         </button>
         
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Dynamische Server-Daten vor dem Hauptskript bereitstellen -->
-    <script>
+    <script<?php echo SecurityManager::cspNonceAttr(); ?>>
         window.SERVER_GALLERY_ITEMS = <?php echo json_encode(array_values(array_map(function($item) use ($cur_lang) {
             $raw = $item['image'] ?? '';
             $img_src = (strpos($raw, 'http://') === 0 || strpos($raw, 'https://') === 0)
@@ -61,8 +61,8 @@
     </script>
     
     <!-- Externes Haupt-JavaScript einbinden -->
-    <script src="libs/js/main.js?v=<?php echo file_exists(dirname(__DIR__, 2) . '/libs/js/main.js') ? filemtime(dirname(__DIR__, 2) . '/libs/js/main.js') : time(); ?>"></script>
-    <script>
+    <script<?php echo SecurityManager::cspNonceAttr(); ?> src="libs/js/main.js?v=<?php echo file_exists(dirname(__DIR__, 2) . '/libs/js/main.js') ? filemtime(dirname(__DIR__, 2) . '/libs/js/main.js') : time(); ?>"></script>
+    <script<?php echo SecurityManager::cspNonceAttr(); ?>>
         if (typeof initGalleryData === 'function') initGalleryData(window.SERVER_GALLERY_ITEMS);
         if (typeof initSpamIcons === 'function') initSpamIcons(window.SERVER_SPAM_ICONS);
 

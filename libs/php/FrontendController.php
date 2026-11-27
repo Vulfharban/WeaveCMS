@@ -54,12 +54,17 @@ class FrontendController {
             return in_array($item['category'] ?? '', $categories, true);
         }));
 
-        // 4. Basis-URL ermitteln
-        $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        // 4. Basis-URL ermitteln (inkl. Reverse-Proxy- & SSL-Terminierungs-Header)
+        $isHttps = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower(trim(explode(',', (string)$_SERVER['HTTP_X_FORWARDED_PROTO'])[0])) === 'https')
+            || (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_SSL']) === 'on')
+            || ((string)($_SERVER['SERVER_PORT'] ?? '') === '443')
+            || (!empty($_SERVER['REQUEST_SCHEME']) && strtolower((string)$_SERVER['REQUEST_SCHEME']) === 'https');
+        $proto = $isHttps ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
         $script_dir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
         $base_path = rtrim($script_dir, '/\\');
-        $site_url = $proto . '://' . $host . $base_path . '/';
+        $site_url = $proto . '://' . $host . ($base_path !== '' ? $base_path : '') . '/';
 
         // 5. Deep-Link-Parameter verarbeiten
         $selected_course_id = isset($_GET['course']) ? (int)$_GET['course'] : 0;

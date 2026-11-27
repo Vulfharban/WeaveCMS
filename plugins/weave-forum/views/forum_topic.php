@@ -57,6 +57,11 @@ $isMod = class_exists('ForumUserManager') ? ForumUserManager::userCan('moderate'
 $canReply = class_exists('ForumUserManager') ? ForumUserManager::userCan('reply', $currentUser, $board) : false;
 $isSubscribed = $currentUser ? ForumManager::isSubscribed($currentUser['id'], $topicId) : false;
 $allBoards = ForumManager::getBoards();
+$topicPollBundle = class_exists('ForumPollManager')
+    ? ForumPollManager::getPollsForTopic($topicId)
+    : ['topic_polls' => [], 'post_polls' => []];
+$globalPollFlash = $_SESSION['forum_poll_flash']['global'] ?? null;
+unset($_SESSION['forum_poll_flash']['global']);
 ?>
 
 <style>
@@ -277,6 +282,20 @@ dialog.kunena-dialog::backdrop {
     </dialog>
 <?php endif; ?>
 
+<!-- Themen-Umfragen (Phase 35) -->
+<?php if (!empty($globalPollFlash['text'])): ?>
+    <div style="margin-bottom: 14px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">
+        <?= htmlspecialchars((string)$globalPollFlash['text']) ?>
+    </div>
+<?php endif; ?>
+<?php if (!empty($topicPollBundle['topic_polls']) && function_exists('weave_forum_render_poll_card')): ?>
+    <div class="kunena-topic-polls-wrap" style="margin-bottom: 20px;">
+        <?php foreach ($topicPollBundle['topic_polls'] as $tp): ?>
+            <?= weave_forum_render_poll_card($tp, $currentUser, $topic, $board) ?>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
 <!-- Posts List -->
 <div style="margin-bottom: 28px;">
     <?php foreach ($posts as $idx => $post): ?>
@@ -382,6 +401,13 @@ dialog.kunena-dialog::backdrop {
                     <div id="post-content-<?= htmlspecialchars($post['id']) ?>" class="forum-post-content" style="font-size: 14px; line-height: 1.65; margin-bottom: 16px;">
                         <?= ForumManager::renderFormattedContent($post['content']) ?>
                     </div>
+                    <?php if (!empty($topicPollBundle['post_polls'][$post['id']]) && function_exists('weave_forum_render_poll_card')): ?>
+                        <div class="kunena-post-polls-wrap" style="margin-bottom: 16px;">
+                            <?php foreach ($topicPollBundle['post_polls'][$post['id']] as $pp): ?>
+                                <?= weave_forum_render_poll_card($pp, $currentUser, $topic, $board) ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                     <?php if ($canEdit): ?>
                         <div id="post-edit-slot-<?= htmlspecialchars($post['id']) ?>" style="display:none; margin-bottom: 20px;"></div>
                     <?php endif; ?>
@@ -586,6 +612,9 @@ dialog.kunena-dialog::backdrop {
                           placeholder="Schreibe deine Antwort... (Markdown, Überschriften und Zitate unterstützt)"></textarea>
                 <div id="reply_preview_box" style="display:none; width:100%; min-height:140px; padding:14px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:0 0 10px 10px; box-sizing:border-box;"></div>
             </div>
+
+            <!-- Optionaler Beitrags-Umfrage-Builder (Phase 35) -->
+            <?php if (function_exists('weave_forum_render_poll_builder')) { echo weave_forum_render_poll_builder('reply'); } ?>
 
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <span style="font-size:12px; color:#64748b;">Tipp: Mit Zitat-Buttons oben kannst du Textstellen direkt zitieren.</span>

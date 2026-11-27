@@ -37,11 +37,11 @@ foreach ($downloads as $d) {
         <?php if (count($categories) > 1): ?>
             <!-- Interaktive Kategorie-Filter-Buttons -->
             <div class="dl-filter-bar" style="display:inline-flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:1.5rem; background:rgba(0,0,0,0.03); padding:6px; border-radius:12px; border:1px solid var(--border-color);">
-                <button type="button" class="dl-filter-btn active" onclick="filterDownloads('all', this)">
+                <button type="button" class="dl-filter-btn active" data-action="filter-downloads" data-category="all">
                     <?php echo htmlspecialchars(LanguageManager::t('btn.show_all', 'Alle anzeigen', $cur_lang ?? null)); ?> (<?php echo count($downloads); ?>)
                 </button>
                 <?php foreach ($categories as $cat): ?>
-                    <button type="button" class="dl-filter-btn" onclick="filterDownloads('<?php echo htmlspecialchars(addslashes($cat)); ?>', this)">
+                    <button type="button" class="dl-filter-btn" data-action="filter-downloads" data-category="<?php echo htmlspecialchars($cat, ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo htmlspecialchars($cat); ?>
                     </button>
                 <?php endforeach; ?>
@@ -150,7 +150,7 @@ foreach ($downloads as $d) {
                                             ? $sThumbRaw
                                             : ((strpos($sThumbRaw, '/') === 0) ? '.' . $sThumbRaw : './' . $sThumbRaw);
                                     ?>
-                                    <img src="<?php echo htmlspecialchars($sThumbSrc); ?>" alt="Screenshot" loading="lazy" decoding="async" style="height: 52px; width: 85px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.2s;" onclick="openLightbox(<?php echo htmlspecialchars(json_encode($sFullSrc), ENT_QUOTES); ?>)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                    <img src="<?php echo htmlspecialchars($sThumbSrc); ?>" alt="Screenshot" loading="lazy" decoding="async" style="height: 52px; width: 85px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.2s;" data-action="open-lightbox-url" data-url="<?php echo htmlspecialchars($sFullSrc, ENT_QUOTES, 'UTF-8'); ?>">
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
@@ -170,7 +170,7 @@ foreach ($downloads as $d) {
                     <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <?php if (!empty($d_changelog)): ?>
-                                <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 4px;" onclick="openChangelogModal('<?php echo $d_id; ?>', '<?php echo htmlspecialchars(addslashes($d_title)); ?>')">
+                                <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 4px;" data-action="open-changelog" data-id="<?php echo $d_id; ?>" data-title="<?php echo htmlspecialchars($d_title, ENT_QUOTES, 'UTF-8'); ?>">
                                     <span class="material-icons" style="font-size: 15px;">history</span> Changelog
                                 </button>
                                 <!-- Versteckter Changelog-HTML-Container -->
@@ -191,24 +191,24 @@ foreach ($downloads as $d) {
     <?php endif; ?>
 
     <!-- ──────────────── CHANGELOG MODAL ──────────────── -->
-    <div id="changelog-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 99999; align-items: center; justify-content: center; padding: 1.5rem;" onclick="if(event.target === this) closeChangelogModal();">
+    <div id="changelog-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 99999; align-items: center; justify-content: center; padding: 1.5rem;" data-action="close-changelog-backdrop">
         <div class="card" style="background: var(--bg-card); max-width: 640px; width: 100%; max-height: 85vh; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 20px 45px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; animation: fadeInModal 0.25s ease;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border-color);">
                 <h3 id="changelog-modal-title" style="color: var(--primary); margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
                     <span class="material-icons">history</span> Versionshistorie
                 </h3>
-                <button type="button" onclick="closeChangelogModal()" style="background: none; border: none; font-size: 1.75rem; cursor: pointer; color: var(--text-secondary); line-height: 1;">&times;</button>
+                <button type="button" data-action="close-changelog" style="background: none; border: none; font-size: 1.75rem; cursor: pointer; color: var(--text-secondary); line-height: 1;">&times;</button>
             </div>
             <div id="changelog-modal-content" style="padding: 1.75rem; overflow-y: auto; font-size: 0.92rem; line-height: 1.6; color: var(--text-primary);">
             </div>
             <div style="padding: 1rem 1.75rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end;">
-                <button type="button" class="btn btn-secondary" onclick="closeChangelogModal()"><?php echo htmlspecialchars(LanguageManager::t('btn.close', 'Schließen', $cur_lang ?? null)); ?></button>
+                <button type="button" class="btn btn-secondary" data-action="close-changelog"><?php echo htmlspecialchars(LanguageManager::t('btn.close', 'Schließen', $cur_lang ?? null)); ?></button>
             </div>
         </div>
     </div>
 </section>
 
-<script>
+<script<?php echo SecurityManager::cspNonceAttr(); ?>>
 function filterDownloads(category, btn) {
     const cards = document.querySelectorAll('.dl-card');
     document.querySelectorAll('.dl-filter-btn').forEach(b => b.classList.remove('active'));

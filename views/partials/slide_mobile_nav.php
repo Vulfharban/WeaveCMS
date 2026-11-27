@@ -29,7 +29,7 @@
                         : ($is_subpage_view ? htmlspecialchars($home_url . '#' . $item['id']) : '#' . htmlspecialchars($item['id']));
                     $icon = !empty($item['icon']) ? $item['icon'] : SectionManager::getDefaultIcon($item['type'] ?? $item['id']);
                 ?>
-                <a href="<?php echo $href; ?>" onclick="closeMobileMenu()" class="nav-item" style="font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:flex; align-items:center; gap:12px;">
+                <a href="<?php echo $href; ?>" data-action="close-mobile-menu" class="nav-item" style="font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:flex; align-items:center; gap:12px;">
                     <span class="material-icons" style="font-size:22px; color:var(--primary);"><?php echo htmlspecialchars($icon); ?></span>
                     <span><?php echo htmlspecialchars($item['nav_label']); ?></span>
                 </a>
@@ -39,13 +39,13 @@
                 $impressum_place = $data['settings']['impressum_placement'] ?? 'both';
             ?>
             <?php if ($contact_place === 'header' || $contact_place === 'both'): ?>
-                <label for="menu-toggle" onclick="closeMobileMenuAndOpenContact()" class="nav-item" style="cursor: pointer; font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:flex; align-items:center; gap:12px; color: var(--primary);">
+                <label for="menu-toggle" data-action="close-mobile-open-contact" class="nav-item" style="cursor: pointer; font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:flex; align-items:center; gap:12px; color: var(--primary);">
                     <span class="material-icons" style="font-size:22px;">mail</span>
                     <span><?php echo htmlspecialchars(__('nav.contact', 'Kontakt')); ?></span>
                 </label>
             <?php endif; ?>
             <?php if ($impressum_place === 'header' || $impressum_place === 'both'): ?>
-                <label for="menu-toggle-impressum" onclick="closeMobileMenuAndOpenImpressum()" class="nav-item" style="cursor: pointer; font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:flex; align-items:center; gap:12px; color: var(--primary);">
+                <label for="menu-toggle-impressum" data-action="close-mobile-open-impressum" class="nav-item" style="cursor: pointer; font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display:flex; align-items:center; gap:12px; color: var(--primary);">
                     <span class="material-icons" style="font-size:22px;">policy</span>
                     <span><?php echo htmlspecialchars(__('nav.impressum', 'Impressum')); ?></span>
                 </label>
@@ -55,13 +55,13 @@
             <div class="mobile-a11y-controls" style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; gap:12px;">
                 <span style="font-size:0.85rem; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:1px;"><?php echo htmlspecialchars(__('nav.appearance', 'Ansicht')); ?></span>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <button type="button" class="a11y-nav-btn a11y-theme-btn" onclick="toggleWeaveTheme()" title="Dunkelmodus" aria-label="Farbschema wechseln">
+                    <button type="button" class="a11y-nav-btn a11y-theme-btn" data-action="toggle-theme" title="Dunkelmodus" aria-label="Farbschema wechseln">
                         <span class="a11y-theme-icon">🌙</span>
                     </button>
                     <div class="a11y-nav-zoom-group">
-                        <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="adjustWeaveFontSize(-5)" title="Schrift verkleinern (A-)">A-</button>
-                        <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="resetWeaveFontSize()" title="Standard-Schriftgröße (100%)">A</button>
-                        <button type="button" class="a11y-nav-btn a11y-zoom-btn" onclick="adjustWeaveFontSize(5)" title="Schrift vergrößern (A+)">A+</button>
+                        <button type="button" class="a11y-nav-btn a11y-zoom-btn" data-action="adjust-font" data-delta="-5" title="Schrift verkleinern (A-)">A-</button>
+                        <button type="button" class="a11y-nav-btn a11y-zoom-btn" data-action="reset-font" title="Standard-Schriftgröße (100%)">A</button>
+                        <button type="button" class="a11y-nav-btn a11y-zoom-btn" data-action="adjust-font" data-delta="5" title="Schrift vergrößern (A+)">A+</button>
                     </div>
                 </div>
             </div>

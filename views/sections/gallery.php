@@ -24,9 +24,9 @@
     <?php else: ?>
         <!-- Category Filter Buttons -->
         <div class="filter-container">
-            <button class="filter-btn active" onclick="filterGallery('all', this)"><?php echo htmlspecialchars(__('btn.filter_all', 'Alle')); ?></button>
+            <button class="filter-btn active" data-action="filter-gallery" data-category="all"><?php echo htmlspecialchars(__('btn.filter_all', 'Alle')); ?></button>
             <?php foreach ($categories as $cat): ?>
-                <button class="filter-btn" onclick="filterGallery('<?php echo htmlspecialchars($cat); ?>', this)"><?php echo htmlspecialchars(LanguageManager::t('category.' . $cat, $cat, $cur_lang ?? null)); ?></button>
+                <button class="filter-btn" data-action="filter-gallery" data-category="<?php echo htmlspecialchars($cat, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars(LanguageManager::t('category.' . $cat, $cat, $cur_lang ?? null)); ?></button>
             <?php endforeach; ?>
         </div>
 
@@ -72,7 +72,7 @@
                     }
                 ?>
                 <div class="card gallery-card <?php echo $is_portrait ? 'card-portrait' : ''; ?>" data-category="<?php echo htmlspecialchars($item['category'] ?? ''); ?>" data-index="<?php echo $idx; ?>">
-                    <div class="gallery-media-wrapper <?php echo $is_portrait ? 'is-portrait' : ''; ?>" <?php if ($gallery_lightbox): ?>onclick="openLightbox(<?php echo $idx; ?>)" style="cursor:zoom-in;" title="<?php echo htmlspecialchars(__('gallery.zoom_hint', 'Klicken für Vollbildansicht')); ?>"<?php endif; ?>>
+                    <div class="gallery-media-wrapper <?php echo $is_portrait ? 'is-portrait' : ''; ?>" <?php if ($gallery_lightbox): ?>data-action="open-lightbox" data-index="<?php echo $idx; ?>" style="cursor:zoom-in;" title="<?php echo htmlspecialchars(__('gallery.zoom_hint', 'Klicken für Vollbildansicht')); ?>"<?php endif; ?>>
                         <?php 
                             $img_alt = htmlspecialchars($item['alt'] ?? $item['title'] ?? ''); 
                             $focusStyle = class_exists('MediaManager') ? MediaManager::getFocusStyle($img_raw) : '';

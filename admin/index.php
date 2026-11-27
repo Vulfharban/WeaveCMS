@@ -711,11 +711,16 @@ usort($data['gallery'], function($a, $b) {
     return ($a['sort_order'] ?? 0) <=> ($b['sort_order'] ?? 0);
 });
 
-// 10. Basis-URL für dynamische Einladungslinks ermitteln (Protokoll + Host + Pfad)
-$proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+// 10. Basis-URL für dynamische Einladungslinks ermitteln (Protokoll + Host + Pfad, inkl. Proxy-Header)
+$isHttps = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
+    || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower(trim(explode(',', (string)$_SERVER['HTTP_X_FORWARDED_PROTO'])[0])) === 'https')
+    || (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_SSL']) === 'on')
+    || ((string)($_SERVER['SERVER_PORT'] ?? '') === '443')
+    || (!empty($_SERVER['REQUEST_SCHEME']) && strtolower((string)$_SERVER['REQUEST_SCHEME']) === 'https');
+$proto = $isHttps ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $base_path = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
-$site_url = $proto . '://' . $host . $base_path . '/';
+$site_url = $proto . '://' . $host . ($base_path !== '' ? $base_path : '') . '/';
 
 // 11. Admin-Header Logo vorbereiten
 $admin_logo_motif = $data['settings']['hero_logo_motif'] ?? 'paw_beach';
