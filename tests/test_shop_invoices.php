@@ -44,7 +44,7 @@ try {
         'webdav_enabled'          => true,
         'webdav_url'              => 'https://cloud.weavecraft.de/remote.php/dav/files/inv/',
         'webdav_user'             => 'archive_bot',
-        'webdav_password'         => 'top-secret-dav-pass',
+        'webdav_password'         => 'test_dav_' . bin2hex(random_bytes(6)),
     ]);
 
     $sampleOrder = [

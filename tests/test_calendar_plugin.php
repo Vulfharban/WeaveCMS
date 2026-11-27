@@ -125,7 +125,7 @@ try {
     assert_cal(CalendarSync::validateExternalUrl('https://caldav.icloud.com/123/calendars/'), 'Gültige iCloud-HTTPS-URL muss akzeptiert werden');
 
     // 5. CalendarCrypto Verschlüsselung & Entschlüsselung (AES-256)
-    $secret = 'super-geheimer-schluessel-32bytes!';
+    $secret = 'test_key_' . bin2hex(random_bytes(12));
     $cipher = CalendarCrypto::encrypt('refresh_tok_12345', $secret);
     assert_cal($cipher !== 'refresh_tok_12345' && strpos($cipher, 'enc:v1:') === 0, 'Token muss verschlüsselt sein');
     assert_cal(CalendarCrypto::decrypt($cipher, $secret) === 'refresh_tok_12345', 'Entschlüsselung muss Originalwert liefern');
