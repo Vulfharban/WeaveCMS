@@ -55,8 +55,13 @@ $activeProducts = array_filter($allProducts, function($p) {
     return !empty($p['active']);
 });
 
+$t = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+    ? __($key, $default, null, $params)
+    : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
+
+$allLabel = $t('shop.cat_all', 'Alle');
 // Kategorien sammeln
-$categories = ['Alle'];
+$categories = [$allLabel];
 foreach ($activeProducts as $p) {
     $cat = trim($p['category'] ?? '');
     if (!empty($cat) && !in_array($cat, $categories, true)) {
@@ -70,7 +75,7 @@ foreach ($activeProducts as $p) {
     <div class="shop-header" style="text-align: center; max-width: 800px; margin: 0 auto 2.5rem;">
         <div style="display:inline-flex; align-items:center; gap:8px; padding: 6px 16px; border-radius: 20px; background: rgba(46,98,72,0.1); color: var(--primary); font-size: 0.88rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
             <span class="material-icons" style="font-size: 18px;">storefront</span>
-            <span>Online-Shop</span>
+            <span><?php echo htmlspecialchars($t('shop.badge', 'Online-Shop')); ?></span>
         </div>
         <h2 style="font-size: 2.2rem; margin: 0 0 0.75rem; color: var(--text-primary);"><?php echo htmlspecialchars($title); ?></h2>
         <p style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.6; margin: 0;">
@@ -79,10 +84,10 @@ foreach ($activeProducts as $p) {
 
         <!-- Bezahlmethoden-Badges -->
         <div style="display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 1.25rem; flex-wrap: wrap;">
-            <span style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 600;">Sichere Bezahlung:</span>
+            <span style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 600;"><?php echo htmlspecialchars($t('shop.secure_payment', 'Sichere Bezahlung:')); ?></span>
             <?php if ($cc_enabled): ?>
             <span class="shop-pay-badge" style="display:inline-flex; align-items:center; gap:4px; padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,0.04); font-size: 0.8rem; font-weight: 600;">
-                💳 Kreditkarte (Visa, Mastercard)
+                <?php echo htmlspecialchars($t('shop.pay_credit_card', '💳 Kreditkarte (Visa, Mastercard)')); ?>
             </span>
             <?php endif; ?>
             <?php if ($pp_enabled): ?>
@@ -97,7 +102,7 @@ foreach ($activeProducts as $p) {
             <?php endif; ?>
             <?php if (!empty($bt_enabled)): ?>
             <span class="shop-pay-badge" style="display:inline-flex; align-items:center; gap:4px; padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,0.04); font-size: 0.8rem; font-weight: 600;">
-                🏦 Vorkasse / Überweisung
+                <?php echo htmlspecialchars($t('shop.pay_bank_transfer', '🏦 Vorkasse / Überweisung')); ?>
             </span>
             <?php endif; ?>
         </div>
@@ -106,9 +111,9 @@ foreach ($activeProducts as $p) {
         <?php if (count($categories) > 2): ?>
             <div class="shop-filter-bar" style="display: flex; justify-content: center; gap: 8px; margin-top: 2rem; flex-wrap: wrap;">
                 <?php foreach ($categories as $cat): ?>
-                    <button type="button" class="shop-cat-btn <?php echo $cat === 'Alle' ? 'active' : ''; ?>" 
+                    <button type="button" class="shop-cat-btn <?php echo $cat === $allLabel ? 'active' : ''; ?>" 
                             onclick="filterShopCategory('<?php echo htmlspecialchars($cat); ?>', this)"
-                            style="padding: 7px 18px; border-radius: 20px; border: 1px solid var(--border-color); background: <?php echo $cat === 'Alle' ? 'var(--primary)' : 'var(--card-bg, #fff)'; ?>; color: <?php echo $cat === 'Alle' ? '#fff' : 'var(--text-primary)'; ?>; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease;">
+                            style="padding: 7px 18px; border-radius: 20px; border: 1px solid var(--border-color); background: <?php echo $cat === $allLabel ? 'var(--primary)' : 'var(--card-bg, #fff)'; ?>; color: <?php echo $cat === $allLabel ? '#fff' : 'var(--text-primary)'; ?>; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease;">
                         <?php echo htmlspecialchars($cat); ?>
                     </button>
                 <?php endforeach; ?>
@@ -120,8 +125,8 @@ foreach ($activeProducts as $p) {
     <?php if (empty($activeProducts)): ?>
         <div style="text-align: center; padding: 3rem 1rem; background: rgba(0,0,0,0.02); border: 2px dashed var(--border-color); border-radius: 16px; max-width: 500px; margin: 0 auto;">
             <span class="material-icons" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 0.5rem;">production_quantity_limits</span>
-            <h4 style="margin: 0 0 0.5rem; font-size: 1.15rem;">Aktuell keine Produkte verfügbar</h4>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">Schau bald wieder vorbei!</p>
+            <h4 style="margin: 0 0 0.5rem; font-size: 1.15rem;"><?php echo htmlspecialchars($t('shop.empty_title', 'Aktuell keine Produkte verfügbar')); ?></h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;"><?php echo htmlspecialchars($t('shop.empty_sub', 'Schau bald wieder vorbei!')); ?></p>
         </div>
     <?php else: ?>
         <div class="shop-products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.75rem;">
@@ -152,15 +157,15 @@ foreach ($activeProducts as $p) {
                         <!-- Lager-Status -->
                         <?php if (!$inStock): ?>
                             <span style="position: absolute; top: 12px; right: 12px; background: #ef4444; color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">
-                                Ausverkauft
+                                <?php echo htmlspecialchars($t('shop.sold_out', 'Ausverkauft')); ?>
                             </span>
                         <?php elseif (!empty($p['unlimited'])): ?>
                             <span style="position: absolute; top: 12px; right: 12px; background: #3b82f6; color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">
-                                Sofort verfügbar
+                                <?php echo htmlspecialchars($t('shop.in_stock', 'Sofort verfügbar')); ?>
                             </span>
                         <?php elseif ($stockCount <= 3): ?>
                             <span style="position: absolute; top: 12px; right: 12px; background: #f59e0b; color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">
-                                Nur noch <?php echo $stockCount; ?> Stück
+                                <?php echo htmlspecialchars($t('shop.only_left', 'Nur noch {count} Stück', ['count' => $stockCount])); ?>
                             </span>
                         <?php endif; ?>
                     </div>
@@ -182,9 +187,9 @@ foreach ($activeProducts as $p) {
                                 </div>
                                 <div style="font-size: 0.75rem; color: var(--text-secondary);">
                                     <?php if ($isSmallBiz): ?>
-                                        Gem. § 19 UStG steuerfrei
+                                        <?php echo htmlspecialchars($t('shop.tax_exempt', 'Gem. § 19 UStG steuerfrei')); ?>
                                     <?php else: ?>
-                                        inkl. <?php echo (int)($p['tax_rate'] ?? 19); ?> % MwSt.
+                                        <?php echo htmlspecialchars($t('shop.tax_incl', 'inkl. {rate} % MwSt.', ['rate' => (int)($p['tax_rate'] ?? 19)])); ?>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -195,7 +200,7 @@ foreach ($activeProducts as $p) {
                                     onclick="shopAddToCart('<?php echo htmlspecialchars($p['id']); ?>', '<?php echo htmlspecialchars(addslashes($p['title'])); ?>', <?php echo (float)$p['price']; ?>, this)"
                                     style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 0.9rem; font-weight: 700; border-radius: 10px; <?php echo !$inStock ? 'opacity: 0.5; cursor: not-allowed;' : ''; ?>">
                                 <span class="material-icons" style="font-size: 18px;">add_shopping_cart</span>
-                                <span><?php echo $inStock ? 'Kaufen' : 'Weg'; ?></span>
+                                <span><?php echo htmlspecialchars($inStock ? $t('shop.buy_btn', 'Kaufen') : $t('shop.sold_btn', 'Weg')); ?></span>
                             </button>
                         </div>
                     </div>
@@ -227,7 +232,7 @@ foreach ($activeProducts as $p) {
     <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.015);">
         <div style="display: flex; align-items: center; gap: 8px;">
             <span class="material-icons" style="color: var(--primary); font-size: 24px;">shopping_bag</span>
-            <h3 style="margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--text-primary);">Dein Warenkorb</h3>
+            <h3 style="margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--text-primary);"><?php echo htmlspecialchars($t('shop.cart_title', 'Dein Warenkorb')); ?></h3>
         </div>
         <button type="button" onclick="toggleShopCartDrawer()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); padding: 4px; border-radius: 6px;">
             &times;
@@ -238,7 +243,7 @@ foreach ($activeProducts as $p) {
     <div id="shop-cart-items-container" style="flex-grow: 1; overflow-y: auto; padding: 1.25rem 1.5rem;">
         <div id="shop-cart-empty-msg" style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
             <span class="material-icons" style="font-size: 52px; opacity: 0.4; margin-bottom: 0.5rem;">remove_shopping_cart</span>
-            <p style="margin: 0; font-size: 0.95rem;">Dein Warenkorb ist noch leer.</p>
+            <p style="margin: 0; font-size: 0.95rem;"><?php echo htmlspecialchars($t('shop.cart_empty', 'Dein Warenkorb ist noch leer.')); ?></p>
         </div>
         <div id="shop-cart-items-list"></div>
         <?php
@@ -264,13 +269,13 @@ foreach ($activeProducts as $p) {
         }
         ?>
         <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; color: var(--text-primary); border-top: 1px dashed var(--border-color); padding-top: 8px; margin-bottom: 1.25rem;">
-            <span>Gesamtbetrag:</span>
+            <span><?php echo htmlspecialchars($t('shop.cart_total', 'Gesamtbetrag')); ?>:</span>
             <span id="shop-cart-total" style="color: var(--primary);">0,00 €</span>
         </div>
 
         <button type="button" id="shop-checkout-btn" onclick="openShopCheckout()" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; font-size: 1rem; font-weight: 700; border-radius: 10px;">
             <span class="material-icons">lock</span>
-            <span>Sicher zur Kasse gehen</span>
+            <span><?php echo htmlspecialchars($t('shop.checkout_btn', 'Sicher zur Kasse gehen')); ?></span>
         </button>
     </div>
 </div>

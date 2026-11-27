@@ -8,5 +8,14 @@
     "icon": "shopping_cart",
     "entry_file": "plugin.php",
     "requires_core": ">=0.4.0",
-    "settings_tab": "weave-shop"
+    "settings_tab": "weave-shop",
+    "storage": {
+        "mode": "plugin_data",
+        "schema_version": "1.1.0",
+        "plugin_data_keys": {
+            "shop_products": "data/shop_products.json",
+            "shop_orders": "data/shop_orders.json",
+            "shop_invoices": "data/shop_invoices.json"
+        }
+    }
 }

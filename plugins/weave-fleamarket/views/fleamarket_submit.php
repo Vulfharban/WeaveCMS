@@ -13,6 +13,7 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 if (!function_exists('weave_fleamarket_render_submit_form')) {
 
     function weave_fleamarket_render_submit_form(?array $member = null): string {
+        $t = static fn(string $key, string $default): string => function_exists('__') ? __($key, $default) : $default;
         $cfg = FleamarketManager::getConfig();
         $labels = FleamarketManager::getLabels();
         $cats = FleamarketManager::getCategories();
@@ -30,8 +31,8 @@ if (!function_exists('weave_fleamarket_render_submit_form')) {
         ?>
         <div class="card weave-fm-submit" style="max-width: 820px; margin: 1.5rem auto; padding: 1.75rem; border-radius: var(--card-radius, 16px);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
-                <h2 style="margin: 0; font-size: 1.4rem;">+ Neue Flohmarkt-Anzeige aufgeben</h2>
-                <a href="?page=flohmarkt" class="btn btn-outline" style="text-decoration: none;">← Zurück</a>
+                <h2 style="margin: 0; font-size: 1.4rem;"><?php echo htmlspecialchars($t('fleamarket.submit_btn', '+ Anzeige aufgeben'), ENT_QUOTES, 'UTF-8'); ?></h2>
+                <a href="?page=flohmarkt" class="btn btn-outline" style="text-decoration: none;"><?php echo htmlspecialchars($t('fleamarket.back_to_catalog', '← Zurück'), ENT_QUOTES, 'UTF-8'); ?></a>
             </div>
 
             <form method="POST" action="" enctype="multipart/form-data" data-wfm-submit-form="1">

@@ -55,14 +55,14 @@ $statusLabels = [
                 <span class="material-icons" style="font-size: 28px; color:#fff;">poll</span>
             </div>
             <div>
-                <h3 style="margin: 0; font-size: 1.38rem; font-weight: 800; color: #fff;">Weave Polls – CMS-Umfragen &amp; Abstimmungen</h3>
+                <h3 style="margin: 0; font-size: 1.38rem; font-weight: 800; color: #fff;"><?php echo htmlspecialchars(function_exists('__a') ? __a('admin.polls.title', 'Weave Polls – Umfrage-Verwaltung') : 'Weave Polls – Umfrage-Verwaltung'); ?></h3>
                 <p style="margin: 4px 0 0 0; opacity: 0.92; font-size: 0.88rem;">
-                    Erstelle parallele Umfragen für bestehende Seiten &amp; Sektionen – inklusive Zeitsteuerung, Mehrfachauswahl &amp; CSV/JSON-Export.
+                    <?php echo htmlspecialchars(function_exists('__a') ? __a('admin.polls.shortcode_hint', 'Shortcodes: [polls] oder [poll id="..."]') : 'Shortcodes: [polls] oder [poll id="..."]'); ?>
                 </p>
             </div>
         </div>
         <a href="?tab=tab-plugins&plugin_settings=weave-polls&polls_subtab=editor#tab-plugins" class="btn" style="background: #fff; color: #0f766e; font-weight: 700; text-decoration: none; padding: 8px 16px; border-radius: 8px;">
-            + Neue Umfrage anlegen
+            + <?php echo htmlspecialchars(function_exists('__a') ? __a('admin.polls.new_poll', 'Neue Umfrage anlegen') : 'Neue Umfrage anlegen'); ?>
         </a>
     </div>
 

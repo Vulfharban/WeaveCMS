@@ -1,0 +1,13 @@
+{
+    "forum_users.login_title": "Member Login",
+    "forum_users.register_title": "Register in Forum",
+    "forum_users.privacy_modal_title": "Privacy Policy",
+    "forum_users.profile_title": "My Member Profile",
+    "forum_users.privacy_title": "Privacy Settings",
+    "forum_users.pm_title": "Private Messages",
+    "forum_users.pm_login_required": "Please log in to view your private messages.",
+    "forum_users.pm_inbox": "Inbox",
+    "forum_users.pm_sent": "Sent",
+    "forum_users.pm_compose": "New Message",
+    "forum_users.email_contact_title": "Send Email via Forum"
+}

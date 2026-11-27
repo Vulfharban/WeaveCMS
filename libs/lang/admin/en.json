@@ -1588,5 +1588,19 @@
     "admin.fleamarket.tab_categories": "Categories",
     "admin.fleamarket.tab_inquiries": "Inquiries & Reports",
     "admin.fleamarket.tab_stands": "On-Site Stalls",
-    "admin.fleamarket.tab_settings": "Settings & Menu"
+    "admin.fleamarket.tab_settings": "Settings & Menu",
+    "admin.plugins.schema_title": "Database, Table & Schema Status (Official & 3rd-Party Plugins)",
+    "admin.plugins.schema_desc": "All plugin tables and JSON data structures are strictly preserved upon deactivation (zero data loss). During installation, database migration, plugin activation, or update, schemas are automatically verified and upgraded.",
+    "admin.plugins.schema_sync_btn": "Verify & Update Plugin Schemas",
+    "admin.plugins.schema_col_plugin": "Plugin",
+    "admin.plugins.schema_col_mode": "Storage Mode",
+    "admin.plugins.schema_col_version": "Schema Version",
+    "admin.plugins.schema_col_status": "Status",
+    "admin.plugins.schema_status_current": "Up to date",
+    "admin.plugins.schema_status_migrate": "Migration needed",
+    "admin.plugins.schema_status_missing": "Missing tables",
+    "admin.plugins.schema_status_uninit": "Not initialized",
+    "admin.plugins.schema_preserve_note": "Data Preservation Guarantee: Deactivating a plugin never executes DROP TABLE or deletes stored plugin records.",
+    "admin.plugins.schema_sync_success": "✓ Successfully verified & updated all {count} plugin schemas and database tables.",
+    "admin.plugins.schema_sync_error": "Schema verification completed with notices ({ok} OK): {errors}"
 }

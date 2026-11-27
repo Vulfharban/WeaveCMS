@@ -1,0 +1,23 @@
+{
+    "shop.nav_label": "Shop",
+    "shop.badge": "Online-Shop",
+    "shop.secure_payment": "Sichere Bezahlung:",
+    "shop.pay_credit_card": "💳 Kreditkarte (Visa, Mastercard)",
+    "shop.pay_bank_transfer": "🏦 Vorkasse / Überweisung",
+    "shop.cat_all": "Alle",
+    "shop.empty_title": "Aktuell keine Produkte verfügbar",
+    "shop.empty_sub": "Schau bald wieder vorbei!",
+    "shop.sold_out": "Ausverkauft",
+    "shop.in_stock": "Sofort verfügbar",
+    "shop.only_left": "Nur noch {count} Stück",
+    "shop.tax_exempt": "Gem. § 19 UStG steuerfrei",
+    "shop.tax_incl": "inkl. {rate} % MwSt.",
+    "shop.buy_btn": "Kaufen",
+    "shop.sold_btn": "Weg",
+    "shop.cart_title": "Dein Warenkorb",
+    "shop.cart_empty": "Dein Warenkorb ist noch leer.",
+    "shop.cart_total": "Gesamtsumme",
+    "shop.checkout_btn": "Zur Kasse",
+    "shop.order_submit": "Zahlungspflichtig bestellen",
+    "shop.invoice_title": "Rechnung"
+}

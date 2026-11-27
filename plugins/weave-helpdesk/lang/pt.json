@@ -1,0 +1,9 @@
+{
+    "helpdesk.nav_label": "Suporte",
+    "helpdesk.portal_title": "Central de ajuda e chamados",
+    "helpdesk.new_ticket": "Criar novo chamado",
+    "helpdesk.status_open": "Aberto",
+    "helpdesk.status_in_progress": "Em andamento",
+    "helpdesk.status_done": "Resolvido",
+    "helpdesk.login_title": "Login Helpdesk"
+}

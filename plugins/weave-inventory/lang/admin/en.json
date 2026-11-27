@@ -1,0 +1,6 @@
+{
+    "admin.inventory.title": "Inventory & Stock Management",
+    "admin.inventory.tab_articles": "Articles & Stock",
+    "admin.inventory.tab_movements": "Stock Movements (Audit)",
+    "admin.inventory.tab_settings": "Import/Export & API"
+}

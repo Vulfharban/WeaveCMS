@@ -1,0 +1,23 @@
+{
+    "shop.nav_label": "Butik",
+    "shop.badge": "Webshop",
+    "shop.secure_payment": "Sikker betaling:",
+    "shop.pay_credit_card": "💳 Kreditkort (Visa, Mastercard)",
+    "shop.pay_bank_transfer": "🏦 Bankoverførsel",
+    "shop.cat_all": "Alle",
+    "shop.empty_title": "Ingen produkter tilgængelige i øjeblikket",
+    "shop.empty_sub": "Kig forbi snart igen!",
+    "shop.sold_out": "Udsolgt",
+    "shop.in_stock": "På lager",
+    "shop.only_left": "Kun {count} tilbage",
+    "shop.tax_exempt": "Momsfritaget (§ 19 UStG)",
+    "shop.tax_incl": "inkl. {rate}% moms",
+    "shop.buy_btn": "Køb",
+    "shop.sold_btn": "Udsolgt",
+    "shop.cart_title": "Din indkøbskurv",
+    "shop.cart_empty": "Din kurv er tom.",
+    "shop.cart_total": "Samlet beløb",
+    "shop.checkout_btn": "Til kassen",
+    "shop.order_submit": "Afgiv ordre",
+    "shop.invoice_title": "Faktura"
+}

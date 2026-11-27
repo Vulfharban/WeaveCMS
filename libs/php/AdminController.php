@@ -98,6 +98,7 @@ class AdminController {
             case 'toggle_plugin':
             case 'save_plugin_settings':
             case 'sync_missing_plugins':
+            case 'sync_plugin_schemas':
             case 'update_plugin':
             case 'check_plugin_update':
                 self::handlePluginAction($action, $dataFile, $data, $success_msg, $error_msg);
@@ -360,6 +361,31 @@ class AdminController {
                 }
             } else {
                 $error_msg = __a('admin.msg.core_updater_unavailable', 'CoreUpdater-Klasse nicht verfügbar.');
+            }
+            return;
+        }
+
+        if ($action === 'sync_plugin_schemas') {
+            if ($isSandbox) {
+                $error_msg = __a('admin.msg.sandbox_updates_disabled', '⚠️ Schema-Synchronisation ist im Sandbox- / Demo-Modus aus Sicherheitsgründen deaktiviert.');
+                return;
+            }
+            if (class_exists('PluginSchemaManager')) {
+                $results = PluginSchemaManager::ensureAllPluginSchemas($data, false);
+                $okCount = count(array_filter($results, static fn(array $r): bool => !empty($r['success'])));
+                $errList = [];
+                foreach ($results as $pSlug => $r) {
+                    if (empty($r['success']) && !empty($r['errors'])) {
+                        $errList[] = $pSlug . ': ' . implode(', ', (array)$r['errors']);
+                    }
+                }
+                if (empty($errList)) {
+                    $success_msg = __a('admin.plugins.schema_sync_success', '✓ Alle {count} Plugin-Schemas und Datenbanktabellen erfolgreich geprüft & aktualisiert.', null, ['count' => $okCount]);
+                } else {
+                    $error_msg = __a('admin.plugins.schema_sync_error', 'Schema-Prüfung mit Hinweisen ({ok} OK): {errors}', null, ['ok' => $okCount, 'errors' => htmlspecialchars(implode(' | ', $errList))]);
+                }
+            } else {
+                $error_msg = 'PluginSchemaManager nicht verfügbar.';
             }
             return;
         }

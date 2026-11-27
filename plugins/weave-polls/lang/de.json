@@ -1,0 +1,19 @@
+{
+    "polls.nav_label": "Umfragen",
+    "polls.default_title": "Aktuelle Umfragen",
+    "polls.default_subtitle": "Nimm an unseren laufenden Umfragen teil und entdecke die Ergebnisse.",
+    "polls.status_closed": "Umfrage beendet",
+    "polls.runs_until": "Läuft bis {date}",
+    "polls.multi_hint": "Mehrfachauswahl möglich (max. {max}).",
+    "polls.vote_btn": "Abstimmen",
+    "polls.results_heading": "Ergebnis",
+    "polls.results_summary": "{voters} Teilnehmer · {votes} Stimmen",
+    "polls.thank_you_after_end": "Vielen Dank für deine Teilnahme! Die Ergebnisse werden nach Ablauf dieser Umfrage veröffentlicht.",
+    "polls.js_max_choices": "Maximal {max} Auswahlmöglichkeit(en) erlaubt.",
+    "polls.js_select_option": "Bitte wähle mindestens eine Option aus.",
+    "polls.err_not_found": "Umfrage nicht gefunden.",
+    "polls.err_closed": "Diese Umfrage ist bereits beendet.",
+    "polls.err_login_required": "Für diese Umfrage ist eine Anmeldung erforderlich.",
+    "polls.err_already_voted": "Du hast an dieser Umfrage bereits teilgenommen.",
+    "polls.msg_vote_recorded": "Deine Stimme wurde erfolgreich gezählt!"
+}

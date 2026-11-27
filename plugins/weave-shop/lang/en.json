@@ -1,0 +1,23 @@
+{
+    "shop.nav_label": "Shop",
+    "shop.badge": "Online Shop",
+    "shop.secure_payment": "Secure payment:",
+    "shop.pay_credit_card": "💳 Credit Card (Visa, Mastercard)",
+    "shop.pay_bank_transfer": "🏦 Bank Transfer / Prepayment",
+    "shop.cat_all": "All",
+    "shop.empty_title": "No products currently available",
+    "shop.empty_sub": "Check back soon!",
+    "shop.sold_out": "Sold out",
+    "shop.in_stock": "In stock",
+    "shop.only_left": "Only {count} left",
+    "shop.tax_exempt": "Tax-exempt under § 19 UStG",
+    "shop.tax_incl": "incl. {rate}% VAT",
+    "shop.buy_btn": "Buy",
+    "shop.sold_btn": "Gone",
+    "shop.cart_title": "Your Shopping Cart",
+    "shop.cart_empty": "Your cart is currently empty.",
+    "shop.cart_total": "Total",
+    "shop.checkout_btn": "Checkout",
+    "shop.order_submit": "Place Binding Order",
+    "shop.invoice_title": "Invoice"
+}

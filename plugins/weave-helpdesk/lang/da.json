@@ -1,0 +1,9 @@
+{
+    "helpdesk.nav_label": "Support",
+    "helpdesk.portal_title": "Helpdesk og sager",
+    "helpdesk.new_ticket": "Opret ny sag",
+    "helpdesk.status_open": "Åben",
+    "helpdesk.status_in_progress": "I gang",
+    "helpdesk.status_done": "Løst",
+    "helpdesk.login_title": "Helpdesk login"
+}

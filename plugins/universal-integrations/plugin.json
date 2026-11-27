@@ -8,5 +8,12 @@
     "icon": "hub",
     "entry_file": "plugin.php",
     "requires_core": ">=0.4.0",
-    "settings_tab": "universal-integrations"
+    "settings_tab": "universal-integrations",
+    "storage": {
+        "mode": "plugin_data",
+        "schema_version": "1.0.0",
+        "plugin_data_keys": {
+            "universal_integrations": "data/integrations.json"
+        }
+    }
 }

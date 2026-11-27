@@ -32,7 +32,7 @@ $notifyEmail = $config['notify_email'] ?? '';
                 <span class="material-icons" style="font-size: 28px;">warehouse</span>
             </div>
             <div>
-                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800;">📦 Lager- &amp; Artikelverwaltung</h3>
+                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800;">📦 <?php echo htmlspecialchars(function_exists('__a') ? __a('admin.inventory.title', 'Lager- & Artikelverwaltung') : 'Lager- & Artikelverwaltung'); ?></h3>
                 <p style="margin: 2px 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">
                     Bestände, Lagerplätze, Einkaufspreise, Margen &amp; Audit-Trail – synchronisiert mit dem Shop.
                 </p>

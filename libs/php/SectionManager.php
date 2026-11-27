@@ -541,8 +541,14 @@ class SectionManager {
         if (class_exists('LanguageManager')) {
             $curLang = LanguageManager::detectLanguage($data);
             $primaryLang = LanguageManager::getPrimaryLanguage($data);
-            if ($curLang !== $primaryLang) {
-                foreach ($visible as &$sec) {
+            foreach ($visible as &$sec) {
+                if (!empty($sec['title_key'])) {
+                    $sec['title'] = LanguageManager::t((string)$sec['title_key'], (string)($sec['title'] ?? ''), $curLang, $data);
+                }
+                if (!empty($sec['nav_label_key'])) {
+                    $sec['nav_label'] = LanguageManager::t((string)$sec['nav_label_key'], (string)($sec['nav_label'] ?? ''), $curLang, $data);
+                }
+                if ($curLang !== $primaryLang) {
                     if (!empty($sec['translations'][$curLang]['title'])) {
                         $sec['title'] = $sec['translations'][$curLang]['title'];
                     } elseif (!empty($data['texts_i18n'][$curLang][$sec['id'] . '_title'])) {
@@ -552,8 +558,8 @@ class SectionManager {
                         $sec['nav_label'] = $sec['translations'][$curLang]['nav_label'];
                     }
                 }
-                unset($sec);
             }
+            unset($sec);
         }
 
         return $visible;
@@ -696,6 +702,12 @@ class SectionManager {
         foreach ($items as &$item) {
             if (!empty($item['is_custom_page'])) {
                 continue;
+            }
+            if (!empty($item['nav_label_key'])) {
+                $item['nav_label'] = LanguageManager::t((string)$item['nav_label_key'], (string)($item['nav_label'] ?? ''), $curLang, $data);
+            }
+            if (!empty($item['title_key'])) {
+                $item['title'] = LanguageManager::t((string)$item['title_key'], (string)($item['title'] ?? ''), $curLang, $data);
             }
             if ($curLang !== $primaryLang) {
                 if (!empty($item['translations'][$curLang]['nav_label'])) {

@@ -289,6 +289,91 @@ class ForumUserManager {
     }
 
     /**
+     * Stellt die Forum-Benutzertabelle (inkl. neuer Spalten) und PN-Tabelle idempotent sicher (Phase 42).
+     */
+    public static function ensureSchema(?PDO $pdo = null): array {
+        if ($pdo !== null) {
+            $drv = (string)$pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+            if ($drv === 'sqlite') {
+                $pdo->exec("
+                    CREATE TABLE IF NOT EXISTS weave_forum_users (
+                        id TEXT PRIMARY KEY,
+                        username TEXT UNIQUE NOT NULL,
+                        email TEXT UNIQUE NOT NULL,
+                        password_hash TEXT NOT NULL,
+                        role TEXT NOT NULL DEFAULT 'forum_user',
+                        status TEXT NOT NULL DEFAULT 'active',
+                        avatar TEXT DEFAULT '',
+                        signature TEXT DEFAULT '',
+                        bio TEXT DEFAULT '',
+                        created_at TEXT NOT NULL,
+                        last_login TEXT DEFAULT '',
+                        post_count INTEGER DEFAULT 0,
+                        topic_count INTEGER DEFAULT 0,
+                        banned_until TEXT DEFAULT NULL,
+                        ban_reason TEXT DEFAULT '',
+                        notification_email INTEGER DEFAULT 1,
+                        alias TEXT DEFAULT '',
+                        use_alias_only INTEGER DEFAULT 0,
+                        privacy_settings TEXT,
+                        verification_token TEXT DEFAULT ''
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_fusers_username ON weave_forum_users(username);
+                    CREATE INDEX IF NOT EXISTS idx_fusers_email ON weave_forum_users(email);
+                ");
+                self::ensureSchemaColumns($pdo, 'sqlite');
+            } else {
+                $pdo->exec("
+                    CREATE TABLE IF NOT EXISTS weave_forum_users (
+                        id VARCHAR(64) PRIMARY KEY,
+                        username VARCHAR(64) UNIQUE NOT NULL,
+                        email VARCHAR(191) UNIQUE NOT NULL,
+                        password_hash VARCHAR(255) NOT NULL,
+                        role VARCHAR(32) NOT NULL DEFAULT 'forum_user',
+                        status VARCHAR(32) NOT NULL DEFAULT 'active',
+                        avatar VARCHAR(255) DEFAULT '',
+                        signature TEXT,
+                        bio TEXT,
+                        created_at VARCHAR(32) NOT NULL,
+                        last_login VARCHAR(32) DEFAULT '',
+                        post_count INT DEFAULT 0,
+                        topic_count INT DEFAULT 0,
+                        banned_until VARCHAR(32) DEFAULT NULL,
+                        ban_reason TEXT,
+                        notification_email TINYINT(1) DEFAULT 1,
+                        alias VARCHAR(64) DEFAULT '',
+                        use_alias_only TINYINT(1) DEFAULT 0,
+                        privacy_settings TEXT,
+                        verification_token VARCHAR(128) DEFAULT ''
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                ");
+                self::ensureSchemaColumns($pdo, 'mysql');
+            }
+            if (class_exists('ForumMessageManager') && method_exists('ForumMessageManager', 'ensureSchema')) {
+                ForumMessageManager::ensureSchema($pdo);
+            }
+            return ['success' => true, 'driver' => $drv];
+        }
+
+        $driver = self::getStorageDriver();
+        if ($driver === 'mysql') {
+            self::getMysqlPdo();
+            if (class_exists('ForumMessageManager') && method_exists('ForumMessageManager', 'ensureSchema')) {
+                ForumMessageManager::ensureSchema();
+            }
+            return ['success' => true, 'driver' => 'mysql'];
+        }
+        if ($driver === 'sqlite') {
+            self::getSqlitePdo();
+            if (class_exists('ForumMessageManager') && method_exists('ForumMessageManager', 'ensureSchema')) {
+                ForumMessageManager::ensureSchema();
+            }
+            return ['success' => true, 'driver' => 'sqlite'];
+        }
+        return ['success' => true, 'driver' => 'json'];
+    }
+
+    /**
      * Normalisiert ein Benutzer-Array (Typen, Alias, Privacy-Settings).
      */
     public static function normalizeUser(array $u): array {

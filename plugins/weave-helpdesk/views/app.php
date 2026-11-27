@@ -44,7 +44,7 @@ unset($_SESSION['hd_app_error'], $_SESSION['hd_app_success']);
         <!-- Tab 2: Neue Aufgabe -->
         <?php if ($view === 'create'): ?>
             <a href="?page=helpdesk&view=create" class="hd-tab-link active">
-                <span>➕ Neue Aufgabe</span>
+                <span>➕ <?= htmlspecialchars(function_exists('__') ? __('helpdesk.new_ticket', 'Neue Aufgabe') : 'Neue Aufgabe') ?></span>
                 <span class="hd-tab-close" onclick="location.href='?page=helpdesk'; return false;">&times;</span>
             </a>
         <?php endif; ?>

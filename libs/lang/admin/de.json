@@ -1588,5 +1588,19 @@
     "admin.fleamarket.tab_categories": "Kategorien",
     "admin.fleamarket.tab_inquiries": "Anfragen & Meldungen",
     "admin.fleamarket.tab_stands": "Vor-Ort-Stände",
-    "admin.fleamarket.tab_settings": "Einstellungen & Menü"
+    "admin.fleamarket.tab_settings": "Einstellungen & Menü",
+    "admin.plugins.schema_title": "Datenbank-, Tabellen- & Schema-Status (Offizielle & 3rd-Party-Plugins)",
+    "admin.plugins.schema_desc": "Alle Plugin-Tabellen und JSON-Datenstrukturen bleiben beim Deaktivieren strikt erhalten (kein Datenverlust). Bei Erstinstallation, Datenbank-Migration, Aktivierung oder Update werden Schemas automatisch geprüft und aktualisiert.",
+    "admin.plugins.schema_sync_btn": "Plugin-Schemas prüfen & aktualisieren",
+    "admin.plugins.schema_col_plugin": "Plugin",
+    "admin.plugins.schema_col_mode": "Speichermodus",
+    "admin.plugins.schema_col_version": "Schema-Stand",
+    "admin.plugins.schema_col_status": "Status",
+    "admin.plugins.schema_status_current": "Aktuell",
+    "admin.plugins.schema_status_migrate": "Update erforderlich",
+    "admin.plugins.schema_status_missing": "Tabellen fehlen",
+    "admin.plugins.schema_status_uninit": "Noch nicht initialisiert",
+    "admin.plugins.schema_preserve_note": "Datenerhaltungs-Garantie: Beim Deaktivieren werden keine Tabellen gelöscht (DROP TABLE verboten).",
+    "admin.plugins.schema_sync_success": "✓ Alle {count} Plugin-Schemas und Datenbanktabellen erfolgreich geprüft & aktualisiert.",
+    "admin.plugins.schema_sync_error": "Schema-Prüfung mit Hinweisen ({ok} OK): {errors}"
 }

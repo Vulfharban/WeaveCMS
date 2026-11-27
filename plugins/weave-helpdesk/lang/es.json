@@ -1,0 +1,9 @@
+{
+    "helpdesk.nav_label": "Soporte",
+    "helpdesk.portal_title": "Mesa de ayuda y tickets",
+    "helpdesk.new_ticket": "Crear nuevo ticket",
+    "helpdesk.status_open": "Abierto",
+    "helpdesk.status_in_progress": "En progreso",
+    "helpdesk.status_done": "Resuelto",
+    "helpdesk.login_title": "Acceso Helpdesk"
+}

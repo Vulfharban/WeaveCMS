@@ -42,6 +42,12 @@ class LanguageManager {
     protected static array $adminTranslationCache = [];
 
     /**
+     * Optional explizit registrierte Sprachverzeichnisse von Plugins [slug => dir].
+     * @var array<string, string>
+     */
+    protected static array $pluginLangDirs = [];
+
+    /**
      * Vollständiger Katalog aller 12 unterstützten Sprachen (West- & Südeuropa + Skandinavien).
      *
      * @return array<string, array{name: string, native: string, locale: string, region: string, flag: string}>
@@ -379,67 +385,168 @@ class LanguageManager {
     }
 
     /**
-     * Lädt die Übersetzungs-JSON-Datei für eine bestimmte Sprache.
+     * Registriert ein Plugin-eigenes Sprachverzeichnis für Frontend & Admin (Phase 41).
+     * Nützlich für 3rd-Party-Plugins mit abweichender Verzeichnisstruktur.
+     *
+     * @param string $slug
+     * @param string $langDir Absoluter Pfad zum lang/-Ordner des Plugins
+     * @return void
+     */
+    public static function registerPluginLangDir(string $slug, string $langDir): void {
+        $cleanSlug = preg_replace('/[^a-z0-9_-]/', '', strtolower(trim($slug)));
+        $cleanDir = rtrim(str_replace('\\', '/', trim($langDir)), '/');
+        if ($cleanSlug !== '' && $cleanDir !== '' && is_dir($cleanDir)) {
+            self::$pluginLangDirs[$cleanSlug] = $cleanDir;
+            self::clearTranslationCache();
+        }
+    }
+
+    /**
+     * Leert den gesamten Übersetzungscache (z. B. nach Plugin-Aktivierung oder Sprach-Sync).
+     */
+    public static function clearTranslationCache(): void {
+        self::$translationCache = [];
+        self::$adminTranslationCache = [];
+        self::$detectedLang = null;
+        self::$detectedAdminLang = null;
+    }
+
+    /**
+     * Parst eine einzelne JSON-Sprachdatei (inkl. BOM-Schutz).
+     * @param string $filePath
+     * @return array
+     */
+    protected static function parseJsonLangFile(string $filePath): array {
+        if (!is_file($filePath)) {
+            return [];
+        }
+        $content = @file_get_contents($filePath);
+        if ($content === false) {
+            return [];
+        }
+        if (str_starts_with($content, "\xEF\xBB\xBF")) {
+            $content = substr($content, 3);
+        }
+        $parsed = json_decode((string)$content, true);
+        return is_array($parsed) ? $parsed : [];
+    }
+
+    /**
+     * Lädt die Übersetzungs-JSON-Datei für eine bestimmte Sprache inklusive aller Plugin-Sprachkataloge.
      *
      * @param string $langCode
      * @return array Assoziatives Array mit Übersetzungsschlüsseln
      */
     public static function loadTranslationFile(string $langCode): array {
+        $langCode = preg_replace('/[^a-z0-9_-]/', '', strtolower(trim($langCode)));
+        if ($langCode === '') {
+            return [];
+        }
         if (isset(self::$translationCache[$langCode])) {
             return self::$translationCache[$langCode];
         }
 
-        $filePath = dirname(__DIR__, 2) . '/libs/lang/' . $langCode . '.json';
-        if (file_exists($filePath)) {
-            $content = file_get_contents($filePath);
-            $content = preg_replace('/^\xEF\xBB\xBF/', '', (string)$content);
-            $parsed = json_decode((string)$content, true);
-            if (is_array($parsed)) {
-                self::$translationCache[$langCode] = $parsed;
-                return $parsed;
+        $root = dirname(__DIR__, 2);
+        $merged = [];
+
+        // 1. Alle Plugin-Frontend-Sprachdateien automatisch einlesen (plugins/*/lang/{code}.json)
+        $pluginFiles = glob($root . '/plugins/*/lang/' . $langCode . '.json') ?: [];
+        sort($pluginFiles, SORT_STRING);
+        foreach ($pluginFiles as $pFile) {
+            $parsed = self::parseJsonLangFile($pFile);
+            if (!empty($parsed)) {
+                $merged = array_merge($merged, $parsed);
             }
         }
 
-        self::$translationCache[$langCode] = [];
-        return [];
+        // 2. Explizit registrierte Plugin-Sprachverzeichnisse berücksichtigen (z. B. 3rd-Party/Tests)
+        foreach (self::$pluginLangDirs as $pDir) {
+            $customFile = $pDir . '/' . $langCode . '.json';
+            if (file_exists($customFile)) {
+                $parsed = self::parseJsonLangFile($customFile);
+                if (!empty($parsed)) {
+                    $merged = array_merge($merged, $parsed);
+                }
+            }
+        }
+
+        // 3. Core-Katalog mit höchster Priorität laden
+        $coreFile = $root . '/libs/lang/' . $langCode . '.json';
+        $coreCatalog = self::parseJsonLangFile($coreFile);
+        if (!empty($coreCatalog)) {
+            $merged = array_merge($merged, $coreCatalog);
+        }
+
+        self::$translationCache[$langCode] = $merged;
+        return $merged;
+    }
+
+    /**
+     * Ersetzt benannte Platzhalter ({key}) in einem Übersetzungstext.
+     */
+    protected static function interpolateParams(string $text, array $params): string {
+        if (empty($params)) {
+            return $text;
+        }
+        foreach ($params as $pKey => $pVal) {
+            $text = str_replace('{' . $pKey . '}', (string)$pVal, $text);
+        }
+        return $text;
     }
 
     /**
      * Übersetzt einen System-Textbaustein anhand seines Schlüssels.
-     * Sucht zuerst in der Zielsprache, dann in der Hauptsprache, danach im Standard-Fallback.
+     * Fallback-Kaskade: Zielsprache -> Englisch ('en') -> Primärsprache -> Default -> Key.
      *
-     * @param string $key Übersetzungsschlüssel (z. B. 'nav.contact')
+     * @param string $key Übersetzungsschlüssel (z. B. 'nav.contact', 'fleamarket.search_btn')
      * @param string $default Fallback-Text, falls kein Eintrag existiert
      * @param string|null $langCode Zielsprache (null = automatisch ermitteln)
      * @param array|null $data
+     * @param array $params Benannte Platzhalter ['count' => 5] für '{count}'
      * @return string
      */
-    public static function t(string $key, string $default = '', ?string $langCode = null, ?array $data = null): string {
+    public static function t(string $key, string $default = '', ?string $langCode = null, ?array $data = null, array $params = []): string {
         if (str_starts_with($key, 'admin.')) {
-            return self::adminT($key, $default, $langCode);
+            return self::adminT($key, $default, $langCode, $params);
         }
 
         if ($langCode === null) {
             $langCode = self::detectLanguage($data);
         }
 
+        $translation = null;
+
         // 1. Zielsprache abfragen
         $trans = self::loadTranslationFile($langCode);
         if (isset($trans[$key]) && is_string($trans[$key]) && trim($trans[$key]) !== '') {
-            return $trans[$key];
+            $translation = $trans[$key];
         }
 
-        // 2. Primärsprache abfragen, falls Zielsprache fremd ist
-        $primary = self::getPrimaryLanguage($data);
-        if ($langCode !== $primary) {
-            $primaryTrans = self::loadTranslationFile($primary);
-            if (isset($primaryTrans[$key]) && is_string($primaryTrans[$key]) && trim($primaryTrans[$key]) !== '') {
-                return $primaryTrans[$key];
+        // 2. Fallback auf Englisch ('en'), falls Zielsprache nicht Englisch ist
+        if ($translation === null && $langCode !== 'en') {
+            $enTrans = self::loadTranslationFile('en');
+            if (isset($enTrans[$key]) && is_string($enTrans[$key]) && trim($enTrans[$key]) !== '') {
+                $translation = $enTrans[$key];
             }
         }
 
-        // 3. Fallback auf Default oder Key
-        return ($default !== '') ? $default : $key;
+        // 3. Fallback auf Primärsprache des Systems
+        if ($translation === null) {
+            $primary = self::getPrimaryLanguage($data);
+            if ($primary !== $langCode && $primary !== 'en') {
+                $primaryTrans = self::loadTranslationFile($primary);
+                if (isset($primaryTrans[$key]) && is_string($primaryTrans[$key]) && trim($primaryTrans[$key]) !== '') {
+                    $translation = $primaryTrans[$key];
+                }
+            }
+        }
+
+        // 4. Fallback auf Default oder Key
+        if ($translation === null) {
+            $translation = ($default !== '') ? $default : $key;
+        }
+
+        return self::interpolateParams($translation, $params);
     }
 
     /**
@@ -763,29 +870,53 @@ class LanguageManager {
     }
 
     /**
-     * Lädt die Übersetzungs-JSON-Datei für das Backend.
+     * Lädt die Übersetzungs-JSON-Datei für das Backend inklusive aller Plugin-Admin-Kataloge.
      *
      * @param string $langCode
      * @return array
      */
     public static function loadAdminTranslationFile(string $langCode): array {
+        $langCode = preg_replace('/[^a-z0-9_-]/', '', strtolower(trim($langCode)));
+        if ($langCode === '') {
+            return [];
+        }
         if (isset(self::$adminTranslationCache[$langCode])) {
             return self::$adminTranslationCache[$langCode];
         }
 
-        $filePath = dirname(__DIR__, 2) . '/libs/lang/admin/' . $langCode . '.json';
-        if (file_exists($filePath)) {
-            $content = @file_get_contents($filePath);
-            $content = preg_replace('/^\xEF\xBB\xBF/', '', (string)$content);
-            $parsed = json_decode((string)$content, true);
-            if (is_array($parsed)) {
-                self::$adminTranslationCache[$langCode] = $parsed;
-                return $parsed;
+        $root = dirname(__DIR__, 2);
+        $merged = [];
+
+        // 1. Plugin-Admin-Kataloge (plugins/*/lang/admin/{code}.json)
+        $pluginFiles = glob($root . '/plugins/*/lang/admin/' . $langCode . '.json') ?: [];
+        sort($pluginFiles, SORT_STRING);
+        foreach ($pluginFiles as $pFile) {
+            $parsed = self::parseJsonLangFile($pFile);
+            if (!empty($parsed)) {
+                $merged = array_merge($merged, $parsed);
             }
         }
 
-        self::$adminTranslationCache[$langCode] = [];
-        return [];
+        // 2. Registrierte 3rd-Party-Plugin-Verzeichnisse
+        foreach (self::$pluginLangDirs as $pDir) {
+            $customAdminFile = $pDir . '/admin/' . $langCode . '.json';
+            if (file_exists($customAdminFile)) {
+                $parsed = self::parseJsonLangFile($customAdminFile);
+                if (!empty($parsed)) {
+                    $merged = array_merge($merged, $parsed);
+                }
+            }
+        }
+
+        // 3. Core-Admin-Katalog mit höchster Priorität laden
+        $coreFile = $root . '/libs/lang/admin/' . $langCode . '.json';
+        $coreCatalog = self::parseJsonLangFile($coreFile);
+        if (!empty($coreCatalog)) {
+            $merged = array_merge($merged, $coreCatalog);
+        }
+
+        self::$adminTranslationCache[$langCode] = $merged;
+        return $merged;
     }
 
     /**

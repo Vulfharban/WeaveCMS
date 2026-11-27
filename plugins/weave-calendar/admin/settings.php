@@ -68,7 +68,7 @@ $rangeEvents = CalendarManager::expandEventsForRange($rangeStart, $rangeEnd, ['i
                 <span class="material-icons" style="font-size: 28px; color: #fff;">calendar_month</span>
             </div>
             <div>
-                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #fff;">Weave Calendar – Terminplaner &amp; Team-Kalender</h3>
+                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #fff;"><?php echo htmlspecialchars(function_exists('__a') ? __a('admin.calendar.title', 'Weave Calendar – Terminplaner & Team-Kalender') : 'Weave Calendar – Terminplaner & Team-Kalender'); ?></h3>
                 <p style="margin: 4px 0 0 0; opacity: 0.92; font-size: 0.87rem;">
                     Mitarbeiter-Ressourcenplanung, Serientermine (RRULE), Konfliktprüfung, E-Mail-Erinnerungen (.ics) &amp; Cloud-Sync (Google, Microsoft, iCloud/CalDAV).
                 </p>

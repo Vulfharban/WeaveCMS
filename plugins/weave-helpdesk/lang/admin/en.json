@@ -1,0 +1,7 @@
+{
+    "admin.helpdesk.title": "Weave Helpdesk – Support & Tickets",
+    "admin.helpdesk.tab_settings": "Service Provider & Email/IMAP",
+    "admin.helpdesk.tab_alerts": "Critical Instant Alerts",
+    "admin.helpdesk.tab_users": "Customers & Agents",
+    "admin.helpdesk.test_alert": "Trigger Test Alert"
+}

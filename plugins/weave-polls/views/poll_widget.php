@@ -56,6 +56,10 @@ if (!function_exists('weave_polls_render_single_poll')) {
             unset($_SESSION['weave_poll_flash'][$pollId]);
         }
 
+        $t = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+            ? __($key, $default, null, $params)
+            : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
+
         $activeOptions = array_values(array_filter(
             $poll['options'] ?? [],
             static fn(array $o): bool => !empty($o['active'])
@@ -74,11 +78,11 @@ if (!function_exists('weave_polls_render_single_poll')) {
                 </h3>
                 <?php if ($isClosed): ?>
                     <span style="font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:999px; background:rgba(100,116,139,0.15); color:#475569;">
-                        Umfrage beendet<?php echo $endsAtStr !== '' ? ' · ' . htmlspecialchars($endsAtStr) : ''; ?>
+                        <?php echo htmlspecialchars($t('polls.status_closed', 'Umfrage beendet'), ENT_QUOTES, 'UTF-8'); ?><?php echo $endsAtStr !== '' ? ' · ' . htmlspecialchars($endsAtStr) : ''; ?>
                     </span>
                 <?php elseif ($endsAtStr !== ''): ?>
                     <span style="font-size:0.75rem; font-weight:600; padding:3px 10px; border-radius:999px; background:rgba(16,185,129,0.12); color:#059669;">
-                        Läuft bis <?php echo htmlspecialchars($endsAtStr); ?>
+                        <?php echo htmlspecialchars($t('polls.runs_until', 'Läuft bis {date}', ['date' => $endsAtStr]), ENT_QUOTES, 'UTF-8'); ?>
                     </span>
                 <?php endif; ?>
             </div>
@@ -108,7 +112,7 @@ if (!function_exists('weave_polls_render_single_poll')) {
 
                     <?php if ($choiceMode === 'multiple'): ?>
                         <div style="font-size:0.8rem; color:var(--text-secondary, #6b7280); margin-bottom:0.6rem;">
-                            Mehrfachauswahl möglich (max. <?php echo (int)$maxChoices; ?> Option<?php echo $maxChoices > 1 ? 'en' : ''; ?>).
+                            <?php echo htmlspecialchars($t('polls.multi_hint', 'Mehrfachauswahl möglich (max. {max}).', ['max' => $maxChoices]), ENT_QUOTES, 'UTF-8'); ?>
                         </div>
                     <?php endif; ?>
 
@@ -137,7 +141,7 @@ if (!function_exists('weave_polls_render_single_poll')) {
                     </div>
 
                     <button type="submit" class="btn btn-primary" style="padding:8px 18px; font-size:0.9rem; display:inline-flex; align-items:center; gap:6px;">
-                        <span class="material-icons" style="font-size:17px;">how_to_vote</span> Abstimmen
+                        <span class="material-icons" style="font-size:17px;">how_to_vote</span> <?php echo htmlspecialchars($t('polls.vote_btn', 'Abstimmen'), ENT_QUOTES, 'UTF-8'); ?>
                     </button>
                 </form>
             <?php elseif (!$isClosed && !$hasVoted): ?>
@@ -149,8 +153,8 @@ if (!function_exists('weave_polls_render_single_poll')) {
             <?php if ($showResults): ?>
                 <div class="weave-poll-results" style="<?php echo $voteCheck['allowed'] ? 'margin-top:1.15rem; padding-top:1rem; border-top:1px solid var(--border-color, rgba(0,0,0,0.08));' : ''; ?>">
                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-secondary, #6b7280); margin-bottom:0.7rem;">
-                        <strong>Ergebnis</strong>
-                        <span><?php echo (int)$results['total_voters']; ?> Teilnehmer · <?php echo (int)$results['total_votes']; ?> Stimmen</span>
+                        <strong><?php echo htmlspecialchars($t('polls.results_heading', 'Ergebnis'), ENT_QUOTES, 'UTF-8'); ?></strong>
+                        <span><?php echo htmlspecialchars($t('polls.results_summary', '{voters} Teilnehmer · {votes} Stimmen', ['voters' => (int)$results['total_voters'], 'votes' => (int)$results['total_votes']]), ENT_QUOTES, 'UTF-8'); ?></span>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:10px;">
                         <?php foreach ($results['options'] as $r): ?>
@@ -169,7 +173,7 @@ if (!function_exists('weave_polls_render_single_poll')) {
                 </div>
             <?php elseif ($hasVoted && !$isClosed): ?>
                 <div style="padding:10px 12px; border-radius:8px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); color:#065f46; font-size:0.88rem;">
-                    Vielen Dank für deine Teilnahme! Die Ergebnisse werden nach Ablauf dieser Umfrage veröffentlicht.
+                    <?php echo htmlspecialchars($t('polls.thank_you_after_end', 'Vielen Dank für deine Teilnahme! Die Ergebnisse werden nach Ablauf dieser Umfrage veröffentlicht.'), ENT_QUOTES, 'UTF-8'); ?>
                 </div>
             <?php endif; ?>
         </div>

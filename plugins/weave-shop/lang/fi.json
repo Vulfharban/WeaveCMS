@@ -1,0 +1,23 @@
+{
+    "shop.nav_label": "Kauppa",
+    "shop.badge": "Verkkokauppa",
+    "shop.secure_payment": "Turvallinen maksu:",
+    "shop.pay_credit_card": "💳 Luottokortti (Visa, Mastercard)",
+    "shop.pay_bank_transfer": "🏦 Tilisiirto",
+    "shop.cat_all": "Kaikki",
+    "shop.empty_title": "Tuotteita ei ole tällä hetkellä saatavilla",
+    "shop.empty_sub": "Tarkista pian uudelleen!",
+    "shop.sold_out": "Loppuunmyyty",
+    "shop.in_stock": "Varastossa",
+    "shop.only_left": "Vain {count} jäljellä",
+    "shop.tax_exempt": "Veroton (§ 19 UStG)",
+    "shop.tax_incl": "sis. ALV {rate} %",
+    "shop.buy_btn": "Osta",
+    "shop.sold_btn": "Loppu",
+    "shop.cart_title": "Ostoskorisi",
+    "shop.cart_empty": "Ostoskorisi on tyhjä.",
+    "shop.cart_total": "Yhteensä",
+    "shop.checkout_btn": "Kassalle",
+    "shop.order_submit": "Lähetä tilaus",
+    "shop.invoice_title": "Lasku"
+}

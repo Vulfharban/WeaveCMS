@@ -75,11 +75,11 @@ $maxUploads = defined('SandboxManager::MAX_UPLOADS') ? SandboxManager::MAX_UPLOA
         </a>
 
         <a href="<?php echo htmlspecialchars($resetUrl); ?>" onclick="return confirm('Möchtest du wirklich alle Demo-Änderungen verwerfen und auf den Ursprungszustand zurücksetzen?');" style="display: inline-flex; align-items: center; gap: 5px; background: #eab308; color: #713f12; text-decoration: none; padding: 5px 12px; border-radius: 6px; font-weight: 600; font-size: 0.82rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-            <span class="material-icons" style="font-size: 15px;">restart_alt</span> Demo zurücksetzen
+            <span class="material-icons" style="font-size: 15px;">restart_alt</span> <?php echo htmlspecialchars(function_exists('__') ? __('sandbox.reset_btn', 'Demo zurücksetzen') : 'Demo zurücksetzen'); ?>
         </a>
 
         <a href="<?php echo htmlspecialchars($stopUrl); ?>" onclick="return confirm('Demo-Modus jetzt beenden, alle temporären Daten löschen und zur normalen Website zurückkehren?');" style="display: inline-flex; align-items: center; gap: 5px; background: #ef4444; color: #ffffff; text-decoration: none; padding: 5px 12px; border-radius: 6px; font-weight: 600; font-size: 0.82rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-            <span class="material-icons" style="font-size: 15px;">close</span> Demo beenden
+            <span class="material-icons" style="font-size: 15px;">close</span> <?php echo htmlspecialchars(function_exists('__') ? __('sandbox.exit_btn', 'Demo beenden') : 'Demo beenden'); ?>
         </a>
     </div>
 </div>

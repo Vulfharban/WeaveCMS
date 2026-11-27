@@ -1,0 +1,23 @@
+{
+    "shop.nav_label": "Κατάστημα",
+    "shop.badge": "Ηλεκτρονικό Κατάστημα",
+    "shop.secure_payment": "Ασφαλής πληρωμή:",
+    "shop.pay_credit_card": "💳 Πιστωτική κάρτα (Visa, Mastercard)",
+    "shop.pay_bank_transfer": "🏦 Τραπεζική μεταφορά",
+    "shop.cat_all": "Όλα",
+    "shop.empty_title": "Δεν υπάρχουν διαθέσιμα προϊόντα αυτήν τη στιγμή",
+    "shop.empty_sub": "Επισκεφτείτε μας ξανά σύντομα!",
+    "shop.sold_out": "Εξαντλήθηκε",
+    "shop.in_stock": "Άμεσα διαθέσιμο",
+    "shop.only_left": "Απομένουν μόνο {count}",
+    "shop.tax_exempt": "Απαλλαγή ΦΠΑ (§ 19 UStG)",
+    "shop.tax_incl": "συμπ. ΦΠΑ {rate}%",
+    "shop.buy_btn": "Αγορά",
+    "shop.sold_btn": "Εξαντλήθηκε",
+    "shop.cart_title": "Το καλάθι σας",
+    "shop.cart_empty": "Το καλάθι σας είναι άδειο.",
+    "shop.cart_total": "Σύνολο",
+    "shop.checkout_btn": "Ολοκλήρωση παραγγελίας",
+    "shop.order_submit": "Υποβολή παραγγελίας",
+    "shop.invoice_title": "Τιμολόγιο"
+}

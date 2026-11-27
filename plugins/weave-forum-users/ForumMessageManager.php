@@ -59,6 +59,23 @@ class ForumMessageManager {
         self::$tableReady = true;
     }
 
+    /**
+     * Öffentliche idempotente Schema-Initialisierung für weave_forum_messages (Phase 42).
+     */
+    public static function ensureSchema(?PDO $pdo = null): void {
+        if ($pdo !== null) {
+            $drv = (string)$pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+            self::$tableReady = false;
+            self::ensureTable($pdo, $drv === 'sqlite' ? 'sqlite' : 'mysql');
+            return;
+        }
+        $driver = class_exists('ForumUserManager') ? ForumUserManager::getStorageDriver() : 'json';
+        if (in_array($driver, ['mysql', 'sqlite'], true) && class_exists('ForumUserManager')) {
+            self::$tableReady = false;
+            self::ensureTable(ForumUserManager::getPdo(), $driver);
+        }
+    }
+
     protected static function loadAllJson(): array {
         $file = self::getJsonFilePath();
         if (!file_exists($file)) {

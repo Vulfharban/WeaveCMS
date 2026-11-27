@@ -1,0 +1,9 @@
+{
+    "helpdesk.nav_label": "Tuki",
+    "helpdesk.portal_title": "Tukipalvelu ja tiketti",
+    "helpdesk.new_ticket": "Luo uusi tukipyyntö",
+    "helpdesk.status_open": "Avoin",
+    "helpdesk.status_in_progress": "Käsittelyssä",
+    "helpdesk.status_done": "Ratkaistu",
+    "helpdesk.login_title": "Tukipalvelun kirjautuminen"
+}

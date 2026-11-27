@@ -1,0 +1,6 @@
+{
+    "admin.workshops.title": "Workshops & Course Bookings Active",
+    "admin.workshops.count_info": "Currently {courses} course(s) and {past} impression(s) are configured.",
+    "admin.workshops.manage_courses": "Manage Courses",
+    "admin.workshops.manage_past": "Manage Impressions"
+}

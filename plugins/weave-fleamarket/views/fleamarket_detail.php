@@ -15,6 +15,10 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD') && !class_ex
 if (!function_exists('weave_fleamarket_render_detail')) {
 
     function weave_fleamarket_render_detail(array $item, array $opts = []): string {
+        $t = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+            ? __($key, $default, null, $params)
+            : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
+
         $labels = FleamarketManager::getLabels();
         $cats = FleamarketManager::getCategories();
         $catName = 'Flohmarkt';
@@ -59,7 +63,7 @@ if (!function_exists('weave_fleamarket_render_detail')) {
              style="max-width: 1040px; margin: 1.5rem auto 2.5rem auto;">
             <!-- Breadcrumb -->
             <nav aria-label="Breadcrumb" style="font-size: 0.86rem; color: var(--text-secondary, #64748b); margin-bottom: 1rem; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                <a href="?page=flohmarkt" style="color: var(--primary, #2e6248); font-weight: 600; text-decoration: none;">← Zurück zum Flohmarkt-Katalog</a>
+                <a href="?page=flohmarkt" style="color: var(--primary, #2e6248); font-weight: 600; text-decoration: none;"><?php echo htmlspecialchars($t('fleamarket.back_to_catalog', '← Zurück zum Flohmarkt-Katalog'), ENT_QUOTES, 'UTF-8'); ?></a>
                 <span>/</span>
                 <a href="?page=flohmarkt&fm_cat=<?php echo urlencode((string)($item['category_id'] ?? '')); ?>" style="color: inherit; text-decoration: none;">
                     <?php echo htmlspecialchars($catName, ENT_QUOTES, 'UTF-8'); ?>
@@ -159,7 +163,7 @@ if (!function_exists('weave_fleamarket_render_detail')) {
                             <a href="?page=flohmarkt&item=<?php echo urlencode((string)$item['slug']); ?>&print_tag=1"
                                class="btn btn-outline"
                                style="padding: 6px 12px; font-size: 0.84rem; text-decoration: none;">
-                                🖨️ QR-Preisschild
+                                <?php echo htmlspecialchars($t('fleamarket.qr_tag', '🖨️ QR-Preisschild'), ENT_QUOTES, 'UTF-8'); ?>
                             </a>
                             <button type="button"
                                     class="btn btn-outline wfm-copy-share"
@@ -190,7 +194,7 @@ if (!function_exists('weave_fleamarket_render_detail')) {
                     $csrf = (string)($_SESSION['csrf_token'] ?? '');
                 ?>
                 <div style="margin-top: 1.5rem; padding: 1.15rem 1.25rem; border-radius: 12px; border: 1px solid var(--border-color, rgba(0,0,0,0.1)); background: rgba(148,163,184,0.05);">
-                    <h3 style="margin: 0 0 0.65rem 0; font-size: 1.1rem;">Anbieter kontaktieren / Anfrage senden</h3>
+                    <h3 style="margin: 0 0 0.65rem 0; font-size: 1.1rem;"><?php echo htmlspecialchars($t('fleamarket.contact_seller', 'Anbieter kontaktieren / Anfrage senden'), ENT_QUOTES, 'UTF-8'); ?></h3>
                     <?php if ($inqFlash && !empty($inqFlash['text'])): ?>
                         <div style="margin-bottom: 0.85rem; padding: 9px 12px; border-radius: 8px; font-weight: 600; font-size: 0.88rem; background: <?php echo !empty($inqFlash['ok']) ? '#dcfce7' : '#fef2f2'; ?>; color: <?php echo !empty($inqFlash['ok']) ? '#166534' : '#991b1b'; ?>;">
                             <?php echo htmlspecialchars((string)$inqFlash['text'], ENT_QUOTES, 'UTF-8'); ?>
@@ -218,7 +222,7 @@ if (!function_exists('weave_fleamarket_render_detail')) {
                             </div>
                             <textarea name="message" required rows="3" class="form-control" placeholder="Deine Nachricht an den Anbieter..."></textarea>
                             <div>
-                                <button type="submit" class="btn btn-primary" style="padding: 8px 18px;">Anfrage sicher senden</button>
+                                <button type="submit" class="btn btn-primary" style="padding: 8px 18px;"><?php echo htmlspecialchars($t('fleamarket.send_inquiry', 'Anfrage sicher senden'), ENT_QUOTES, 'UTF-8'); ?></button>
                             </div>
                         </form>
                     <?php endif; ?>
@@ -236,7 +240,7 @@ if (!function_exists('weave_fleamarket_render_detail')) {
                         </div>
                     <?php endif; ?>
                     <details style="border: 1px solid var(--border-color, rgba(0,0,0,0.08)); border-radius: 10px; padding: 0.65rem 1rem;">
-                        <summary style="cursor: pointer; font-size: 0.86rem; font-weight: 600; color: var(--text-secondary, #64748b);">🚩 Anzeige melden</summary>
+                        <summary style="cursor: pointer; font-size: 0.86rem; font-weight: 600; color: var(--text-secondary, #64748b);"><?php echo htmlspecialchars($t('fleamarket.report_item', '🚩 Anzeige melden'), ENT_QUOTES, 'UTF-8'); ?></summary>
                         <form method="POST" action="" style="display: grid; gap: 8px; margin-top: 10px;">
                             <input type="hidden" name="weave_fm_action" value="report_item">
                             <input type="hidden" name="item_id" value="<?php echo htmlspecialchars((string)$item['id'], ENT_QUOTES, 'UTF-8'); ?>">

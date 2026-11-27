@@ -1,0 +1,7 @@
+{
+    "admin.helpdesk.title": "Weave Helpdesk – Support & Tickets",
+    "admin.helpdesk.tab_settings": "Dienstleister & E-Mail/IMAP",
+    "admin.helpdesk.tab_alerts": "Kritische Sofort-Alarmierung",
+    "admin.helpdesk.tab_users": "Kunden & Agenten",
+    "admin.helpdesk.test_alert": "Test-Alarm auslösen"
+}

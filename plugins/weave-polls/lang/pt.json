@@ -1,0 +1,19 @@
+{
+    "polls.nav_label": "Enquetes",
+    "polls.default_title": "Enquetes atuais",
+    "polls.default_subtitle": "Participe das nossas enquetes atuais e descubra os resultados.",
+    "polls.status_closed": "Enquete encerrada",
+    "polls.runs_until": "Aberta até {date}",
+    "polls.multi_hint": "Múltipla escolha permitida (máx. {max}).",
+    "polls.vote_btn": "Votar",
+    "polls.results_heading": "Resultados",
+    "polls.results_summary": "{voters} participantes · {votes} votos",
+    "polls.thank_you_after_end": "Obrigado por participar! Os resultados serão publicados após o encerramento da enquete.",
+    "polls.js_max_choices": "Máximo de {max} opção(ões) permitida(s).",
+    "polls.js_select_option": "Por favor, selecione pelo menos uma opção.",
+    "polls.err_not_found": "Enquete não encontrada.",
+    "polls.err_closed": "Esta enquete já foi encerrada.",
+    "polls.err_login_required": "É necessário fazer login para votar nesta enquete.",
+    "polls.err_already_voted": "Você já votou nesta enquete.",
+    "polls.msg_vote_recorded": "Seu voto foi registrado com sucesso!"
+}

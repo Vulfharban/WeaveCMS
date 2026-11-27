@@ -1,0 +1,6 @@
+{
+    "admin.workshops.title": "Workshops & Kursbuchungen aktiv",
+    "admin.workshops.count_info": "Aktuell sind {courses} Kurs(e) und {past} Impression(en) hinterlegt.",
+    "admin.workshops.manage_courses": "Kurse verwalten",
+    "admin.workshops.manage_past": "Impressionen verwalten"
+}

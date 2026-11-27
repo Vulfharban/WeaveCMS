@@ -52,14 +52,16 @@ PluginManager::addFilter('registered_sections', function($sections, $data) {
     $config = PluginManager::getPluginConfig('webtrees-genealogy', $data);
     $isEnabled = !empty($config['section_enabled']);
     $sections[] = [
-        'id' => 'webtrees',
-        'type' => 'webtrees',
-        'title' => !empty($config['section_title']) ? $config['section_title'] : 'Familienstammbaum & Ahnenforschung',
-        'nav_label' => 'Stammbaum',
-        'visible' => $isEnabled,
-        'in_nav' => true,
-        'plugin' => 'webtrees-genealogy',
-        'can_delete' => false
+        'id'           => 'webtrees',
+        'type'         => 'webtrees',
+        'title'        => !empty($config['section_title']) ? $config['section_title'] : (function_exists('__') ? __('webtrees.default_title', 'Familienstammbaum & Ahnenforschung') : 'Familienstammbaum & Ahnenforschung'),
+        'title_key'    => empty($config['section_title']) ? 'webtrees.default_title' : null,
+        'nav_label'    => function_exists('__') ? __('webtrees.nav_label', 'Stammbaum') : 'Stammbaum',
+        'nav_label_key'=> 'webtrees.nav_label',
+        'visible'      => $isEnabled,
+        'in_nav'       => true,
+        'plugin'       => 'webtrees-genealogy',
+        'can_delete'   => false
     ];
     return $sections;
 });

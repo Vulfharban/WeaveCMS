@@ -1,0 +1,8 @@
+{
+    "admin.forum.title": "Discussion Forum Administration",
+    "admin.forum.tab_boards": "Categories & Boards",
+    "admin.forum.tab_moderation": "Moderation & Reports",
+    "admin.forum.tab_storage": "Database & Migration",
+    "admin.forum.tab_settings": "Forum Settings",
+    "admin.forum.polls_info": "Polls are integrated directly in the topic and reply editor."
+}

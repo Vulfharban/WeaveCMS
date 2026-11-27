@@ -1,0 +1,6 @@
+{
+    "admin.integrations.title": "Universelle Integrationen & Web-Apps",
+    "admin.integrations.add": "Neue Integration anlegen",
+    "admin.integrations.presets": "Vorlagen (Discourse, Wiki, Kalender, Webtrees...)",
+    "admin.integrations.save": "Integration speichern"
+}

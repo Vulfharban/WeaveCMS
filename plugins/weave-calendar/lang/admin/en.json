@@ -1,0 +1,11 @@
+{
+    "admin.calendar.title": "Appointment Planner & Team Calendar",
+    "admin.calendar.tab_team": "Team Overview",
+    "admin.calendar.tab_events": "Events",
+    "admin.calendar.tab_staff": "Staff",
+    "admin.calendar.tab_categories": "Categories",
+    "admin.calendar.tab_sync": "Cloud Sync (Google/Microsoft/Apple)",
+    "admin.calendar.tab_settings": "Settings & Reminders",
+    "admin.calendar.sync_now": "Sync Now",
+    "admin.calendar.save_event": "Save Event"
+}

@@ -79,6 +79,10 @@ if (!function_exists('weave_fleamarket_render_catalog')) {
         $detailUrlFor = static function (string $slug): string {
             return '?page=flohmarkt&item=' . urlencode($slug);
         };
+        $t = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+            ? __($key, $default, null, $params)
+            : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
+
         $curMember = FleamarketManager::getCurrentMember();
         $canSubmit = FleamarketManager::canSubmitFrontend($curMember);
 
@@ -95,7 +99,7 @@ if (!function_exists('weave_fleamarket_render_catalog')) {
                 ?>
                 <div class="card" style="padding: 1.15rem 1.35rem; margin-bottom: 1rem; border-radius: var(--card-radius, 14px); border: 1px solid rgba(180,83,9,0.28); background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(180,83,9,0.05) 100%); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div>
-                        <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #b45309;">🎪 Vor-Ort-Flohmarkt Event</div>
+                        <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #b45309;"><?php echo htmlspecialchars($t('fleamarket.onsite_badge', '🎪 Vor-Ort-Flohmarkt Event'), ENT_QUOTES, 'UTF-8'); ?></div>
                         <h3 style="margin: 2px 0 4px 0; font-size: 1.15rem; color: var(--text-primary, #0f172a);"><?php echo htmlspecialchars((string)($cfg['onsite_event_title'] ?? 'Flohmarkt'), ENT_QUOTES, 'UTF-8'); ?></h3>
                         <div style="font-size: 0.86rem; color: var(--text-secondary, #475569); display: flex; flex-wrap: wrap; gap: 10px;">
                             <span>📅 <?php echo htmlspecialchars($evDate, ENT_QUOTES, 'UTF-8'); ?> (<?php echo htmlspecialchars((string)($cfg['onsite_start_time'] ?? '09:00'), ENT_QUOTES, 'UTF-8'); ?>–<?php echo htmlspecialchars((string)($cfg['onsite_end_time'] ?? '16:00'), ENT_QUOTES, 'UTF-8'); ?> Uhr)</span>
@@ -108,7 +112,7 @@ if (!function_exists('weave_fleamarket_render_catalog')) {
                         <?php if (!empty($cfg['onsite_map_image'])): ?>
                             <a href="<?php echo htmlspecialchars((string)$cfg['onsite_map_image'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.84rem; text-decoration: none;">🗺️ Lageplan</a>
                         <?php endif; ?>
-                        <a href="?page=flohmarkt&view=stands" class="btn btn-primary" style="padding: 7px 14px; font-size: 0.86rem; text-decoration: none;">🎪 Standplatz anmelden</a>
+                        <a href="?page=flohmarkt&view=stands" class="btn btn-primary" style="padding: 7px 14px; font-size: 0.86rem; text-decoration: none;"><?php echo htmlspecialchars($t('fleamarket.register_stand', '🎪 Standplatz anmelden'), ENT_QUOTES, 'UTF-8'); ?></a>
                     </div>
                 </div>
             <?php endif; ?>
@@ -116,13 +120,13 @@ if (!function_exists('weave_fleamarket_render_catalog')) {
             <!-- Aktions-Leiste: Merkliste ♥ & Anzeige aufgeben -->
             <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 0.75rem;">
                 <button type="button" class="btn btn-outline wfm-watchlist-filter" style="padding: 6px 12px; font-size: 0.85rem;">
-                    ♥ Merkliste (<span class="wfm-watchlist-count">0</span>)
+                    <?php echo htmlspecialchars($t('fleamarket.watchlist', '♥ Merkliste'), ENT_QUOTES, 'UTF-8'); ?> (<span class="wfm-watchlist-count">0</span>)
                 </button>
                 <?php if ($curMember && !empty($curMember['id'])): ?>
-                    <a href="?page=flohmarkt&view=my_items" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem; text-decoration: none;">Meine Anzeigen</a>
+                    <a href="?page=flohmarkt&view=my_items" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem; text-decoration: none;"><?php echo htmlspecialchars($t('fleamarket.my_items', 'Meine Anzeigen'), ENT_QUOTES, 'UTF-8'); ?></a>
                 <?php endif; ?>
                 <?php if ($canSubmit): ?>
-                    <a href="?page=flohmarkt&view=submit" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem; text-decoration: none;">+ Anzeige aufgeben</a>
+                    <a href="?page=flohmarkt&view=submit" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem; text-decoration: none;"><?php echo htmlspecialchars($t('fleamarket.submit_btn', '+ Anzeige aufgeben'), ENT_QUOTES, 'UTF-8'); ?></a>
                 <?php endif; ?>
             </div>
             <!-- Filter- & Suchleiste -->
@@ -133,10 +137,10 @@ if (!function_exists('weave_fleamarket_render_catalog')) {
                 <input type="hidden" name="fm_layout" value="<?php echo htmlspecialchars($layout, ENT_QUOTES, 'UTF-8'); ?>">
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 8px; margin-bottom: 10px;">
-                    <input type="text" name="fm_q" value="<?php echo htmlspecialchars($filters['q'], ENT_QUOTES, 'UTF-8'); ?>" placeholder="🔍 Suche Titel, Text, Nr..." class="form-control">
+                    <input type="text" name="fm_q" value="<?php echo htmlspecialchars($filters['q'], ENT_QUOTES, 'UTF-8'); ?>" placeholder="<?php echo htmlspecialchars($t('fleamarket.search_placeholder', '🔍 Suche Titel, Text, Nr...'), ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
 
                     <select name="fm_cat" class="form-control">
-                        <option value="">Alle Kategorien</option>
+                        <option value=""><?php echo htmlspecialchars($t('fleamarket.all_categories', 'Alle Kategorien'), ENT_QUOTES, 'UTF-8'); ?></option>
                         <?php foreach ($categories as $c): ?>
                             <option value="<?php echo htmlspecialchars((string)$c['id'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo $filters['category'] === $c['id'] ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars((string)$c['name'], ENT_QUOTES, 'UTF-8'); ?>
@@ -145,7 +149,7 @@ if (!function_exists('weave_fleamarket_render_catalog')) {
                     </select>
 
                     <select name="fm_type" class="form-control">
-                        <option value="">Alle Anzeigentypen</option>
+                        <option value=""><?php echo htmlspecialchars($t('fleamarket.all_types', 'Alle Anzeigentypen'), ENT_QUOTES, 'UTF-8'); ?></option>
                         <?php foreach ($labels['ad_types'] as $tk => $tl): ?>
                             <option value="<?php echo htmlspecialchars($tk, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $filters['type'] === $tk ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($tl, ENT_QUOTES, 'UTF-8'); ?>
@@ -154,7 +158,7 @@ if (!function_exists('weave_fleamarket_render_catalog')) {
                     </select>
 
                     <select name="fm_cond" class="form-control">
-                        <option value="">Alle Zustände</option>
+                        <option value=""><?php echo htmlspecialchars($t('fleamarket.all_conditions', 'Alle Zustände'), ENT_QUOTES, 'UTF-8'); ?></option>
                         <?php foreach ($labels['conditions'] as $ck => $cl): ?>
                             <option value="<?php echo htmlspecialchars($ck, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $filters['condition'] === $ck ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($cl, ENT_QUOTES, 'UTF-8'); ?>
@@ -163,9 +167,9 @@ if (!function_exists('weave_fleamarket_render_catalog')) {
                     </select>
 
                     <select name="fm_deliv" class="form-control">
-                        <option value="">Abholung &amp; Versand</option>
-                        <option value="pickup" <?php echo $filters['delivery'] === 'pickup' ? 'selected' : ''; ?>>Abholung möglich</option>
-                        <option value="shipping" <?php echo $filters['delivery'] === 'shipping' ? 'selected' : ''; ?>>Versand möglich</option>
+                        <option value=""><?php echo htmlspecialchars($t('fleamarket.deliv_both', 'Abholung & Versand'), ENT_QUOTES, 'UTF-8'); ?></option>
+                        <option value="pickup" <?php echo $filters['delivery'] === 'pickup' ? 'selected' : ''; ?>><?php echo htmlspecialchars($t('fleamarket.deliv_pickup', 'Abholung möglich'), ENT_QUOTES, 'UTF-8'); ?></option>
+                        <option value="shipping" <?php echo $filters['delivery'] === 'shipping' ? 'selected' : ''; ?>><?php echo htmlspecialchars($t('fleamarket.deliv_shipping', 'Versand möglich'), ENT_QUOTES, 'UTF-8'); ?></option>
                     </select>
 
                     <input type="text" name="fm_loc" value="<?php echo htmlspecialchars($filters['location'], ENT_QUOTES, 'UTF-8'); ?>" placeholder="📍 PLZ / Ort" class="form-control">

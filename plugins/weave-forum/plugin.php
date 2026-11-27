@@ -578,3 +578,9 @@ PluginManager::addAction('frontend_render_custom_section', function($sectionId, 
         require __DIR__ . '/views/forum_main.php';
     }
 });
+
+// Phase 42: Idempotente Schema-Prüfung bei Aktivierung, Setup & Update
+PluginManager::addAction('plugin_ensure_schema_weave-forum', function($data, $context = []) {
+    $pdo = (is_array($context) && ($context['pdo'] ?? null) instanceof PDO) ? $context['pdo'] : null;
+    ForumManager::ensureSchema($pdo);
+});

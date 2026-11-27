@@ -490,6 +490,39 @@ class ForumManager {
         return $pdo;
     }
 
+    /**
+     * Stellt alle 10 Forum-Tabellen idempotent sicher (Phase 42).
+     * Wird beim Installieren, Migrieren sowie beim Aktivieren/Updaten aufgerufen.
+     */
+    public static function ensureSchema(?PDO $pdo = null): array {
+        if ($pdo !== null) {
+            $drv = (string)$pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+            if ($drv === 'sqlite') {
+                self::initSqliteTables($pdo);
+            } else {
+                self::initMysqlTables($pdo);
+            }
+            return ['success' => true, 'driver' => $drv];
+        }
+
+        $driver = self::getStorageDriver();
+        if ($driver === 'mysql') {
+            self::getMysqlPdo();
+            return ['success' => true, 'driver' => 'mysql'];
+        }
+        if ($driver === 'sqlite') {
+            self::getSqlitePdo();
+            return ['success' => true, 'driver' => 'sqlite'];
+        }
+
+        // JSON-Modus: Basisdatei nur initialisieren, wenn sie noch nicht existiert
+        $file = self::getJsonFilePath();
+        if (!file_exists($file)) {
+            self::saveJsonData(self::getDefaultData());
+        }
+        return ['success' => true, 'driver' => 'json'];
+    }
+
     // =========================================================================
     // STANDARD-DATEN & INITIALISIERUNG
     // =========================================================================

@@ -1,0 +1,19 @@
+{
+    "polls.nav_label": "Sondaggi",
+    "polls.default_title": "Sondaggi attuali",
+    "polls.default_subtitle": "Partecipa ai nostri sondaggi in corso e scopri i risultati.",
+    "polls.status_closed": "Sondaggio terminato",
+    "polls.runs_until": "Aperto fino al {date}",
+    "polls.multi_hint": "Scelta multipla consentita (max. {max}).",
+    "polls.vote_btn": "Vota",
+    "polls.results_heading": "Risultati",
+    "polls.results_summary": "{voters} partecipanti · {votes} voti",
+    "polls.thank_you_after_end": "Grazie per aver partecipato! I risultati saranno pubblicati al termine del sondaggio.",
+    "polls.js_max_choices": "Massimo {max} opzione/i consentita/e.",
+    "polls.js_select_option": "Seleziona almeno un’opzione.",
+    "polls.err_not_found": "Sondaggio non trovato.",
+    "polls.err_closed": "Questo sondaggio è già terminato.",
+    "polls.err_login_required": "È necessario accedere per votare in questo sondaggio.",
+    "polls.err_already_voted": "Hai già votato in questo sondaggio.",
+    "polls.msg_vote_recorded": "Il tuo voto è stato registrato!"
+}

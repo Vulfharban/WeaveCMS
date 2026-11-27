@@ -1,0 +1,11 @@
+{
+    "admin.calendar.title": "Terminplaner & Team-Kalender",
+    "admin.calendar.tab_team": "Team-Übersicht",
+    "admin.calendar.tab_events": "Termine",
+    "admin.calendar.tab_staff": "Mitarbeiter",
+    "admin.calendar.tab_categories": "Kategorien",
+    "admin.calendar.tab_sync": "Cloud-Sync (Google/Microsoft/Apple)",
+    "admin.calendar.tab_settings": "Einstellungen & Erinnerungen",
+    "admin.calendar.sync_now": "Jetzt synchronisieren",
+    "admin.calendar.save_event": "Termin speichern"
+}

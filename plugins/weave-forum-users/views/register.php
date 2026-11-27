@@ -60,7 +60,7 @@ if ($regMode === 'closed') {
         <div style="width: 52px; height: 52px; margin: 0 auto 12px auto; border-radius: 50%; background: rgba(46, 98, 72, 0.1); color: var(--primary, #2e6248); display: flex; align-items: center; justify-content: center;">
             <span class="material-icons" style="font-size: 26px;">person_add</span>
         </div>
-        <h2 style="margin: 0 0 6px 0; font-size: 1.4rem; font-weight: 800; color: #0f172a;">Forum-Konto erstellen</h2>
+        <h2 style="margin: 0 0 6px 0; font-size: 1.4rem; font-weight: 800; color: #0f172a;"><?= htmlspecialchars(function_exists('__') ? __('forum_users.register_title', 'Forum-Konto erstellen') : 'Forum-Konto erstellen') ?></h2>
         <p style="margin: 0; font-size: 13px; color: #64748b;">Erstelle dein kostenloses Profil für unsere Community.</p>
     </div>
 

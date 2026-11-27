@@ -1,0 +1,6 @@
+{
+    "admin.sandbox.title": "Interactive Live Demo Sandbox",
+    "admin.sandbox.desc": "Allows visitors an isolated in-memory demo session without modifying production data.",
+    "admin.sandbox.cleanup": "Clean Up Expired Demo Sessions Now",
+    "admin.sandbox.cleanup_done": "Cleanup finished: {count} expired session(s) removed."
+}

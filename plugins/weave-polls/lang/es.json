@@ -1,0 +1,19 @@
+{
+    "polls.nav_label": "Encuestas",
+    "polls.default_title": "Encuestas actuales",
+    "polls.default_subtitle": "Participa en nuestras encuestas actuales y descubre los resultados.",
+    "polls.status_closed": "Encuesta finalizada",
+    "polls.runs_until": "Abierta hasta el {date}",
+    "polls.multi_hint": "Selección múltiple permitida (máx. {max}).",
+    "polls.vote_btn": "Votar",
+    "polls.results_heading": "Resultados",
+    "polls.results_summary": "{voters} participantes · {votes} votos",
+    "polls.thank_you_after_end": "¡Gracias por participar! Los resultados se publicarán cuando finalice la encuesta.",
+    "polls.js_max_choices": "Máximo {max} opción(es) permitida(s).",
+    "polls.js_select_option": "Por favor, selecciona al menos una opción.",
+    "polls.err_not_found": "Encuesta no encontrada.",
+    "polls.err_closed": "Esta encuesta ya ha finalizado.",
+    "polls.err_login_required": "Se requiere iniciar sesión para votar en esta encuesta.",
+    "polls.err_already_voted": "Ya has votado en esta encuesta.",
+    "polls.msg_vote_recorded": "¡Tu voto se ha registrado correctamente!"
+}

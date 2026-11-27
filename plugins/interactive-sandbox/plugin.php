@@ -90,7 +90,10 @@ if (!empty($_SESSION['admin_logged_in']) && $_SERVER['REQUEST_METHOD'] === 'POST
     if ($action === 'sandbox_cleanup' && !empty($_POST['csrf_token'])) {
         if (class_exists('AuthManager') && AuthManager::verifyCsrfToken($_POST['csrf_token'])) {
             $cleaned = SandboxManager::cleanupExpired();
-            header('Location: ?tab=tab-plugins&plugin_settings=interactive-sandbox&sandbox_msg=' . urlencode("Bereinigung abgeschlossen: {$cleaned} veraltete Sitzung(en) entfernt.") . '#tab-plugins');
+            $msgText = function_exists('__a')
+                ? __a('admin.sandbox.cleanup_done', "Bereinigung abgeschlossen: {$cleaned} veraltete Sitzung(en) entfernt.", null, ['count' => $cleaned])
+                : "Bereinigung abgeschlossen: {$cleaned} veraltete Sitzung(en) entfernt.";
+            header('Location: ?tab=tab-plugins&plugin_settings=interactive-sandbox&sandbox_msg=' . urlencode($msgText) . '#tab-plugins');
             exit;
         }
     }

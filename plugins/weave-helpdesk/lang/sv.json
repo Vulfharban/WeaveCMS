@@ -1,0 +1,9 @@
+{
+    "helpdesk.nav_label": "Support",
+    "helpdesk.portal_title": "Helpdesk och ärenden",
+    "helpdesk.new_ticket": "Skapa nytt ärende",
+    "helpdesk.status_open": "Öppen",
+    "helpdesk.status_in_progress": "Pågår",
+    "helpdesk.status_done": "Löst",
+    "helpdesk.login_title": "Helpdesk inloggning"
+}

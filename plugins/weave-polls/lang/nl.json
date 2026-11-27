@@ -1,0 +1,19 @@
+{
+    "polls.nav_label": "Peilingen",
+    "polls.default_title": "Huidige peilingen",
+    "polls.default_subtitle": "Neem deel aan onze lopende peilingen en ontdek de resultaten.",
+    "polls.status_closed": "Peiling beëindigd",
+    "polls.runs_until": "Loopt tot {date}",
+    "polls.multi_hint": "Meerdere keuzes mogelijk (max. {max}).",
+    "polls.vote_btn": "Stemmen",
+    "polls.results_heading": "Resultaten",
+    "polls.results_summary": "{voters} deelnemers · {votes} stemmen",
+    "polls.thank_you_after_end": "Bedankt voor je deelname! De resultaten worden na afloop van deze peiling gepubliceerd.",
+    "polls.js_max_choices": "Maximaal {max} keuze(s) toegestaan.",
+    "polls.js_select_option": "Selecteer ten minste één optie.",
+    "polls.err_not_found": "Peiling niet gevonden.",
+    "polls.err_closed": "Deze peiling is al beëindigd.",
+    "polls.err_login_required": "Inloggen is vereist om te stemmen in deze peiling.",
+    "polls.err_already_voted": "Je hebt al gestemd in deze peiling.",
+    "polls.msg_vote_recorded": "Je stem is succesvol geregistreerd!"
+}

@@ -1,0 +1,10 @@
+{
+    "admin.polls.title": "Weave Polls – Poll Management",
+    "admin.polls.new_poll": "Create New Poll",
+    "admin.polls.save": "Save Poll",
+    "admin.polls.settings_title": "Section & Display Settings",
+    "admin.polls.export_csv": "CSV Export",
+    "admin.polls.export_json": "JSON Export",
+    "admin.polls.reset_votes": "Reset Votes",
+    "admin.polls.shortcode_hint": "Shortcodes: [polls] or [poll id=\"...\"]"
+}

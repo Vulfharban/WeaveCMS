@@ -8,5 +8,9 @@
     "icon": "account_tree",
     "entry_file": "plugin.php",
     "requires_core": ">=0.4.0",
-    "settings_tab": "webtrees"
+    "settings_tab": "webtrees",
+    "storage": {
+        "mode": "none",
+        "schema_version": "1.0.0"
+    }
 }

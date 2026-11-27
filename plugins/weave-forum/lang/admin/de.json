@@ -1,0 +1,8 @@
+{
+    "admin.forum.title": "Diskussionsforum Verwaltung",
+    "admin.forum.tab_boards": "Kategorien & Foren",
+    "admin.forum.tab_moderation": "Moderation & Meldungen",
+    "admin.forum.tab_storage": "Datenbank & Migration",
+    "admin.forum.tab_settings": "Foren-Einstellungen",
+    "admin.forum.polls_info": "Umfragen sind direkt im Themen- und Beitrags-Editor aktiviert."
+}

@@ -1,0 +1,19 @@
+{
+    "polls.nav_label": "Δημοσκοπήσεις",
+    "polls.default_title": "Τρέχουσες δημοσκοπήσεις",
+    "polls.default_subtitle": "Λάβετε μέρος στις τρέχουσες δημοσκοπήσεις μας και δείτε τα αποτελέσματα.",
+    "polls.status_closed": "Η δημοσκόπηση έληξε",
+    "polls.runs_until": "Ανοιχτή έως {date}",
+    "polls.multi_hint": "Επιτρέπονται πολλαπλές επιλογές (έως {max}).",
+    "polls.vote_btn": "Ψηφίστε",
+    "polls.results_heading": "Αποτελέσματα",
+    "polls.results_summary": "{voters} συμμετέχοντες · {votes} ψήφοι",
+    "polls.thank_you_after_end": "Ευχαριστούμε για τη συμμετοχή! Τα αποτελέσματα θα δημοσιευτούν μετά τη λήξη της δημοσκόπησης.",
+    "polls.js_max_choices": "Επιτρέπονται έως {max} επιλογές.",
+    "polls.js_select_option": "Παρακαλούμε επιλέξτε τουλάχιστον μία επιλογή.",
+    "polls.err_not_found": "Η δημοσκόπηση δεν βρέθηκε.",
+    "polls.err_closed": "Αυτή η δημοσκόπηση έχει ήδη λήξει.",
+    "polls.err_login_required": "Απαιτείται σύνδεση για να ψηφίσετε.",
+    "polls.err_already_voted": "Έχετε ήδη ψηφίσει σε αυτή τη δημοσκόπηση.",
+    "polls.msg_vote_recorded": "Η ψήφος σας καταχωρήθηκε με επιτυχία!"
+}

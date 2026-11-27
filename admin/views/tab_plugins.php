@@ -227,6 +227,92 @@ $active_settings_slug = $_GET['plugin_settings'] ?? $_POST['plugin_slug'] ?? $_P
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
+
+    <?php if (class_exists('PluginSchemaManager')):
+        $schemaReport = PluginSchemaManager::getSchemaStatusReport($data);
+        $driverInfo = class_exists('StorageManager') ? StorageManager::getDriverDetails() : ['name' => 'JSON', 'type' => 'json'];
+    ?>
+        <div style="margin-top: 2rem; border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; background: var(--card-bg, #fff);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:1rem;">
+                <div>
+                    <h3 style="margin:0 0 4px 0; font-size:1.12rem; color:var(--primary); display:flex; align-items:center; gap:8px;">
+                        <span class="material-icons" style="font-size:22px;">storage</span>
+                        <?php echo __a('admin.plugins.schema_title', 'Datenbank-, Tabellen- & Schema-Status (Offizielle & 3rd-Party-Plugins)'); ?>
+                    </h3>
+                    <p style="margin:0; font-size:0.86rem; color:var(--text-secondary); line-height:1.45;">
+                        <?php echo __a('admin.plugins.schema_desc', 'Alle Plugin-Tabellen und JSON-Datenstrukturen bleiben beim Deaktivieren strikt erhalten (kein Datenverlust).'); ?>
+                    </p>
+                </div>
+                <form method="POST" action="" style="margin:0;">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                    <input type="hidden" name="action" value="sync_plugin_schemas">
+                    <button type="submit" class="btn btn-primary" style="padding:7px 15px; font-size:0.84rem; display:inline-flex; align-items:center; gap:6px;">
+                        <span class="material-icons" style="font-size:16px;">fact_check</span>
+                        <?php echo __a('admin.plugins.schema_sync_btn', 'Plugin-Schemas prüfen & aktualisieren'); ?>
+                    </button>
+                </form>
+            </div>
+
+            <div style="font-size:0.82rem; color:#065f46; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:8px; padding:8px 12px; margin-bottom:1rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                <span>🛡️ <?php echo __a('admin.plugins.schema_preserve_note', 'Datenerhaltungs-Garantie: Beim Deaktivieren werden keine Tabellen gelöscht.'); ?></span>
+                <strong>Driver: <?php echo htmlspecialchars((string)($driverInfo['name'] ?? strtoupper((string)($driverInfo['type'] ?? 'json')))); ?></strong>
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.84rem;">
+                    <thead>
+                        <tr style="text-align:left; border-bottom:1px solid var(--border-color); color:var(--text-secondary);">
+                            <th style="padding:8px 10px;"><?php echo __a('admin.plugins.schema_col_plugin', 'Plugin'); ?></th>
+                            <th style="padding:8px 10px;"><?php echo __a('admin.plugins.schema_col_mode', 'Speichermodus'); ?></th>
+                            <th style="padding:8px 10px;"><?php echo __a('admin.plugins.schema_col_version', 'Schema-Stand'); ?></th>
+                            <th style="padding:8px 10px;"><?php echo __a('admin.plugins.schema_col_status', 'Status'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($schemaReport as $row):
+                            $st = $row['status'];
+                            $stLabel = match ($st) {
+                                'current'         => __a('admin.plugins.schema_status_current', 'Aktuell'),
+                                'needs_migration' => __a('admin.plugins.schema_status_migrate', 'Update erforderlich'),
+                                'missing_tables'  => __a('admin.plugins.schema_status_missing', 'Tabellen fehlen'),
+                                default           => __a('admin.plugins.schema_status_uninit', 'Noch nicht initialisiert'),
+                            };
+                            $stStyle = match ($st) {
+                                'current'         => 'background:#dcfce7; color:#166534;',
+                                'missing_tables'  => 'background:#fee2e2; color:#991b1b;',
+                                'needs_migration' => 'background:#fef3c7; color:#92400e;',
+                                default           => 'background:#f1f5f9; color:#475569;',
+                            };
+                        ?>
+                            <tr style="border-bottom:1px solid rgba(0,0,0,0.05);">
+                                <td style="padding:8px 10px;">
+                                    <strong><?php echo htmlspecialchars($row['name']); ?></strong>
+                                    <code style="font-size:0.75rem; margin-left:4px;"><?php echo htmlspecialchars($row['slug']); ?></code>
+                                    <?php if (!$row['is_official']): ?>
+                                        <span style="font-size:0.7rem; background:#e0f2fe; color:#0369a1; padding:1px 6px; border-radius:4px; margin-left:4px;">3rd-Party</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="padding:8px 10px;"><code><?php echo htmlspecialchars($row['storage_mode']); ?></code></td>
+                                <td style="padding:8px 10px;">
+                                    <code><?php echo htmlspecialchars($row['installed_version'] ?? '—'); ?></code> &rarr; <code><?php echo htmlspecialchars($row['manifest_version']); ?></code>
+                                </td>
+                                <td style="padding:8px 10px;">
+                                    <span style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px; <?php echo $stStyle; ?>">
+                                        <?php echo htmlspecialchars($stLabel); ?>
+                                    </span>
+                                    <?php if (!empty($row['tables_missing'])): ?>
+                                        <div style="font-size:0.74rem; color:#991b1b; margin-top:2px;">
+                                            <?php echo htmlspecialchars(implode(', ', $row['tables_missing'])); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>

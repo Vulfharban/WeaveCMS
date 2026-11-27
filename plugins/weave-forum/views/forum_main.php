@@ -65,21 +65,21 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
                 <!-- Kunena Nav Tabs -->
                 <nav class="kunena-nav-tabs">
                     <a href="?page=forum&view=index" class="kunena-nav-link <?= in_array($view, ['index', 'board'], true) ? 'active' : '' ?>">
-                        <span class="material-icons">home</span> Forenübersicht
+                        <span class="material-icons">home</span> <?= htmlspecialchars(function_exists('__') ? __('forum.nav_label', 'Forenübersicht') : 'Forenübersicht') ?>
                     </a>
                     <a href="?page=forum&view=recent" class="kunena-nav-link <?= $view === 'recent' ? 'active' : '' ?>">
-                        <span class="material-icons">access_time</span> Aktuelle Themen
+                        <span class="material-icons">access_time</span> <?= htmlspecialchars(function_exists('__') ? __('forum.recent_title', 'Aktuelle Themen') : 'Aktuelle Themen') ?>
                     </a>
                     <a href="?page=forum&view=search" class="kunena-nav-link <?= $view === 'search' ? 'active' : '' ?>">
-                        <span class="material-icons">search</span> Suche
+                        <span class="material-icons">search</span> <?= htmlspecialchars(function_exists('__') ? __('forum.search_placeholder', 'Suche') : 'Suche') ?>
                     </a>
                     <a href="?page=forum&view=help" class="kunena-nav-link <?= $view === 'help' ? 'active' : '' ?>">
-                        <span class="material-icons">help_outline</span> Hilfe & FAQ
+                        <span class="material-icons">help_outline</span> <?= htmlspecialchars(function_exists('__') ? __('forum.help_title', 'Hilfe & FAQ') : 'Hilfe & FAQ') ?>
                     </a>
                     <?php if ($currentUser && class_exists('ForumMessageManager')): ?>
                         <?php $unreadPmCount = ForumMessageManager::getUnreadCount((string)$currentUser['id']); ?>
                         <a href="?page=forum&view=messages" class="kunena-nav-link <?= $view === 'messages' ? 'active' : '' ?>">
-                            <span class="material-icons">mail</span> Nachrichten
+                            <span class="material-icons">mail</span> <?= htmlspecialchars(function_exists('__') ? __('forum_users.pm_title', 'Nachrichten') : 'Nachrichten') ?>
                             <?php if ($unreadPmCount > 0): ?>
                                 <span class="kunena-cat-badge" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; font-size:10px; padding:1px 6px; margin-left:2px;">
                                     <?= (int)$unreadPmCount ?>

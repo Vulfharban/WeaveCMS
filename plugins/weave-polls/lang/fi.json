@@ -1,0 +1,19 @@
+{
+    "polls.nav_label": "Kyselyt",
+    "polls.default_title": "Ajankohtaiset kyselyt",
+    "polls.default_subtitle": "Osallistu käynnissä oleviin kyselyihin ja tutustu tuloksiin.",
+    "polls.status_closed": "Kysely päättynyt",
+    "polls.runs_until": "Käynnissä {date} asti",
+    "polls.multi_hint": "Monivalinta sallittu (enint. {max}).",
+    "polls.vote_btn": "Äänestä",
+    "polls.results_heading": "Tulokset",
+    "polls.results_summary": "{voters} osallistujaa · {votes} ääntä",
+    "polls.thank_you_after_end": "Kiitos osallistumisesta! Tulokset julkaistaan kyselyn päätyttyä.",
+    "polls.js_max_choices": "Enintään {max} valintaa sallittu.",
+    "polls.js_select_option": "Valitse vähintään yksi vaihtoehto.",
+    "polls.err_not_found": "Kyselyä ei löytynyt.",
+    "polls.err_closed": "Tämä kysely on jo päättynyt.",
+    "polls.err_login_required": "Äänestäminen vaatii kirjautumisen.",
+    "polls.err_already_voted": "Olet jo äänestänyt tässä kyselyssä.",
+    "polls.msg_vote_recorded": "Äänesi on tallennettu!"
+}

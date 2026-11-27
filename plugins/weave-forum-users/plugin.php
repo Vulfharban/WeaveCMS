@@ -599,3 +599,9 @@ PluginManager::addFilter('content_shortcodes', function($content, $data) {
 
     return $content;
 });
+
+// Phase 42: Idempotente Schema-Prüfung bei Aktivierung, Setup & Update
+PluginManager::addAction('plugin_ensure_schema_weave-forum-users', function($data, $context = []) {
+    $pdo = (is_array($context) && ($context['pdo'] ?? null) instanceof PDO) ? $context['pdo'] : null;
+    ForumUserManager::ensureSchema($pdo);
+});

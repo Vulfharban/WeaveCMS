@@ -1,0 +1,23 @@
+{
+    "shop.nav_label": "Boutique",
+    "shop.badge": "Boutique en ligne",
+    "shop.secure_payment": "Paiement sécurisé :",
+    "shop.pay_credit_card": "💳 Carte bancaire (Visa, Mastercard)",
+    "shop.pay_bank_transfer": "🏦 Virement bancaire",
+    "shop.cat_all": "Tous",
+    "shop.empty_title": "Aucun produit disponible actuellement",
+    "shop.empty_sub": "Revenez bientôt !",
+    "shop.sold_out": "Épuisé",
+    "shop.in_stock": "En stock",
+    "shop.only_left": "Plus que {count} en stock",
+    "shop.tax_exempt": "Exonéré de TVA (§ 19 UStG)",
+    "shop.tax_incl": "TVA {rate} % incluse",
+    "shop.buy_btn": "Acheter",
+    "shop.sold_btn": "Épuisé",
+    "shop.cart_title": "Votre panier",
+    "shop.cart_empty": "Votre panier est encore vide.",
+    "shop.cart_total": "Total",
+    "shop.checkout_btn": "Commander",
+    "shop.order_submit": "Passer commande",
+    "shop.invoice_title": "Facture"
+}

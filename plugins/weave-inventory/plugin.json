@@ -8,5 +8,13 @@
     "icon": "warehouse",
     "entry_file": "plugin.php",
     "requires_core": ">=0.4.0",
-    "settings_tab": "weave-inventory"
+    "settings_tab": "weave-inventory",
+    "storage": {
+        "mode": "plugin_data",
+        "schema_version": "1.0.0",
+        "plugin_data_keys": {
+            "shop_products": "data/shop_products.json",
+            "inventory_log": "data/inventory_log.json"
+        }
+    }
 }

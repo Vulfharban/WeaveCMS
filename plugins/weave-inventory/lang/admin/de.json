@@ -1,0 +1,6 @@
+{
+    "admin.inventory.title": "Lager- & Artikelverwaltung",
+    "admin.inventory.tab_articles": "Artikel & Bestände",
+    "admin.inventory.tab_movements": "Lagerbewegungen (Audit)",
+    "admin.inventory.tab_settings": "Import/Export & API"
+}

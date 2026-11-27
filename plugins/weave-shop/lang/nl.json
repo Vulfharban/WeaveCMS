@@ -1,0 +1,23 @@
+{
+    "shop.nav_label": "Winkel",
+    "shop.badge": "Webshop",
+    "shop.secure_payment": "Veilig betalen:",
+    "shop.pay_credit_card": "💳 Creditcard (Visa, Mastercard)",
+    "shop.pay_bank_transfer": "🏦 Bankoverschrijving",
+    "shop.cat_all": "Alle",
+    "shop.empty_title": "Momenteel geen producten beschikbaar",
+    "shop.empty_sub": "Kom snel weer langs!",
+    "shop.sold_out": "Uitverkocht",
+    "shop.in_stock": "Op voorraad",
+    "shop.only_left": "Nog slechts {count} op voorraad",
+    "shop.tax_exempt": "Vrijgesteld van btw (§ 19 UStG)",
+    "shop.tax_incl": "incl. {rate}% btw",
+    "shop.buy_btn": "Kopen",
+    "shop.sold_btn": "Op",
+    "shop.cart_title": "Je winkelwagen",
+    "shop.cart_empty": "Je winkelwagen is nog leeg.",
+    "shop.cart_total": "Totaalbedrag",
+    "shop.checkout_btn": "Afrekenen",
+    "shop.order_submit": "Bestelling plaatsen",
+    "shop.invoice_title": "Factuur"
+}

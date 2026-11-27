@@ -22,7 +22,7 @@ $hasLegacyWebtrees = PluginManager::isPluginActive('webtrees-genealogy', $data);
         <div>
             <h2 class="text-xl font-bold flex items-center gap-2">
                 <span class="material-icons text-primary">hub</span>
-                Universelle Integrationen
+                <?= htmlspecialchars(function_exists('__a') ? __a('admin.integrations.title', 'Universelle Integrationen') : 'Universelle Integrationen') ?>
             </h2>
             <p class="text-sm text-muted">
                 Binde beliebige lokale oder externe Web-Anwendungen (Stammbäume, Foren, Wikis, Kalender) flexibel per iFrame, Vorschaukarte oder Inline-Fragment ein.

@@ -1,0 +1,8 @@
+{
+    "admin.games.title": "Weave Games – Servers & Rollout",
+    "admin.games.tab_servers": "Game Servers",
+    "admin.games.tab_rollout": "Client Rollout",
+    "admin.games.tab_players": "Players",
+    "admin.games.tab_settings": "Portal Settings",
+    "admin.games.ping_all": "Ping All Servers"
+}

@@ -18,6 +18,9 @@ if (!function_exists('weave_forum_render_poll_builder')) {
      * Rendert den einklappbaren "Umfrage hinzufügen"-Builder für Thema oder Beitrag.
      */
     function weave_forum_render_poll_builder(string $prefix = 'topic', bool $expanded = false): string {
+        $t = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+            ? __($key, $default, null, $params)
+            : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
         $safePrefix = preg_replace('/[^a-zA-Z0-9_-]/', '', $prefix) ?: 'topic';
         $boxId = 'fpoll-builder-' . $safePrefix;
 
@@ -35,16 +38,16 @@ if (!function_exists('weave_forum_render_poll_builder')) {
                            <?php echo $expanded ? 'checked' : ''; ?>
                            style="width: 17px; height: 17px; accent-color: var(--primary, #2e6248);">
                     <span class="material-icons" style="font-size: 18px; color: var(--primary, #2e6248);">poll</span>
-                    <span>Umfrage hinzufügen (optional)</span>
+                    <span><?php echo htmlspecialchars($t('forum.poll.add_title', 'Umfrage hinzufügen (optional)'), ENT_QUOTES, 'UTF-8'); ?></span>
                 </label>
-                <span style="font-size: 11.5px; color: #64748b;">Direkt im Forum abstimmen</span>
+                <span style="font-size: 11.5px; color: #64748b;"><?php echo htmlspecialchars($t('forum.poll.vote_hint', 'Direkt im Forum abstimmen'), ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
 
             <div id="<?php echo htmlspecialchars($boxId . '-body', ENT_QUOTES, 'UTF-8'); ?>"
                  style="padding: 16px; display: <?php echo $expanded ? 'block' : 'none'; ?>; background: #ffffff; border-top: 1px solid #e2e8f0;">
                 <div style="margin-bottom: 12px;">
                     <label style="display: block; font-size: 12.5px; font-weight: 700; color: #1e293b; margin-bottom: 5px;">
-                        Umfragefrage *
+                        <?php echo htmlspecialchars($t('forum.poll.question_label', 'Umfragefrage *'), ENT_QUOTES, 'UTF-8'); ?>
                     </label>
                     <input type="text"
                            name="poll_question"
@@ -136,6 +139,9 @@ if (!function_exists('weave_forum_render_poll_builder')) {
      * Rendert eine Forum-Umfragekarte (offen mit Formular oder geschlossen mit Endauswertung).
      */
     function weave_forum_render_poll_card(array $poll, ?array $currentUser, ?array $topic = null, ?array $board = null, ?int $now = null): string {
+        $t = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+            ? __($key, $default, null, $params)
+            : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
         $pollId = (string)($poll['id'] ?? '');
         if ($pollId === '') {
             return '';
@@ -178,12 +184,12 @@ if (!function_exists('weave_forum_render_poll_builder')) {
                         <?php if ($isClosed): ?>
                             <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #e2e8f0; color: #334155;">
                                 <span class="material-icons" style="font-size: 13px;">lock</span>
-                                Umfrage beendet<?php echo $endTimeFormatted !== '' ? ' · ' . htmlspecialchars($endTimeFormatted, ENT_QUOTES, 'UTF-8') : ''; ?>
+                                <?php echo htmlspecialchars($t('forum.poll.status_closed', 'Umfrage beendet'), ENT_QUOTES, 'UTF-8'); ?><?php echo $endTimeFormatted !== '' ? ' · ' . htmlspecialchars($endTimeFormatted, ENT_QUOTES, 'UTF-8') : ''; ?>
                             </span>
                         <?php else: ?>
                             <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #dcfce7; color: #166534;">
                                 <span class="material-icons" style="font-size: 13px;">how_to_vote</span>
-                                <?php echo $endTimeFormatted !== '' ? ('Läuft bis ' . htmlspecialchars($endTimeFormatted, ENT_QUOTES, 'UTF-8')) : 'Dauerhaft offen'; ?>
+                                <?php echo $endTimeFormatted !== '' ? ('Läuft bis ' . htmlspecialchars($endTimeFormatted, ENT_QUOTES, 'UTF-8')) : htmlspecialchars($t('forum.poll.open_forever', 'Dauerhaft offen'), ENT_QUOTES, 'UTF-8'); ?>
                             </span>
                         <?php endif; ?>
                         <span style="font-size: 11px; color: #64748b;">
@@ -247,7 +253,7 @@ if (!function_exists('weave_forum_render_poll_builder')) {
 
                     <button type="submit" class="kunena-btn-primary" style="padding: 7px 16px; font-size: 13px; cursor: pointer;">
                         <span class="material-icons" style="font-size: 15px;">how_to_vote</span>
-                        <span><?php echo $hasVoted ? 'Stimme aktualisieren' : 'Abstimmen'; ?></span>
+                        <span><?php echo htmlspecialchars($hasVoted ? $t('forum.poll.update_vote_btn', 'Stimme aktualisieren') : $t('forum.poll.vote_btn', 'Abstimmen'), ENT_QUOTES, 'UTF-8'); ?></span>
                     </button>
                 </form>
             <?php elseif (!$isClosed && !$currentUser): ?>

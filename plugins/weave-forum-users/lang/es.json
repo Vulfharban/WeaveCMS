@@ -1,0 +1,13 @@
+{
+    "forum_users.login_title": "Acceso de miembros",
+    "forum_users.register_title": "Registrarse en el foro",
+    "forum_users.privacy_modal_title": "Política de privacidad",
+    "forum_users.profile_title": "Mi perfil de miembro",
+    "forum_users.privacy_title": "Privacidad",
+    "forum_users.pm_title": "Mensajes privados",
+    "forum_users.pm_login_required": "Inicia sesión para ver tus mensajes privados.",
+    "forum_users.pm_inbox": "Bandeja de entrada",
+    "forum_users.pm_sent": "Enviados",
+    "forum_users.pm_compose": "Nuevo mensaje",
+    "forum_users.email_contact_title": "Enviar correo mediante el foro"
+}

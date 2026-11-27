@@ -6,11 +6,12 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
     exit;
 }
 
+$t = static fn(string $key, string $default): string => function_exists('__') ? __($key, $default) : $default;
 $currentUser = ForumUserManager::getCurrentUser();
 if (!$currentUser) {
     echo '<div style="max-width:520px; margin:40px auto; padding:24px; border-radius:14px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; text-align:center;">'
-       . '<strong>Anmeldung erforderlich:</strong> Bitte melde dich an, um dein Profil zu verwalten.<br>'
-       . '<a href="?page=forum&view=login" class="kunena-btn-primary" style="margin-top:12px;">Zur Anmeldung</a>'
+       . '<strong>' . htmlspecialchars($t('forum_users.login_title', 'Anmeldung erforderlich')) . ':</strong> ' . htmlspecialchars($t('forum_users.pm_login_required', 'Bitte melde dich an, um dein Profil zu verwalten.')) . '<br>'
+       . '<a href="?page=forum&view=login" class="kunena-btn-primary" style="margin-top:12px;">' . htmlspecialchars($t('forum_users.login_title', 'Zur Anmeldung')) . '</a>'
        . '</div>';
     return;
 }

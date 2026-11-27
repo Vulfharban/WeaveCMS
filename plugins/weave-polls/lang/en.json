@@ -1,0 +1,19 @@
+{
+    "polls.nav_label": "Polls",
+    "polls.default_title": "Current Polls",
+    "polls.default_subtitle": "Take part in our ongoing polls and explore the results.",
+    "polls.status_closed": "Poll ended",
+    "polls.runs_until": "Runs until {date}",
+    "polls.multi_hint": "Multiple choice allowed (max. {max}).",
+    "polls.vote_btn": "Vote",
+    "polls.results_heading": "Results",
+    "polls.results_summary": "{voters} participants · {votes} votes",
+    "polls.thank_you_after_end": "Thank you for participating! Results will be published after this poll closes.",
+    "polls.js_max_choices": "Maximum of {max} selection(s) allowed.",
+    "polls.js_select_option": "Please select at least one option.",
+    "polls.err_not_found": "Poll not found.",
+    "polls.err_closed": "This poll has already ended.",
+    "polls.err_login_required": "Login is required to vote in this poll.",
+    "polls.err_already_voted": "You have already voted in this poll.",
+    "polls.msg_vote_recorded": "Your vote has been recorded!"
+}

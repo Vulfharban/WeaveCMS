@@ -1,0 +1,13 @@
+{
+    "forum_users.login_title": "Jäsenkirjautuminen",
+    "forum_users.register_title": "Rekisteröidy foorumille",
+    "forum_users.privacy_modal_title": "Tietosuojaseloste",
+    "forum_users.profile_title": "Oma jäsenprofiili",
+    "forum_users.privacy_title": "Yksityisyysasetukset",
+    "forum_users.pm_title": "Yksityisviestit",
+    "forum_users.pm_login_required": "Kirjaudu sisään nähdäksesi yksityisviestisi.",
+    "forum_users.pm_inbox": "Saapuneet",
+    "forum_users.pm_sent": "Lähetetyt",
+    "forum_users.pm_compose": "Uusi viesti",
+    "forum_users.email_contact_title": "Lähetä sähköpostia foorumin kautta"
+}

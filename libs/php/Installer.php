@@ -785,6 +785,18 @@ class Installer {
                 return ['success' => false, 'error' => 'Fehler beim Speichern der Daten in MySQL: ' . ($sqlDriver->getLastError() ?? 'Unbekannter Fehler')];
             }
 
+            // Phase 42: Plugin-Basistabellen ({prefix}plugin_data, {prefix}plugin_migrations) und alle
+            // Plugin-Schemas sofort bei der Erstinstallation direkt in der Datenbank anlegen
+            try {
+                require_once __DIR__ . '/PluginManager.php';
+                require_once __DIR__ . '/PluginSchemaManager.php';
+                $sqlPdo = $sqlDriver->getPdo();
+                StorageManager::ensureCorePluginTables($sqlPdo, $db_prefix);
+                PluginSchemaManager::ensureAllPluginSchemas($base_data, false, $sqlPdo, $db_prefix);
+            } catch (\Throwable $e) {
+                error_log('Installer plugin schema initialization warning: ' . $e->getMessage());
+            }
+
             // config.local.php erst nach erfolgreicher Einrichtung schreiben
             $local_conf = "<?php\n" .
                 "// WeaveCMS Lokale Umgebungskonfiguration (wird nicht ins Git-Repository übertragen)\n" .

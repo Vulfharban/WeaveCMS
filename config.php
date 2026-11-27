@@ -34,6 +34,7 @@ require_once __DIR__ . '/libs/php/ContactInbox.php';
 require_once __DIR__ . '/libs/php/UserManager.php';
 require_once __DIR__ . '/libs/php/StatsManager.php';
 require_once __DIR__ . '/libs/php/PluginManager.php';
+require_once __DIR__ . '/libs/php/PluginSchemaManager.php';
 require_once __DIR__ . '/libs/php/AdminController.php';
 require_once __DIR__ . '/libs/php/LanguageManager.php';
 require_once __DIR__ . '/libs/php/ThemeManager.php';
@@ -242,10 +243,11 @@ function get_default_privacy_policy_text(array $data = []): string {
  * @param string $key Übersetzungsschlüssel
  * @param string $default Fallback-Text
  * @param string|null $lang Optional abweichende Sprache
+ * @param array $params Optionale Platzhalter ['key' => wert]
  * @return string
  */
-function __(string $key, string $default = '', ?string $lang = null): string {
-    return LanguageManager::t($key, $default, $lang);
+function __(string $key, string $default = '', ?string $lang = null, array $params = []): string {
+    return LanguageManager::t($key, $default, $lang, null, $params);
 }
 
 /**
@@ -268,10 +270,11 @@ function __a(string $key, string $default = '', ?string $lang = null, array $par
  * @param string $key
  * @param string $default
  * @param string|null $lang
+ * @param array $params
  * @return string
  */
-function _t(string $key, string $default = '', ?string $lang = null): string {
-    return LanguageManager::t($key, $default, $lang);
+function _t(string $key, string $default = '', ?string $lang = null, array $params = []): string {
+    return LanguageManager::t($key, $default, $lang, null, $params);
 }
 
 /**

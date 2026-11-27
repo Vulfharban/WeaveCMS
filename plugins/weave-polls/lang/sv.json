@@ -1,0 +1,19 @@
+{
+    "polls.nav_label": "Omröstningar",
+    "polls.default_title": "Aktuella omröstningar",
+    "polls.default_subtitle": "Delta i våra pågående omröstningar och se resultaten.",
+    "polls.status_closed": "Omröstning avslutad",
+    "polls.runs_until": "Pågår till {date}",
+    "polls.multi_hint": "Flerval möjligt (max {max}).",
+    "polls.vote_btn": "Rösta",
+    "polls.results_heading": "Resultat",
+    "polls.results_summary": "{voters} deltagare · {votes} röster",
+    "polls.thank_you_after_end": "Tack för ditt deltagande! Resultaten publiceras när omröstningen avslutats.",
+    "polls.js_max_choices": "Högst {max} val tillåtna.",
+    "polls.js_select_option": "Välj minst ett alternativ.",
+    "polls.err_not_found": "Omröstning hittades inte.",
+    "polls.err_closed": "Denna omröstning är redan avslutad.",
+    "polls.err_login_required": "Inloggning krävs för att rösta i denna omröstning.",
+    "polls.err_already_voted": "Du har redan röstat i denna omröstning.",
+    "polls.msg_vote_recorded": "Din röst har registrerats!"
+}

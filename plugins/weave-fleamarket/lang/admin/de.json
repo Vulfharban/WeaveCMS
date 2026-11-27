@@ -1,0 +1,11 @@
+{
+    "admin.fleamarket.title": "Weave Flohmarkt – Verwaltung",
+    "admin.fleamarket.tab_dashboard": "Dashboard & KPIs",
+    "admin.fleamarket.tab_items": "Anzeigen & Freigaben",
+    "admin.fleamarket.tab_categories": "Kategorien",
+    "admin.fleamarket.tab_inquiries": "Anfragen & Meldungen",
+    "admin.fleamarket.tab_stands": "Vor-Ort-Stände",
+    "admin.fleamarket.tab_settings": "Einstellungen & Menü-Einbindung",
+    "admin.fleamarket.nav_optin": "Als eigenen Menüpunkt in der Hauptnavigation anzeigen (Opt-In)",
+    "admin.fleamarket.run_lifecycle": "Ablauf- & DSGVO-Bereinigung jetzt ausführen"
+}

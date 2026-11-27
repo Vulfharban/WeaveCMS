@@ -11,5 +11,21 @@
     "requires_plugins": [
         "weave-forum-users"
     ],
-    "settings_tab": "weave-forum"
+    "settings_tab": "weave-forum",
+    "storage": {
+        "mode": "sql_tables",
+        "schema_version": "1.1.0",
+        "tables": [
+            "forum_categories",
+            "forum_boards",
+            "forum_topics",
+            "forum_posts",
+            "forum_likes",
+            "forum_reports",
+            "forum_subscriptions",
+            "forum_audit_log",
+            "forum_polls",
+            "forum_poll_votes"
+        ]
+    }
 }

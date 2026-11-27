@@ -1,0 +1,9 @@
+{
+    "helpdesk.nav_label": "Υποστήριξη",
+    "helpdesk.portal_title": "Υποστήριξη και αιτήματα",
+    "helpdesk.new_ticket": "Νέο αίτημα υποστήριξης",
+    "helpdesk.status_open": "Ανοιχτό",
+    "helpdesk.status_in_progress": "Σε εξέλιξη",
+    "helpdesk.status_done": "Ολοκληρώθηκε",
+    "helpdesk.login_title": "Σύνδεση Υποστήριξης"
+}

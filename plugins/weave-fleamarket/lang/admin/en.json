@@ -1,0 +1,11 @@
+{
+    "admin.fleamarket.title": "Weave Flea Market – Administration",
+    "admin.fleamarket.tab_dashboard": "Dashboard & KPIs",
+    "admin.fleamarket.tab_items": "Listings & Approvals",
+    "admin.fleamarket.tab_categories": "Categories",
+    "admin.fleamarket.tab_inquiries": "Inquiries & Reports",
+    "admin.fleamarket.tab_stands": "On-Site Stalls",
+    "admin.fleamarket.tab_settings": "Settings & Menu Integration",
+    "admin.fleamarket.nav_optin": "Show as dedicated item in main navigation (Opt-In)",
+    "admin.fleamarket.run_lifecycle": "Run Expiry & GDPR Cleanup Now"
+}

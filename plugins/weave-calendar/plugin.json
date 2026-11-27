@@ -8,5 +8,14 @@
     "icon": "calendar_month",
     "entry_file": "plugin.php",
     "requires_core": ">=1.3.4",
-    "settings_tab": "weave-calendar"
+    "settings_tab": "weave-calendar",
+    "storage": {
+        "mode": "plugin_data",
+        "schema_version": "1.0.0",
+        "plugin_data_keys": {
+            "calendar_data": "data/calendar_data.json",
+            "calendar_sync": "data/calendar_sync.json",
+            "calendar_reminders": "data/calendar_reminders.json"
+        }
+    }
 }

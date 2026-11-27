@@ -1,0 +1,13 @@
+{
+    "forum_users.login_title": "Mitglieder-Anmeldung",
+    "forum_users.register_title": "Im Forum registrieren",
+    "forum_users.privacy_modal_title": "Datenschutzerklärung",
+    "forum_users.profile_title": "Mein Mitgliederprofil",
+    "forum_users.privacy_title": "Privatsphäre & Datenschutz",
+    "forum_users.pm_title": "Private Nachrichten",
+    "forum_users.pm_login_required": "Bitte melde dich an, um deine privaten Nachrichten einzusehen.",
+    "forum_users.pm_inbox": "Posteingang",
+    "forum_users.pm_sent": "Gesendet",
+    "forum_users.pm_compose": "Neue Nachricht",
+    "forum_users.email_contact_title": "E-Mail-Nachricht über Forum senden"
+}

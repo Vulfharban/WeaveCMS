@@ -1,0 +1,9 @@
+{
+    "helpdesk.nav_label": "Support",
+    "helpdesk.portal_title": "Helpdesk & tickets",
+    "helpdesk.new_ticket": "Nieuw ticket aanmaken",
+    "helpdesk.status_open": "Open",
+    "helpdesk.status_in_progress": "In behandeling",
+    "helpdesk.status_done": "Opgelost",
+    "helpdesk.login_title": "Helpdesk inloggen"
+}

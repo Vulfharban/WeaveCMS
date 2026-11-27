@@ -1,0 +1,8 @@
+{
+    "admin.shop.title": "Weave Shop & Bestellungen",
+    "admin.shop.tab_products": "Produkte",
+    "admin.shop.tab_orders": "Bestellungen",
+    "admin.shop.tab_invoices": "Rechnungen & E-Rechnung (ZUGFeRD/XRechnung)",
+    "admin.shop.tab_payment": "Zahlungsarten & Rechtliches",
+    "admin.shop.export_datev": "Buchhaltungs- & DATEV-ZIP exportieren"
+}

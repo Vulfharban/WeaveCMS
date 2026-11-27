@@ -33,7 +33,7 @@ $isSqliteSupported = ForumManager::isSqliteSupported();
         <div>
             <h2 class="text-xl font-bold flex items-center gap-2">
                 <span class="material-icons text-primary">forum</span>
-                Forum-Administration
+                <?= htmlspecialchars(function_exists('__a') ? __a('admin.forum.title', 'Forum-Administration') : 'Forum-Administration') ?>
             </h2>
             <p class="text-sm text-muted">
                 Verwalte Bereiche, Unterforen, Forenregeln, Meldungen, Moderations-Queue und Speicher-Engines.

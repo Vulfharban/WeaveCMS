@@ -339,6 +339,18 @@ class StorageManager {
         // 4. Instanz aktualisieren
         self::$instance = $sqlDriver;
 
+        // 5. Phase 42: Core-Plugin-Tabellen ({prefix}plugin_data & {prefix}plugin_migrations) sofort anlegen
+        // und alle Plugin-Schemas sowie bestehende JSON-Dateien in die Datenbank übernehmen
+        try {
+            $sqlPdo = $sqlDriver->getPdo();
+            self::ensureCorePluginTables($sqlPdo, $dbPrefix);
+            if (class_exists('PluginSchemaManager')) {
+                PluginSchemaManager::ensureAllPluginSchemas($currentData, false, $sqlPdo, $dbPrefix);
+            }
+        } catch (\Throwable $e) {
+            error_log('StorageManager migrateToMysql plugin schemas warning: ' . $e->getMessage());
+        }
+
         return [
             'success' => true,
             'message' => "Erfolgreich zu MySQL ('{$dbName}') migriert! Die Datenbank ist nun als primäre Speicher-Engine aktiv."
@@ -369,6 +381,82 @@ class StorageManager {
             `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
         self::$pluginTableReady = true;
+    }
+
+    /**
+     * Legt {prefix}plugin_data und {prefix}plugin_migrations sofort bei Installation/Migration an (Phase 42).
+     */
+    public static function ensureCorePluginTables(PDO $pdo, string $prefix = 'weave_'): void {
+        $cleanPrefix = $prefix !== '' ? $prefix : 'weave_';
+        $dataTable = '`' . str_replace('`', '``', $cleanPrefix . 'plugin_data') . '`';
+        $driver = (string)$pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'sqlite') {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS {$dataTable} (
+                plugin_key TEXT PRIMARY KEY,
+                payload TEXT NOT NULL,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )");
+        } else {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS {$dataTable} (
+                `plugin_key` VARCHAR(128) NOT NULL PRIMARY KEY,
+                `payload` LONGTEXT NOT NULL,
+                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+            self::$pluginTableReady = true;
+        }
+        if (class_exists('PluginSchemaManager')) {
+            PluginSchemaManager::ensureRegistryTable($pdo, $cleanPrefix);
+        }
+    }
+
+    /**
+     * Übernimmt vorhandene lokale JSON-Dateien einmalig in {prefix}plugin_data,
+     * ohne bereits existierende Datenbank-Einträge zu überschreiben (Phase 42).
+     *
+     * @param array<string, string> $keyToPathMap ['plugin_key' => '/abs/path/to/file.json']
+     * @return int Anzahl neu importierter Datensätze
+     */
+    public static function importPluginJsonFilesToMysql(PDO $pdo, string $prefix, array $keyToPathMap): int {
+        if (empty($keyToPathMap)) {
+            return 0;
+        }
+        $cleanPrefix = $prefix !== '' ? $prefix : 'weave_';
+        self::ensureCorePluginTables($pdo, $cleanPrefix);
+        $table = '`' . str_replace('`', '``', $cleanPrefix . 'plugin_data') . '`';
+        $driver = (string)$pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        $imported = 0;
+
+        foreach ($keyToPathMap as $key => $path) {
+            if (!is_string($key) || $key === '' || !is_string($path) || !is_file($path)) {
+                continue;
+            }
+            $chk = $pdo->prepare("SELECT 1 FROM {$table} WHERE plugin_key = :k LIMIT 1");
+            $chk->execute([':k' => $key]);
+            if ($chk->fetchColumn() !== false) {
+                continue; // Bestehende DB-Daten niemals überschreiben
+            }
+            $raw = @file_get_contents($path);
+            if ($raw === false || trim($raw) === '') {
+                continue;
+            }
+            $decoded = json_decode($raw, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                continue;
+            }
+            $normalizedJson = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            if ($normalizedJson === false) {
+                continue;
+            }
+            if ($driver === 'sqlite') {
+                $ins = $pdo->prepare("INSERT OR IGNORE INTO {$table} (plugin_key, payload) VALUES (:k, :p)");
+            } else {
+                $ins = $pdo->prepare("INSERT IGNORE INTO {$table} (`plugin_key`, `payload`) VALUES (:k, :p)");
+            }
+            if ($ins->execute([':k' => $key, ':p' => $normalizedJson])) {
+                $imported++;
+            }
+        }
+        return $imported;
     }
 
     /**

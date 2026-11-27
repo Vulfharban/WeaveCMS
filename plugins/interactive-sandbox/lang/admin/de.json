@@ -1,0 +1,6 @@
+{
+    "admin.sandbox.title": "Interaktive Live-Demo Sandbox",
+    "admin.sandbox.desc": "Ermöglicht Besuchern eine isolierte Demo-Sitzung im Arbeitsspeicher ohne Produktivdaten zu verändern.",
+    "admin.sandbox.cleanup": "Abgelaufene Demo-Sitzungen jetzt bereinigen",
+    "admin.sandbox.cleanup_done": "Bereinigung abgeschlossen: {count} veraltete Sitzung(en) entfernt."
+}

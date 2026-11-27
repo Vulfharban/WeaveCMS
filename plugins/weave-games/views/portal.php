@@ -93,9 +93,9 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
                     <a href="?page=games&action=logout" class="wg-logout-btn" title="Abmelden">🚪</a>
                 </div>
             <?php else: ?>
-                <a href="?page=games&mode=login" class="wg-btn wg-btn-outline">Anmelden</a>
+                <a href="?page=games&mode=login" class="wg-btn wg-btn-outline"><?= htmlspecialchars(function_exists('__') ? __('nav.login', 'Anmelden') : 'Anmelden') ?></a>
                 <?php if (!empty($cfg['allow_self_registration'])): ?>
-                    <a href="?page=games&mode=register" class="wg-btn wg-btn-primary">Registrieren</a>
+                    <a href="?page=games&mode=register" class="wg-btn wg-btn-primary"><?= htmlspecialchars(function_exists('__') ? __('games.register_title', 'Registrieren') : 'Registrieren') ?></a>
                 <?php endif; ?>
             <?php endif; ?>
         </div>

@@ -1,0 +1,19 @@
+{
+    "polls.nav_label": "Afstemninger",
+    "polls.default_title": "Aktuelle afstemninger",
+    "polls.default_subtitle": "Deltag i vores igangværende afstemninger og se resultaterne.",
+    "polls.status_closed": "Afstemning afsluttet",
+    "polls.runs_until": "Løber indtil {date}",
+    "polls.multi_hint": "Flere valg mulige (maks. {max}).",
+    "polls.vote_btn": "Stem",
+    "polls.results_heading": "Resultat",
+    "polls.results_summary": "{voters} deltagere · {votes} stemmer",
+    "polls.thank_you_after_end": "Tak for din deltagelse! Resultaterne offentliggøres, når afstemningen er afsluttet.",
+    "polls.js_max_choices": "Højst {max} valg tilladt.",
+    "polls.js_select_option": "Vælg venligst mindst én mulighed.",
+    "polls.err_not_found": "Afstemning ikke fundet.",
+    "polls.err_closed": "Denne afstemning er allerede afsluttet.",
+    "polls.err_login_required": "Log ind er påkrævet for at stemme.",
+    "polls.err_already_voted": "Du har allerede stemt i denne afstemning.",
+    "polls.msg_vote_recorded": "Din stemme er blevet registreret!"
+}

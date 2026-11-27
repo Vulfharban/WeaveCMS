@@ -6,11 +6,12 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
     exit;
 }
 
+$t = static fn(string $key, string $default): string => function_exists('__') ? __($key, $default) : $default;
 $currentUser = class_exists('ForumUserManager') ? ForumUserManager::getCurrentUser() : null;
 if (!$currentUser) {
     echo '<div style="max-width:520px; margin:40px auto; padding:24px; border-radius:14px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; text-align:center;">'
-       . '<strong>Anmeldung erforderlich:</strong> Bitte melde dich an, um deine privaten Nachrichten einzusehen.<br>'
-       . '<a href="?page=forum&view=login" class="kunena-btn-primary" style="margin-top:12px;">Zur Anmeldung</a>'
+       . '<strong>' . htmlspecialchars($t('forum_users.login_title', 'Anmeldung erforderlich')) . ':</strong> ' . htmlspecialchars($t('forum_users.pm_login_required', 'Bitte melde dich an, um deine privaten Nachrichten einzusehen.')) . '<br>'
+       . '<a href="?page=forum&view=login" class="kunena-btn-primary" style="margin-top:12px;">' . htmlspecialchars($t('forum_users.login_title', 'Zur Anmeldung')) . '</a>'
        . '</div>';
     return;
 }
@@ -144,7 +145,7 @@ $prefillSubject = trim((string)($_GET['subject'] ?? ''));
             <div style="display:flex; align-items:center; gap:10px;">
                 <span class="material-icons" style="font-size:24px; color:var(--primary, #2e6248);">mail</span>
                 <div>
-                    <h2 style="margin:0; font-size:1.25rem; font-weight:800; color:#0f172a;">Private Nachrichten</h2>
+                    <h2 style="margin:0; font-size:1.25rem; font-weight:800; color:#0f172a;"><?= htmlspecialchars($t('forum_users.pm_title', 'Private Nachrichten')) ?></h2>
                     <div style="font-size:12px; color:#64748b;">Postfach von <?= htmlspecialchars(ForumUserManager::getDisplayName($currentUser)) ?></div>
                 </div>
             </div>

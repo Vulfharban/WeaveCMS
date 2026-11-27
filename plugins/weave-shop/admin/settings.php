@@ -62,7 +62,7 @@ $section_subtitle = $config['section_subtitle'] ?? 'Handgefertigte Unikate, krea
                 <span class="material-icons" style="font-size: 28px;">shopping_bag</span>
             </div>
             <div>
-                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800;">🛒 WeaveCMS Shop & Checkout</h3>
+                <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800;">🛒 <?php echo htmlspecialchars(function_exists('__a') ? __a('admin.shop.title', 'Weave Shop & Bestellungen') : 'Weave Shop & Bestellungen'); ?></h3>
                 <p style="margin: 2px 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">
                     Integrierte E-Commerce Engine mit Kreditkarte, PayPal und europäischem WERO Instant Payment.
                 </p>

@@ -1,0 +1,23 @@
+{
+    "shop.nav_label": "Butikk",
+    "shop.badge": "Nettbutikk",
+    "shop.secure_payment": "Sikker betaling:",
+    "shop.pay_credit_card": "💳 Kredittkort (Visa, Mastercard)",
+    "shop.pay_bank_transfer": "🏦 Bankoverføring",
+    "shop.cat_all": "Alle",
+    "shop.empty_title": "Ingen produkter tilgjengelig for øyeblikket",
+    "shop.empty_sub": "Kom innom snart igjen!",
+    "shop.sold_out": "Utsolgt",
+    "shop.in_stock": "På lager",
+    "shop.only_left": "Kun {count} igjen",
+    "shop.tax_exempt": "Momsfritatt (§ 19 UStG)",
+    "shop.tax_incl": "inkl. {rate}% mva.",
+    "shop.buy_btn": "Kjøp",
+    "shop.sold_btn": "Utsolgt",
+    "shop.cart_title": "Din handlekurv",
+    "shop.cart_empty": "Handlekurven er tom.",
+    "shop.cart_total": "Totalt",
+    "shop.checkout_btn": "Til kassen",
+    "shop.order_submit": "Fullfør bestilling",
+    "shop.invoice_title": "Faktura"
+}

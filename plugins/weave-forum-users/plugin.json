@@ -8,5 +8,13 @@
     "icon": "group",
     "entry_file": "plugin.php",
     "requires_core": ">=0.4.0",
-    "settings_tab": "forum_users"
+    "settings_tab": "forum_users",
+    "storage": {
+        "mode": "sql_tables",
+        "schema_version": "1.1.0",
+        "tables": [
+            "forum_users",
+            "forum_messages"
+        ]
+    }
 }

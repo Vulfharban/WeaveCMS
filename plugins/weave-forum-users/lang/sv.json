@@ -1,0 +1,13 @@
+{
+    "forum_users.login_title": "Medlemsinloggning",
+    "forum_users.register_title": "Registrera dig på forumet",
+    "forum_users.privacy_modal_title": "Integritetspolicy",
+    "forum_users.profile_title": "Min medlemsprofil",
+    "forum_users.privacy_title": "Sekretessinställningar",
+    "forum_users.pm_title": "Privata meddelanden",
+    "forum_users.pm_login_required": "Logga in för att se dina privata meddelanden.",
+    "forum_users.pm_inbox": "Inkorg",
+    "forum_users.pm_sent": "Skickat",
+    "forum_users.pm_compose": "Nytt meddelande",
+    "forum_users.email_contact_title": "Skicka e-post via forum"
+}

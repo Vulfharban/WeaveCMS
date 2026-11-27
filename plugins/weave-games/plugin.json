@@ -8,6 +8,16 @@
     "icon": "sports_esports",
     "entry_file": "plugin.php",
     "requires_core": ">=0.4.0",
-    "settings_tab": "weave-games"
+    "settings_tab": "weave-games",
+    "storage": {
+        "mode": "plugin_data",
+        "schema_version": "1.0.0",
+        "plugin_data_keys": {
+            "games_config": "data/games_config.json",
+            "games_servers": "data/games_servers.json",
+            "games_releases": "data/games_releases.json",
+            "games_users": "data/games_users.json"
+        }
+    }
 }
 

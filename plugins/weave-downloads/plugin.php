@@ -24,14 +24,16 @@ PluginManager::addFilter('registered_sections', function($sections, $data) {
 
     if (!in_array('downloads', $existing_ids, true)) {
         $sections[] = [
-            'id'        => 'downloads',
-            'type'      => 'downloads',
-            'title'     => 'Downloads & Dokumente',
-            'nav_label' => 'Downloads',
-            'visible'   => true,
-            'in_nav'    => true,
-            'can_delete'=> true,
-            'plugin'    => 'weave-downloads'
+            'id'           => 'downloads',
+            'type'         => 'downloads',
+            'title'        => function_exists('__') ? __('downloads.default_title', 'Downloads & Dokumente') : 'Downloads & Dokumente',
+            'title_key'    => 'downloads.default_title',
+            'nav_label'    => function_exists('__') ? __('downloads.nav_label', 'Downloads') : 'Downloads',
+            'nav_label_key'=> 'downloads.nav_label',
+            'visible'      => true,
+            'in_nav'       => true,
+            'can_delete'   => true,
+            'plugin'       => 'weave-downloads'
         ];
     }
 
@@ -44,13 +46,13 @@ PluginManager::addAction('admin_render_plugin_settings_weave-downloads', functio
     ?>
     <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-top: 1rem;">
         <h4 style="margin: 0 0 0.75rem 0; color: var(--primary); display: flex; align-items: center; gap: 8px;">
-            <span class="material-icons">file_download</span> Download-Center aktiv
+            <span class="material-icons">file_download</span> <?php echo htmlspecialchars(function_exists('__a') ? __a('admin.downloads.title', 'Download-Center aktiv') : 'Download-Center aktiv'); ?>
         </h4>
         <p style="color: var(--text-secondary); margin: 0 0 1rem 0; font-size: 0.92rem;">
-            Aktuell sind <strong><?php echo $downloadCount; ?> Datei(en) / Dokument(e)</strong> im Download-Bereich verfügbar.
+            <?php echo htmlspecialchars(function_exists('__a') ? __a('admin.downloads.count_info', 'Aktuell sind {count} Datei(en) / Dokument(e) im Download-Bereich verfügbar.', null, ['count' => $downloadCount]) : "Aktuell sind {$downloadCount} Datei(en) / Dokument(e) im Download-Bereich verfügbar."); ?>
         </p>
         <button type="button" class="btn btn-primary" onclick="switchTab('tab-downloads')" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-            <span class="material-icons" style="font-size: 16px;">folder_zip</span> Downloads verwalten
+            <span class="material-icons" style="font-size: 16px;">folder_zip</span> <?php echo htmlspecialchars(function_exists('__a') ? __a('admin.downloads.manage_btn', 'Downloads verwalten') : 'Downloads verwalten'); ?>
         </button>
     </div>
     <?php

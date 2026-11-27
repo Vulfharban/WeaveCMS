@@ -34,17 +34,25 @@ class PluginManager {
     protected static ?array $discoveredCache = null;
 
     /**
+     * Optionaler Verzeichnis-Override für isolierte Plugin-Tests (Phase 42).
+     */
+    protected static ?string $pluginsDirOverride = null;
+
+    /**
      * Liste aller offiziellen WeaveCMS-Plugins (im Release gebundelt).
      */
     public const OFFICIAL_PLUGINS = [
         'interactive-sandbox',
         'universal-integrations',
+        'weave-calendar',
         'weave-downloads',
+        'weave-fleamarket',
         'weave-forum',
         'weave-forum-users',
         'weave-games',
         'weave-helpdesk',
         'weave-inventory',
+        'weave-polls',
         'weave-shop',
         'weave-workshops',
         'webtrees-genealogy',
@@ -122,10 +130,21 @@ class PluginManager {
     }
 
     /**
+     * Ermöglicht das Setzen eines alternativen Plugin-Verzeichnisses (z. B. für isolierte Lifecycle-Tests).
+     */
+    public static function setPluginsDirOverride(?string $dir): void {
+        self::$pluginsDirOverride = $dir !== null ? rtrim($dir, '/\\') : null;
+        self::clearCache();
+    }
+
+    /**
      * Ermittelt den absoluten Pfad zum Plugins-Verzeichnis.
      * @return string
      */
     public static function getPluginsDir(): string {
+        if (self::$pluginsDirOverride !== null) {
+            return self::$pluginsDirOverride;
+        }
         return dirname(__DIR__, 2) . '/plugins';
     }
 
@@ -341,6 +360,31 @@ class PluginManager {
             $manifest['settings_tab'] = $manifest['settings_tab'] ?? null;
             $manifest['requires_core'] = $manifest['requires_core'] ?? '>=0.4.0';
             $manifest['requires_plugins'] = is_array($manifest['requires_plugins'] ?? null) ? $manifest['requires_plugins'] : [];
+
+            // Phase 42: Standardisierte Speicher- & Schema-Deklaration (offizielle & 3rd-Party-Plugins)
+            $rawStorage = is_array($manifest['storage'] ?? null) ? $manifest['storage'] : [];
+            $mode = strtolower(trim((string)($rawStorage['mode'] ?? 'none')));
+            if (!in_array($mode, ['plugin_data', 'sql_tables', 'json_only', 'none'], true)) {
+                $mode = 'none';
+            }
+            $manifest['storage'] = [
+                'mode'             => $mode,
+                'schema_version'   => (string)($rawStorage['schema_version'] ?? $manifest['version']),
+                'tables'           => array_values(array_filter((array)($rawStorage['tables'] ?? []), 'is_string')),
+                'plugin_data_keys' => is_array($rawStorage['plugin_data_keys'] ?? null) ? $rawStorage['plugin_data_keys'] : [],
+                'json_files'       => array_values(array_filter((array)($rawStorage['json_files'] ?? []), 'is_string')),
+                'migrations_dir'   => isset($rawStorage['migrations_dir']) && is_string($rawStorage['migrations_dir']) ? trim($rawStorage['migrations_dir']) : null,
+            ];
+
+            // Optionales benutzerdefiniertes Sprachverzeichnis (Phase 41)
+            if (!empty($manifest['lang_dir']) && is_string($manifest['lang_dir']) && class_exists('LanguageManager')) {
+                $cleanLangRel = ltrim(str_replace(['..', '\\'], ['', '/'], $manifest['lang_dir']), '/');
+                $absLangDir = $pluginDir . '/' . $cleanLangRel;
+                if (is_dir($absLangDir)) {
+                    LanguageManager::registerPluginLangDir($slug, $absLangDir);
+                }
+            }
+
             $manifest['plugin_dir'] = $pluginDir;
             $manifest['entry_path'] = $pluginDir . '/' . $manifest['entry_file'];
             $manifest['is_valid'] = file_exists($manifest['entry_path']);
@@ -486,12 +530,19 @@ class PluginManager {
             $data['plugins']['active'][] = $slug;
         }
 
-        // Plugin sofort laden und Aktivierungs-Hook ausführen
+        // Plugin sofort laden, Aktivierungs-Hook ausführen und DB-/Schema-Stand prüfen/aktualisieren
         try {
             require_once $plugin['entry_path'];
             self::$loadedPlugins[$slug] = true;
             self::doAction("plugin_activated_{$slug}", $data);
             self::doAction('plugin_activated', $slug, $plugin);
+
+            if (class_exists('PluginSchemaManager')) {
+                $schemaRes = PluginSchemaManager::ensurePluginSchema($slug, $data);
+                if (empty($schemaRes['success']) && !empty($schemaRes['errors'])) {
+                    throw new \RuntimeException(implode('; ', (array)$schemaRes['errors']));
+                }
+            }
         } catch (Throwable $e) {
             // Bei fatalem Fehler Rollback der Aktivierung
             $data['plugins']['active'] = array_values(array_diff($data['plugins']['active'], [$slug]));
@@ -531,16 +582,18 @@ class PluginManager {
             }
         }
 
+        // WICHTIG (Phase 42): Deaktivieren erhält strikt alle Tabellen, plugin_data-Einträge und JSON-Dateien.
+        // Es findet niemals ein automatisches DROP TABLE oder Datenlöschen statt.
         self::doAction("plugin_deactivated_{$slug}", $data);
         self::doAction('plugin_deactivated', $slug);
 
         $data['plugins']['active'] = array_values(array_diff($data['plugins']['active'], [$slug]));
 
         if (class_exists('SecurityManager')) {
-            SecurityManager::logEvent('PLUGIN_DEACTIVATED', "Plugin '{$slug}' ({$name}) deaktiviert", 'INFO');
+            SecurityManager::logEvent('PLUGIN_DEACTIVATED', "Plugin '{$slug}' ({$name}) deaktiviert (Daten vollständig erhalten)", 'INFO');
         }
 
-        return ['success' => true, 'message' => "Plugin '{$name}' wurde deaktiviert."];
+        return ['success' => true, 'message' => "Plugin '{$name}' wurde deaktiviert. Alle gespeicherten Daten und Tabellen bleiben erhalten."];
     }
 
     // =========================================================================

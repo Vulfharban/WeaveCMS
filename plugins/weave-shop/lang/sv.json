@@ -1,0 +1,23 @@
+{
+    "shop.nav_label": "Butik",
+    "shop.badge": "Webbutik",
+    "shop.secure_payment": "Säker betalning:",
+    "shop.pay_credit_card": "💳 Kreditkort (Visa, Mastercard)",
+    "shop.pay_bank_transfer": "🏦 Banköverföring",
+    "shop.cat_all": "Alla",
+    "shop.empty_title": "Inga produkter tillgängliga för närvarande",
+    "shop.empty_sub": "Välkommen tillbaka snart!",
+    "shop.sold_out": "Slutsåld",
+    "shop.in_stock": "I lager",
+    "shop.only_left": "Endast {count} kvar",
+    "shop.tax_exempt": "Momsbefriad (§ 19 UStG)",
+    "shop.tax_incl": "inkl. {rate}% moms",
+    "shop.buy_btn": "Köp",
+    "shop.sold_btn": "Slut",
+    "shop.cart_title": "Din varukorg",
+    "shop.cart_empty": "Din varukorg är tom.",
+    "shop.cart_total": "Totalt",
+    "shop.checkout_btn": "Till kassan",
+    "shop.order_submit": "Slutför beställning",
+    "shop.invoice_title": "Faktura"
+}

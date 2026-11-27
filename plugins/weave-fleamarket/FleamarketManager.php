@@ -333,39 +333,40 @@ class FleamarketManager {
     }
 
     public static function getLabels(): array {
+        $t = static fn(string $key, string $default): string => function_exists('__') ? __($key, $default) : $default;
         return [
             'ad_types' => [
-                'offer'  => 'Angebot / Biete',
-                'wanted' => 'Gesuch / Suche',
-                'swap'   => 'Tausch',
-                'gift'   => 'Zu verschenken',
+                'offer'  => $t('fleamarket.type_offer', 'Angebot / Biete'),
+                'wanted' => $t('fleamarket.type_wanted', 'Gesuch / Suche'),
+                'swap'   => $t('fleamarket.type_swap', 'Tausch'),
+                'gift'   => $t('fleamarket.type_gift', 'Zu verschenken'),
             ],
             'price_models' => [
-                'fixed'      => 'Festpreis',
-                'negotiable' => 'Verhandlungsbasis (VB)',
-                'free'       => 'Zu verschenken',
-                'on_request' => 'Auf Anfrage',
+                'fixed'      => $t('fleamarket.price_fixed', 'Festpreis'),
+                'negotiable' => $t('fleamarket.price_negotiable', 'Verhandlungsbasis (VB)'),
+                'free'       => $t('fleamarket.price_free', 'Zu verschenken'),
+                'on_request' => $t('fleamarket.price_on_request', 'Auf Anfrage'),
             ],
             'conditions' => [
-                'new'      => 'Neu / OVP',
-                'like_new' => 'Wie neu',
-                'good'     => 'Sehr gut / Gut erhalten',
-                'used'     => 'Sichtbare Gebrauchsspuren',
-                'defect'   => 'Defekt / Für Bastler',
+                'new'      => $t('fleamarket.cond_new', 'Neu / OVP'),
+                'like_new' => $t('fleamarket.cond_like_new', 'Wie neu'),
+                'good'     => $t('fleamarket.cond_good', 'Sehr gut / Gut erhalten'),
+                'used'     => $t('fleamarket.cond_used', 'Sichtbare Gebrauchsspuren'),
+                'defect'   => $t('fleamarket.cond_defect', 'Defekt / Für Bastler'),
             ],
             'delivery_modes' => [
-                'pickup'   => 'Nur Abholung',
-                'shipping' => 'Versand möglich',
-                'both'     => 'Abholung & Versand',
+                'pickup'   => $t('fleamarket.deliv_pickup', 'Nur Abholung'),
+                'shipping' => $t('fleamarket.deliv_shipping', 'Versand möglich'),
+                'both'     => $t('fleamarket.deliv_both', 'Abholung & Versand'),
             ],
             'statuses' => [
-                'draft'    => ['label' => 'Entwurf',            'color' => '#64748b', 'bg' => 'rgba(100,116,139,0.12)'],
-                'pending'  => ['label' => 'Wartet auf Freigabe','color' => '#d97706', 'bg' => 'rgba(245,158,11,0.12)'],
-                'active'   => ['label' => 'Verfügbar',          'color' => '#059669', 'bg' => 'rgba(16,185,129,0.12)'],
-                'reserved' => ['label' => 'Reserviert',         'color' => '#ea580c', 'bg' => 'rgba(234,88,12,0.14)'],
-                'sold'     => ['label' => 'Verkauft / Vergeben','color' => '#dc2626', 'bg' => 'rgba(239,68,68,0.12)'],
-                'expired'  => ['label' => 'Abgelaufen',         'color' => '#6b7280', 'bg' => 'rgba(107,114,128,0.14)'],
-                'archived' => ['label' => 'Archiviert',         'color' => '#94a3b8', 'bg' => 'rgba(148,163,184,0.14)'],
+                'draft'    => ['label' => $t('fleamarket.status_draft', 'Entwurf'),             'color' => '#64748b', 'bg' => 'rgba(100,116,139,0.12)'],
+                'pending'  => ['label' => $t('fleamarket.status_pending', 'Wartet auf Freigabe'),'color' => '#d97706', 'bg' => 'rgba(245,158,11,0.12)'],
+                'active'   => ['label' => $t('fleamarket.status_active', 'Verfügbar'),           'color' => '#059669', 'bg' => 'rgba(16,185,129,0.12)'],
+                'reserved' => ['label' => $t('fleamarket.status_reserved', 'Reserviert'),        'color' => '#ea580c', 'bg' => 'rgba(234,88,12,0.14)'],
+                'sold'     => ['label' => $t('fleamarket.status_sold', 'Verkauft / Vergeben'),   'color' => '#dc2626', 'bg' => 'rgba(239,68,68,0.12)'],
+                'expired'  => ['label' => $t('fleamarket.status_expired', 'Abgelaufen'),         'color' => '#6b7280', 'bg' => 'rgba(107,114,128,0.14)'],
+                'archived' => ['label' => $t('fleamarket.status_archived', 'Archiviert'),        'color' => '#94a3b8', 'bg' => 'rgba(148,163,184,0.14)'],
             ],
         ];
     }
