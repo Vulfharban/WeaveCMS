@@ -357,8 +357,13 @@ foreach ($servers as $srv) {
 </style>
 
 <section id="games" class="wg-home-section">
+    <?php
+    $t = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+        ? __($key, $default, null, $params)
+        : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
+    ?>
     <div class="wg-home-header">
-        <h2>🎮 <?= htmlspecialchars((string)($cfg['section_title'] ?? 'Spiele & Anwendungen')) ?></h2>
+        <h2>🎮 <?= htmlspecialchars((string)($cfg['section_title'] ?? $t('games.home_default_title', 'Spiele & Anwendungen'))) ?></h2>
         <?php if (!empty($cfg['section_subtitle'])): ?>
             <p><?= htmlspecialchars((string)$cfg['section_subtitle']) ?></p>
         <?php endif; ?>
@@ -366,7 +371,7 @@ foreach ($servers as $srv) {
             <div style="margin-top: 10px;">
                 <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:700; background:#dcfce7; color:#166534;">
                     <span style="width:8px; height:8px; border-radius:50%; background:#16a34a; display:inline-block;"></span>
-                    <?= (int)$onlineServerCount ?> Live Game-Server online
+                    <?= htmlspecialchars($t('games.home_servers_online', '{count} Live Game-Server online', ['count' => (string)(int)$onlineServerCount])) ?>
                 </span>
             </div>
         <?php endif; ?>
@@ -374,7 +379,7 @@ foreach ($servers as $srv) {
 
     <?php if ($showFilters && count($presentCategories) > 1): ?>
         <div class="wg-home-filters" id="wgHomeFilters">
-            <button type="button" class="wg-home-filter-btn active" onclick="wgFilterHomeGames('all', this)">Alle (<?= count($homeGames) ?>)</button>
+            <button type="button" class="wg-home-filter-btn active" onclick="wgFilterHomeGames('all', this)"><?= htmlspecialchars($t('games.home_all_filter', 'Alle ({count})', ['count' => (string)count($homeGames)])) ?></button>
             <?php foreach ($presentCategories as $catKey): ?>
                 <button type="button" class="wg-home-filter-btn" onclick="wgFilterHomeGames('<?= htmlspecialchars($catKey, ENT_QUOTES) ?>', this)">
                     <?= htmlspecialchars($categoriesMap[$catKey] ?? ucfirst($catKey)) ?>
@@ -385,7 +390,7 @@ foreach ($servers as $srv) {
 
     <?php if (empty($homeGames)): ?>
         <p style="text-align:center; color: var(--text-secondary, #64748b);">
-            Derzeit sind noch keine Spiele oder Anwendungen freigegeben.
+            <?= htmlspecialchars($t('games.home_empty', 'Derzeit sind noch keine Spiele oder Anwendungen freigegeben.')) ?>
         </p>
     <?php else: ?>
         <div class="wg-home-grid layout-<?= htmlspecialchars($layout) ?>" id="wgHomeGrid">
@@ -421,10 +426,10 @@ foreach ($servers as $srv) {
                                 <?= htmlspecialchars($rtInfo['badge']) ?>
                             </span>
                             <?php if (!empty($g['featured'])): ?>
-                                <span class="wg-runtime-pill" style="background: #f59e0b; color: #111827;">★ Highlight</span>
+                                <span class="wg-runtime-pill" style="background: #f59e0b; color: #111827;">★ <?= htmlspecialchars($t('games.home_highlight', 'Highlight')) ?></span>
                             <?php elseif ($showServerStatus && !empty($gameServers)): ?>
                                 <span class="wg-runtime-pill" style="background: <?= $gameOnline > 0 ? '#16a34a' : '#475569' ?>;">
-                                    <?= $gameOnline > 0 ? "● {$gameOnline} Server Online" : '○ Server Offline' ?>
+                                    <?= $gameOnline > 0 ? '● ' . htmlspecialchars($t('games.home_server_online', '{count} Server Online', ['count' => (string)$gameOnline])) : '○ ' . htmlspecialchars($t('games.home_server_offline', 'Server Offline')) ?>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -440,7 +445,7 @@ foreach ($servers as $srv) {
                                     <?= htmlspecialchars((strlen((string)($g['icon'] ?? '')) <= 4 ? (string)$g['icon'] : '🎮')) ?>
                                 </div>
                                 <div style="font-size: 12px; opacity: 0.85; font-weight: 600;">
-                                    <?= htmlspecialchars((string)($g['genre'] ?? ($categoriesMap[$cat] ?? 'Game / App'))) ?>
+                                    <?= htmlspecialchars((string)($g['genre'] ?? ($categoriesMap[$cat] ?? $t('games.home_app_fallback', 'Spiel / App')))) ?>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -463,27 +468,27 @@ foreach ($servers as $srv) {
                                 <?php if ($usePlayModal && $embedUrl !== '' && ($g['embed_mode'] ?? 'modal') !== 'new_tab'): ?>
                                     <button type="button" class="wg-home-btn wg-home-btn-play"
                                             onclick="wgOpenHomeGameModal(<?= htmlspecialchars(json_encode((string)$g['title']), ENT_QUOTES) ?>, <?= htmlspecialchars(json_encode($runnerHref), ENT_QUOTES) ?>, <?= htmlspecialchars(json_encode($aspect), ENT_QUOTES) ?>)">
-                                        ▶ Direkt spielen
+                                        ▶ <?= htmlspecialchars($t('games.home_play_direct', 'Direkt spielen')) ?>
                                     </button>
                                 <?php elseif (($g['embed_mode'] ?? '') === 'new_tab' && $embedUrl !== ''): ?>
                                     <a href="<?= htmlspecialchars($runnerHref) ?>" target="_blank" rel="noopener noreferrer" class="wg-home-btn wg-home-btn-play">
-                                        ▶ Im Tab starten
+                                        ▶ <?= htmlspecialchars($t('games.home_play_tab', 'Im Tab starten')) ?>
                                     </a>
                                 <?php else: ?>
                                     <a href="?page=games&play=<?= urlencode($slug) ?>" class="wg-home-btn wg-home-btn-play">
-                                        ▶ Jetzt spielen
+                                        ▶ <?= htmlspecialchars($t('games.home_play_now', 'Jetzt spielen')) ?>
                                     </a>
                                 <?php endif; ?>
                             <?php endif; ?>
 
                             <?php if ($latestRel && !empty($latestRel['download_url'])): ?>
                                 <a href="<?= htmlspecialchars((string)$latestRel['download_url']) ?>" class="wg-home-btn wg-home-btn-dl">
-                                    ⬇️ Download (v<?= htmlspecialchars((string)$latestRel['version']) ?>)
+                                    ⬇️ <?= htmlspecialchars($t('games.home_download_ver', 'Download (v{version})', ['version' => (string)$latestRel['version']])) ?>
                                 </a>
                             <?php endif; ?>
 
                             <a href="?page=games&play=<?= urlencode($slug) ?>" class="wg-home-btn wg-home-btn-sec">
-                                Portal &amp; Details
+                                <?= htmlspecialchars($t('games.home_portal_details', 'Portal & Details')) ?>
                             </a>
                         </div>
                     </div>
@@ -494,7 +499,7 @@ foreach ($servers as $srv) {
 
     <div style="text-align: center; margin-top: 1.75rem;">
         <a href="?page=games" class="wg-home-btn wg-home-btn-sec" style="padding: 10px 22px; font-size: 0.92rem;">
-            🚀 Alle Spiele, Server &amp; Downloads im Portal öffnen
+            🚀 <?= htmlspecialchars($t('games.home_open_all', 'Alle Spiele, Server & Downloads im Portal öffnen')) ?>
         </a>
     </div>
 </section>
@@ -503,10 +508,10 @@ foreach ($servers as $srv) {
 <div id="wgHomeGameModal" class="wg-home-modal-backdrop" onclick="if(event.target===this) wgCloseHomeGameModal();">
     <div class="wg-home-modal-box">
         <div class="wg-home-modal-bar">
-            <strong id="wgHomeModalTitle" style="font-size: 14px;">Spiel</strong>
+            <strong id="wgHomeModalTitle" style="font-size: 14px;"><?= htmlspecialchars($t('games.home_modal_default_title', 'Spiel')) ?></strong>
             <div style="display:flex; gap:8px; align-items:center;">
-                <button type="button" onclick="wgFullscreenHomeModal()" style="background:#334155; color:#fff; border:none; border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer;">⛶ Vollbild</button>
-                <button type="button" onclick="wgCloseHomeGameModal()" style="background:#ef4444; color:#fff; border:none; border-radius:6px; padding:5px 11px; font-size:12px; font-weight:700; cursor:pointer;">&times; Schließen</button>
+                <button type="button" onclick="wgFullscreenHomeModal()" style="background:#334155; color:#fff; border:none; border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer;">⛶ <?= htmlspecialchars($t('games.fullscreen', 'Vollbild')) ?></button>
+                <button type="button" onclick="wgCloseHomeGameModal()" style="background:#ef4444; color:#fff; border:none; border-radius:6px; padding:5px 11px; font-size:12px; font-weight:700; cursor:pointer;">&times; <?= htmlspecialchars($t('games.close', 'Schließen')) ?></button>
             </div>
         </div>
         <div id="wgHomeModalStage" style="width:100%; height:72vh; background:#020617;">
@@ -531,7 +536,7 @@ function wgOpenHomeGameModal(title, url, aspect) {
     var ttl = document.getElementById('wgHomeModalTitle');
     var stage = document.getElementById('wgHomeModalStage');
     if (!modal || !frame) return;
-    if (ttl) ttl.textContent = title || 'Spiel';
+    if (ttl) ttl.textContent = title || <?= json_encode($t('games.home_modal_default_title', 'Spiel')) ?>;
     if (stage) {
         stage.style.height = (aspect === '1:1') ? 'min(76vh, 720px)' : '74vh';
     }

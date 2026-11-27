@@ -5,6 +5,9 @@
 if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
     exit;
 }
+$tr = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+    ? __($key, $default, null, $params)
+    : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
 
 $categories = ForumManager::getCategories();
 $allBoards = ForumManager::getBoards();
@@ -17,7 +20,7 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
 <div class="kunena-forum-wrapper">
     <?php if (empty($categories)): ?>
         <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:3rem; text-align:center; color:#64748b;">
-            Noch keine Foren-Bereiche eingerichtet.
+            <?= htmlspecialchars($tr('forum.index.empty', 'Noch keine Foren-Bereiche eingerichtet.')) ?>
         </div>
     <?php else: ?>
         <?php foreach ($categories as $catIndex => $cat): ?>
@@ -36,14 +39,14 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                             <?= htmlspecialchars($cat['title']) ?>
                         </h3>
                         <span class="kunena-cat-badge">
-                            <?= $catTopicsCount ?> <?= $catTopicsCount === 1 ? 'Thema' : 'Themen' ?>
+                            <?= $catTopicsCount ?> <?= htmlspecialchars($catTopicsCount === 1 ? $tr('forum.topic_singular', 'Thema') : $tr('forum.topic_plural', 'Themen')) ?>
                         </span>
                     </div>
                     <button type="button" 
                             class="kunena-collapse-btn"
                             onclick="toggleKunenaCategory('<?= $catCollapseId ?>', this)"
-                            title="Kategorie einklappen / ausklappen"
-                            aria-label="Kategorie umschalten">
+                            title="<?= htmlspecialchars($tr('forum.index.collapse_title', 'Kategorie einklappen / ausklappen')) ?>"
+                            aria-label="<?= htmlspecialchars($tr('forum.index.collapse_title', 'Kategorie einklappen / ausklappen')) ?>">
                         <span class="material-icons" style="font-size: 18px;">remove</span>
                     </button>
                 </div>
@@ -51,16 +54,16 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                 <!-- Sub-header bar & Board Rows -->
                 <div id="<?= $catCollapseId ?>" class="kunena-category-body">
                     <div class="kunena-subhead">
-                        <div>Kategorie / Forum</div>
-                        <div class="kunena-subhead-stats">Themen &amp; Beiträge</div>
-                        <div class="kunena-subhead-last">Letzter Beitrag</div>
+                        <div><?= htmlspecialchars($tr('forum.index.col_category_board', 'Kategorie / Forum')) ?></div>
+                        <div class="kunena-subhead-stats"><?= htmlspecialchars($tr('forum.index.col_topics_posts', 'Themen & Beiträge')) ?></div>
+                        <div class="kunena-subhead-last"><?= htmlspecialchars($tr('forum.index.col_last_post', 'Letzter Beitrag')) ?></div>
                     </div>
 
                     <!-- Boards Rows -->
                     <div class="kunena-board-list">
                         <?php if (empty($boards)): ?>
                             <div style="padding:1rem 1.5rem; font-size:13px; color:#64748b; font-style:italic;">
-                                In dieser Kategorie wurden noch keine Foren angelegt.
+                                <?= htmlspecialchars($tr('forum.index.no_boards_in_cat', 'In dieser Kategorie wurden noch keine Foren angelegt.')) ?>
                             </div>
                         <?php else: ?>
                             <?php foreach ($boards as $board): ?>
@@ -84,10 +87,10 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                                                 </a>
                                                 <?php if (!$canReadBoard): ?>
                                                     <span class="kunena-badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-size:11px; padding:2px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; font-weight:700;">
-                                                        <span class="material-icons" style="font-size:12px;">lock</span> Nur für Mitglieder
+                                                        <span class="material-icons" style="font-size:12px;">lock</span> <?= htmlspecialchars($tr('forum.index.members_only_badge', 'Nur für Mitglieder')) ?>
                                                     </span>
                                                 <?php elseif (!empty($board['is_locked'])): ?>
-                                                    <span class="material-icons kunena-lock-icon" title="Forum geschlossen">lock</span>
+                                                    <span class="material-icons kunena-lock-icon" title="<?= htmlspecialchars($tr('forum.board.closed', 'Forum geschlossen')) ?>">lock</span>
                                                 <?php endif; ?>
                                             </div>
                                             <?php if (!empty($board['description'])): ?>
@@ -102,11 +105,11 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                                     <div class="kunena-board-stats">
                                         <div class="kunena-stat-item">
                                             <span class="kunena-stat-num"><?= $topicCount ?></span>
-                                            <span class="kunena-stat-lbl"><?= $topicCount === 1 ? 'Thema' : 'Themen' ?></span>
+                                            <span class="kunena-stat-lbl"><?= htmlspecialchars($topicCount === 1 ? $tr('forum.topic_singular', 'Thema') : $tr('forum.topic_plural', 'Themen')) ?></span>
                                         </div>
                                         <div class="kunena-stat-item">
                                             <span class="kunena-stat-num"><?= $postCount ?></span>
-                                            <span class="kunena-stat-lbl"><?= $postCount === 1 ? 'Beitrag' : 'Beiträge' ?></span>
+                                            <span class="kunena-stat-lbl"><?= htmlspecialchars($postCount === 1 ? $tr('forum.post_singular', 'Beitrag') : $tr('forum.post_plural', 'Beiträge')) ?></span>
                                         </div>
                                     </div>
 
@@ -115,7 +118,7 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                                         <?php if (!$canReadBoard): ?>
                                             <div class="kunena-no-post" style="color: #64748b; font-size: 12px; display: flex; align-items: center; gap: 6px;">
                                                 <span class="material-icons" style="font-size: 16px; color:#d97706;">lock</span>
-                                                <span>Inhalte geschützt &bull; <a href="?page=forum&view=login" style="color:var(--primary); font-weight:700;">Anmelden</a></span>
+                                                <span><?= htmlspecialchars($tr('forum.index.protected_content', 'Inhalte geschützt • Anmelden')) ?></span>
                                             </div>
                                         <?php elseif ($latestTopic): ?>
                                             <?php 
@@ -137,7 +140,7 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                                                         </a>
                                                     </div>
                                                     <div class="kunena-lastpost-meta">
-                                                        von <span style="color: <?= $roleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
+                                                        <?= htmlspecialchars($tr('forum.by_author', 'von')) ?> <span style="color: <?= $roleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
                                                         • <span title="<?= htmlspecialchars($latestTopic['last_post_at']) ?>"><?= $relTime ?></span>
                                                     </div>
                                                 </div>
@@ -160,7 +163,7 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                                         <?php else: ?>
                                             <div class="kunena-no-post">
                                                 <span class="material-icons" style="font-size: 16px;">schedule</span>
-                                                <span>Noch keine Beiträge</span>
+                                                <span><?= htmlspecialchars($tr('forum.index.no_posts', 'Noch keine Beiträge')) ?></span>
                                             </div>
                                         <?php endif; ?>
                                     </div>
@@ -182,19 +185,19 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
             <div class="kunena-widget-header">
                 <div class="kunena-widget-header-title">
                     <span class="material-icons" style="font-size: 20px; color: #475569;">group</span>
-                    <span>Wer ist online &amp; Mitglieder</span>
+                    <span><?= htmlspecialchars($tr('forum.index.who_is_online', 'Wer ist online & Mitglieder')) ?></span>
                 </div>
             </div>
             <div class="kunena-widget-body">
                 <div>
-                    Aktuell sind <strong><?= $onlineStats['member_count'] ?> Mitglied<?= $onlineStats['member_count'] === 1 ? '' : 'er' ?></strong> und <strong><?= $onlineStats['guest_count'] ?> Gäste</strong> online (Gesamt: <?= $onlineStats['total_online'] ?>).
+                    <?= htmlspecialchars($tr('forum.index.online_summary', 'Aktuell sind {members} Mitglieder und {guests} Gäste online', ['members' => (string)$onlineStats['member_count'], 'guests' => (string)$onlineStats['guest_count']])) ?>
                 </div>
                 <?php if ($currentUser && !empty($onlineStats['members'])): ?>
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px;">
-                        <span style="font-weight:600; color:#64748b;">Anwesende Mitglieder:</span>
+                        <span style="font-weight:600; color:#64748b;"><?= htmlspecialchars($tr('forum.index.online_members_label', 'Anwesende Mitglieder:')) ?></span>
                         <?php foreach ($onlineStats['members'] as $m): ?>
                             <?php if (!empty($m['id'])): ?>
-                                <a href="?page=forum&view=user&id=<?= urlencode($m['id']) ?>" style="display:inline-flex; align-items:center; gap:5px; font-weight:700; padding:2px 8px; border-radius:6px; background:<?= $m['color'] ?>15; color:<?= $m['color'] ?>; border:1px solid <?= $m['color'] ?>35; text-decoration:none;" title="Mitgliederprofil ansehen">
+                                <a href="?page=forum&view=user&id=<?= urlencode($m['id']) ?>" style="display:inline-flex; align-items:center; gap:5px; font-weight:700; padding:2px 8px; border-radius:6px; background:<?= $m['color'] ?>15; color:<?= $m['color'] ?>; border:1px solid <?= $m['color'] ?>35; text-decoration:none;" title="<?= htmlspecialchars($tr('forum.topic.view_profile', 'Mitgliederprofil ansehen')) ?>">
                                     <span class="kunena-legend-dot" style="background-color: <?= $m['color'] ?>;"></span>
                                     <?= htmlspecialchars($m['username']) ?>
                                 </a>
@@ -209,24 +212,24 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                 <?php elseif (!$currentUser): ?>
                     <div style="margin-top:8px; font-size:11.5px; color:#64748b; font-style:italic;">
                         <span class="material-icons" style="font-size:13px; vertical-align:middle;">lock</span>
-                        Benutzerdetails und anwesende Mitglieder sind nur für angemeldete Mitglieder sichtbar.
+                        <?= htmlspecialchars($tr('forum.topic.profile_members_only', 'Profil nur für Mitglieder')) ?>
                     </div>
                 <?php endif; ?>
 
                 <!-- Role Legend -->
                 <div class="kunena-legend-row">
-                    <span style="font-weight:700; color:#64748b;">Rollen-Legende:</span>
+                    <span style="font-weight:700; color:#64748b;"><?= htmlspecialchars($tr('forum.index.role_legend', 'Rollen-Legende:')) ?></span>
                     <span class="kunena-legend-item" style="color: #dc2626;">
-                        <span class="kunena-legend-dot" style="background-color: #dc2626;"></span> Site Administrator
+                        <span class="kunena-legend-dot" style="background-color: #dc2626;"></span> <?= htmlspecialchars($tr('forum.role_admin', 'Site Administrator')) ?>
                     </span>
                     <span class="kunena-legend-item" style="color: #2563eb;">
-                        <span class="kunena-legend-dot" style="background-color: #2563eb;"></span> Moderator
+                        <span class="kunena-legend-dot" style="background-color: #2563eb;"></span> <?= htmlspecialchars($tr('forum.role_moderator', 'Moderator')) ?>
                     </span>
                     <span class="kunena-legend-item" style="color: #475569;">
-                        <span class="kunena-legend-dot" style="background-color: #475569;"></span> Mitglied
+                        <span class="kunena-legend-dot" style="background-color: #475569;"></span> <?= htmlspecialchars($tr('forum.role_member', 'Mitglied')) ?>
                     </span>
                     <span class="kunena-legend-item" style="color: #94a3b8; font-weight:600;">
-                        <span class="kunena-legend-dot" style="background-color: #94a3b8;"></span> Gast
+                        <span class="kunena-legend-dot" style="background-color: #94a3b8;"></span> <?= htmlspecialchars($tr('forum.role_guest', 'Gast')) ?>
                     </span>
                 </div>
             </div>
@@ -237,7 +240,7 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
             <div class="kunena-widget-header">
                 <div class="kunena-widget-header-title">
                     <span class="material-icons" style="font-size: 20px; color: #2563eb;">bar_chart</span>
-                    <span>Foren-Statistiken</span>
+                    <span><?= htmlspecialchars($tr('forum.index.stats_title', 'Foren-Statistiken')) ?></span>
                 </div>
             </div>
             <div class="kunena-widget-body">
@@ -245,19 +248,19 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                     <!-- Column 1 -->
                     <div class="kunena-stats-col">
                         <div class="kunena-stats-row">
-                            <span class="kunena-stats-label">Beiträge gesamt:</span>
+                            <span class="kunena-stats-label"><?= htmlspecialchars($tr('forum.index.total_posts', 'Beiträge gesamt:')) ?></span>
                             <span class="kunena-stats-val"><?= $globalStats['total_posts'] ?></span>
                         </div>
                         <div class="kunena-stats-row">
-                            <span class="kunena-stats-label">Foren-Bereiche:</span>
+                            <span class="kunena-stats-label"><?= htmlspecialchars($tr('forum.index.total_boards', 'Foren-Bereiche:')) ?></span>
                             <span class="kunena-stats-val"><?= $globalStats['total_boards'] ?></span>
                         </div>
                         <div class="kunena-stats-row">
-                            <span class="kunena-stats-label">Themen heute:</span>
+                            <span class="kunena-stats-label"><?= htmlspecialchars($tr('forum.index.topics_today', 'Themen heute:')) ?></span>
                             <span class="kunena-stats-val"><?= $globalStats['topics_today'] ?></span>
                         </div>
                         <div class="kunena-stats-row">
-                            <span class="kunena-stats-label">Antworten heute:</span>
+                            <span class="kunena-stats-label"><?= htmlspecialchars($tr('forum.index.posts_today', 'Antworten heute:')) ?></span>
                             <span class="kunena-stats-val"><?= $globalStats['posts_today'] ?></span>
                         </div>
                     </div>
@@ -265,19 +268,19 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                     <!-- Column 2 -->
                     <div class="kunena-stats-col">
                         <div class="kunena-stats-row">
-                            <span class="kunena-stats-label">Themen gesamt:</span>
+                            <span class="kunena-stats-label"><?= htmlspecialchars($tr('forum.index.total_topics', 'Themen gesamt:')) ?></span>
                             <span class="kunena-stats-val"><?= $globalStats['total_topics'] ?></span>
                         </div>
                         <div class="kunena-stats-row">
-                            <span class="kunena-stats-label">Haupt-Kategorien:</span>
+                            <span class="kunena-stats-label"><?= htmlspecialchars($tr('forum.index.total_categories', 'Haupt-Kategorien:')) ?></span>
                             <span class="kunena-stats-val"><?= $globalStats['total_categories'] ?></span>
                         </div>
                         <div class="kunena-stats-row">
-                            <span class="kunena-stats-label">Themen gestern:</span>
+                            <span class="kunena-stats-label"><?= htmlspecialchars($tr('forum.index.topics_yesterday', 'Themen gestern:')) ?></span>
                             <span class="kunena-stats-val"><?= $globalStats['topics_yesterday'] ?></span>
                         </div>
                         <div class="kunena-stats-row">
-                            <span class="kunena-stats-label">Antworten gestern:</span>
+                            <span class="kunena-stats-label"><?= htmlspecialchars($tr('forum.index.posts_yesterday', 'Antworten gestern:')) ?></span>
                             <span class="kunena-stats-val"><?= $globalStats['posts_yesterday'] ?></span>
                         </div>
                     </div>
@@ -285,12 +288,12 @@ $onlineStats = class_exists('ForumUserManager') ? ForumUserManager::getOnlineUse
                     <!-- Column 3 -->
                     <div class="kunena-stats-col">
                         <div class="kunena-stats-row">
-                            <span class="kunena-stats-label">Registrierte Mitglieder:</span>
+                            <span class="kunena-stats-label"><?= htmlspecialchars($tr('forum.index.total_members', 'Registrierte Mitglieder:')) ?></span>
                             <span class="kunena-stats-val"><?= $globalStats['total_members'] ?></span>
                         </div>
                         <?php if ($currentUser): ?>
                             <div class="kunena-stats-row">
-                                <span class="kunena-stats-label">Neuestes Mitglied:</span>
+                                <span class="kunena-stats-label"><?= htmlspecialchars($tr('forum.index.newest_member', 'Neuestes Mitglied:')) ?></span>
                                 <span class="kunena-stats-val" style="color: var(--primary, #2e6248);"><?= htmlspecialchars($globalStats['latest_member']) ?></span>
                             </div>
                         <?php endif; ?>

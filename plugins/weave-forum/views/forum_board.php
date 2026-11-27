@@ -9,8 +9,12 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
 $boardId = trim($_GET['id'] ?? '');
 $board = ForumManager::getBoard($boardId);
 
+$tr = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+    ? __($key, $default, null, $params)
+    : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
+
 if (!$board) {
-    echo '<div style="background:#fee2e2; border:1px solid #f87171; color:#991b1b; padding:1.5rem; border-radius:12px; text-align:center;">Das gewünschte Forum wurde nicht gefunden.</div>';
+    echo '<div style="background:#fee2e2; border:1px solid #f87171; color:#991b1b; padding:1.5rem; border-radius:12px; text-align:center;">' . htmlspecialchars($tr('forum.board.not_found', 'Das gewünschte Forum wurde nicht gefunden.')) . '</div>';
     return;
 }
 
@@ -24,17 +28,17 @@ if (!$canReadBoard) {
             <span class="material-icons" style="font-size: 34px;">lock</span>
         </div>
         <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin-bottom: 8px;">
-            Registrierung erforderlich
+            <?= htmlspecialchars($tr('forum.board.reg_required_title', 'Registrierung erforderlich')) ?>
         </h2>
         <p style="font-size: 14px; color: #64748b; line-height: 1.6; max-width: 520px; margin: 0 auto 24px auto;">
-            Der Bereich <strong>&bdquo;<?= htmlspecialchars($board['title']) ?>&ldquo;</strong> ist nur für registrierte und angemeldete Mitglieder unserer Community zugänglich. Bitte melde dich an oder erstelle ein kostenloses Konto, um alle Themen und Diskussionen lesen zu können.
+            <?= htmlspecialchars($tr('forum.index.protected_content', 'Inhalte geschützt • Anmelden')) ?> (<strong><?= htmlspecialchars($board['title']) ?></strong>)
         </p>
         <div style="display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;">
             <a href="?page=forum&view=login" class="kunena-btn-primary" style="padding: 10px 22px; font-size: 14px; display:inline-flex; align-items:center; gap:6px;">
-                <span class="material-icons" style="font-size: 18px;">login</span> Jetzt anmelden
+                <span class="material-icons" style="font-size: 18px;">login</span> <?= htmlspecialchars($tr('forum.board.login_now', 'Jetzt anmelden')) ?>
             </a>
             <a href="?page=forum&view=register" class="kunena-btn-secondary" style="padding: 10px 22px; font-size: 14px; display:inline-flex; align-items:center; gap:6px;">
-                <span class="material-icons" style="font-size: 18px;">person_add</span> Kostenlos registrieren
+                <span class="material-icons" style="font-size: 18px;">person_add</span> <?= htmlspecialchars($tr('forum.board.register_free', 'Kostenlos registrieren')) ?>
             </a>
         </div>
     </div>
@@ -61,7 +65,7 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
                         <?= htmlspecialchars($board['title']) ?>
                     </h2>
                     <span class="kunena-cat-badge">
-                        <?= $totalTopics ?> <?= $totalTopics === 1 ? 'Thema' : 'Themen' ?>
+                        <?= $totalTopics ?> <?= htmlspecialchars($totalTopics === 1 ? $tr('forum.topic_singular', 'Thema') : $tr('forum.topic_plural', 'Themen')) ?>
                     </span>
                 </div>
                 <?php if (!empty($board['description'])): ?>
@@ -74,15 +78,15 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
             <div>
                 <?php if ($canCreateTopic && empty($board['is_locked'])): ?>
                     <a href="?page=forum&view=new_topic&board=<?= urlencode($board['id']) ?>" class="kunena-btn-primary" style="padding: 8px 16px; font-size: 13px;">
-                        <span class="material-icons" style="font-size: 18px;">edit</span> Neues Thema erstellen
+                        <span class="material-icons" style="font-size: 18px;">edit</span> <?= htmlspecialchars($tr('forum.board.new_topic', 'Neues Thema erstellen')) ?>
                     </a>
                 <?php elseif (!empty($board['is_locked'])): ?>
                     <span class="kunena-badge kunena-badge-locked" style="padding: 6px 12px; font-size: 12px;">
-                        <span class="material-icons" style="font-size: 16px;">lock</span> Forum geschlossen
+                        <span class="material-icons" style="font-size: 16px;">lock</span> <?= htmlspecialchars($tr('forum.board.closed', 'Forum geschlossen')) ?>
                     </span>
                 <?php else: ?>
                     <a href="?page=forum&view=login" class="kunena-btn-secondary">
-                        Anmelden zum Schreiben
+                        <?= htmlspecialchars($tr('forum.board.login_to_post', 'Anmelden zum Schreiben')) ?>
                     </a>
                 <?php endif; ?>
             </div>
@@ -94,17 +98,17 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
         <!-- Pagination Buttons -->
         <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
             <?php if ($totalPages > 1): ?>
-                <a href="?page=forum&view=board&id=<?= urlencode($boardId) ?>&p=1" class="kunena-page-btn <?= $page === 1 ? 'disabled' : '' ?>">Start</a>
-                <a href="?page=forum&view=board&id=<?= urlencode($boardId) ?>&p=<?= max(1, $page - 1) ?>" class="kunena-page-btn <?= $page === 1 ? 'disabled' : '' ?>">Zurück</a>
+                <a href="?page=forum&view=board&id=<?= urlencode($boardId) ?>&p=1" class="kunena-page-btn <?= $page === 1 ? 'disabled' : '' ?>"><?= htmlspecialchars($tr('forum.pagination.start', 'Start')) ?></a>
+                <a href="?page=forum&view=board&id=<?= urlencode($boardId) ?>&p=<?= max(1, $page - 1) ?>" class="kunena-page-btn <?= $page === 1 ? 'disabled' : '' ?>"><?= htmlspecialchars($tr('forum.pagination.prev', 'Zurück')) ?></a>
                 <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
                     <a href="?page=forum&view=board&id=<?= urlencode($boardId) ?>&p=<?= $i ?>" class="kunena-page-btn <?= $i === $page ? 'active' : '' ?>">
                         <?= $i ?>
                     </a>
                 <?php endfor; ?>
-                <a href="?page=forum&view=board&id=<?= urlencode($boardId) ?>&p=<?= min($totalPages, $page + 1) ?>" class="kunena-page-btn <?= $page === $totalPages ? 'disabled' : '' ?>">Weiter</a>
-                <a href="?page=forum&view=board&id=<?= urlencode($boardId) ?>&p=<?= $totalPages ?>" class="kunena-page-btn <?= $page === $totalPages ? 'disabled' : '' ?>">Ende</a>
+                <a href="?page=forum&view=board&id=<?= urlencode($boardId) ?>&p=<?= min($totalPages, $page + 1) ?>" class="kunena-page-btn <?= $page === $totalPages ? 'disabled' : '' ?>"><?= htmlspecialchars($tr('forum.pagination.next', 'Weiter')) ?></a>
+                <a href="?page=forum&view=board&id=<?= urlencode($boardId) ?>&p=<?= $totalPages ?>" class="kunena-page-btn <?= $page === $totalPages ? 'disabled' : '' ?>"><?= htmlspecialchars($tr('forum.pagination.end', 'Ende')) ?></a>
             <?php else: ?>
-                <span style="font-size:12px; color:#64748b; font-weight:600;">Seite 1 von 1 (<?= $totalTopics ?> Themen)</span>
+                <span style="font-size:12px; color:#64748b; font-weight:600;"><?= htmlspecialchars($tr('forum.pagination.page_of', 'Seite {page} von {total}', ['page' => '1', 'total' => '1'])) ?> (<?= $totalTopics ?> <?= htmlspecialchars($tr('forum.topic_plural', 'Themen')) ?>)</span>
             <?php endif; ?>
         </div>
 
@@ -114,7 +118,7 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
                 <input type="hidden" name="page" value="forum">
                 <input type="hidden" name="view" value="search">
                 <input type="hidden" name="board" value="<?= htmlspecialchars($boardId) ?>">
-                <input type="text" name="q" placeholder="In diesem Forum suchen..." 
+                <input type="text" name="q" placeholder="<?= htmlspecialchars($tr('forum.board.search_in_board', 'In diesem Forum suchen...')) ?>" 
                        style="font-size:12px; padding:6px 32px 6px 12px; border-radius:8px; border:1px solid #cbd5e1; width:220px; outline:none;">
                 <button type="submit" style="position:absolute; right:8px; top:6px; background:none; border:none; color:#64748b; cursor:pointer;">
                     <span class="material-icons" style="font-size:16px;">search</span>
@@ -128,14 +132,14 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
         <!-- Table Header -->
         <div class="kunena-subhead">
             <div style="display:flex; align-items:center; gap:6px;">
-                <span>Thema</span>
+                <span><?= htmlspecialchars($tr('forum.topic_singular', 'Thema')) ?></span>
                 <span class="material-icons" style="font-size: 14px; opacity:0.6;">arrow_downward</span>
             </div>
             <div class="kunena-subhead-stats">
-                Antworten / Aufrufe
+                <?= htmlspecialchars($tr('forum.board.col_replies_views', 'Antworten / Aufrufe')) ?>
             </div>
             <div class="kunena-subhead-last">
-                Letzter Beitrag
+                <?= htmlspecialchars($tr('forum.index.col_last_post', 'Letzter Beitrag')) ?>
             </div>
         </div>
 
@@ -143,7 +147,7 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
         <div class="kunena-board-list">
             <?php if (empty($topics)): ?>
                 <div style="padding:2.5rem; text-align:center; color:#64748b; font-style:italic; font-size:13px;">
-                    In diesem Forum wurden noch keine Themen eröffnet. Sei der Erste!
+                    <?= htmlspecialchars($tr('forum.board.empty', 'In diesem Forum wurden noch keine Themen eröffnet. Sei der Erste!')) ?>
                 </div>
             <?php else: ?>
                 <?php foreach ($topics as $t): ?>
@@ -180,15 +184,15 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
                             <div class="kunena-board-info">
                                 <div class="kunena-board-title-line">
                                     <?php if (!empty($t['is_pinned'])): ?>
-                                        <span class="kunena-badge kunena-badge-pinned">Angepinnt</span>
+                                        <span class="kunena-badge kunena-badge-pinned"><?= htmlspecialchars($tr('forum.badge.pinned', 'Angepinnt')) ?></span>
                                     <?php endif; ?>
                                     <?php if (!empty($t['is_solved'])): ?>
                                         <span class="kunena-badge kunena-badge-solved">
-                                            <span class="material-icons" style="font-size:11px;">check</span> Gelöst
+                                            <span class="material-icons" style="font-size:11px;">check</span> <?= htmlspecialchars($tr('forum.badge.solved', 'Gelöst')) ?>
                                         </span>
                                     <?php endif; ?>
                                     <?php if (!empty($t['is_locked'])): ?>
-                                        <span class="kunena-badge kunena-badge-locked">Geschlossen</span>
+                                        <span class="kunena-badge kunena-badge-locked"><?= htmlspecialchars($tr('forum.badge.closed', 'Geschlossen')) ?></span>
                                     <?php endif; ?>
                                     <a href="?page=forum&view=topic&id=<?= urlencode($t['id']) ?>" class="kunena-board-title">
                                         <?= htmlspecialchars($t['title']) ?>
@@ -196,10 +200,9 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
                                 </div>
                                 <div class="kunena-board-desc" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                                     <?php if ($currentUser): ?>
-                                        <span>Erstellt <?= htmlspecialchars($relCreated) ?> von</span>
-                                        <span style="color: <?= $authorRoleColor ?>; font-weight:700;"><?= htmlspecialchars($authorDisplayName) ?></span>
+                                        <span><?= htmlspecialchars($tr('forum.created_by_at', 'Erstellt von {author} am {date}', ['author' => $authorDisplayName, 'date' => $relCreated])) ?></span>
                                     <?php else: ?>
-                                        <span>Erstellt <?= htmlspecialchars($relCreated) ?></span>
+                                        <span><?= htmlspecialchars($tr('forum.created_at', 'Erstellt am {date}', ['date' => $relCreated])) ?></span>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -209,11 +212,11 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
                         <div class="kunena-board-stats">
                             <div class="kunena-stat-item">
                                 <span class="kunena-stat-num"><?= $replyCount ?></span>
-                                <span class="kunena-stat-lbl">Antworten</span>
+                                <span class="kunena-stat-lbl"><?= htmlspecialchars($replyCount === 1 ? $tr('forum.reply_singular', 'Antwort') : $tr('forum.reply_plural', 'Antworten')) ?></span>
                             </div>
                             <div class="kunena-stat-item">
                                 <span class="kunena-stat-num"><?= $views ?></span>
-                                <span class="kunena-stat-lbl">Aufrufe</span>
+                                <span class="kunena-stat-lbl"><?= htmlspecialchars($tr('forum.views_label', 'Aufrufe')) ?></span>
                             </div>
                         </div>
 
@@ -225,7 +228,7 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
                                 </div>
                                 <div class="kunena-lastpost-info">
                                     <div style="font-size: 11.5px; color: #475569;">
-                                        Letzter Beitrag von <span style="color: <?= $lastPostRoleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
+                                        <?= htmlspecialchars($tr('forum.last_post_by', 'Letzter Beitrag von')) ?> <span style="color: <?= $lastPostRoleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
                                     </div>
                                     <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
                                         <?= htmlspecialchars($relLastPost) ?>
@@ -237,7 +240,7 @@ $canCreateTopic = class_exists('ForumUserManager') ? ForumUserManager::userCan('
                                 </div>
                                 <div class="kunena-lastpost-info">
                                     <div style="font-size: 11.5px; color: #475569; font-weight: 600;">
-                                        Letzte Aktivität
+                                        <?= htmlspecialchars($tr('forum.last_activity', 'Letzte Aktivität')) ?>
                                     </div>
                                     <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
                                         <?= htmlspecialchars($relLastPost) ?>

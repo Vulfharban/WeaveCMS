@@ -20,6 +20,9 @@ if ($currentUser && class_exists('ForumUserManager')) {
 }
 $view = trim($_GET['view'] ?? 'index');
 $cfg = class_exists('PluginManager') ? PluginManager::getPluginConfig('weave-forum', $data ?? []) : [];
+$t = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+    ? __($key, $default, null, $params)
+    : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
 $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
 ?>
 
@@ -35,7 +38,7 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span class="material-icons" style="font-size: 20px;"><?= $annIcon ?></span>
                 <div>
-                    <strong>Foren-Hinweis:</strong> <?= nl2br(htmlspecialchars($cfg['announcement_text'])) ?>
+                    <strong><?= htmlspecialchars($t('forum.notice_prefix', 'Foren-Hinweis:')) ?></strong> <?= nl2br(htmlspecialchars($cfg['announcement_text'])) ?>
                 </div>
             </div>
             <button type="button" style="background:none; border:none; cursor:pointer; opacity:0.7; padding:4px;" onclick="document.getElementById('forum_announcement_bar').style.display='none'; sessionStorage.setItem('forum_announcement_dismissed', '1')">
@@ -90,7 +93,7 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
                     <?php if ($currentUser && class_exists('ForumUserManager') && ForumUserManager::userCan('moderate', $currentUser)): ?>
                         <?php $openReports = ForumManager::getReports('open'); ?>
                         <a href="?page=forum&view=moderation" class="kunena-nav-link <?= $view === 'moderation' ? 'active' : '' ?>" style="color: #d97706;">
-                            <span class="material-icons" style="font-size: 16px;">shield</span> Moderation
+                            <span class="material-icons" style="font-size: 16px;">shield</span> <?= htmlspecialchars($t('forum.nav_moderation', 'Moderation')) ?>
                             <?php if (!empty($openReports)): ?>
                                 <span class="kunena-cat-badge" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; font-size:10px; padding:1px 6px; margin-left:2px;">
                                     <?= count($openReports) ?>
@@ -106,7 +109,7 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
                 <?php if ($currentUser): ?>
                     <?php 
                     $roleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($currentUser['role'] ?? 'forum_user') : '#2563eb';
-                    $roleLabel = class_exists('ForumUserManager') ? ForumUserManager::getRoleLabel($currentUser['role'] ?? 'forum_user') : 'Mitglied';
+                    $roleLabel = class_exists('ForumUserManager') ? ForumUserManager::getRoleLabel($currentUser['role'] ?? 'forum_user') : $t('forum.role_member', 'Mitglied');
                     ?>
                     <a href="?page=forum&view=profile" class="kunena-user-badge">
                         <div class="kunena-avatar-mini">
@@ -115,12 +118,12 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
                         <span style="color: <?= $roleColor ?>;"><?= htmlspecialchars(class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($currentUser) : $currentUser['username']) ?></span>
                         <span style="color: #64748b; font-size: 11px;">(<?= htmlspecialchars($roleLabel) ?>)</span>
                     </a>
-                    <a href="?forum_auth=logout" class="kunena-collapse-btn" title="Abmelden" style="text-decoration:none;">
+                    <a href="?forum_auth=logout" class="kunena-collapse-btn" title="<?= htmlspecialchars($t('forum.logout', 'Abmelden')) ?>" style="text-decoration:none;">
                         <span class="material-icons" style="font-size: 16px;">logout</span>
                     </a>
                 <?php else: ?>
-                    <a href="?page=forum&view=login" class="kunena-btn-secondary">Anmelden</a>
-                    <a href="?page=forum&view=register" class="kunena-btn-primary">Registrieren</a>
+                    <a href="?page=forum&view=login" class="kunena-btn-secondary"><?= htmlspecialchars($t('forum.login', 'Anmelden')) ?></a>
+                    <a href="?page=forum&view=register" class="kunena-btn-primary"><?= htmlspecialchars($t('forum.register', 'Registrieren')) ?></a>
                 <?php endif; ?>
             </div>
         </div>
@@ -128,53 +131,53 @@ $forumTitle = $cfg['forum_title'] ?? 'Community-Diskussionsforum';
         <!-- Breadcrumb Row -->
         <div class="kunena-breadcrumb">
             <a href="?page=forum">
-                <span class="material-icons" style="font-size: 15px;">home</span> Forum
+                <span class="material-icons" style="font-size: 15px;">home</span> <?= htmlspecialchars($t('forum.nav_label', 'Forum')) ?>
             </a>
             <?php if ($view === 'board' && !empty($_GET['id'])): ?>
                 <?php $b = ForumManager::getBoard($_GET['id']); ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($b['title'] ?? 'Forum') ?></span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($b['title'] ?? $t('forum.nav_label', 'Forum')) ?></span>
             <?php elseif ($view === 'topic' && !empty($_GET['id'])): ?>
                 <?php 
-                $t = ForumManager::getTopic($_GET['id']); 
-                $b = $t ? ForumManager::getBoard($t['board_id']) : null;
+                $tObj = ForumManager::getTopic($_GET['id']); 
+                $b = $tObj ? ForumManager::getBoard($tObj['board_id']) : null;
                 ?>
                 <?php if ($b): ?>
                     <span class="kunena-breadcrumb-sep">›</span>
                     <a href="?page=forum&view=board&id=<?= urlencode($b['id']) ?>"><?= htmlspecialchars($b['title']) ?></a>
                 <?php endif; ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t['title'] ?? 'Thema') ?></span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($tObj['title'] ?? $t('forum.topic_singular', 'Thema')) ?></span>
             <?php elseif ($view === 'recent'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current">Aktuelle Themen</span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t('forum.recent_title', 'Aktuelle Themen')) ?></span>
             <?php elseif ($view === 'help'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current">Hilfe & FAQ</span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t('forum.help_title', 'Hilfe & FAQ')) ?></span>
             <?php elseif ($view === 'new_topic'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current">Neues Thema</span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t('forum.new_topic_btn', 'Neues Thema')) ?></span>
             <?php elseif ($view === 'search'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current">Suche</span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t('forum.search_placeholder', 'Suche')) ?></span>
             <?php elseif ($view === 'login'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current">Anmeldung</span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t('forum.breadcrumb_login', 'Anmeldung')) ?></span>
             <?php elseif ($view === 'register'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current">Registrierung</span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t('forum.breadcrumb_register', 'Registrierung')) ?></span>
             <?php elseif ($view === 'profile'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current">Mein Profil</span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t('forum.breadcrumb_my_profile', 'Mein Profil')) ?></span>
             <?php elseif ($view === 'user'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current">Mitgliederprofil</span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t('forum.breadcrumb_member_profile', 'Mitgliederprofil')) ?></span>
             <?php elseif ($view === 'messages'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current">Private Nachrichten</span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t('forum.breadcrumb_messages', 'Private Nachrichten')) ?></span>
             <?php elseif ($view === 'moderation'): ?>
                 <span class="kunena-breadcrumb-sep">›</span>
-                <span class="kunena-breadcrumb-current">Moderationszentrale</span>
+                <span class="kunena-breadcrumb-current"><?= htmlspecialchars($t('forum.breadcrumb_moderation', 'Moderationszentrale')) ?></span>
             <?php endif; ?>
         </div>
     </div>

@@ -9,8 +9,12 @@ if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
 $boardId = trim($_GET['board'] ?? '');
 $board = ForumManager::getBoard($boardId);
 
+$tr = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+    ? __($key, $default, null, $params)
+    : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
+
 if (!$board) {
-    echo '<div style="padding:20px; border-radius:12px; background:#fef2f2; border:1px solid #fecaca; color:#991b1b; text-align:center;">Bitte wähle ein gültiges Forum aus.</div>';
+    echo '<div style="padding:20px; border-radius:12px; background:#fef2f2; border:1px solid #fecaca; color:#991b1b; text-align:center;">' . htmlspecialchars($tr('forum.new_topic.invalid_board', 'Bitte wähle ein gültiges Forum aus.')) . '</div>';
     return;
 }
 
@@ -18,7 +22,7 @@ $currentUser = class_exists('ForumUserManager') ? ForumUserManager::getCurrentUs
 $canCreate = class_exists('ForumUserManager') ? ForumUserManager::userCan('create_topic', $currentUser, $board) : false;
 
 if (!$canCreate || !empty($board['is_locked'])) {
-    echo '<div style="padding:24px; border-radius:12px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; text-align:center;">Du hast keine Berechtigung, in diesem Forum ein neues Thema zu eröffnen.</div>';
+    echo '<div style="padding:24px; border-radius:12px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; text-align:center;">' . htmlspecialchars($tr('forum.new_topic.no_permission', 'Du hast keine Berechtigung, in diesem Forum Themen zu erstellen.')) . '</div>';
     return;
 }
 
@@ -167,19 +171,19 @@ unset($_SESSION['forum_error']);
             <div>
                 <div style="font-size: 12px; color: #64748b; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
                     <span class="material-icons" style="font-size: 15px; color: var(--primary, #2e6248);"><?= htmlspecialchars($board['icon'] ?? 'forum') ?></span>
-                    <span>Forum:</span>
+                    <span><?= htmlspecialchars($tr('forum.new_topic.board_label', 'Forum:')) ?></span>
                     <a href="?page=forum&view=board&id=<?= urlencode($board['id']) ?>" style="color: var(--primary, #2e6248); font-weight: 700; text-decoration: none;">
                         <?= htmlspecialchars($board['title']) ?>
                     </a>
                 </div>
                 <h2 style="margin: 0; font-size: 1.45rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px;">
                     <span class="material-icons" style="color: var(--primary, #2e6248); font-size: 26px;">add_comment</span>
-                    <span>Neues Thema eröffnen</span>
+                    <span><?= htmlspecialchars($tr('forum.new_topic.heading', 'Neues Thema eröffnen')) ?></span>
                 </h2>
             </div>
 
             <a href="?page=forum&view=board&id=<?= urlencode($board['id']) ?>" class="kunena-btn-secondary" style="padding: 7px 14px;">
-                <span class="material-icons" style="font-size: 16px;">arrow_back</span> Zurück zum Forum
+                <span class="material-icons" style="font-size: 16px;">arrow_back</span> <?= htmlspecialchars($tr('forum.new_topic.back_to_board', 'Zurück zum Forum')) ?>
             </a>
         </div>
 
@@ -198,67 +202,67 @@ unset($_SESSION['forum_error']);
 
                 <!-- Title Field -->
                 <div class="kunena-nt-field">
-                    <label class="kunena-nt-label" for="nt_title_input">Thementitel / Betreff:</label>
+                    <label class="kunena-nt-label" for="nt_title_input"><?= htmlspecialchars($tr('forum.new_topic.title_label', 'Thementitel / Betreff:')) ?></label>
                     <input type="text" id="nt_title_input" name="title" required autofocus minlength="3" maxlength="140"
-                           class="kunena-nt-input" placeholder="Prägnanter, aussagekräftiger Titel für dein Anliegen...">
+                           class="kunena-nt-input">
                 </div>
 
                 <!-- Content Editor Field -->
                 <div class="kunena-nt-field" style="margin-bottom: 14px;">
-                    <label class="kunena-nt-label" for="new_topic_textarea">Dein Beitrag (Eröffnungspost):</label>
+                    <label class="kunena-nt-label" for="new_topic_textarea"><?= htmlspecialchars($tr('forum.new_topic.content_label', 'Dein Beitrag (Eröffnungspost):')) ?></label>
 
                     <!-- Editor Toolbar & Write/Preview Tabs -->
                     <div class="kunena-editor-bar">
                         <div class="kunena-md-tools">
-                            <button type="button" class="kunena-md-btn" title="Überschrift (## Überschrift)" onclick="insertTopicMarkdown('## ', '', 'Überschrift')">
+                            <button type="button" class="kunena-md-btn" title="<?= htmlspecialchars($tr('forum.editor.heading', 'Überschrift')) ?>" onclick="insertTopicMarkdown('## ', '', <?= htmlspecialchars(json_encode($tr('forum.editor.heading', 'Überschrift')), ENT_QUOTES) ?>)">
                                 <strong style="font-size: 13.5px; font-weight: 800; line-height: 1; min-width: 14px; text-align: center;">H</strong>
                             </button>
-                            <button type="button" class="kunena-md-btn" title="Fett (**Text**)" onclick="insertTopicMarkdown('**', '**', 'Fetter Text')">
+                            <button type="button" class="kunena-md-btn" title="<?= htmlspecialchars($tr('forum.editor.bold', 'Fett')) ?>" onclick="insertTopicMarkdown('**', '**', <?= htmlspecialchars(json_encode($tr('forum.editor.bold', 'Fett')), ENT_QUOTES) ?>)">
                                 <span class="material-icons" style="font-size: 16px;">format_bold</span>
                             </button>
-                            <button type="button" class="kunena-md-btn" title="Kursiv (*Text*)" onclick="insertTopicMarkdown('*', '*', 'Kursiver Text')">
+                            <button type="button" class="kunena-md-btn" title="<?= htmlspecialchars($tr('forum.editor.italic', 'Kursiv')) ?>" onclick="insertTopicMarkdown('*', '*', <?= htmlspecialchars(json_encode($tr('forum.editor.italic', 'Kursiv')), ENT_QUOTES) ?>)">
                                 <span class="material-icons" style="font-size: 16px;">format_italic</span>
                             </button>
-                            <button type="button" class="kunena-md-btn" title="Aufzählung (- Punkt)" onclick="insertTopicList('ul')">
+                            <button type="button" class="kunena-md-btn" title="<?= htmlspecialchars($tr('forum.editor.list_ul', 'Aufzählung')) ?>" onclick="insertTopicList('ul')">
                                 <span class="material-icons" style="font-size: 16px;">format_list_bulleted</span>
                             </button>
-                            <button type="button" class="kunena-md-btn" title="Nummerierte Liste (1. Punkt)" onclick="insertTopicList('ol')">
+                            <button type="button" class="kunena-md-btn" title="<?= htmlspecialchars($tr('forum.editor.list_ol', 'Nummerierte Liste')) ?>" onclick="insertTopicList('ol')">
                                 <span class="material-icons" style="font-size: 16px;">format_list_numbered</span>
                             </button>
-                            <button type="button" class="kunena-md-btn" title="Zitat einfügen" onclick="insertTopicMarkdown('> ', '', 'Zitattext')">
-                                <span class="material-icons" style="font-size: 16px;">format_quote</span> Zitat
+                            <button type="button" class="kunena-md-btn" title="<?= htmlspecialchars($tr('forum.editor.quote', 'Zitat')) ?>" onclick="insertTopicMarkdown('> ', '', <?= htmlspecialchars(json_encode($tr('forum.editor.quote', 'Zitat')), ENT_QUOTES) ?>)">
+                                <span class="material-icons" style="font-size: 16px;">format_quote</span> <?= htmlspecialchars($tr('forum.editor.quote', 'Zitat')) ?>
                             </button>
-                            <button type="button" class="kunena-md-btn" title="Inline-Code (`code`)" onclick="insertTopicMarkdown('`', '`', 'code')">
-                                <span class="material-icons" style="font-size: 16px;">code</span> Inline
+                            <button type="button" class="kunena-md-btn" title="<?= htmlspecialchars($tr('forum.editor.inline_code', 'Inline')) ?>" onclick="insertTopicMarkdown('`', '`', 'code')">
+                                <span class="material-icons" style="font-size: 16px;">code</span> <?= htmlspecialchars($tr('forum.editor.inline_code', 'Inline')) ?>
                             </button>
-                            <button type="button" class="kunena-md-btn" title="Mehrzeiliger Code-Block" onclick="insertTopicMarkdown('```php\n', '\n```', '// Dein Code hier')">
-                                <span class="material-icons" style="font-size: 16px;">terminal</span> Code-Block
+                            <button type="button" class="kunena-md-btn" title="<?= htmlspecialchars($tr('forum.editor.code_block', 'Code-Block')) ?>" onclick="insertTopicMarkdown('```php\n', '\n```', '// code')">
+                                <span class="material-icons" style="font-size: 16px;">terminal</span> <?= htmlspecialchars($tr('forum.editor.code_block', 'Code-Block')) ?>
                             </button>
-                            <button type="button" class="kunena-md-btn" title="Link einfügen" onclick="insertTopicMarkdown('[', '](https://)', 'Linkbeschreibung')">
-                                <span class="material-icons" style="font-size: 16px;">link</span> Link
+                            <button type="button" class="kunena-md-btn" title="<?= htmlspecialchars($tr('forum.editor.link', 'Link')) ?>" onclick="insertTopicMarkdown('[', '](https://)', 'Link')">
+                                <span class="material-icons" style="font-size: 16px;">link</span> <?= htmlspecialchars($tr('forum.editor.link', 'Link')) ?>
                             </button>
                         </div>
 
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <button type="button" id="tab_nt_write" class="kunena-btn-primary" style="cursor: pointer; padding: 5px 12px; font-size: 12px;"
                                     onclick="switchEditorTab('write', 'new_topic_textarea', 'new_topic_preview_box', 'tab_nt_write', 'tab_nt_preview')">
-                                <span class="material-icons" style="font-size: 14px;">edit</span> Schreiben
+                                <span class="material-icons" style="font-size: 14px;">edit</span> <?= htmlspecialchars($tr('forum.editor.write', 'Schreiben')) ?>
                             </button>
                             <button type="button" id="tab_nt_preview" class="kunena-btn-secondary" style="cursor: pointer; padding: 5px 12px; font-size: 12px;"
                                     onclick="switchEditorTab('preview', 'new_topic_textarea', 'new_topic_preview_box', 'tab_nt_write', 'tab_nt_preview')">
-                                <span class="material-icons" style="font-size: 14px;">visibility</span> Vorschau
+                                <span class="material-icons" style="font-size: 14px;">visibility</span> <?= htmlspecialchars($tr('forum.editor.preview', 'Vorschau')) ?>
                             </button>
                         </div>
                     </div>
 
                     <textarea id="new_topic_textarea" name="content" rows="11" required class="kunena-nt-textarea" 
-                              placeholder="Beschreibe deine Frage, Idee oder dein Projekt ausführlich... (Markdown, Links, Zitate und Code-Blöcke werden unterstützt)"></textarea>
+                              placeholder="<?= htmlspecialchars($tr('forum.new_topic.content_placeholder', 'Beschreibe deine Frage, Idee oder dein Projekt ausführlich...')) ?>"></textarea>
                     <div id="new_topic_preview_box" class="kunena-nt-preview forum-post-content"></div>
                 </div>
 
                 <div style="font-size: 12px; color: #64748b; margin-bottom: 18px; display: flex; align-items: center; gap: 6px;">
                     <span class="material-icons" style="font-size: 15px; color: var(--primary, #2e6248);">tips_and_updates</span>
-                    <span>Tipp: Nutze die Formatierungsleiste oben für <strong>## Überschrift</strong>, <strong>**Fett**</strong>, <em>*Kursiv*</em>, Zitate oder <code>```Code-Blöcke```</code> und prüfe deinen Beitrag vorab über <strong>Vorschau</strong>.</span>
+                    <span><?= htmlspecialchars($tr('forum.new_topic.tip', 'Tipp: Nutze die Formatierungsleiste oben für Überschriften, Fett, Kursiv, Zitate oder Code-Blöcke und prüfe deinen Beitrag vorab über Vorschau.')) ?></span>
                 </div>
 
                 <!-- Optionaler Forum-Umfrage-Builder (Phase 35) -->
@@ -267,10 +271,10 @@ unset($_SESSION['forum_error']);
                 <!-- Footer Buttons -->
                 <div class="kunena-nt-footer">
                     <a href="?page=forum&view=board&id=<?= urlencode($board['id']) ?>" class="kunena-btn-secondary" style="padding: 10px 18px; font-size: 13.5px;">
-                        Abbrechen
+                        <?= htmlspecialchars($tr('forum.cancel', 'Abbrechen')) ?>
                     </a>
                     <button type="submit" class="kunena-btn-primary" style="padding: 11px 26px; font-size: 14px; cursor: pointer;">
-                        <span class="material-icons" style="font-size: 18px;">send</span> Thema veröffentlichen
+                        <span class="material-icons" style="font-size: 18px;">send</span> <?= htmlspecialchars($tr('forum.new_topic.publish_btn', 'Thema veröffentlichen')) ?>
                     </button>
                 </div>
             </form>
@@ -346,7 +350,7 @@ function insertTopicList(listType) {
 
 function renderMarkdownPreview(raw, targetEl) {
     if (!raw.trim()) {
-        targetEl.innerHTML = '<span style="color:#64748b; font-style:italic;">Keine Vorschau verfügbar (noch nichts geschrieben)...</span>';
+        targetEl.innerHTML = '<span style="color:#64748b; font-style:italic;">' + <?= json_encode($tr('forum.editor.no_preview', 'Keine Vorschau verfügbar (noch nichts geschrieben)...')) ?> + '</span>';
         return;
     }
 

@@ -27,9 +27,13 @@ $cmsContainerWidth = $designSettings['container_width'] ?? '1200px';
 $cmsFontScale = $designSettings['font_scale'] ?? '100%';
 $cmsCardRadius = $designSettings['card_radius'] ?? '16px';
 $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
+$t = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+    ? __($key, $default, null, $params)
+    : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
+$htmlLang = function_exists('getCurrentLang') ? (string)getCurrentLang() : 'de';
 ?>
 <!DOCTYPE html>
-<html lang="de"<?= ($cmsThemeMode === 'dark') ? ' data-theme="dark"' : '' ?>>
+<html lang="<?= htmlspecialchars($htmlLang, ENT_QUOTES, 'UTF-8') ?>"<?= ($cmsThemeMode === 'dark') ? ' data-theme="dark"' : '' ?>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -83,19 +87,19 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
         </a>
 
         <div class="wg-header-nav">
-            <a href="./" class="wg-nav-link">🌐 Zurück zur Website</a>
+            <a href="./" class="wg-nav-link">🌐 <?= htmlspecialchars($t('games.back_to_site', 'Zurück zur Website')) ?></a>
             
             <?php if ($player): ?>
                 <div class="wg-user-badge">
                     <span>👤</span>
                     <strong><?= htmlspecialchars($player['nickname'] ?? $player['username']) ?></strong>
                     <span class="wg-role-tag"><?= htmlspecialchars($player['role']) ?></span>
-                    <a href="?page=games&action=logout" class="wg-logout-btn" title="Abmelden">🚪</a>
+                    <a href="?page=games&action=logout" class="wg-logout-btn" title="<?= htmlspecialchars($t('games.logout', 'Abmelden')) ?>">🚪</a>
                 </div>
             <?php else: ?>
-                <a href="?page=games&mode=login" class="wg-btn wg-btn-outline"><?= htmlspecialchars(function_exists('__') ? __('nav.login', 'Anmelden') : 'Anmelden') ?></a>
+                <a href="?page=games&mode=login" class="wg-btn wg-btn-outline"><?= htmlspecialchars($t('games.login_btn', 'Anmelden')) ?></a>
                 <?php if (!empty($cfg['allow_self_registration'])): ?>
-                    <a href="?page=games&mode=register" class="wg-btn wg-btn-primary"><?= htmlspecialchars(function_exists('__') ? __('games.register_title', 'Registrieren') : 'Registrieren') ?></a>
+                    <a href="?page=games&mode=register" class="wg-btn wg-btn-primary"><?= htmlspecialchars($t('games.register_title', 'Registrieren')) ?></a>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
@@ -107,7 +111,7 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
     <div class="wg-modal-overlay">
         <div class="wg-modal-card">
             <div class="wg-modal-header">
-                <h3><?= ($mode === 'login') ? '🔐 Spieler-Login' : '✨ Neuer Spieler-Account' ?></h3>
+                <h3><?= ($mode === 'login') ? '🔐 ' . htmlspecialchars($t('games.player_login', 'Spieler-Login')) : '✨ ' . htmlspecialchars($t('games.new_account', 'Neuer Spieler-Account')) ?></h3>
                 <a href="?page=games" class="wg-close-btn">&times;</a>
             </div>
 
@@ -119,39 +123,39 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
                 <form method="POST" action="?page=games&action=login" class="wg-form">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                     <div class="wg-form-group">
-                        <label>Benutzername oder E-Mail</label>
-                        <input type="text" name="username" required autofocus placeholder="Dein Spielername">
+                        <label><?= htmlspecialchars($t('games.username_or_email', 'Benutzername oder E-Mail')) ?></label>
+                        <input type="text" name="username" required autofocus>
                     </div>
                     <div class="wg-form-group">
-                        <label>Passwort</label>
+                        <label><?= htmlspecialchars($t('games.password', 'Passwort')) ?></label>
                         <input type="password" name="password" required placeholder="••••••••">
                     </div>
-                    <button type="submit" class="wg-btn wg-btn-primary wg-btn-full">Einloggen</button>
+                    <button type="submit" class="wg-btn wg-btn-primary wg-btn-full"><?= htmlspecialchars($t('games.login_btn', 'Einloggen')) ?></button>
                     <?php if (!empty($cfg['allow_self_registration'])): ?>
-                        <div class="wg-auth-switch">Noch kein Account? <a href="?page=games&mode=register">Jetzt registrieren</a></div>
+                        <div class="wg-auth-switch"><?= htmlspecialchars($t('games.no_account', 'Noch kein Account?')) ?> <a href="?page=games&mode=register"><?= htmlspecialchars($t('games.register_now', 'Jetzt registrieren')) ?></a></div>
                     <?php endif; ?>
                 </form>
             <?php else: ?>
                 <form method="POST" action="?page=games&action=register" class="wg-form">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                     <div class="wg-form-group">
-                        <label>Benutzername *</label>
-                        <input type="text" name="username" required autofocus placeholder="z. B. VoxelHero">
+                        <label><?= htmlspecialchars($t('games.username', 'Benutzername')) ?> *</label>
+                        <input type="text" name="username" required autofocus>
                     </div>
                     <div class="wg-form-group">
-                        <label>In-Game Nickname</label>
-                        <input type="text" name="nickname" placeholder="Dein Anzeigename im Spiel">
+                        <label><?= htmlspecialchars($t('games.ingame_nickname', 'In-Game Nickname')) ?></label>
+                        <input type="text" name="nickname">
                     </div>
                     <div class="wg-form-group">
-                        <label>E-Mail-Adresse *</label>
-                        <input type="email" name="email" required placeholder="spieler@example.com">
+                        <label><?= htmlspecialchars($t('games.email', 'E-Mail')) ?> *</label>
+                        <input type="email" name="email" required>
                     </div>
                     <div class="wg-form-group">
-                        <label>Passwort * (mind. 6 Zeichen)</label>
+                        <label><?= htmlspecialchars($t('games.password_min', 'Passwort (min. 6 Zeichen)')) ?> *</label>
                         <input type="password" name="password" required minlength="6" placeholder="••••••••">
                     </div>
-                    <button type="submit" class="wg-btn wg-btn-primary wg-btn-full">Account erstellen</button>
-                    <div class="wg-auth-switch">Bereits registriert? <a href="?page=games&mode=login">Zum Login</a></div>
+                    <button type="submit" class="wg-btn wg-btn-primary wg-btn-full"><?= htmlspecialchars($t('games.create_account', 'Account erstellen')) ?></button>
+                    <div class="wg-auth-switch"><?= htmlspecialchars($t('games.already_registered', 'Bereits registriert?')) ?> <a href="?page=games&mode=login"><?= htmlspecialchars($t('games.login_btn', 'Einloggen')) ?></a></div>
                 </form>
             <?php endif; ?>
         </div>
@@ -175,14 +179,14 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
         <section class="wg-player-panel">
             <div class="wg-player-panel-inner">
                 <div>
-                    <h3 style="margin: 0; color: var(--wg-primary);">🎮 Angemeldet als: <?= htmlspecialchars($player['nickname']) ?></h3>
+                    <h3 style="margin: 0; color: var(--wg-primary);">🎮 <?= htmlspecialchars($t('games.logged_in_as', 'Angemeldet als:')) ?> <?= htmlspecialchars($player['nickname']) ?></h3>
                     <p style="margin: 4px 0 0 0; color: var(--wg-text-muted); font-size: 13px;">
-                        Verwende diesen Token in deinem Game-Client (Game Launcher / Config) für automatisches Login:
+                        <?= htmlspecialchars($t('games.auth_token_hint', 'Verwende diesen Auth-Token im Client oder für Multiplayer-Login:')) ?>
                     </p>
                 </div>
                 <div class="wg-token-box">
                     <code id="wgPlayerToken"><?= htmlspecialchars($player['auth_token']) ?></code>
-                    <button type="button" class="wg-btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('wgPlayerToken').innerText); alert('Token kopiert!');">Kopieren</button>
+                    <button type="button" class="wg-btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('wgPlayerToken').innerText); alert(<?= htmlspecialchars(json_encode($t('games.token_copied', 'Token kopiert!')), ENT_QUOTES) ?>);"><?= htmlspecialchars($t('games.copy_btn', 'Kopieren')) ?></button>
                 </div>
             </div>
         </section>
@@ -240,13 +244,13 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
 
                         <?php if (!empty($g['system_requirements'])): ?>
                             <div style="font-size: 12px; color: var(--wg-text-muted); margin-bottom: 12px;">
-                                <strong>Systemanforderungen:</strong> <?= htmlspecialchars((string)$g['system_requirements']) ?>
+                                <strong><?= htmlspecialchars($t('games.system_requirements', 'Systemanforderungen:')) ?></strong> <?= htmlspecialchars((string)$g['system_requirements']) ?>
                             </div>
                         <?php endif; ?>
 
                         <?php if ($latestRel): ?>
                             <div class="wg-release-info">
-                                <strong>Neueste Client-Version:</strong>
+                                <strong><?= htmlspecialchars($t('games.latest_client_version', 'Neueste Client-Version:')) ?></strong>
                                 <span class="wg-version-pill">v<?= htmlspecialchars((string)$latestRel['version']) ?></span>
                                 <?php if (!empty($latestRel['file_size'])): ?>
                                     <span class="wg-file-size">(<?= htmlspecialchars((string)$latestRel['file_size']) ?>)</span>
@@ -254,11 +258,11 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
                             </div>
                             <div class="wg-game-actions">
                                 <a href="<?= htmlspecialchars((string)$latestRel['download_url']) ?>" class="wg-btn wg-btn-primary wg-btn-large">
-                                    ⬇️ Client herunterladen (<?= htmlspecialchars((string)$latestRel['version']) ?>)
+                                    ⬇️ <?= htmlspecialchars($t('games.download_client', 'Client herunterladen')) ?> (<?= htmlspecialchars((string)$latestRel['version']) ?>)
                                 </a>
                                 <?php if (!empty($latestRel['patch_notes'])): ?>
                                     <button type="button" class="wg-btn wg-btn-outline" onclick="alert(<?= htmlspecialchars(json_encode((string)$latestRel['patch_notes']), ENT_QUOTES) ?>)">
-                                        📋 Patch-Notes
+                                        📋 <?= htmlspecialchars($t('games.patch_notes', 'Patch-Notes')) ?>
                                     </button>
                                 <?php endif; ?>
                             </div>
@@ -267,7 +271,7 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
 
                     <?php if (!empty($gameServers) && !empty($cfg['enable_public_server_status'])): ?>
                         <div class="wg-server-box">
-                            <h4 style="margin: 0 0 10px 0; color: var(--wg-text); font-size: 14px;">📡 Live Server-Status</h4>
+                            <h4 style="margin: 0 0 10px 0; color: var(--wg-text); font-size: 14px;">📡 <?= htmlspecialchars($t('games.live_server_status', 'Live Server-Status')) ?></h4>
                             <?php foreach ($gameServers as $fs):
                                 $isOnline = (($fs['status'] ?? '') === 'online');
                             ?>
@@ -278,7 +282,7 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
                                     </div>
                                     <div class="wg-server-meta">
                                         <code><?= htmlspecialchars((string)$fs['host']) ?>:<?= (int)$fs['port'] ?></code>
-                                        <span class="wg-ping-badge"><?= $isOnline ? ($fs['last_ping_ms'] . ' ms') : 'Offline' ?></span>
+                                        <span class="wg-ping-badge"><?= $isOnline ? ($fs['last_ping_ms'] . ' ms') : htmlspecialchars($t('games.offline', 'Offline')) ?></span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -291,14 +295,14 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
                     <div style="margin-top: 16px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap;">
                             <span style="font-size: 12px; color: var(--wg-text-muted);">
-                                Direkt im Browser ausführbar (<?= htmlspecialchars($rtInfo['label']) ?><?= !empty($g['enable_coop_coep']) ? ' • COOP/COEP Multi-Thread' : '' ?>)
+                                <?= htmlspecialchars($t('games.playable_in_browser', 'Direkt im Browser ausführbar')) ?> (<?= htmlspecialchars($rtInfo['label']) ?><?= !empty($g['enable_coop_coep']) ? ' • COOP/COEP Multi-Thread' : '' ?>)
                             </span>
                             <div style="display: flex; gap: 8px;">
                                 <button type="button" class="wg-btn wg-btn-primary" onclick="var f=document.getElementById('<?= $frameId ?>'); f.src=<?= htmlspecialchars(json_encode($runnerUrl), ENT_QUOTES) ?>; f.style.display='block';">
-                                    ▶ Jetzt starten / Neu laden
+                                    ▶ <?= htmlspecialchars($t('games.start_reload', 'Jetzt starten / Neu laden')) ?>
                                 </button>
                                 <button type="button" class="wg-btn wg-btn-outline" onclick="var f=document.getElementById('<?= $frameId ?>'); if(f && f.requestFullscreen) f.requestFullscreen();">
-                                    ⛶ Vollbild
+                                    ⛶ <?= htmlspecialchars($t('games.fullscreen', 'Vollbild')) ?>
                                 </button>
                                 <a href="<?= htmlspecialchars($runnerUrl) ?>" target="_blank" rel="noopener noreferrer" class="wg-btn wg-btn-outline">↗ Tab</a>
                             </div>
@@ -335,7 +339,7 @@ $cmsThemeMode = $cmsData['settings']['theme_mode'] ?? 'light';
 
 <footer class="wg-footer">
     <div class="wg-container">
-        <p>&copy; <?= date('Y') ?> Weave Games &bull; Angetrieben von WeaveCMS</p>
+        <p>&copy; <?= date('Y') ?> Weave Games &bull; <?= htmlspecialchars($t('games.powered_by', 'Angetrieben von WeaveCMS')) ?></p>
     </div>
 </footer>
 

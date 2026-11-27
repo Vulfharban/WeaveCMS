@@ -30,6 +30,9 @@ if ($query !== '') {
 }
 
 $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoard) : null;
+$tr = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+    ? __($key, $default, null, $params)
+    : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
 ?>
 
 <div class="kunena-search-container" style="max-width: 100%;">
@@ -39,16 +42,12 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
             <div class="kunena-cat-title-group">
                 <span class="material-icons kunena-cat-icon" style="color: var(--primary);">search</span>
                 <h2 class="kunena-cat-title" style="font-size: 1.35rem;">
-                    Erweiterte Forensuche
+                    <?= htmlspecialchars($tr('forum.search.heading', 'Erweiterte Forensuche')) ?>
                 </h2>
             </div>
         </div>
 
         <div style="padding: 24px; background: #ffffff;">
-            <p style="font-size: 13px; color: #64748b; margin: 0 0 20px 0; line-height: 1.5;">
-                Durchsuche alle Themen, Beiträge und Diskussionen der Community nach Begriffen, oder grenze deine Suche gezielt auf bestimmte Bereiche ein.
-            </p>
-
             <form method="get" action="" style="display: flex; flex-direction: column; gap: 18px;">
                 <input type="hidden" name="page" value="forum">
                 <input type="hidden" name="view" value="search">
@@ -58,14 +57,14 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                     <!-- Keyword Input -->
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">
-                            Suchbegriff(e):
+                            <?= htmlspecialchars($tr('forum.search.query_label', 'Suchbegriff(e):')) ?>
                         </label>
                         <div style="position: relative;">
                             <span class="material-icons" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #94a3b8;">
                                 search
                             </span>
                             <input type="text" name="q" value="<?= htmlspecialchars($query) ?>" required minlength="2"
-                                   placeholder="z. B. Weide, Flechten, Werkzeug, Schnittzeit..."
+                                   placeholder="<?= htmlspecialchars($tr('forum.search_placeholder', 'Forum durchsuchen...')) ?>"
                                    style="width: 100%; box-sizing: border-box; padding: 10px 14px 10px 38px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff; color: #0f172a; outline: none; transition: border-color 0.2s;"
                                    onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#cbd5e1'" autofocus>
                         </div>
@@ -74,7 +73,7 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                     <!-- Board Dropdown -->
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">
-                            Bereich / Unterforum eingrenzen:
+                            <?= htmlspecialchars($tr('forum.search.board_label', 'Bereich / Unterforum eingrenzen:')) ?>
                         </label>
                         <div style="position: relative;">
                             <span class="material-icons" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #94a3b8;">
@@ -83,7 +82,7 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                             <select name="board" 
                                     style="width: 100%; box-sizing: border-box; padding: 10px 14px 10px 38px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff; color: #0f172a; outline: none; transition: border-color 0.2s; cursor: pointer;"
                                     onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#cbd5e1'">
-                                <option value="">🌐 Alle Foren und Bereiche durchsuchen</option>
+                                <option value="">🌐 <?= htmlspecialchars($tr('forum.search.all_boards', 'Alle Foren und Bereiche durchsuchen')) ?></option>
                                 <?php foreach ($categories as $cat): ?>
                                     <?php 
                                     $catBoards = array_filter($allowedBoards, fn($b) => ($b['category_id'] ?? '') === $cat['id']);
@@ -107,16 +106,16 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                     <!-- Scope (Wo suchen?) -->
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">
-                            Suchbereich:
+                            <?= htmlspecialchars($tr('forum.search.scope_label', 'Suchbereich:')) ?>
                         </label>
                         <div style="display: flex; gap: 14px; align-items: center; margin-top: 6px;">
                             <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #334155; cursor: pointer;">
                                 <input type="radio" name="scope" value="all" <?= $scope !== 'titles' ? 'checked' : '' ?> style="cursor: pointer;">
-                                <span>In Beiträgen &amp; Titeln</span>
+                                <span><?= htmlspecialchars($tr('forum.search.scope_both', 'In Beiträgen & Titeln')) ?></span>
                             </label>
                             <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #334155; cursor: pointer;">
                                 <input type="radio" name="scope" value="titles" <?= $scope === 'titles' ? 'checked' : '' ?> style="cursor: pointer;">
-                                <span>Nur in Thementiteln</span>
+                                <span><?= htmlspecialchars($tr('forum.search.scope_title', 'Nur in Thementiteln')) ?></span>
                             </label>
                         </div>
                     </div>
@@ -124,14 +123,14 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                     <!-- Sortierung -->
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">
-                            Ergebnisse sortieren nach:
+                            <?= htmlspecialchars($tr('forum.search.sort_label', 'Ergebnisse sortieren nach:')) ?>
                         </label>
                         <select name="sort" 
                                 style="width: 100%; box-sizing: border-box; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff; color: #0f172a; outline: none; cursor: pointer;">
-                            <option value="latest" <?= $sortBy === 'latest' ? 'selected' : '' ?>>Neueste Aktivität (Zuletzt geantwortet)</option>
-                            <option value="created" <?= $sortBy === 'created' ? 'selected' : '' ?>>Erstelldatum des Themas</option>
-                            <option value="replies" <?= $sortBy === 'replies' ? 'selected' : '' ?>>Meiste Antworten</option>
-                            <option value="views" <?= $sortBy === 'views' ? 'selected' : '' ?>>Meiste Aufrufe</option>
+                            <option value="latest" <?= $sortBy === 'latest' ? 'selected' : '' ?>><?= htmlspecialchars($tr('forum.last_activity', 'Letzte Aktivität')) ?></option>
+                            <option value="created" <?= $sortBy === 'created' ? 'selected' : '' ?>><?= htmlspecialchars($tr('forum.created_at', 'Erstellt am {date}', ['date' => ''])) ?></option>
+                            <option value="replies" <?= $sortBy === 'replies' ? 'selected' : '' ?>><?= htmlspecialchars($tr('forum.reply_plural', 'Antworten')) ?></option>
+                            <option value="views" <?= $sortBy === 'views' ? 'selected' : '' ?>><?= htmlspecialchars($tr('forum.views_label', 'Aufrufe')) ?></option>
                         </select>
                     </div>
                 </div>
@@ -140,17 +139,17 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                 <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 16px; margin-top: 4px; flex-wrap: wrap; gap: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <button type="submit" class="kunena-btn-primary" style="padding: 10px 22px; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                            <span class="material-icons" style="font-size: 18px;">search</span> Suche starten
+                            <span class="material-icons" style="font-size: 18px;">search</span> <?= htmlspecialchars($tr('forum.search.start_btn', 'Suche starten')) ?>
                         </button>
                         <?php if ($query !== '' || $selectedBoard !== ''): ?>
                             <a href="?page=forum&view=search" class="kunena-btn-secondary" style="padding: 10px 18px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
-                                <span class="material-icons" style="font-size: 16px;">clear</span> Filter zurücksetzen
+                                <span class="material-icons" style="font-size: 16px;">clear</span> <?= htmlspecialchars($tr('forum.search.reset_btn', 'Filter zurücksetzen')) ?>
                             </a>
                         <?php endif; ?>
                     </div>
 
                     <a href="?page=forum" style="font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-                        <span class="material-icons" style="font-size: 16px;">arrow_back</span> Zurück zur Forenübersicht
+                        <span class="material-icons" style="font-size: 16px;">arrow_back</span> <?= htmlspecialchars($tr('forum.search.back_to_index', 'Zurück zur Forenübersicht')) ?>
                     </a>
                 </div>
             </form>
@@ -165,17 +164,17 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="material-icons" style="font-size: 16px; color: var(--primary);">playlist_add_check</span>
                     <span>
-                        Suchergebnisse für &bdquo;<strong><?= htmlspecialchars($query) ?></strong>&ldquo;
+                        <?= htmlspecialchars($tr('forum.search.results_for', 'Suchergebnisse für')) ?> &bdquo;<strong><?= htmlspecialchars($query) ?></strong>&ldquo;
                         <?php if ($selectedBoardObj): ?>
-                            im Bereich &bdquo;<em><?= htmlspecialchars($selectedBoardObj['title']) ?></em>&ldquo;
+                            (<em><?= htmlspecialchars($selectedBoardObj['title']) ?></em>)
                         <?php endif; ?>
                     </span>
                     <span class="kunena-cat-badge" style="background: #e0f2fe; color: #0369a1; margin-left: 6px;">
-                        <?= $results['count'] ?> <?= $results['count'] === 1 ? 'Treffer' : 'Treffer' ?>
+                        <?= htmlspecialchars($tr('forum.search.hits', '{count} Treffer', ['count' => (string)$results['count']])) ?>
                     </span>
                 </div>
-                <div class="kunena-subhead-stats">Antworten</div>
-                <div class="kunena-subhead-last">Letzter Beitrag</div>
+                <div class="kunena-subhead-stats"><?= htmlspecialchars($tr('forum.reply_plural', 'Antworten')) ?></div>
+                <div class="kunena-subhead-last"><?= htmlspecialchars($tr('forum.index.col_last_post', 'Letzter Beitrag')) ?></div>
             </div>
 
             <!-- Results List -->
@@ -186,22 +185,16 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                             <span class="material-icons" style="font-size: 32px;">search_off</span>
                         </div>
                         <h3 style="font-size: 1.15rem; font-weight: 700; color: #1e293b; margin-bottom: 6px;">
-                            Keine passenden Themen oder Beiträge gefunden
+                            <?= htmlspecialchars($tr('forum.search.no_results', 'Keine passenden Themen oder Beiträge gefunden')) ?>
                         </h3>
-                        <p style="font-size: 13px; max-width: 480px; margin: 0 auto 16px auto; line-height: 1.5;">
-                            Für deine Suchanfrage &bdquo;<strong><?= htmlspecialchars($query) ?></strong>&ldquo; wurden keine Treffer ermittelt.
-                            <?php if ($selectedBoardObj): ?>
-                                Eventuell befindet sich das gesuchte Thema in einem anderen Forenbereich?
-                            <?php endif; ?>
-                        </p>
-                        <div style="display: flex; justify-content: center; gap: 10px;">
+                        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 14px;">
                             <?php if ($selectedBoard): ?>
                                 <a href="?page=forum&view=search&q=<?= urlencode($query) ?>" class="kunena-btn-secondary" style="font-size: 12px; padding: 6px 14px;">
-                                    In allen Forenbereichen suchen
+                                    <?= htmlspecialchars($tr('forum.search.all_boards', 'Alle Foren und Bereiche durchsuchen')) ?>
                                 </a>
                             <?php endif; ?>
                             <a href="?page=forum" class="kunena-btn-secondary" style="font-size: 12px; padding: 6px 14px;">
-                                Zurück zur Übersicht
+                                <?= htmlspecialchars($tr('forum.search.back_to_index', 'Zurück zur Forenübersicht')) ?>
                             </a>
                         </div>
                     </div>
@@ -236,17 +229,17 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
 
                                         <?php if (!empty($t['is_solved'])): ?>
                                             <span class="kunena-badge" style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-size:10px; padding:1px 6px;">
-                                                <span class="material-icons" style="font-size:11px; vertical-align:middle;">check_circle</span> Gelöst
+                                                <span class="material-icons" style="font-size:11px; vertical-align:middle;">check_circle</span> <?= htmlspecialchars($tr('forum.badge.solved', 'Gelöst')) ?>
                                             </span>
                                         <?php endif; ?>
                                         <?php if (!empty($t['is_pinned'])): ?>
                                             <span class="kunena-badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-size:10px; padding:1px 6px;">
-                                                <span class="material-icons" style="font-size:11px; vertical-align:middle;">push_pin</span> Angepinnt
+                                                <span class="material-icons" style="font-size:11px; vertical-align:middle;">push_pin</span> <?= htmlspecialchars($tr('forum.badge.pinned', 'Angepinnt')) ?>
                                             </span>
                                         <?php endif; ?>
                                         <?php if (!empty($t['is_locked'])): ?>
                                             <span class="kunena-badge" style="background:#f1f5f9; color:#64748b; font-size:10px; padding:1px 6px;">
-                                                <span class="material-icons" style="font-size:11px; vertical-align:middle;">lock</span> Geschlossen
+                                                <span class="material-icons" style="font-size:11px; vertical-align:middle;">lock</span> <?= htmlspecialchars($tr('forum.badge.closed', 'Geschlossen')) ?>
                                             </span>
                                         <?php endif; ?>
                                     </div>
@@ -267,10 +260,9 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
 
                                     <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">
                                         <?php if ($currentUser): ?>
-                                            Erstellt von <strong style="color: #475569;"><?= htmlspecialchars($authorDisplayName) ?></strong>
-                                            am <?= htmlspecialchars(substr($t['created_at'] ?? '', 0, 10)) ?>
+                                            <?= htmlspecialchars($tr('forum.created_by_at', 'Erstellt von {author} am {date}', ['author' => $authorDisplayName, 'date' => substr($t['created_at'] ?? '', 0, 10)])) ?>
                                         <?php else: ?>
-                                            Erstellt am <?= htmlspecialchars(substr($t['created_at'] ?? '', 0, 10)) ?>
+                                            <?= htmlspecialchars($tr('forum.created_at', 'Erstellt am {date}', ['date' => substr($t['created_at'] ?? '', 0, 10)])) ?>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -280,11 +272,11 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                             <div class="kunena-board-stats">
                                 <div class="kunena-stat-item">
                                     <span class="kunena-stat-num"><?= $replyCount ?></span>
-                                    <span class="kunena-stat-lbl"><?= $replyCount === 1 ? 'Antwort' : 'Antworten' ?></span>
+                                    <span class="kunena-stat-lbl"><?= htmlspecialchars($replyCount === 1 ? $tr('forum.reply_singular', 'Antwort') : $tr('forum.reply_plural', 'Antworten')) ?></span>
                                 </div>
                                 <div class="kunena-stat-item">
                                     <span class="kunena-stat-num"><?= (int)($t['views'] ?? 0) ?></span>
-                                    <span class="kunena-stat-lbl">Aufrufe</span>
+                                    <span class="kunena-stat-lbl"><?= htmlspecialchars($tr('forum.views_label', 'Aufrufe')) ?></span>
                                 </div>
                             </div>
 
@@ -297,11 +289,11 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                                     <div class="kunena-lastpost-info">
                                         <div class="kunena-lastpost-title">
                                             <a href="?page=forum&view=topic&id=<?= urlencode($t['id']) ?>">
-                                                Letzte Antwort
+                                                <?= htmlspecialchars($tr('forum.search.last_reply', 'Letzte Antwort')) ?>
                                             </a>
                                         </div>
                                         <div class="kunena-lastpost-meta">
-                                            von <span style="color: <?= $roleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
+                                            <?= htmlspecialchars($tr('forum.by_author', 'von')) ?> <span style="color: <?= $roleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
                                             • <span title="<?= htmlspecialchars($t['last_post_at'] ?? '') ?>"><?= $relTime ?></span>
                                         </div>
                                     </div>
@@ -312,7 +304,7 @@ $selectedBoardObj = !empty($selectedBoard) ? ForumManager::getBoard($selectedBoa
                                     <div class="kunena-lastpost-info">
                                         <div class="kunena-lastpost-title">
                                             <a href="?page=forum&view=topic&id=<?= urlencode($t['id']) ?>">
-                                                Letzte Antwort
+                                                <?= htmlspecialchars($tr('forum.search.last_reply', 'Letzte Antwort')) ?>
                                             </a>
                                         </div>
                                         <div class="kunena-lastpost-meta">

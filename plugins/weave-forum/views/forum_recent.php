@@ -5,6 +5,9 @@
 if (!defined('WEAVE_VERSION') && !defined('DEFAULT_ADMIN_PASSWORD')) {
     exit;
 }
+$t = static fn(string $key, string $default, array $params = []): string => function_exists('__')
+    ? __($key, $default, null, $params)
+    : str_replace(array_map(static fn($k) => '{' . $k . '}', array_keys($params)), array_values($params), $default);
 
 $currentUser = class_exists('ForumUserManager') ? ForumUserManager::getCurrentUser() : null;
 $rawTopics = ForumManager::getRecentTopics(50);
@@ -23,15 +26,12 @@ foreach ($allBoards as $b) {
             <div class="kunena-cat-title-group">
                 <span class="material-icons kunena-cat-icon" style="color: #3b82f6;">access_time</span>
                 <h2 class="kunena-cat-title" style="font-size: 1.3rem;">
-                    Aktuelle Themen &amp; Diskussionen
+                    <?= htmlspecialchars($t('forum.recent.heading', 'Aktuelle Themen & Diskussionen')) ?>
                 </h2>
                 <span class="kunena-cat-badge" style="background:#dbeafe; color:#1d4ed8;">
-                    <?= count($topics) ?> aktiv
+                    <?= count($topics) ?> <?= htmlspecialchars($t('forum.recent.active_badge', 'aktiv')) ?>
                 </span>
             </div>
-        </div>
-        <div style="padding:12px 22px; font-size:13px; color:#64748b; background:#ffffff;">
-            Hier siehst du die zuletzt aktualisierten und diskutierten Forenthemen im gesamten WeaveCMS-Forum.
         </div>
     </div>
 
@@ -39,48 +39,48 @@ foreach ($allBoards as $b) {
     <div class="kunena-cat-card">
         <div class="kunena-subhead">
             <div style="display:flex; align-items:center; gap:6px;">
-                <span>Thema / Forum</span>
+                <span><?= htmlspecialchars($t('forum.recent.col_topic_board', 'Thema / Forum')) ?></span>
                 <span class="material-icons" style="font-size: 14px; opacity:0.6;">arrow_downward</span>
             </div>
             <div class="kunena-subhead-stats">
-                Antworten / Aufrufe
+                <?= htmlspecialchars($t('forum.board.col_replies_views', 'Antworten / Aufrufe')) ?>
             </div>
             <div class="kunena-subhead-last">
-                Letzter Beitrag
+                <?= htmlspecialchars($t('forum.index.col_last_post', 'Letzter Beitrag')) ?>
             </div>
         </div>
 
         <div class="kunena-board-list">
             <?php if (empty($topics)): ?>
                 <div style="padding:2.5rem; text-align:center; color:#64748b; font-style:italic; font-size:13px;">
-                    Aktuell sind noch keine Themen vorhanden.
+                    <?= htmlspecialchars($t('forum.recent.empty', 'Aktuell sind noch keine Themen vorhanden.')) ?>
                 </div>
             <?php else: ?>
-                <?php foreach ($topics as $t): ?>
+                <?php foreach ($topics as $tp): ?>
                     <?php 
-                    $replyCount = max(0, ForumManager::countPosts($t['id']) - 1);
-                    $views = (int)($t['views'] ?? 0);
-                    $boardTitle = $boardsMap[$t['board_id'] ?? ''] ?? 'Forum';
+                    $replyCount = max(0, ForumManager::countPosts($tp['id']) - 1);
+                    $views = (int)($tp['views'] ?? 0);
+                    $boardTitle = $boardsMap[$tp['board_id'] ?? ''] ?? $t('forum.nav_label', 'Forum');
 
-                    $relCreated = ForumManager::formatRelativeTime($t['created_at']);
-                    $relLastPost = ForumManager::formatRelativeTime($t['last_post_at']);
+                    $relCreated = ForumManager::formatRelativeTime($tp['created_at']);
+                    $relLastPost = ForumManager::formatRelativeTime($tp['last_post_at']);
 
-                    $authorUser = ($currentUser && class_exists('ForumUserManager')) ? (ForumUserManager::getUserById($t['author_id'] ?? '') ?? ForumUserManager::findUser($t['author_name'])) : null;
+                    $authorUser = ($currentUser && class_exists('ForumUserManager')) ? (ForumUserManager::getUserById($tp['author_id'] ?? '') ?? ForumUserManager::findUser($tp['author_name'])) : null;
                     $authorPriv = class_exists('ForumUserManager') ? ForumUserManager::getPrivacySettings($authorUser) : ['show_role' => true];
                     $authorRole = !empty($authorPriv['show_role']) ? ($authorUser['role'] ?? 'forum_user') : 'forum_user';
                     $authorRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($authorRole) : '#2563eb';
-                    $authorDisplayName = class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($authorUser, $t['author_name']) : $t['author_name'];
+                    $authorDisplayName = class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($authorUser, $tp['author_name']) : $tp['author_name'];
 
-                    $lastPostUser = ($currentUser && class_exists('ForumUserManager')) ? ForumUserManager::findUser($t['last_post_user']) : null;
+                    $lastPostUser = ($currentUser && class_exists('ForumUserManager')) ? ForumUserManager::findUser($tp['last_post_user']) : null;
                     $lastPostPriv = class_exists('ForumUserManager') ? ForumUserManager::getPrivacySettings($lastPostUser) : ['show_role' => true];
                     $lastPostRole = !empty($lastPostPriv['show_role']) ? ($lastPostUser['role'] ?? 'forum_user') : 'forum_user';
                     $lastPostRoleColor = class_exists('ForumUserManager') ? ForumUserManager::getRoleColor($lastPostRole) : '#2563eb';
-                    $lastPostDisplayName = class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($lastPostUser, $t['last_post_user']) : $t['last_post_user'];
+                    $lastPostDisplayName = class_exists('ForumUserManager') ? ForumUserManager::getDisplayName($lastPostUser, $tp['last_post_user']) : $tp['last_post_user'];
                     ?>
-                    <div class="kunena-board-row" style="<?= !empty($t['is_pinned']) ? 'background: #fffdf5;' : '' ?>">
+                    <div class="kunena-board-row" style="<?= !empty($tp['is_pinned']) ? 'background: #fffdf5;' : '' ?>">
                         <div class="kunena-board-main">
                             <div style="margin-top: 2px;">
-                                <?php if (!empty($t['is_pinned'])): ?>
+                                <?php if (!empty($tp['is_pinned'])): ?>
                                     <span class="material-icons" style="color: #f59e0b; font-size: 20px;">push_pin</span>
                                 <?php else: ?>
                                     <span class="material-icons" style="color: #94a3b8; font-size: 20px;">article</span>
@@ -88,23 +88,23 @@ foreach ($allBoards as $b) {
                             </div>
                             <div class="kunena-board-info">
                                 <div class="kunena-board-title-line">
-                                    <?php if (!empty($t['is_pinned'])): ?>
-                                        <span class="kunena-badge kunena-badge-pinned">Angepinnt</span>
+                                    <?php if (!empty($tp['is_pinned'])): ?>
+                                        <span class="kunena-badge kunena-badge-pinned"><?= htmlspecialchars($t('forum.badge.pinned', 'Angepinnt')) ?></span>
                                     <?php endif; ?>
-                                    <?php if (!empty($t['is_solved'])): ?>
+                                    <?php if (!empty($tp['is_solved'])): ?>
                                         <span class="kunena-badge kunena-badge-solved">
-                                            <span class="material-icons" style="font-size:11px;">check</span> Gelöst
+                                            <span class="material-icons" style="font-size:11px;">check</span> <?= htmlspecialchars($t('forum.badge.solved', 'Gelöst')) ?>
                                         </span>
                                     <?php endif; ?>
-                                    <a href="?page=forum&view=topic&id=<?= urlencode($t['id']) ?>" class="kunena-board-title">
-                                        <?= htmlspecialchars($t['title']) ?>
+                                    <a href="?page=forum&view=topic&id=<?= urlencode($tp['id']) ?>" class="kunena-board-title">
+                                        <?= htmlspecialchars($tp['title']) ?>
                                     </a>
                                 </div>
                                 <div class="kunena-board-desc" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                    <span>In <a href="?page=forum&view=board&id=<?= urlencode($t['board_id'] ?? '') ?>" style="color:var(--primary, #2e6248); font-weight:700; text-decoration:none;"><?= htmlspecialchars($boardTitle) ?></a></span>
+                                    <span><a href="?page=forum&view=board&id=<?= urlencode($tp['board_id'] ?? '') ?>" style="color:var(--primary, #2e6248); font-weight:700; text-decoration:none;"><?= htmlspecialchars($boardTitle) ?></a></span>
                                     <?php if ($currentUser): ?>
                                         <span>•</span>
-                                        <span>von <span style="color: <?= $authorRoleColor ?>; font-weight:700;"><?= htmlspecialchars($authorDisplayName) ?></span></span>
+                                        <span><?= htmlspecialchars($t('forum.by_author', 'von')) ?> <span style="color: <?= $authorRoleColor ?>; font-weight:700;"><?= htmlspecialchars($authorDisplayName) ?></span></span>
                                     <?php endif; ?>
                                     <span>•</span>
                                     <span><?= htmlspecialchars($relCreated) ?></span>
@@ -115,11 +115,11 @@ foreach ($allBoards as $b) {
                         <div class="kunena-board-stats">
                             <div class="kunena-stat-item">
                                 <span class="kunena-stat-num"><?= $replyCount ?></span>
-                                <span class="kunena-stat-lbl">Antworten</span>
+                                <span class="kunena-stat-lbl"><?= htmlspecialchars($replyCount === 1 ? $t('forum.reply_singular', 'Antwort') : $t('forum.reply_plural', 'Antworten')) ?></span>
                             </div>
                             <div class="kunena-stat-item">
                                 <span class="kunena-stat-num"><?= $views ?></span>
-                                <span class="kunena-stat-lbl">Aufrufe</span>
+                                <span class="kunena-stat-lbl"><?= htmlspecialchars($t('forum.views_label', 'Aufrufe')) ?></span>
                             </div>
                         </div>
 
@@ -130,7 +130,7 @@ foreach ($allBoards as $b) {
                                 </div>
                                 <div class="kunena-lastpost-info">
                                     <div style="font-size: 11.5px; color: #475569;">
-                                        Letzter von <span style="color: <?= $lastPostRoleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
+                                        <?= htmlspecialchars($t('forum.recent.last_by', 'Letzter von')) ?> <span style="color: <?= $lastPostRoleColor ?>; font-weight: 700;"><?= htmlspecialchars($lastPostDisplayName) ?></span>
                                     </div>
                                     <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
                                         <?= htmlspecialchars($relLastPost) ?>
@@ -142,7 +142,7 @@ foreach ($allBoards as $b) {
                                 </div>
                                 <div class="kunena-lastpost-info">
                                     <div style="font-size: 11.5px; color: #475569; font-weight: 600;">
-                                        Letzte Aktivität
+                                        <?= htmlspecialchars($t('forum.last_activity', 'Letzte Aktivität')) ?>
                                     </div>
                                     <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
                                         <?= htmlspecialchars($relLastPost) ?>
